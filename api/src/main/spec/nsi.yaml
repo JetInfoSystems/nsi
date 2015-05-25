@@ -1,0 +1,503 @@
+swagger: "2.0"
+info:
+  description: |
+    НСИ
+  version: "1.0.0"
+  title: NSI API
+basePath: /v1
+schemes:
+  - http
+paths:
+  /nsi/meta/dict/list:
+    post:
+      tags:
+        - meta
+      summary:  ""
+      description: "Get a list of RefObjects dictionaries"
+      operationId: metaDictList
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+              data: 
+                type: array
+                items:
+                  $ref: "#/definitions/MetaDictRef"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+  /nsi/meta/dict/get:
+    post:
+      tags:
+        - meta
+      summary:  ""
+      description: "Get a dictionary"
+      operationId: metaDictGet
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+              name:
+                description: "Name of the dictionary"
+                type: string
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+              data: 
+                $ref: "#/definitions/MetaDict"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+  /nsi/dict/count:
+    post:
+      tags:
+        - dict
+      summary:  "Count of dictionary rows"
+      description: ""
+      operationId: dictCount
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              parent:
+                description: "Value of parent attr"
+                $ref: "#/definitions/RowAttr"
+              owner:
+                description: "Value of owner attr"
+                $ref: "#/definitions/RowAttr"
+              filters:
+                type: array
+                description: "Filters conditions"
+                items:
+                  $ref: "#/definitions/BoolExp"
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              count: 
+                type: integer
+                description: "Count of records"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+  /nsi/dict/list:
+    post:
+      tags:
+        - dict
+      summary:  "List of dictionary rows objects"
+      description: ""
+      operationId: dictList
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              objectType:
+                description: "Type of object: ref | table"
+                type: string
+              offset: 
+                type: integer
+                description: "Смещение относительно начала выборки"
+              size: 
+                type: integer
+                description: "Число запрашиваемых объектов"
+              parent:
+                description: "Value of parent attr"
+                $ref: "#/definitions/RowAttr"
+              owner:
+                description: "Value of owner attr"
+                $ref: "#/definitions/RowAttr"
+              filter:
+                type: array
+                description: "Filters conditions"
+                items:
+                  $ref: "#/definitions/BoolExp"
+              sort:
+                type: array
+                description: "Sort conditions"
+                items:
+                  $ref: "#/definitions/SortExp"
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              data: 
+                type: array
+                items:
+                  $ref: "#/definitions/Row"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+  /nsi/dict/get:
+    post:
+      tags:
+        - dict
+      summary:  "Get one row of dictionary"
+      description: ""
+      operationId: dictGet
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              id:
+                description: "Value of id attr"
+                $ref: "#/definitions/RowAttr"
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              data: 
+                $ref: "#/definitions/Row"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+  /nsi/dict/save:
+    post:
+      tags:
+        - dict
+      summary:  "Save one row of dictionary"
+      description: ""
+      operationId: dictGet
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              data: 
+                $ref: "#/definitions/Row"
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              data: 
+                $ref: "#/definitions/Row"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+  /nsi/dict/delete:
+    post:
+      tags:
+        - dict
+      summary:  "Set delete mark"
+      description: ""
+      operationId: dictDelete
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: body
+          name: body
+          description: ""
+          required: true
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              id:
+                description: "Value of id attr"
+                $ref: "#/definitions/RowAttr"
+              value:
+                type: boolean
+              data: 
+                $ref: "#/definitions/Row"
+      responses:
+        200:
+          description: ""
+          schema:
+            properties:
+              requestId:
+                type: string
+                format: guid
+                description: "Request identifier"
+              data: 
+                $ref: "#/definitions/Row"
+        500:
+          description: ""
+          schema:
+            $ref: "#/definitions/Result"
+
+definitions:
+  MetaDictRef:
+    description: "Dictionary metadata RefObject"
+    properties:
+      name:
+        description: "Uniq name of dictionary"
+        type: string
+      caption:
+        description: "Caption of dictionary in UI"
+        type: string
+      ownerDict:
+        description: "Referense to owner dictionary"
+        type: string
+
+  MetaDict:
+    description: "Dictionary metadata"
+    properties:
+      name:
+        description: "Uniq name of dictionary"
+        type: string
+      caption:
+        description: "Caption of dictionary in UI"
+        type: string
+      table:
+        description: "Name of table"
+        type: string
+      fields:
+        description: "List of table fields"
+        type: array
+        items:
+          $ref: "#/definitions/MetaField"
+      attrs:
+        description: "List of dictionary attributes"
+        type: array
+        items:
+          $ref: "#/definitions/MetaAttr"
+      idAttr:
+        description: "Referense to id attribute"
+        type: string
+      parentAttr:
+        description: "Referense to parent attribute"
+        type: string
+      groupAttr:
+        description: "Referense to group attribute"
+        type: string
+      ownerDict:
+        description: "Referense to owner dictionary"
+        type: string
+      ownerAttr:
+        description: "Referense to owner attribute"
+        type: string
+      deleteMarkAttr:
+        description: "Referense to delete mark attribute"
+        type: string
+      captionAttrs:
+        description: "List of references to the attributes of the caption Row"
+        type: array
+        items:
+          type: string
+      refObjectAttrs:
+        description: "List of references to the attributes of the ref Row"
+        type: array
+        items:
+          type: string
+      tableObjectAttrs:
+        description: "List of references to the attributes of the table Row"
+        type: array
+        items:
+          type: string
+      
+        
+  MetaField:
+    description: "Description of field"
+    properties:
+      name:
+        description: "Uniq name of the field in the table"
+        type: string
+      type:
+        description: "string | number | date-time | boolean"
+        type: string
+      size:
+        type: integer
+      precision:
+        type: integer
+  
+  MetaAttr:
+    description: "Description of attribute"
+    properties:
+      attrType:
+        description: "value | ref"
+        type: string
+      valueType:
+        description: "FAIS for example"
+        type: string
+      name:
+        description: "Unic name of the attribute in the dictionary"
+        type: string
+      caption:
+        type: string
+      fields:
+        description: "List of field"
+        type: array
+        items: 
+          type: string
+      refDict:
+        type: string
+      refAttr:
+        type: string
+      hidden:
+        description: "Attribute is hidden"
+        type: boolean
+        
+  Row:
+    description: "Abstract row of dictionary"
+    properties:
+      attrs:
+        type: array
+        items:
+          $ref: "#/definitions/RowAttr"
+          
+  RowAttr:
+    description: "value of attribute of row"
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+
+
+  BoolExp:
+    properties:
+      key:
+        type: string
+        description: "Название параетрa"
+      func:
+        type: string
+        description: "Функция"
+      value: 
+        $ref: "#/definitions/RowAttr"
+        description: "Значение параметра"
+      expList: 
+        type: array
+        items: 
+          $ref: "#/definitions/BoolExp"
+
+  SortExp:
+    properties:
+      key:
+        type: string
+        description: "Название параметра"
+      asc:
+        type: boolean
+        description: "Направление сортировки"
+
+  Result:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    
