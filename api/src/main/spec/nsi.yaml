@@ -13,7 +13,7 @@ paths:
       tags:
         - meta
       summary:  ""
-      description: "Get a list of RefObjects dictionaries"
+      description: "Получить список коротких описаний справочников"
       operationId: metaDictList
       consumes:
         - application/json
@@ -39,7 +39,7 @@ paths:
               requestId:
                 type: string
                 format: guid
-              data: 
+              data:
                 type: array
                 items:
                   $ref: "#/definitions/MetaDictRef"
@@ -53,7 +53,7 @@ paths:
       tags:
         - meta
       summary:  ""
-      description: "Get a dictionary"
+      description: "Получить полное описание справочника"
       operationId: metaDictGet
       consumes:
         - application/json
@@ -72,7 +72,7 @@ paths:
                 type: string
                 format: guid
               name:
-                description: "Name of the dictionary"
+                description: "Название словаря"
                 type: string
       responses:
         200:
@@ -82,7 +82,7 @@ paths:
               requestId:
                 type: string
                 format: guid
-              data: 
+              data:
                 $ref: "#/definitions/MetaDict"
         500:
           description: ""
@@ -93,7 +93,7 @@ paths:
     post:
       tags:
         - dict
-      summary:  "Count of dictionary rows"
+      summary:  "Получить количество записей справочника соответствующих заданному условию"
       description: ""
       operationId: dictCount
       consumes:
@@ -114,16 +114,14 @@ paths:
                 format: guid
                 description: "Request identifier"
               parent:
-                description: "Value of parent attr"
+                description: "Ссылка на родителя в иерархии"
                 $ref: "#/definitions/RowAttr"
               owner:
-                description: "Value of owner attr"
+                description: "Ссылка на владельца"
                 $ref: "#/definitions/RowAttr"
-              filters:
-                type: array
-                description: "Filters conditions"
-                items:
-                  $ref: "#/definitions/BoolExp"
+              filter:
+                description: "Условие, которому должны соответствовать записи"
+                $ref: "#/definitions/BoolExp"
       responses:
         200:
           description: ""
@@ -132,10 +130,9 @@ paths:
               requestId:
                 type: string
                 format: guid
-                description: "Request identifier"
-              count: 
+              count:
                 type: integer
-                description: "Count of records"
+                description: "Количество найденых записей"
         500:
           description: ""
           schema:
@@ -145,7 +142,7 @@ paths:
     post:
       tags:
         - dict
-      summary:  "List of dictionary rows objects"
+      summary:  "Получить страницу списка записей справочника соответствующих заданному условию"
       description: ""
       operationId: dictList
       consumes:
@@ -164,30 +161,27 @@ paths:
               requestId:
                 type: string
                 format: guid
-                description: "Request identifier"
               objectType:
-                description: "Type of object: ref | table"
+                description: "Тип представления объекта: ref | table определяет какой набор атрибутов будет в результате запроса"
                 type: string
-              offset: 
+              offset:
                 type: integer
                 description: "Смещение относительно начала выборки"
-              size: 
+              size:
                 type: integer
                 description: "Число запрашиваемых объектов"
               parent:
-                description: "Value of parent attr"
+                description: "Если справочник иерархический и мы хотим выбрать непосредственных потомков то надо задать этот параметр"
                 $ref: "#/definitions/RowAttr"
               owner:
-                description: "Value of owner attr"
+                description: "Если справочник иерархический и мы хотим посмотреть только записи принадлежащие заданному объекту"
                 $ref: "#/definitions/RowAttr"
               filter:
-                type: array
-                description: "Filters conditions"
-                items:
-                  $ref: "#/definitions/BoolExp"
+                description: "Условие"
+                $ref: "#/definitions/BoolExp"
               sort:
                 type: array
-                description: "Sort conditions"
+                description: "Список условий для сортировки"
                 items:
                   $ref: "#/definitions/SortExp"
       responses:
@@ -198,8 +192,7 @@ paths:
               requestId:
                 type: string
                 format: guid
-                description: "Request identifier"
-              data: 
+              data:
                 type: array
                 items:
                   $ref: "#/definitions/Row"
@@ -212,7 +205,7 @@ paths:
     post:
       tags:
         - dict
-      summary:  "Get one row of dictionary"
+      summary:  "Получить полное состояние строки справочника, со всеми атрибутами"
       description: ""
       operationId: dictGet
       consumes:
@@ -233,7 +226,7 @@ paths:
                 format: guid
                 description: "Request identifier"
               id:
-                description: "Value of id attr"
+                description: "Идентификатор записи"
                 $ref: "#/definitions/RowAttr"
       responses:
         200:
@@ -243,8 +236,7 @@ paths:
               requestId:
                 type: string
                 format: guid
-                description: "Request identifier"
-              data: 
+              data:
                 $ref: "#/definitions/Row"
         500:
           description: ""
@@ -255,7 +247,7 @@ paths:
     post:
       tags:
         - dict
-      summary:  "Save one row of dictionary"
+      summary:  "Сохранить состояние записи справочника, если ид атрибут задан то обновление, если нет то создание"
       description: ""
       operationId: dictGet
       consumes:
@@ -275,18 +267,18 @@ paths:
                 type: string
                 format: guid
                 description: "Request identifier"
-              data: 
+              data:
                 $ref: "#/definitions/Row"
       responses:
         200:
-          description: ""
+          description: "Возвращаем полное состояние записи справочника"
           schema:
             properties:
               requestId:
                 type: string
                 format: guid
                 description: "Request identifier"
-              data: 
+              data:
                 $ref: "#/definitions/Row"
         500:
           description: ""
@@ -297,7 +289,7 @@ paths:
     post:
       tags:
         - dict
-      summary:  "Set delete mark"
+      summary:  "Изменить отметку о удалении для заданной записи справочника"
       description: ""
       operationId: dictDelete
       consumes:
@@ -318,12 +310,10 @@ paths:
                 format: guid
                 description: "Request identifier"
               id:
-                description: "Value of id attr"
+                description: "Идентификатор записи"
                 $ref: "#/definitions/RowAttr"
               value:
                 type: boolean
-              data: 
-                $ref: "#/definitions/Row"
       responses:
         200:
           description: ""
@@ -332,8 +322,7 @@ paths:
               requestId:
                 type: string
                 format: guid
-                description: "Request identifier"
-              data: 
+              data:
                 $ref: "#/definitions/Row"
         500:
           description: ""
@@ -342,126 +331,129 @@ paths:
 
 definitions:
   MetaDictRef:
-    description: "Dictionary metadata RefObject"
+    description: "Краткое описание справочника"
     properties:
       name:
-        description: "Uniq name of dictionary"
+        description: "Уникальное наименование справочника"
         type: string
       caption:
-        description: "Caption of dictionary in UI"
+        description: "Заголовок справочника для интерфейса"
         type: string
       ownerDict:
-        description: "Referense to owner dictionary"
+        description: "Наименование справочника владельца"
         type: string
 
   MetaDict:
-    description: "Dictionary metadata"
+    description: "Описание справочника"
     properties:
       name:
-        description: "Uniq name of dictionary"
+        description: "Уникальное наименование справочника"
         type: string
       caption:
-        description: "Caption of dictionary in UI"
+        description: "Заголовок справочника для интерфейса"
         type: string
       table:
-        description: "Name of table"
+        description: "Имя таблицы для хранения данных"
         type: string
       fields:
-        description: "List of table fields"
+        description: "Список полей таблицы"
         type: array
         items:
           $ref: "#/definitions/MetaField"
       attrs:
-        description: "List of dictionary attributes"
+        description: "Список атрибутов справочника"
         type: array
         items:
           $ref: "#/definitions/MetaAttr"
       idAttr:
-        description: "Referense to id attribute"
+        description: "Наименование атрибута кторый представлет ид"
         type: string
       parentAttr:
-        description: "Referense to parent attribute"
+        description: "Наименование атрибута который представляет ссылку на родителя в иерархии"
         type: string
       groupAttr:
-        description: "Referense to group attribute"
-        type: string
-      ownerDict:
-        description: "Referense to owner dictionary"
+        description: "Наименование атрибута который представляет является ли запись группой, boolean"
         type: string
       ownerAttr:
-        description: "Referense to owner attribute"
+        description: "Наименование атрибута который представляет ссылку на запись родительского справочника"
         type: string
       deleteMarkAttr:
-        description: "Referense to delete mark attribute"
+        description: "Наименование атрибута который представляет пометку о удалении, boolean"
+        type: string
+      lastChangeAttr:
+        description: "Наименование атрибута который представляет дату время последней модификации"
+        type: string
+      lastUserAttr:
+        description: "Наименование атрибута который представляет уникальный идентификатор пользователя последний раз менявшего запись"
         type: string
       captionAttrs:
-        description: "List of references to the attributes of the caption Row"
+        description: "Список наименований атрибутов кторые используются для текстового представления записи"
         type: array
         items:
           type: string
       refObjectAttrs:
-        description: "List of references to the attributes of the ref Row"
+        description: "Список наименований атрибутов кторые используются для короткого представления записи"
         type: array
         items:
           type: string
       tableObjectAttrs:
-        description: "List of references to the attributes of the table Row"
+        description: "Список наименований атрибутов кторые используются для табличного представления записи"
         type: array
         items:
           type: string
-      
-        
+
+
   MetaField:
-    description: "Description of field"
+    description: "Описание поля таблицы"
     properties:
       name:
-        description: "Uniq name of the field in the table"
+        description: "Уникальное имя поля в таблице"
         type: string
       type:
-        description: "string | number | date-time | boolean"
+        description: "Тип поля: string | number | date-time | boolean"
         type: string
       size:
         type: integer
       precision:
         type: integer
-  
+
   MetaAttr:
-    description: "Description of attribute"
+    description: "Описание атрибута справочника"
     properties:
       attrType:
-        description: "value | ref"
+        description: "Тип атрибута значение или ссылка: value | ref"
         type: string
       valueType:
-        description: "FAIS for example"
+        description: "Тип значения, используется в тех случаях когда набор полей описывает один атрибут, например адрес"
         type: string
       name:
-        description: "Unic name of the attribute in the dictionary"
+        description: "Уникальное имя атрибута в справочнике"
         type: string
       caption:
         type: string
       fields:
-        description: "List of field"
+        description: "Список наименований"
         type: array
-        items: 
+        items:
           type: string
       refDict:
         type: string
       refAttr:
         type: string
       hidden:
-        description: "Attribute is hidden"
+        description: "Атрибут является скрытым"
         type: boolean
-        
+
   Row:
-    description: "Abstract row of dictionary"
+    description: "Строка справочника"
     properties:
       attrs:
         type: array
         items:
           $ref: "#/definitions/RowAttr"
-          
+
   RowAttr:
-    description: "value of attribute of row"
+    description: "Значение атрибута справочника, если полей несколько то порядок значений соответствует порядку в описании атрибута в метаданных"
     properties:
       values:
         type: array
@@ -473,16 +465,16 @@ definitions:
     properties:
       key:
         type: string
-        description: "Название параетрa"
+        description: "Название параметрa, соответствует атрибуту справочника"
       func:
         type: string
-        description: "Функция"
-      value: 
+        description: "Функция предикат: =, <=, >=, <, > или логичекое условие: and, or, notAnd, notOr"
+      value:
         $ref: "#/definitions/RowAttr"
-        description: "Значение параметра"
-      expList: 
+        description: "Значение параметра, используется для обычных предикаторв"
+      expList:
         type: array
-        items: 
+        items:
           $ref: "#/definitions/BoolExp"
 
   SortExp:
@@ -497,7 +489,9 @@ definitions:
   Result:
     properties:
       code:
+        description: "Код ошибки"
         type: integer
       message:
+        description: "Сообщение о ошибке"
         type: string
-    
+
