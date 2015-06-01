@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xsi:schemaLocation="
+      http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+      http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd
+      http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+      http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0 http://aries.apache.org/schemas/blueprint-ext/blueprint-ext.xsd">
+
+    <ext:property-placeholder placeholder-prefix="{{" placeholder-suffix="}}"/>
+
+    <cm:property-placeholder persistent-id="jet.isur.nsi" update-strategy="reload">
+    </cm:property-placeholder>
+
+    <bean id="nsiServiceBean" class="jet.isur.nsi.services.impl.NsiServiceImpl">
+    </bean>
+
+    <bean id="nsiMetaServiceBean" class="jet.isur.nsi.services.impl.NsiMetaServiceImpl">
+    </bean>
+
+
+    <service ref="nsiServiceBean" interface="jet.isur.nsi.api.NsiService">
+    </service>
+
+    <service ref="nsiMetaServiceBean" interface="jet.isur.nsi.api.NsiMetaService">
+    </service>
+
+</blueprint>
