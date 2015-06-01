@@ -115,10 +115,10 @@ paths:
                 description: "Request identifier"
               parent:
                 description: "Ссылка на родителя в иерархии"
-                $ref: "#/definitions/RowAttr"
+                $ref: "#/definitions/DictRowAttr"
               owner:
                 description: "Ссылка на владельца"
-                $ref: "#/definitions/RowAttr"
+                $ref: "#/definitions/DictRowAttr"
               filter:
                 description: "Условие, которому должны соответствовать записи"
                 $ref: "#/definitions/BoolExp"
@@ -172,10 +172,10 @@ paths:
                 description: "Число запрашиваемых объектов"
               parent:
                 description: "Если справочник иерархический и мы хотим выбрать непосредственных потомков то надо задать этот параметр"
-                $ref: "#/definitions/RowAttr"
+                $ref: "#/definitions/DictRowAttr"
               owner:
                 description: "Если справочник иерархический и мы хотим посмотреть только записи принадлежащие заданному объекту"
-                $ref: "#/definitions/RowAttr"
+                $ref: "#/definitions/DictRowAttr"
               filter:
                 description: "Условие"
                 $ref: "#/definitions/BoolExp"
@@ -195,7 +195,7 @@ paths:
               data:
                 type: array
                 items:
-                  $ref: "#/definitions/Row"
+                  $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -227,7 +227,7 @@ paths:
                 description: "Request identifier"
               id:
                 description: "Идентификатор записи"
-                $ref: "#/definitions/RowAttr"
+                $ref: "#/definitions/DictRowAttr"
       responses:
         200:
           description: ""
@@ -237,7 +237,7 @@ paths:
                 type: string
                 format: guid
               data:
-                $ref: "#/definitions/Row"
+                $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -268,7 +268,7 @@ paths:
                 format: guid
                 description: "Request identifier"
               data:
-                $ref: "#/definitions/Row"
+                $ref: "#/definitions/DictRow"
       responses:
         200:
           description: "Возвращаем полное состояние записи справочника"
@@ -279,7 +279,7 @@ paths:
                 format: guid
                 description: "Request identifier"
               data:
-                $ref: "#/definitions/Row"
+                $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -311,7 +311,7 @@ paths:
                 description: "Request identifier"
               id:
                 description: "Идентификатор записи"
-                $ref: "#/definitions/RowAttr"
+                $ref: "#/definitions/DictRowAttr"
               value:
                 type: boolean
       responses:
@@ -323,7 +323,7 @@ paths:
                 type: string
                 format: guid
               data:
-                $ref: "#/definitions/Row"
+                $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -438,21 +438,19 @@ definitions:
           type: string
       refDict:
         type: string
-      refAttr:
-        type: string
       hidden:
         description: "Атрибут является скрытым"
         type: boolean
 
-  Row:
+  DictRow:
     description: "Строка справочника"
     properties:
       attrs:
         type: array
         items:
-          $ref: "#/definitions/RowAttr"
+          $ref: "#/definitions/DictRowAttr"
 
-  RowAttr:
+  DictRowAttr:
     description: "Значение атрибута справочника, если полей несколько то порядок значений соответствует порядку в описании атрибута в метаданных"
     properties:
       values:
@@ -470,7 +468,7 @@ definitions:
         type: string
         description: "Функция предикат: =, <=, >=, <, > или логичекое условие: and, or, notAnd, notOr"
       value:
-        $ref: "#/definitions/RowAttr"
+        $ref: "#/definitions/DictRowAttr"
         description: "Значение параметра, используется для обычных предикаторв"
       expList:
         type: array
