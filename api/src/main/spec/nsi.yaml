@@ -28,21 +28,27 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
+              metaDictListReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
       responses:
         200:
           description: ""
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              data:
-                type: array
-                items:
-                  $ref: "#/definitions/MetaDictRef"
+              metaDictListRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/definitions/MetaDictRef"
         500:
           description: ""
           schema:
@@ -68,22 +74,28 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              name:
-                description: "Название словаря"
-                type: string
+              metaDictGetReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  name:
+                    description: "Название словаря"
+                    type: string
       responses:
         200:
           description: ""
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              data:
-                $ref: "#/definitions/MetaDict"
+              metaDictGetRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  data:
+                    $ref: "#/definitions/MetaDict"
         500:
           description: ""
           schema:
@@ -109,30 +121,36 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-                description: "Request identifier"
-              parent:
-                description: "Ссылка на родителя в иерархии"
-                $ref: "#/definitions/DictRowAttr"
-              owner:
-                description: "Ссылка на владельца"
-                $ref: "#/definitions/DictRowAttr"
-              filter:
-                description: "Условие, которому должны соответствовать записи"
-                $ref: "#/definitions/BoolExp"
+              dictCountReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                    description: "Request identifier"
+                  parent:
+                    description: "Ссылка на родителя в иерархии"
+                    $ref: "#/definitions/DictRowAttr"
+                  owner:
+                    description: "Ссылка на владельца"
+                    $ref: "#/definitions/DictRowAttr"
+                  filter:
+                    description: "Условие, которому должны соответствовать записи"
+                    $ref: "#/definitions/BoolExp"
       responses:
         200:
           description: ""
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              count:
-                type: integer
-                description: "Количество найденых записей"
+              dictCountRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  count:
+                    type: integer
+                    description: "Количество найденых записей"
         500:
           description: ""
           schema:
@@ -158,44 +176,50 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              objectType:
-                description: "Тип представления объекта: ref | table определяет какой набор атрибутов будет в результате запроса"
-                type: string
-              offset:
-                type: integer
-                description: "Смещение относительно начала выборки"
-              size:
-                type: integer
-                description: "Число запрашиваемых объектов"
-              parent:
-                description: "Если справочник иерархический и мы хотим выбрать непосредственных потомков то надо задать этот параметр"
-                $ref: "#/definitions/DictRowAttr"
-              owner:
-                description: "Если справочник иерархический и мы хотим посмотреть только записи принадлежащие заданному объекту"
-                $ref: "#/definitions/DictRowAttr"
-              filter:
-                description: "Условие"
-                $ref: "#/definitions/BoolExp"
-              sort:
-                type: array
-                description: "Список условий для сортировки"
-                items:
-                  $ref: "#/definitions/SortExp"
+              dictListReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  objectType:
+                    description: "Тип представления объекта: ref | table определяет какой набор атрибутов будет в результате запроса"
+                    type: string
+                  offset:
+                    type: integer
+                    description: "Смещение относительно начала выборки"
+                  size:
+                    type: integer
+                    description: "Число запрашиваемых объектов"
+                  parent:
+                    description: "Если справочник иерархический и мы хотим выбрать непосредственных потомков то надо задать этот параметр"
+                    $ref: "#/definitions/DictRowAttr"
+                  owner:
+                    description: "Если справочник иерархический и мы хотим посмотреть только записи принадлежащие заданному объекту"
+                    $ref: "#/definitions/DictRowAttr"
+                  filter:
+                    description: "Условие"
+                    $ref: "#/definitions/BoolExp"
+                  sort:
+                    type: array
+                    description: "Список условий для сортировки"
+                    items:
+                      $ref: "#/definitions/SortExp"
       responses:
         200:
           description: ""
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              data:
-                type: array
-                items:
-                  $ref: "#/definitions/DictRow"
+              dictListRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -221,23 +245,29 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-                description: "Request identifier"
-              id:
-                description: "Идентификатор записи"
-                $ref: "#/definitions/DictRowAttr"
+              dictGetReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                    description: "Request identifier"
+                  id:
+                    description: "Идентификатор записи"
+                    $ref: "#/definitions/DictRowAttr"
       responses:
         200:
           description: ""
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              data:
-                $ref: "#/definitions/DictRow"
+              dictGetRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  data:
+                    $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -249,7 +279,7 @@ paths:
         - dict
       summary:  "Сохранить состояние записи справочника, если ид атрибут задан то обновление, если нет то создание"
       description: ""
-      operationId: dictGet
+      operationId: dictSave
       consumes:
         - application/json
         - application/xml
@@ -263,23 +293,29 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-                description: "Request identifier"
-              data:
-                $ref: "#/definitions/DictRow"
+              dictSaveReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                    description: "Request identifier"
+                  data:
+                    $ref: "#/definitions/DictRow"
       responses:
         200:
           description: "Возвращаем полное состояние записи справочника"
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-                description: "Request identifier"
-              data:
-                $ref: "#/definitions/DictRow"
+              dictSaveRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                    description: "Request identifier"
+                  data:
+                    $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
@@ -305,25 +341,31 @@ paths:
           required: true
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-                description: "Request identifier"
-              id:
-                description: "Идентификатор записи"
-                $ref: "#/definitions/DictRowAttr"
-              value:
-                type: boolean
+              dictDeleteReq:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                    description: "Request identifier"
+                  id:
+                    description: "Идентификатор записи"
+                    $ref: "#/definitions/DictRowAttr"
+                  value:
+                    type: boolean
       responses:
         200:
           description: ""
           schema:
             properties:
-              requestId:
-                type: string
-                format: guid
-              data:
-                $ref: "#/definitions/DictRow"
+              dictDeleteRes:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: guid
+                  data:
+                    $ref: "#/definitions/DictRow"
         500:
           description: ""
           schema:
