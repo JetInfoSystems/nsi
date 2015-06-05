@@ -13,9 +13,7 @@ public class MetaAttr implements Serializable {
     /**
      * Тип атрибута значение или ссылка: value | ref.
      */
-    private String attrType;
-    public static final String ATTR_TYPE_VALUE = "value";
-    public static final String ATTR_TYPE_REF = "ref";
+    private MetaAttrType type;
     /**
      * Тип значения, используется в тех случаях когда набор полей описывает один атрибут, например адрес.
      */
@@ -40,11 +38,11 @@ public class MetaAttr implements Serializable {
      * Атрибут является скрытым.
      */
     private Boolean hidden;
-    public String getAttrType() {
-        return attrType;
+    public MetaAttrType getType() {
+        return type;
     }
-    public void setAttrType(String attrType) {
-        this.attrType = attrType;
+    public void setType(MetaAttrType type) {
+        this.type = type;
     }
     public String getValueType() {
         return valueType;

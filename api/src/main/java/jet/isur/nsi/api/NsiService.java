@@ -1,68 +1,39 @@
 package jet.isur.nsi.api;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import java.util.List;
 
-import jet.isur.nsi.api.model.DictCountReq;
-import jet.isur.nsi.api.model.DictCountRes;
-import jet.isur.nsi.api.model.DictDeleteReq;
-import jet.isur.nsi.api.model.DictDeleteRes;
-import jet.isur.nsi.api.model.DictGetReq;
-import jet.isur.nsi.api.model.DictGetRes;
-import jet.isur.nsi.api.model.DictListReq;
-import jet.isur.nsi.api.model.DictListRes;
-import jet.isur.nsi.api.model.DictSaveReq;
-import jet.isur.nsi.api.model.DictSaveRes;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiQuery;
+import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.DictRow;
+import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.SortExp;
 
-@Path("/nsi")
 public interface NsiService {
 
     /**
      * Получить количество записей справочника соответствующих заданному условию
      */
-    @POST
-    @Path("/nsi/dict/count")
-    @Consumes(MediaType.TEXT_XML)
-    @Produces(MediaType.TEXT_XML)
-    DictCountRes dictCount(DictCountReq req);
+    long dictCount(String requestId, NsiQuery query, BoolExp filter);
 
     /**
      * Получить страницу списка записей справочника соответствующих заданному условию
      */
-    @POST
-    @Path("/dict/list")
-    @Consumes(MediaType.TEXT_XML)
-    @Produces(MediaType.TEXT_XML)
-    DictListRes dictList(DictListReq req);
+    List<DictRow> dictList(String requestId, NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size );
 
     /**
      * Получить полное состояние строки справочника, со всеми атрибутами
      */
-    @POST
-    @Path("/dict/get")
-    @Consumes(MediaType.TEXT_XML)
-    @Produces(MediaType.TEXT_XML)
-    DictGetRes dictGet(DictGetReq req);
+    DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id);
 
     /**
      * Сохранить состояние записи справочника, если ид атрибут задан то обновление, если нет то создание
      */
-    @POST
-    @Path("/dict/save")
-    @Consumes(MediaType.TEXT_XML)
-    @Produces(MediaType.TEXT_XML)
-    DictSaveRes dictSave(DictSaveReq req);
+    DictRow dictSave(String requestId, NsiConfigDict dict, DictRow data);
 
     /**
      * Изменить отметку о удалении для заданной записи справочника
      */
-    @POST
-    @Path("/dict/delete")
-    @Consumes(MediaType.TEXT_XML)
-    @Produces(MediaType.TEXT_XML)
-    DictDeleteRes dictDelete(DictDeleteReq req);
+    DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value);
 
 }

@@ -22,6 +22,11 @@
             <artifactId>jsr311-api</artifactId>
             <version>${jcr.311.version}</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>
@@ -63,7 +68,10 @@
                         <Import-Package>*</Import-Package>
                         <Export-Package>
                             jet.isur.nsi.api;version=${project.version},
-                            jet.isur.nsi.api.model;version=${project.version}
+                            jet.isur.nsi.api.data;version=${project.version},
+                            jet.isur.nsi.api.data.builder;version=${project.version},
+                            jet.isur.nsi.api.model;version=${project.version},
+                            jet.isur.nsi.api.model.builder;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -8,7 +8,15 @@ import java.util.List;
 public class MetaDict extends MetaDictRef {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Уникальное имя справочника.
+     */
+    private String name;
 
+    /**
+     * Заголовок справочника.
+     */
+    private String caption;
     /**
      * Имя таблицы для хранения данных.
      */
@@ -22,31 +30,31 @@ public class MetaDict extends MetaDictRef {
      */
     private List<MetaAttr> attrs;
     /**
-     * Наименование атрибута кторый представлет ид.
+     * атрибут кторый представлет ид.
      */
     private String idAttr;
     /**
-     * Наименование атрибута который представляет ссылку на родителя в иерархии.
+     * атрибут который представляет ссылку на родителя в иерархии.
      */
     private String parentAttr;
     /**
-     * Наименование атрибута который представляет является ли запись группой.
+     * атрибут который представляет является ли запись группой.
      */
-    private String groupAttr;
+    private String isGroupAttr;
     /**
-     * Наименование атрибута который представляет ссылку на запись родительского справочника.
+     * атрибут который представляет ссылку на запись родительского справочника.
      */
     private String ownerAttr;
     /**
-     * Наименование атрибута который представляет пометку о удалении.
+     * атрибут который представляет пометку о удалении.
      */
     private String deleteMarkAttr;
     /**
-     * Наименование атрибута который представляет дату время последней модификации.
+     * атрибут который представляет дату время последней модификации.
      */
     private String lastChangeAttr;
     /**
-     * Наименование атрибута который представляет уникальный идентификатор пользователя последний раз менявшего запись.
+     * атрибут который представляет уникальный идентификатор пользователя последний раз менявшего запись.
      */
     private String lastUserAttr;
     /**
@@ -91,11 +99,11 @@ public class MetaDict extends MetaDictRef {
     public void setParentAttr(String parentAttr) {
         this.parentAttr = parentAttr;
     }
-    public String getGroupAttr() {
-        return groupAttr;
+    public String getIsGroupAttr() {
+        return isGroupAttr;
     }
-    public void setGroupAttr(String groupAttr) {
-        this.groupAttr = groupAttr;
+    public void setIsGroupAttr(String groupAttr) {
+        this.isGroupAttr = groupAttr;
     }
     public String getOwnerAttr() {
         return ownerAttr;
@@ -138,6 +146,18 @@ public class MetaDict extends MetaDictRef {
     }
     public void setTableObjectAttrs(List<String> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getCaption() {
+        return caption;
+    }
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
 
 }

@@ -13,14 +13,39 @@
     <ext:property-placeholder placeholder-prefix="{{" placeholder-suffix="}}"/>
 
     <cm:property-placeholder persistent-id="jet.isur.nsi" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="configPath" value="/opt/isur/metadata"/>
+        </cm:default-properties>
     </cm:property-placeholder>
 
+    <reference id="metrics" interface="jet.scdp.metrics.api.Metrics"/>
+
+    <reference id="dataSource" interface="javax.sql.DataSource"
+               filter="(osgi.jndi.service.name=jdbc/isur_ds)" availability="optional"/>
+
+    <bean id="configManagerFactory" class="jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl"/>
+
+    <bean id="configManager" factory-ref="configManagerFactory" factory-method="create" activation="lazy">
+        <argument value="${configPath}"/>
+    </bean>
+
+    <bean id="sqlGen" class="jet.isur.nsi.common.sql.SqlGen">
+    </bean>
+
+    <bean id="sqlDao" class="jet.isur.nsi.common.sql.SqlDao">
+        <property name="sqlGen" ref="sqlGen"/>
+    </bean>
+
     <bean id="nsiServiceBean" class="jet.isur.nsi.services.impl.NsiServiceImpl">
+        <argument ref="metrics"/>
+        <property name="sqlDao" ref="sqlDao"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="nsiMetaServiceBean" class="jet.isur.nsi.services.impl.NsiMetaServiceImpl">
+        <argument ref="metrics"/>
+        <property name="configManager" ref="configManager"/>
     </bean>
-
 
     <service ref="nsiServiceBean" interface="jet.isur.nsi.api.NsiService">
     </service>

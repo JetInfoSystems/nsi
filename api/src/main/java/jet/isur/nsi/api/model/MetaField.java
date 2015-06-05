@@ -15,29 +15,26 @@ public class MetaField implements Serializable {
     /**
      * Тип поля: string | number | date-time | boolean.
      */
-    private String type;
-    public static final String TYPE_STRING = "string";
-    public static final String TYPE_NUMBER = "number";
-    public static final String TYPE_DATE_TIME = "date-time";
-    public static final String TYPE_BOOLEAN = "boolean";
+    private MetaFieldType type = MetaFieldType.STRING;
+
     /**
      * Размер.
      */
-    private Integer size;
+    private Integer size = 0;
     /**
      * Точность.
      */
-    private Integer precision;
+    private Integer precision = 0;
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-    public String getType() {
+    public MetaFieldType getType() {
         return type;
     }
-    public void setType(String type) {
+    public void setType(MetaFieldType type) {
         this.type = type;
     }
     public Integer getSize() {
