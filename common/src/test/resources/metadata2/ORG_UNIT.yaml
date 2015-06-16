@@ -1,0 +1,109 @@
+attrs:
+ - caption: ID
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: NAME
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   type: value
+ - caption: DESCRIPTION
+   fields: [DESCRIPTION]
+   hidden: false
+   name: DESCRIPTION
+   type: value
+ - caption: ADDR_REGION
+   fields: [ADDR_REGION]
+   hidden: false
+   name: ADDR_REGION
+   type: value
+ - caption: ADDR_AREA
+   fields: [ADDR_AREA]
+   hidden: false
+   name: ADDR_AREA
+   type: value
+ - caption: ADDR_CITY
+   fields: [ADDR_CITY]
+   hidden: false
+   name: ADDR_CITY
+   type: value
+ - caption: ADDR_TEXT
+   fields: [ADDR_TEXT]
+   hidden: false
+   name: ADDR_TEXT
+   type: value
+ - caption: ORG_ID
+   fields: [ORG_ID]
+   hidden: false
+   name: ORG_ID
+   type: ref
+   refDict: ORG
+ - caption: WORKING_TYPE_ID
+   fields: [WORKING_TYPE_ID]
+   hidden: false
+   name: WORKING_TYPE_ID
+   type: ref
+   refDict: ACTIVITY_TYPE
+ - caption: EXTERNAL_ID
+   fields: [EXTERNAL_ID]
+   hidden: false
+   name: EXTERNAL_ID
+   type: value
+ - caption: IS_CLOSED
+   fields: [IS_CLOSED]
+   hidden: false
+   name: IS_CLOSED
+   type: value
+ - caption: PARENT_ID
+   fields: [PARENT_ID]
+   hidden: false
+   name: PARENT_ID
+   type: ref
+   refDict: ORG_UNIT
+caption: ОГ_ПОДРАЗДЕЛЕНИЕ
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: NAME
+   size: 200
+   type: varchar
+ - name: DESCRIPTION
+   size: 2000
+   type: varchar
+ - name: ADDR_REGION
+   size: 36
+   type: varchar
+ - name: ADDR_AREA
+   size: 255
+   type: varchar
+ - name: ADDR_CITY
+   size: 36
+   type: varchar
+ - name: ADDR_TEXT
+   size: 100
+   type: varchar
+ - name: ORG_ID
+   size: 10
+   type: number
+ - name: WORKING_TYPE_ID
+   size: 19
+   type: number
+ - name: EXTERNAL_ID
+   size: 20
+   type: varchar
+ - name: IS_CLOSED
+   size: 1
+   type: varchar
+ - name: PARENT_ID
+   size: 19
+   type: number
+idAttr: ID
+name: ORG_UNIT
+ownerAttr: ORG_ID
+parentAttr: PARENT_ID
+refObjectAttrs: [NAME]
+table: ORG_UNIT
+tableObjectAttrs: [NAME,DESCRIPTION,ADDR_REGION,ADDR_AREA,ADDR_CITY,ADDR_TEXT,ORG_ID,WORKING_TYPE_ID,EXTERNAL_ID,IS_CLOSED,PARENT_ID]

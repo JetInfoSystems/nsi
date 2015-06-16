@@ -38,7 +38,7 @@ fields:
 - {name: is_deleted, size: 1, type: boolean}
 - {name: last_change, type: date-time}
 - {name: last_user, size: 19, type: number}
-- {name: f1, size: 100, type: string}
+- {name: f1, size: 100, type: varchar}
 - name: dict1_id
   size: 19
   type: number

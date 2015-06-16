@@ -15,7 +15,7 @@ public class MetaField implements Serializable {
     /**
      * Тип поля: string | number | date-time | boolean.
      */
-    private MetaFieldType type = MetaFieldType.STRING;
+    private MetaFieldType type = MetaFieldType.VARCHAR;
 
     /**
      * Размер.

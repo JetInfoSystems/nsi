@@ -119,7 +119,8 @@ public class SqlDao {
         case NUMBER:
             BigDecimal bigDecimalValue = rs.getBigDecimal(index);
             return ConvertUtils.bigDecimalToString(bigDecimalValue);
-        case STRING:
+        case VARCHAR:
+        case CHAR:
             return rs.getString(index);
 
         default:
@@ -327,9 +328,16 @@ public class SqlDao {
                 ps.setTimestamp(index, new Timestamp(dateTime.getMillis()));
             }
             break;
-        case STRING:
+        case VARCHAR:
             if(Strings.isNullOrEmpty(value)) {
                 ps.setNull(index, Types.VARCHAR);
+            } else {
+                ps.setString(index, value);
+            }
+            break;
+        case CHAR:
+            if(Strings.isNullOrEmpty(value)) {
+                ps.setNull(index, Types.CHAR);
             } else {
                 ps.setString(index, value);
             }

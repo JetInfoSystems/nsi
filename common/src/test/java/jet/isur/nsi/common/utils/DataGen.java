@@ -34,7 +34,7 @@ public class DataGen {
         .field()
             .name("f1")
             .size(100)
-            .type(MetaFieldType.STRING)
+            .type(MetaFieldType.VARCHAR)
         .add()
         .attr()
             .addField("f1")

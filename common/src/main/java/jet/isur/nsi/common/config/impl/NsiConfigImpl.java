@@ -81,7 +81,7 @@ public class NsiConfigImpl implements NsiConfig {
         }
 
         // обрабатываем списки атрибутов
-        dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
+        //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.getRefObjectAttrs().addAll(createFieldList(dict,metaDict.getRefObjectAttrs()));
         dict.getTableObjectAttrs().addAll(createFieldList(dict,metaDict.getTableObjectAttrs()));
         dictMap.put(dictName, dict);
@@ -191,7 +191,8 @@ public class NsiConfigImpl implements NsiConfig {
                 throwDictException(dict, "empty field size", field.getName());
             }
             break;
-        case STRING:
+        case VARCHAR:
+        case CHAR:
             if(field.getSize() == null) {
                 throwDictException(dict, "empty field size", field.getName());
             }
@@ -225,14 +226,14 @@ public class NsiConfigImpl implements NsiConfig {
         checkOneFieldAttr(dict, "isGroupAttr", dict.getIsGroupAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastChangeAttr", dict.getLastChangeAttr(), MetaFieldType.DATE_TIME, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.NUMBER, MetaAttrType.VALUE);
-        checkRefAttrFields(dict, dict.getOwnerAttr());
-        checkRefAttrFields(dict, dict.getParentAttr());
         for (NsiConfigAttr attr : dict.getAttrs()) {
             if(attr.getType() == MetaAttrType.REF) {
                 attr.setRefDict(getDict(attr.getRefDictName()));
                 checkRefAttrFields(dict, attr);
             }
         }
+        checkRefAttrFields(dict, dict.getOwnerAttr());
+        checkRefAttrFields(dict, dict.getParentAttr());
     }
 
 

@@ -87,8 +87,11 @@ public class DaoUtils {
         case NUMBER:
             type = "number";
             break;
-        case STRING:
+        case VARCHAR:
             type = "varchar2";
+            break;
+        case CHAR:
+            type = "char";
             break;
         default:
             throw new NsiDataException("unsupported field type: " + fieldType);

@@ -40,5 +40,14 @@ public class NsiLocalGitConfigManagerImplTest {
         Assert.assertNotNull(config);
         Assert.assertNotNull(config.getDict("dict1"));
     }
+
+    @Test
+    public void testCheckMetadata2() {
+        NsiLocalGitConfigManagerImpl configManager = ConfigUtils.buildConfigManager("src/test/resources/metadata2");
+        NsiConfig config = configManager.readConfig();
+        Assert.assertNotNull(config);
+        Assert.assertNotNull(config.getDict("ORG"));
+    }
+
 }
 

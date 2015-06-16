@@ -6,8 +6,10 @@ import javax.xml.bind.annotation.XmlEnumValue;
 @XmlEnum
 public enum MetaFieldType {
 
-    @XmlEnumValue(value = "string")
-    STRING,
+    @XmlEnumValue(value = "char")
+    CHAR,
+    @XmlEnumValue(value = "varchar")
+    VARCHAR,
     @XmlEnumValue(value = "number")
     NUMBER,
     @XmlEnumValue(value = "date-time")

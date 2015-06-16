@@ -1,0 +1,141 @@
+attrs:
+ - caption: ADDR_AREA
+   fields: [ADDR_AREA]
+   hidden: false
+   name: ADDR_AREA
+   type: value
+ - caption: ADDR_CITY
+   fields: [ADDR_CITY]
+   hidden: false
+   name: ADDR_CITY
+   type: value
+ - caption: ADDR_TEXT
+   fields: [ADDR_TEXT]
+   hidden: false
+   name: ADDR_TEXT
+   type: value
+ - caption: ID
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: DESCRIPTION
+   fields: [DESCRIPTION]
+   hidden: false
+   name: DESCRIPTION
+   type: value
+ - caption: NAME
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   type: value
+ - caption: ADDR_REGION
+   fields: [ADDR_REGION]
+   hidden: false
+   name: ADDR_REGION
+   type: value
+ - caption: WORKING_TYPE_ID
+   fields: [WORKING_TYPE_ID]
+   hidden: false
+   name: WORKING_TYPE_ID
+   type: ref
+   refDict: ACTIVITY_TYPE
+ - caption: ORG_FORM_ID
+   fields: [ORG_FORM_ID]
+   hidden: false
+   name: ORG_FORM_ID
+   type: ref
+   refDict: ORG_FORM
+ - caption: IS_MAJOR
+   fields: [IS_MAJOR]
+   hidden: false
+   name: IS_MAJOR
+   type: value
+ - caption: IS_CLOSED
+   fields: [IS_CLOSED]
+   hidden: false
+   name: IS_CLOSED
+   type: value
+ - caption: NUM
+   fields: [NUM]
+   hidden: false
+   name: NUM
+   type: value
+ - caption: EXTERNAL_ID
+   fields: [EXTERNAL_ID]
+   hidden: false
+   name: EXTERNAL_ID
+   type: value
+ - caption: IS_DELETED
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: LAST_USER
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: LAST_CHANGE
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: 
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ADDR_AREA
+   size: 36
+   type: varchar
+ - name: ADDR_CITY
+   size: 36
+   type: varchar
+ - name: ADDR_TEXT
+   size: 100
+   type: varchar
+ - name: ID
+   size: 10
+   type: number
+ - name: DESCRIPTION
+   size: 2000
+   type: varchar
+ - name: NAME
+   size: 100
+   type: varchar
+ - name: ADDR_REGION
+   size: 36
+   type: varchar
+ - name: WORKING_TYPE_ID
+   size: 19
+   type: number
+ - name: ORG_FORM_ID
+   size: 19
+   type: number
+ - name: IS_MAJOR
+   size: 1
+   type: boolean
+ - name: IS_CLOSED
+   size: 1
+   type: boolean
+ - name: NUM
+   size: 50
+   type: varchar
+ - name: EXTERNAL_ID
+   size: 20
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: ORG
+refObjectAttrs: [NAME]
+table: ORG
+tableObjectAttrs: [ADDR_AREA,ADDR_CITY,ADDR_TEXT,DESCRIPTION,NAME,ADDR_REGION,WORKING_TYPE_ID,ORG_FORM_ID,IS_MAJOR,IS_CLOSED,NUM,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
