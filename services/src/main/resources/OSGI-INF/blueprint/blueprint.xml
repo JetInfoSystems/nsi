@@ -12,9 +12,9 @@
 
     <ext:property-placeholder placeholder-prefix="{{" placeholder-suffix="}}"/>
 
-    <cm:property-placeholder persistent-id="jet.isur.nsi" update-strategy="reload">
+    <cm:property-placeholder persistent-id="jet.isur.nsi.services" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="configPath" value="/opt/isur/metadata"/>
+            <cm:property name="configPath" value="/opt/isur/database/metadata"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
