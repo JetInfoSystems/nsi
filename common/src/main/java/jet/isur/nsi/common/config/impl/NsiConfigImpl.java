@@ -31,14 +31,14 @@ public class NsiConfigImpl implements NsiConfig {
     public void addDict(MetaDict metaDict) {
         NsiConfigDict dict = new NsiConfigDict(metaDict);
         preCheckDict(dict);
-        String dictName = metaDict.getName().toUpperCase();
+        String dictName = metaDict.getName();
         if(dictMap.containsKey(dictName)) {
             throwDictException(dict, "dict already exists");
         }
         // обрабатываем поля
         for (MetaField metaField : metaDict.getFields()) {
             preCheckField(dict, metaField);
-            String fieldName = metaField.getName().toUpperCase();
+            String fieldName = metaField.getName();
             if(dict.getFieldNameMap().containsKey(fieldName)) {
                 throwDictException(dict, "field already exists", fieldName);
             }
@@ -47,7 +47,7 @@ public class NsiConfigImpl implements NsiConfig {
 
         // обрабатываем атрибуты
         for (MetaAttr metaAttr : metaDict.getAttrs()) {
-            String attrName = metaAttr.getName().toUpperCase();
+            String attrName = metaAttr.getName();
             if(dict.getAttrNameMap().containsKey(attrName)) {
                 throwDictException(dict, "attr already exists", attrName);
             }
@@ -218,7 +218,7 @@ public class NsiConfigImpl implements NsiConfig {
 
     @Override
     public NsiConfigDict getDict(String name) {
-        return dictMap.get(name.toUpperCase());
+        return dictMap.get(name);
     }
 
     private void postCheckDict(NsiConfigDict dict) {
