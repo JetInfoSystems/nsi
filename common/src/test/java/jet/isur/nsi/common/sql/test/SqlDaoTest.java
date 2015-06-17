@@ -160,7 +160,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
                     List<DictRow> rows = sqlDao.list(connection, query,
                             new BoolExpBuilder().key("f1").func("=")
-                            .value(DictRowAttrBuilder.build("f1", "value50")).build(),
+                            .value(DictRowAttrBuilder.build("value50")).build(),
                             new SortListBuilder().add("f1", false).build(), -1, -1);
 
                     Assert.assertEquals(1, rows.size());
@@ -192,7 +192,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
                     long count = sqlDao.count(connection, query,
                             new BoolExpBuilder().key("f1").func("=")
-                            .value(DictRowAttrBuilder.build("f1", "value50")).build());
+                            .value(DictRowAttrBuilder.build("value50")).build());
 
                     Assert.assertEquals(1L, count);
 

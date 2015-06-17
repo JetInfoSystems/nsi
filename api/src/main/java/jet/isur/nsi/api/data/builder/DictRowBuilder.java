@@ -20,7 +20,6 @@ public class DictRowBuilder {
     private final NsiQuery query;
     private final DictRowAttrBuilder attrBuilder;
     private DictRow prototype;
-    private Map<String,DictRowAttr> attrMap;
 
 
     public DictRowBuilder(NsiQuery query) {
@@ -42,13 +41,14 @@ public class DictRowBuilder {
         return dst;
     }
 
-    private static List<DictRowAttr> cloneAttrs(List<DictRowAttr> srcAttrs) {
+    private static Map<String,DictRowAttr> cloneAttrs(Map<String, DictRowAttr> srcAttrs) {
         if(srcAttrs == null) {
             return null;
         }
-        ArrayList<DictRowAttr> dstAttrs = new ArrayList<>(srcAttrs.size());
-        for (DictRowAttr srcAttr : srcAttrs) {
-            dstAttrs.add(cloneAttr(srcAttr));
+        Map<String, DictRowAttr> dstAttrs = new HashMap<>(srcAttrs.size());
+        for (String k : srcAttrs.keySet()) {
+            DictRowAttr srcAttr = srcAttrs.get(k);
+            dstAttrs.put(k,cloneAttr(srcAttr));
         }
         return dstAttrs;
     }
@@ -58,7 +58,6 @@ public class DictRowBuilder {
             return null;
         }
         DictRowAttr dstAttr = new DictRowAttr();
-        dstAttr.setAttrName(srcAttr.getAttrName());
         dstAttr.setRefAttrs(cloneAttrs(srcAttr.getRefAttrs()));
         dstAttr.setValues(cloneValues(srcAttr.getValues()));
         return dstAttr;
@@ -74,15 +73,12 @@ public class DictRowBuilder {
 
     public void setPrototype(DictRow data) {
         this.prototype = data;
-        for ( DictRowAttr attrValue : data.getAttrs()) {
-            getAttrMap().put(attrValue.getAttrName(), attrValue);
-        }
     }
 
     DictRow getPrototype() {
         if(prototype==null) {
             prototype = new DictRow();
-            prototype.setAttrs(new ArrayList<DictRowAttr>(query.getAttrs().size()));
+            prototype.setAttrs(new HashMap<String, DictRowAttr>(query.getAttrs().size()));
         }
         return prototype;
     }
@@ -97,13 +93,12 @@ public class DictRowBuilder {
     }
 
     private DictRowAttrBuilder attr(String name, int valuesSize) {
-        DictRowAttr attrPrototype = getAttrMap().get(name);
+        DictRowAttr attrPrototype = getPrototype().getAttrs().get(name);
         if(attrPrototype == null) {
             attrPrototype = new DictRowAttr();
-            attrPrototype.setAttrName(name);
             attrPrototype.setValues(new ArrayList<String>(valuesSize));
         }
-        attrBuilder.setPrototype(attrPrototype);
+        attrBuilder.setPrototype(name, attrPrototype);
         return attrBuilder;
     }
 
@@ -215,7 +210,6 @@ public class DictRowBuilder {
     public DictRow build() {
         DictRow result = getPrototype();
         prototype = null;
-        attrMap = null;
         return result;
     }
 
@@ -224,7 +218,7 @@ public class DictRowBuilder {
         if(queryAttr == null) {
             throw new NsiServiceException("attr not in query: " + attrName);
         }
-        return getAttrMap().get(attrName);
+        return getPrototype().getAttrs().get(attrName);
     }
 
     public DictRowAttr getIdAttr() {
@@ -257,13 +251,6 @@ public class DictRowBuilder {
         NsiQueryAttr queryAttr = query.getAttr(attrName);
         DictRowAttr attrValue = getAttr(attrName);
         return ConvertUtils.stringToBool(attrValue.getValues().get(0));
-    }
-
-    public Map<String, DictRowAttr> getAttrMap() {
-        if(attrMap == null) {
-            attrMap = new HashMap<>(32);
-        }
-        return attrMap;
     }
 
 }

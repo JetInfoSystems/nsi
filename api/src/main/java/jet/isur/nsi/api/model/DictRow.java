@@ -1,7 +1,7 @@
 package jet.isur.nsi.api.model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Строка справочника.
@@ -12,13 +12,13 @@ public class DictRow implements Serializable {
     /**
      * Список значений атрибутов строки.
      */
-    private List<DictRowAttr> attrs;
+    private Map<String, DictRowAttr> attrs;
 
-    public List<DictRowAttr> getAttrs() {
+    public Map<String, DictRowAttr> getAttrs() {
         return attrs;
     }
 
-    public void setAttrs(List<DictRowAttr> attrs) {
+    public void setAttrs(Map<String, DictRowAttr> attrs) {
         this.attrs = attrs;
     }
 

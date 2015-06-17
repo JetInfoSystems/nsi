@@ -49,7 +49,7 @@ public class SqlDao {
                 try {
                     NsiQueryAttr queryAttr = query.getAttr(filter.getKey());
                     NsiConfigAttr attr = queryAttr.getAttr();
-                    String queryAttrName = attr.getName().toUpperCase();
+                    String queryAttrName = attr.getName();
 
                     List<NsiConfigField> fields = attr.getFields();
 
@@ -76,13 +76,12 @@ public class SqlDao {
 
     public void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result) throws SQLException {
         int index = 1;
-        ArrayList<DictRowAttr> resultAttrs = new ArrayList<DictRowAttr>(query.getAttrs().size());
+        Map<String, DictRowAttr> resultAttrs = new HashMap<String, DictRowAttr>(query.getAttrs().size());
         result.setAttrs(resultAttrs);
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
             DictRowAttr attrValue = new DictRowAttr();
-            resultAttrs.add(attrValue);
-            attrValue.setAttrName(attr.getName());
+            resultAttrs.put(attr.getName(), attrValue);
             ArrayList<String> fieldValues = new ArrayList<>(queryAttr.getAttr().getFields().size());
             attrValue.setValues(fieldValues);
             for (NsiConfigField field : attr.getFields()) {
@@ -91,11 +90,11 @@ public class SqlDao {
             }
             if(attr.getType()==MetaAttrType.REF) {
                 int refAttrCount = attr.getRefDict().getRefObjectAttrs().size();
-                List<DictRowAttr> refAttrValues = new ArrayList<>(refAttrCount);
+                Map<String, DictRowAttr> refAttrValues = new HashMap<>(refAttrCount);
                 attrValue.setRefAttrs(refAttrValues);
                 for (NsiConfigAttr refAttr : attr.getRefDict().getRefObjectAttrs()) {
                     DictRowAttr refAttrValue = new DictRowAttr();
-                    refAttrValues.add(refAttrValue);
+                    refAttrValues.put(refAttr.getName(), refAttrValue);
                     List<String> refAttrFieldValues = new ArrayList<>(refAttr.getFields().size());
                     refAttrValue.setValues(refAttrFieldValues);
                     for (NsiConfigField field : refAttr.getFields() ) {
@@ -131,7 +130,6 @@ public class SqlDao {
     public void setParamsForInsert(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
-        Map<String, DictRowAttr> dataAttrMap = getDataAttrMap(data);
         //if(dataAttrMap.size() != query.getAttrs().size()) {
         //    throw new NsiDataException("data and query attr count not match: " + query.getAttrs().size());
         //}
@@ -141,8 +139,8 @@ public class SqlDao {
 
             List<NsiConfigField> fields = attr.getFields();
 
-            String queryAttrName = attr.getName().toUpperCase();
-            DictRowAttr dataAttr = dataAttrMap.get(queryAttrName);
+            String queryAttrName = attr.getName();
+            DictRowAttr dataAttr = data.getAttrs().get(queryAttrName);
             // если у нас вставка и ид атрибут не задан в DictRow просто
             // пропускаем его
             if (attr == idAttr && idAttr.getFields().size() == 1 &&
@@ -168,7 +166,6 @@ public class SqlDao {
     public void setParamsForUpdate(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
-        Map<String, DictRowAttr> dataAttrMap = getDataAttrMap(data);
         //if(dataAttrMap.size() != query.getAttrs().size()) {
         //    throw new NsiDataException("data and query attr count not match: " + query.getAttrs().size());
         //}
@@ -178,8 +175,8 @@ public class SqlDao {
 
             List<NsiConfigField> fields = attr.getFields();
 
-            String queryAttrName = attr.getName().toUpperCase();
-            DictRowAttr dataAttr = dataAttrMap.get(queryAttrName);
+            String queryAttrName = attr.getName();
+            DictRowAttr dataAttr = data.getAttrs().get(queryAttrName);
             // пропускаем id
             if (attr == idAttr) {
                 continue;
@@ -200,7 +197,7 @@ public class SqlDao {
         }
         // для обновления дополнительные параметры для where условия
         List<NsiConfigField> idFields = idAttr.getFields();
-        DictRowAttr idAttrValue = dataAttrMap.get(idAttr.getName().toUpperCase());
+        DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
         List<String> dataValues = idAttrValue.getValues();
         checkDataValues(idFields, idAttr.getName(), dataValues);
         int i=0;
@@ -236,28 +233,14 @@ public class SqlDao {
         }
     }
 
-    private Map<String, DictRowAttr> getDataAttrMap(DictRow data) {
-        Map<String, DictRowAttr> result = new HashMap<>(16);
-        for ( DictRowAttr attrValue : data.getAttrs()) {
-            String attrName = attrValue.getAttrName();
-            if(attrName == null) {
-                throw new NsiDataException("empty attr name");
-            }
-            result.put(attrName.toUpperCase(), attrValue);
-        }
-        return result;
-    }
-
     public void rsToDictRowIdAttr(NsiQuery query, ResultSet rs,
             DictRow data) throws SQLException {
         List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
-        Map<String, DictRowAttr> dataAttrMap = getDataAttrMap(data);
-        DictRowAttr idAttrValue = dataAttrMap.get(idAttr.getName().toUpperCase());
+        DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
         if(idAttrValue == null) {
             idAttrValue = new DictRowAttr();
-            idAttrValue.setAttrName(idAttr.getName());
-            data.getAttrs().add(idAttrValue);
+            data.getAttrs().put(idAttr.getName(), idAttrValue);
         }
         ArrayList<String> fieldValues = new ArrayList<String>(fields.size());
         idAttrValue.setValues(fieldValues);

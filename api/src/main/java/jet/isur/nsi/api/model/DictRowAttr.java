@@ -2,6 +2,7 @@ package jet.isur.nsi.api.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Значение атрибута справочника
@@ -9,7 +10,6 @@ import java.util.List;
 public class DictRowAttr implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String attrName;
     /**
      * Значение полей, если полей несколько то порядок значений соответствует порядку в описании атрибута в метаданных
      */
@@ -17,7 +17,7 @@ public class DictRowAttr implements Serializable {
     /**
      * Если атрибут является сслкой то для него будут предоставлены атрибуты представляющие refObject.
      */
-    private List<DictRowAttr> refAttrs;
+    private Map<String, DictRowAttr> refAttrs;
 
     public List<String> getValues() {
         return values;
@@ -27,20 +27,12 @@ public class DictRowAttr implements Serializable {
         this.values = values;
     }
 
-    public List<DictRowAttr> getRefAttrs() {
+    public Map<String, DictRowAttr> getRefAttrs() {
         return refAttrs;
     }
 
-    public void setRefAttrs(List<DictRowAttr> refAttrs) {
+    public void setRefAttrs(Map<String, DictRowAttr> refAttrs) {
         this.refAttrs = refAttrs;
-    }
-
-    public String getAttrName() {
-        return attrName;
-    }
-
-    public void setAttrName(String attrName) {
-        this.attrName = attrName;
     }
 
 }

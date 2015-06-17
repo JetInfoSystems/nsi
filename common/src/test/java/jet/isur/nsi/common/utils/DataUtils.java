@@ -68,8 +68,9 @@ public class DataUtils {
         Assert.assertNotNull(o2);
         Assert.assertEquals(o1.getAttrs().size(), o2.getAttrs().size());
         DictRowBuilder o2Reader = new DictRowBuilder(query, o2);
-        for ( DictRowAttr o1AttrValue : o1.getAttrs()) {
-            DictRowAttr o2AttrValue = o2Reader.getAttr(o1AttrValue.getAttrName());
+        for ( String attrName : o1.getAttrs().keySet()) {
+            DictRowAttr o1AttrValue = o1.getAttrs().get(attrName);
+            DictRowAttr o2AttrValue = o2Reader.getAttr(attrName);
             Assert.assertNotNull(o2AttrValue);
             Assert.assertArrayEquals(o1AttrValue.getValues().toArray(), o2AttrValue.getValues().toArray());
         }
