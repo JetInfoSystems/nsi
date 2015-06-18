@@ -209,6 +209,7 @@ public class SqlDaoTest extends BaseSqlTest {
     private DictRow insertDict1Row(Connection connection, NsiQuery query,
             String f1Value) {
         DictRow inData = new DictRowBuilder(query).deleteMarkAttr(false)
+                .idAttr(null)
                 .lastChangeAttr(new DateTime().withMillisOfSecond(0))
                 .lastUserAttr(null).attr("f1", f1Value).build();
 

@@ -112,20 +112,22 @@ public class NsiServiceImpl implements NsiService {
         try {
             NsiQuery query = new NsiQuery(dict);
             query.addAttrs();
-            DictRowBuilder reader = new DictRowBuilder(query, data);
+            DictRowBuilder builder = new DictRowBuilder(query, data);
             DictRow outData;
-            boolean isInsert = reader.getIdAttr()!= null;
+
+            boolean isInsert = builder.getIdAttr() == null;
             try(Connection connection = dataSource.getConnection()) {
                 if(isInsert) {
+                    builder.idAttrNull();
                     outData = sqlDao.insert(connection, query, data);
                 } else {
                     outData = sqlDao.update(connection, query, data);
                 }
             }
             if(isInsert) {
-                log.info("dictSave [{}] -> inserted [{}]",requestId,reader.getIdAttr());
+                log.info("dictSave [{}] -> inserted [{}]",requestId,builder.getIdAttr());
             } else {
-                log.info("dictSave [{}] -> updated [{}]",requestId,reader.getIdAttr());
+                log.info("dictSave [{}] -> updated [{}]",requestId,builder.getIdAttr());
             }
             return outData;
         } catch(Exception e) {

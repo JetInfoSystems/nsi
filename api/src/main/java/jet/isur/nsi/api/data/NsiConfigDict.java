@@ -124,7 +124,7 @@ public class NsiConfigDict {
         return attrNameMap.get(attrName.toUpperCase());
     }
     public String getSeq() {
-        return getTable() + "_seq";
+        return "seq_" + getTable();
     }
 
 

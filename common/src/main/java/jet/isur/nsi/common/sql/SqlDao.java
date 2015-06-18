@@ -141,12 +141,6 @@ public class SqlDao {
 
             String queryAttrName = attr.getName();
             DictRowAttr dataAttr = data.getAttrs().get(queryAttrName);
-            // если у нас вставка и ид атрибут не задан в DictRow просто
-            // пропускаем его
-            if (attr == idAttr && idAttr.getFields().size() == 1 &&
-                    (dataAttr == null || dataAttr.getValues() == null || dataAttr.getValues().size()==0)) {
-                continue;
-            }
 
             if(dataAttr == null) {
                 throw new NsiDataException(
@@ -154,6 +148,15 @@ public class SqlDao {
             }
             List<String> dataValues = dataAttr.getValues();
             checkDataValues(fields, queryAttrName, dataValues);
+
+            // если у нас вставка и ид атрибут состоит из одного поля и имеет null значение
+            // пропускаем его, потому что он получается из последовательности
+            if (attr == idAttr
+                    && idAttr.getFields().size() == 1
+                    && dataValues.get(0) == null) {
+                continue;
+            }
+
             int i = 0;
             for (NsiConfigField field : fields) {
                 setParam(ps, index, field, dataValues.get(i));
@@ -372,7 +375,13 @@ public class SqlDao {
     }
 
     public DictRow insert(Connection connection, NsiQuery query, DictRow data) {
-        try(PreparedStatement ps = connection.prepareStatement(sqlGen.getRowInsertSql(query),
+        NsiConfigAttr idAttr = query.getDict().getIdAttr();
+        DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
+        String sql = sqlGen.getRowInsertSql(query, idAttrValue != null
+                && idAttrValue.getValues().size() == 1
+                && idAttrValue.getValues().get(0) == null);
+
+        try(PreparedStatement ps = connection.prepareStatement(sql,
                 new String[] {query.getDict().getIdAttr().getFields().get(0).getName()})) {
             setParamsForInsert(query, data, ps);
             ps.execute();

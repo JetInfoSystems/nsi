@@ -8,6 +8,7 @@ import java.util.Map;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.NsiConfigAttr;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.DictRow;
@@ -18,7 +19,7 @@ import org.joda.time.DateTime;
 public class DictRowBuilder {
 
     private final NsiQuery query;
-    private final DictRowAttrBuilder attrBuilder;
+    private DictRowAttrBuilder attrBuilder;
     private DictRow prototype;
 
 
@@ -105,6 +106,15 @@ public class DictRowBuilder {
     public DictRowAttrBuilder idAttr() {
         NsiConfigAttr a = query.getDict().getIdAttr();
         return attr(a);
+    }
+
+    public DictRowBuilder idAttrNull() {
+        idAttr();
+        for ( NsiConfigField field : query.getDict().getIdAttr().getFields()) {
+            attrBuilder.value(null);
+        }
+        attrBuilder.add();
+        return this;
     }
 
     public DictRowAttrBuilder attr(NsiConfigAttr dictAttr) {

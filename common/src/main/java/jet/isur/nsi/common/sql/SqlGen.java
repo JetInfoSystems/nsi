@@ -121,16 +121,19 @@ public class SqlGen {
         return result;
     }
 
-    public String getRowInsertSql(NsiQuery query) {
+    public String getRowInsertSql(NsiQuery query, boolean useSeq) {
         InsertSetStep<?> insertSetStep = getQueryBuilder().insertInto(table(query.getDict().getTable()));
         InsertSetMoreStep<?> insertSetMoreStep = null;
         NsiConfigDict dict = query.getDict();
         List<NsiConfigField> idFields = dict.getIdAttr().getFields();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
-            if(attr == query.getDict().getIdAttr() && attr.getFields().size() > 0) {
+            if(attr == query.getDict().getIdAttr() && useSeq) {
+                if(attr.getFields().size() > 1) {
+                    throw new NsiDataException("use seq possible for id attr with one field only");
+                }
                 // seq
-                insertSetMoreStep = insertSetStep.set(field(idFields.get(0).getName()), sequence(dict.getTable()+"_seq").nextval());
+                insertSetMoreStep = insertSetStep.set(field(idFields.get(0).getName()),sequence( "seq_" + dict.getTable()).nextval());
             } else {
                 for (NsiConfigField field : attr.getFields()) {
                     insertSetMoreStep = insertSetStep.set(field(field.getName(),String.class),val(""));

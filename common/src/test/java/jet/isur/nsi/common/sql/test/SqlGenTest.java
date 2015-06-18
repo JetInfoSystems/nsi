@@ -83,10 +83,22 @@ public class SqlGenTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = new NsiQuery(dict).addAttrs();
 
-        String sql = sqlGen.getRowInsertSql(query);
+        String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
                 "insert into table1 (f1, id, is_deleted, last_change, last_user) "
-                + "values (?, table1_seq.nextval, ?, ?, ?)", sql);
+                + "values (?, seq_table1.nextval, ?, ?, ?)", sql);
+
+    }
+
+    @Test
+    public void testDict1RowInsertWithoutSeq() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(dict).addAttrs();
+
+        String sql = sqlGen.getRowInsertSql(query, false);
+        Assert.assertEquals(
+                "insert into table1 (f1, id, is_deleted, last_change, last_user) "
+                + "values (?, ?, ?, ?, ?)", sql);
 
     }
 
@@ -95,10 +107,10 @@ public class SqlGenTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = new NsiQuery(dict).addAttrs();
 
-        String sql = sqlGen.getRowInsertSql(query);
+        String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
                 "insert into table2 (f1, dict1_id, id, last_change, is_deleted, last_user) "
-                + "values (?, ?, table2_seq.nextval, ?, ?, ?)", sql);
+                + "values (?, ?, seq_table2.nextval, ?, ?, ?)", sql);
 
     }
 
