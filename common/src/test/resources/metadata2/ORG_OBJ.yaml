@@ -1,14 +1,4 @@
 attrs:
- - caption: ID
-   fields: [ID]
-   hidden: false
-   name: ID
-   type: value
- - caption: ADDR_REGION
-   fields: [ADDR_REGION]
-   hidden: false
-   name: ADDR_REGION
-   type: value
  - caption: ADDR_AREA
    fields: [ADDR_AREA]
    hidden: false
@@ -24,11 +14,17 @@ attrs:
    hidden: false
    name: ADDR_TEXT
    type: value
- - caption: NAME
-   fields: [NAME]
+ - caption: ID
+   fields: [ID]
    hidden: false
-   name: NAME
+   name: ID
    type: value
+ - caption: ORG_OBJ_ID
+   fields: [ORG_OBJ_ID]
+   hidden: false
+   name: ORG_OBJ_ID
+   type: ref
+   refDict: ORG_OBJ
  - caption: OBJ_TYPE_ID
    fields: [OBJ_TYPE_ID]
    hidden: false
@@ -41,18 +37,16 @@ attrs:
    name: ORG_ID
    type: ref
    refDict: ORG
- - caption: PARENT_ID
-   fields: [PARENT_ID]
+ - caption: ADDR_REGION
+   fields: [ADDR_REGION]
    hidden: false
-   name: PARENT_ID
-   type: ref
-   refDict: ORG_OBJ
- - caption: ORG_OBJ_ID
-   fields: [ORG_OBJ_ID]
+   name: ADDR_REGION
+   type: value
+ - caption: NAME
+   fields: [NAME]
    hidden: false
-   name: ORG_OBJ_ID
-   type: ref
-   refDict: ORG_OBJ
+   name: NAME
+   type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -71,12 +65,6 @@ attrs:
 caption: ОБЪЕКТ
 deleteMarkAttr: IS_DELETED
 fields:
- - name: ID
-   size: 19
-   type: number
- - name: ADDR_REGION
-   size: 36
-   type: varchar
  - name: ADDR_AREA
    size: 36
    type: varchar
@@ -86,21 +74,24 @@ fields:
  - name: ADDR_TEXT
    size: 100
    type: varchar
- - name: NAME
-   size: 200
-   type: varchar
+ - name: ID
+   size: 19
+   type: number
+ - name: ORG_OBJ_ID
+   size: 19
+   type: number
  - name: OBJ_TYPE_ID
    size: 19
    type: number
  - name: ORG_ID
    size: 10
    type: number
- - name: PARENT_ID
-   size: 19
-   type: number
- - name: ORG_OBJ_ID
-   size: 19
-   type: number
+ - name: ADDR_REGION
+   size: 36
+   type: varchar
+ - name: NAME
+   size: 200
+   type: varchar
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -118,4 +109,4 @@ ownerAttr: ORG_ID
 parentAttr: ORG_OBJ_ID
 refObjectAttrs: [NAME]
 table: ORG_OBJ
-tableObjectAttrs: [ADDR_REGION,ADDR_AREA,ADDR_CITY,ADDR_TEXT,NAME,OBJ_TYPE_ID,ORG_ID,PARENT_ID,ORG_OBJ_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [ADDR_AREA,ADDR_CITY,ADDR_TEXT,ORG_OBJ_ID,OBJ_TYPE_ID,ORG_ID,ADDR_REGION,NAME,IS_DELETED,LAST_USER,LAST_CHANGE]

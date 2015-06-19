@@ -4,32 +4,17 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: PARENT_ID
-   fields: [PARENT_ID]
-   hidden: false
-   name: PARENT_ID
-   type: ref
-   refDict: PARAM
- - caption: IS_GROUP
-   fields: [IS_GROUP]
-   hidden: false
-   name: IS_GROUP
-   type: value
  - caption: NAME
    fields: [NAME]
    hidden: false
    name: NAME
    type: value
- - caption: PARAM_TYPE
-   fields: [PARAM_TYPE]
+ - caption: EVENT_TYPE_ID
+   fields: [EVENT_TYPE_ID]
    hidden: false
-   name: PARAM_TYPE
-   type: value
- - caption: DIC_NAME
-   fields: [DIC_NAME]
-   hidden: false
-   name: DIC_NAME
-   type: value
+   name: EVENT_TYPE_ID
+   type: ref
+   refDict: EVENT_TYPE
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -45,27 +30,18 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: ПАРАМЕТР
+caption: Типовые алгоритмы
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
    size: 19
    type: number
- - name: PARENT_ID
+ - name: NAME
+   size: 1000
+   type: varchar
+ - name: EVENT_TYPE_ID
    size: 19
    type: number
- - name: IS_GROUP
-   size: 1
-   type: boolean
- - name: NAME
-   size: 255
-   type: varchar
- - name: PARAM_TYPE
-   size: 2
-   type: char
- - name: DIC_NAME
-   size: 255
-   type: varchar
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -76,11 +52,9 @@ fields:
    size: 0
    type: date-time
 idAttr: ID
-isGroupAttr: IS_GROUP
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: PARAM
-parentAttr: PARENT_ID
+name: ALG_TYPED
 refObjectAttrs: [NAME]
-table: PARAM
-tableObjectAttrs: [PARENT_ID,IS_GROUP,NAME,PARAM_TYPE,DIC_NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+table: ALG_TYPED
+tableObjectAttrs: [NAME,EVENT_TYPE_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

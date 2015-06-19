@@ -4,22 +4,21 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: PARENT_ID
-   fields: [PARENT_ID]
+ - caption: TYPED_PLAN_ID
+   fields: [TYPED_PLAN_ID]
    hidden: false
-   name: PARENT_ID
+   name: TYPED_PLAN_ID
    type: ref
-   refDict: ACTIVITY_TYPE
- - caption: EVENT_TYPE_ID
-   fields: [EVENT_TYPE_ID]
+   refDict: TYPED_PLAN
+ - caption: NUM
+   fields: [NUM]
    hidden: false
-   name: EVENT_TYPE_ID
-   type: ref
-   refDict: EVENT_TYPE
- - caption: NAME
-   fields: [NAME]
+   name: NUM
+   type: value
+ - caption: DESCRIPTION
+   fields: [DESCRIPTION]
    hidden: false
-   name: NAME
+   name: DESCRIPTION
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -36,20 +35,20 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: ВИД_ДЕЯТЕЛЬНОСТИ
+caption: Шаги
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
    size: 19
    type: number
- - name: PARENT_ID
+ - name: TYPED_PLAN_ID
    size: 19
    type: number
- - name: EVENT_TYPE_ID
-   size: 19
+ - name: NUM
+   size: 4
    type: number
- - name: NAME
-   size: 100
+ - name: DESCRIPTION
+   size: 2000
    type: varchar
  - name: IS_DELETED
    size: 1
@@ -63,8 +62,7 @@ fields:
 idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: ACTIVITY_TYPE
-parentAttr: PARENT_ID
-refObjectAttrs: [NAME]
-table: ACTIVITY_TYPE
-tableObjectAttrs: [PARENT_ID,EVENT_TYPE_ID,NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+name: TYPED_PLAN_STEP
+refObjectAttrs: [DESCRIPTION]
+table: TYPED_PLAN_STEP
+tableObjectAttrs: [TYPED_PLAN_ID,NUM,DESCRIPTION,IS_DELETED,LAST_USER,LAST_CHANGE]

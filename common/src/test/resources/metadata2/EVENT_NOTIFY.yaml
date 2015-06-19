@@ -4,31 +4,21 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: PARENT_ID
-   fields: [PARENT_ID]
+ - caption: EVENT_ID
+   fields: [EVENT_ID]
    hidden: false
-   name: PARENT_ID
+   name: EVENT_ID
    type: ref
-   refDict: PARAM
- - caption: IS_GROUP
-   fields: [IS_GROUP]
+   refDict: EVENT
+ - caption: MESSAGE
+   fields: [MESSAGE]
    hidden: false
-   name: IS_GROUP
+   name: MESSAGE
    type: value
- - caption: NAME
-   fields: [NAME]
+ - caption: MESSAGE_SHORT
+   fields: [MESSAGE_SHORT]
    hidden: false
-   name: NAME
-   type: value
- - caption: PARAM_TYPE
-   fields: [PARAM_TYPE]
-   hidden: false
-   name: PARAM_TYPE
-   type: value
- - caption: DIC_NAME
-   fields: [DIC_NAME]
-   hidden: false
-   name: DIC_NAME
+   name: MESSAGE_SHORT
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -45,26 +35,20 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: ПАРАМЕТР
+caption: Оповещения
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
    size: 19
    type: number
- - name: PARENT_ID
+ - name: EVENT_ID
    size: 19
    type: number
- - name: IS_GROUP
-   size: 1
-   type: boolean
- - name: NAME
-   size: 255
+ - name: MESSAGE
+   size: 2000
    type: varchar
- - name: PARAM_TYPE
-   size: 2
-   type: char
- - name: DIC_NAME
-   size: 255
+ - name: MESSAGE_SHORT
+   size: 2000
    type: varchar
  - name: IS_DELETED
    size: 1
@@ -76,11 +60,10 @@ fields:
    size: 0
    type: date-time
 idAttr: ID
-isGroupAttr: IS_GROUP
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: PARAM
-parentAttr: PARENT_ID
-refObjectAttrs: [NAME]
-table: PARAM
-tableObjectAttrs: [PARENT_ID,IS_GROUP,NAME,PARAM_TYPE,DIC_NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+name: EVENT_NOTIFY
+ownerAttr: EVENT_ID
+refObjectAttrs: [EVENT_ID]
+table: EVENT_NOTIFY
+tableObjectAttrs: [EVENT_ID,MESSAGE,MESSAGE_SHORT,IS_DELETED,LAST_USER,LAST_CHANGE]

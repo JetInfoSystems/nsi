@@ -1,0 +1,110 @@
+attrs:
+ - caption: ID
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: EVENT_NOTIFY_ID
+   fields: [EVENT_NOTIFY_ID]
+   hidden: false
+   name: EVENT_NOTIFY_ID
+   type: ref
+   refDict: EVENT_NOTIFY
+ - caption: EMP_ID
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
+ - caption: NOTIFY_REASON_ID
+   fields: [NOTIFY_REASON_ID]
+   hidden: false
+   name: NOTIFY_REASON_ID
+   type: ref
+   refDict: NOTIFY_REASON
+ - caption: NOTIFY_TYPE
+   fields: [NOTIFY_TYPE]
+   hidden: false
+   name: NOTIFY_TYPE
+   type: value
+ - caption: NOTIFY_ADDR
+   fields: [NOTIFY_ADDR]
+   hidden: false
+   name: NOTIFY_ADDR
+   type: value
+ - caption: STATE
+   fields: [STATE]
+   hidden: false
+   name: STATE
+   type: value
+ - caption: SEND_DATE
+   fields: [SEND_DATE]
+   hidden: false
+   name: SEND_DATE
+   type: value
+ - caption: NOTIFY_DATE
+   fields: [NOTIFY_DATE]
+   hidden: false
+   name: NOTIFY_DATE
+   type: value
+ - caption: IS_DELETED
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: LAST_USER
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: LAST_CHANGE
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Сотрудники
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: EVENT_NOTIFY_ID
+   size: 19
+   type: number
+ - name: EMP_ID
+   size: 19
+   type: number
+ - name: NOTIFY_REASON_ID
+   size: 19
+   type: number
+ - name: NOTIFY_TYPE
+   size: 2
+   type: char
+ - name: NOTIFY_ADDR
+   size: 200
+   type: varchar
+ - name: STATE
+   size: 2
+   type: char
+ - name: SEND_DATE
+   size: 0
+   type: date-time
+ - name: NOTIFY_DATE
+   size: 0
+   type: date-time
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: EVENT_NOTIFY_EMP
+refObjectAttrs: [EVENT_NOTIFY_ID]
+table: EVENT_NOTIFY_EMP
+tableObjectAttrs: [EVENT_NOTIFY_ID,EMP_ID,NOTIFY_REASON_ID,NOTIFY_TYPE,NOTIFY_ADDR,STATE,SEND_DATE,NOTIFY_DATE,IS_DELETED,LAST_USER,LAST_CHANGE]

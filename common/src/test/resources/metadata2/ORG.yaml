@@ -1,4 +1,21 @@
 attrs:
+ - caption: ID
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: WORKING_TYPE_ID
+   fields: [WORKING_TYPE_ID]
+   hidden: false
+   name: WORKING_TYPE_ID
+   type: ref
+   refDict: ACTIVITY_TYPE
+ - caption: ORG_FORM_ID
+   fields: [ORG_FORM_ID]
+   hidden: false
+   name: ORG_FORM_ID
+   type: ref
+   refDict: ORG_FORM
  - caption: ADDR_AREA
    fields: [ADDR_AREA]
    hidden: false
@@ -13,11 +30,6 @@ attrs:
    fields: [ADDR_TEXT]
    hidden: false
    name: ADDR_TEXT
-   type: value
- - caption: ID
-   fields: [ID]
-   hidden: false
-   name: ID
    type: value
  - caption: DESCRIPTION
    fields: [DESCRIPTION]
@@ -34,18 +46,6 @@ attrs:
    hidden: false
    name: ADDR_REGION
    type: value
- - caption: WORKING_TYPE_ID
-   fields: [WORKING_TYPE_ID]
-   hidden: false
-   name: WORKING_TYPE_ID
-   type: ref
-   refDict: ACTIVITY_TYPE
- - caption: ORG_FORM_ID
-   fields: [ORG_FORM_ID]
-   hidden: false
-   name: ORG_FORM_ID
-   type: ref
-   refDict: ORG_FORM
  - caption: IS_MAJOR
    fields: [IS_MAJOR]
    hidden: false
@@ -84,6 +84,15 @@ attrs:
 caption: 
 deleteMarkAttr: IS_DELETED
 fields:
+ - name: ID
+   size: 10
+   type: number
+ - name: WORKING_TYPE_ID
+   size: 19
+   type: number
+ - name: ORG_FORM_ID
+   size: 19
+   type: number
  - name: ADDR_AREA
    size: 36
    type: varchar
@@ -93,9 +102,6 @@ fields:
  - name: ADDR_TEXT
    size: 100
    type: varchar
- - name: ID
-   size: 10
-   type: number
  - name: DESCRIPTION
    size: 2000
    type: varchar
@@ -105,12 +111,6 @@ fields:
  - name: ADDR_REGION
    size: 36
    type: varchar
- - name: WORKING_TYPE_ID
-   size: 19
-   type: number
- - name: ORG_FORM_ID
-   size: 19
-   type: number
  - name: IS_MAJOR
    size: 1
    type: boolean
@@ -138,4 +138,4 @@ lastUserAttr: LAST_USER
 name: ORG
 refObjectAttrs: [NAME]
 table: ORG
-tableObjectAttrs: [ADDR_AREA,ADDR_CITY,ADDR_TEXT,DESCRIPTION,NAME,ADDR_REGION,WORKING_TYPE_ID,ORG_FORM_ID,IS_MAJOR,IS_CLOSED,NUM,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [WORKING_TYPE_ID,ORG_FORM_ID,ADDR_AREA,ADDR_CITY,ADDR_TEXT,DESCRIPTION,NAME,ADDR_REGION,IS_MAJOR,IS_CLOSED,NUM,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

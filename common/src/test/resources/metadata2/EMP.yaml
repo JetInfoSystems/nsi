@@ -4,6 +4,24 @@ attrs:
    hidden: false
    name: ID
    type: value
+ - caption: ORG_UNIT_ID
+   fields: [ORG_UNIT_ID]
+   hidden: false
+   name: ORG_UNIT_ID
+   type: ref
+   refDict: ORG_UNIT
+ - caption: EMP_PARAM_EMAIL_ID
+   fields: [EMP_PARAM_EMAIL_ID]
+   hidden: false
+   name: EMP_PARAM_EMAIL_ID
+   type: ref
+   refDict: EMP_PARAM
+ - caption: EMP_PARAM_PHONE_ID
+   fields: [EMP_PARAM_PHONE_ID]
+   hidden: false
+   name: EMP_PARAM_PHONE_ID
+   type: ref
+   refDict: EMP_PARAM
  - caption: FIRST_NAME
    fields: [FIRST_NAME]
    hidden: false
@@ -29,12 +47,6 @@ attrs:
    hidden: false
    name: FUNCTION
    type: value
- - caption: ORG_UNIT_ID
-   fields: [ORG_UNIT_ID]
-   hidden: false
-   name: ORG_UNIT_ID
-   type: ref
-   refDict: ORG_UNIT
  - caption: DESCRIPTION
    fields: [DESCRIPTION]
    hidden: false
@@ -45,18 +57,6 @@ attrs:
    hidden: false
    name: IS_CLOSED
    type: value
- - caption: EMP_PARAM_EMAIL_ID
-   fields: [EMP_PARAM_EMAIL_ID]
-   hidden: false
-   name: EMP_PARAM_EMAIL_ID
-   type: ref
-   refDict: EMP_PARAM
- - caption: EMP_PARAM_PHONE_ID
-   fields: [EMP_PARAM_PHONE_ID]
-   hidden: false
-   name: EMP_PARAM_PHONE_ID
-   type: ref
-   refDict: EMP_PARAM
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -78,6 +78,15 @@ fields:
  - name: ID
    size: 19
    type: number
+ - name: ORG_UNIT_ID
+   size: 19
+   type: number
+ - name: EMP_PARAM_EMAIL_ID
+   size: 19
+   type: number
+ - name: EMP_PARAM_PHONE_ID
+   size: 19
+   type: number
  - name: FIRST_NAME
    size: 100
    type: varchar
@@ -93,21 +102,12 @@ fields:
  - name: FUNCTION
    size: 100
    type: varchar
- - name: ORG_UNIT_ID
-   size: 19
-   type: number
  - name: DESCRIPTION
    size: 1000
    type: varchar
  - name: IS_CLOSED
    size: 1
    type: boolean
- - name: EMP_PARAM_EMAIL_ID
-   size: 19
-   type: number
- - name: EMP_PARAM_PHONE_ID
-   size: 19
-   type: number
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -123,4 +123,4 @@ lastUserAttr: LAST_USER
 name: EMP
 refObjectAttrs: [DESCRIPTION]
 table: EMP
-tableObjectAttrs: [FIRST_NAME,MIDDLE_NAME,SECONDARY_NAME,EXTERNAL_ID,FUNCTION,ORG_UNIT_ID,DESCRIPTION,IS_CLOSED,EMP_PARAM_EMAIL_ID,EMP_PARAM_PHONE_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [ORG_UNIT_ID,EMP_PARAM_EMAIL_ID,EMP_PARAM_PHONE_ID,FIRST_NAME,MIDDLE_NAME,SECONDARY_NAME,EXTERNAL_ID,FUNCTION,DESCRIPTION,IS_CLOSED,IS_DELETED,LAST_USER,LAST_CHANGE]
