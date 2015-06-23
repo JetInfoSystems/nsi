@@ -32,7 +32,7 @@ public class SqlGenTest extends BaseSqlTest {
         Assert.assertEquals(
                 "select m.f1, m.dict1_id, a1.f1, m.id, m.last_change, m.is_deleted, m.last_user "
                 + "from table2 m "
-                + "join table1 a1 on m.dict1_id = a1.id "
+                + "left outer join table1 a1 on m.dict1_id = a1.id "
                 + "where m.id = ?", sql);
     }
 
@@ -45,7 +45,7 @@ public class SqlGenTest extends BaseSqlTest {
         Assert.assertEquals(
                 "select m.f1, m.dict1_id, a1.f1, m.dict1_a_id, a2.f1, m.id, m.last_change, m.is_deleted, m.last_user "
                 + "from table3 m "
-                + "join table1 a1 on m.dict1_id = a1.id "
+                + "left outer join table1 a1 on m.dict1_id = a1.id "
                 + "join table1 a2 on m.dict1_a_id = a2.id "
                 + "where m.id = ?", sql);
     }

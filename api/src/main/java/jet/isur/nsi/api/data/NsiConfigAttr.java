@@ -14,6 +14,7 @@ public class NsiConfigAttr {
     private final String caption;
     private final Boolean hidden;
     private final String refDictName;
+    private final boolean required;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
@@ -25,6 +26,7 @@ public class NsiConfigAttr {
         caption = metaAttr.getCaption();
         hidden = metaAttr.getHidden();
         refDictName = metaAttr.getRefDict();
+        required = metaAttr.isRequired();
     }
     public MetaAttrType getType() {
         return type;
@@ -58,6 +60,9 @@ public class NsiConfigAttr {
     }
     public void addField(NsiConfigField field) {
         fields.add(field);
+    }
+    public boolean isRequired() {
+        return required;
     }
 
 

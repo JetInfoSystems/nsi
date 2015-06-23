@@ -16,6 +16,7 @@ attrs:
   hidden: false
   name: dict1_a_id
   refDict: dict1
+  required: true
 - type: value
   caption: id
   fields: [id]

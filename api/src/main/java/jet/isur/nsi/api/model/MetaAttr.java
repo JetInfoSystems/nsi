@@ -38,6 +38,20 @@ public class MetaAttr implements Serializable {
      * Атрибут является скрытым.
      */
     private Boolean hidden;
+
+    /**
+     * Атрибут является требуемым.
+     * Если атрибут требуемый, и является ссылкой то для него будут формироваться join условие
+     * Для нетребуемого атрибута будетформировать left join уcловие
+     */
+    private boolean required = false;
+
+    public boolean isRequired() {
+        return required;
+    }
+    public void setRequired(boolean isRequired) {
+        this.required = isRequired;
+    }
     public MetaAttrType getType() {
         return type;
     }
