@@ -89,7 +89,7 @@ public class SqlGen {
                     NsiConfigField refIdField = refIdAttr.getFields().get(i);
                     cond.and(createJoinFieldCondition(queryAttr, attrField, refIdField));
                 }
-                return beforeOn.on(cond);
+                beforeOn.on(cond);
             }
         }
         return selectJoinStep;
