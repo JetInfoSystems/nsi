@@ -126,6 +126,19 @@ public class NsiConfigDict {
     public String getSeq() {
         return "seq_" + getTable();
     }
+    @Override
+    public String toString() {
+        return "NsiConfigDict [name=" + name + ", caption=" + caption
+                + ", table=" + table + ", idAttr=" + idAttr + ", parentAttr="
+                + parentAttr + ", isGroupAttr=" + isGroupAttr + ", ownerAttr="
+                + ownerAttr + ", deleteMarkAttr=" + deleteMarkAttr
+                + ", lastChangeAttr=" + lastChangeAttr + ", lastUserAttr="
+                + lastUserAttr + ", captionAttrs=" + captionAttrs
+                + ", refObjectAttrs=" + refObjectAttrs + ", tableObjectAttrs="
+                + tableObjectAttrs + ", fields=" + fields + ", attrs=" + attrs
+                + ", attrNameMap=" + attrNameMap + ", fieldNameMap="
+                + fieldNameMap + "]";
+    }
 
 
 }

@@ -35,4 +35,9 @@ public class DictRowAttr implements Serializable {
         this.refAttrs = refAttrs;
     }
 
+    @Override
+    public String toString() {
+        return "DictRowAttr [values=" + values + ", refAttrs=" + refAttrs + "]";
+    }
+
 }

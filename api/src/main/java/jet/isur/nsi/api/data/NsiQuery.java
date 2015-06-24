@@ -132,5 +132,11 @@ public class NsiQuery {
     public NsiQueryAttr getAttr(String name) {
         return getAttrMap(MAIN_ALIAS).get(name);
     }
+    
+    @Override
+    public String toString() {
+        return "NsiQuery [dict=" + dict + ", aliasIndex=" + aliasIndex
+                + ", attrs=" + attrs + ", aliasNameMap=" + aliasNameMap + "]";
+    }
 
 }

@@ -7,6 +7,7 @@ import java.util.Map;
  * Строка справочника.
  */
 public class DictRow implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -22,4 +23,8 @@ public class DictRow implements Serializable {
         this.attrs = attrs;
     }
 
+    @Override
+    public String toString() {
+        return "DictRow [attrs=" + attrs + "]";
+    }
 }
