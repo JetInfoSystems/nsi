@@ -32,6 +32,12 @@ public interface NsiService {
     DictRow dictSave(String requestId, NsiConfigDict dict, DictRow data);
 
     /**
+     * Сохранить состояние нескольких записей справочника, если ид атрибут задан то обновление, если нет то создание
+     * Записи сохраняются в одной транзакции.
+     */
+    List<DictRow> dictBatchSave(String requestId, NsiConfigDict dict, List<DictRow> dataList);
+
+    /**
      * Изменить отметку о удалении для заданной записи справочника
      */
     DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value);

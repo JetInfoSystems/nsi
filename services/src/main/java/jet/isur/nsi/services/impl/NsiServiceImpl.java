@@ -1,6 +1,7 @@
 package jet.isur.nsi.services.impl;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -29,6 +30,7 @@ public class NsiServiceImpl implements NsiService {
     private final Timer dictListTimer;
     private final Timer dictGetTimer;
     private final Timer dictSaveTimer;
+    private final Timer dictBatchSaveTimer;
     private final Timer dictDeleteTimer;
 
     public NsiServiceImpl(Metrics metrics) {
@@ -36,6 +38,7 @@ public class NsiServiceImpl implements NsiService {
         dictListTimer = metrics.timer(getClass(), "dictList");
         dictGetTimer = metrics.timer(getClass(), "dictGet");
         dictSaveTimer = metrics.timer(getClass(), "dictSave");
+        dictBatchSaveTimer = metrics.timer(getClass(), "dictBatchSave");
         dictDeleteTimer = metrics.timer(getClass(),"dictDelete");
     }
 
@@ -76,10 +79,10 @@ public class NsiServiceImpl implements NsiService {
             try(Connection connection = dataSource.getConnection()) {
                 data = sqlDao.list(connection, query, filter, sortList, offset, size);
             }
-            log.info("dictList [{}] -> ok [{}]",requestId,data.size());
+            log.info("dictList [{},{}] -> ok [{}]",requestId, query.getDict().getName(),data.size());
             return data;
         } catch(Exception e) {
-            log.error("dictList [{}] -> error",requestId,e);
+            log.error("dictList [{},{}] -> error",requestId, query.getDict().getName(),e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
@@ -96,10 +99,10 @@ public class NsiServiceImpl implements NsiService {
             try(Connection connection = dataSource.getConnection()) {
                 data = sqlDao.get(connection, query, id);
             }
-            log.info("dictGet [{}] -> ok",requestId);
+            log.info("dictGet [{},{}] -> ok",requestId, dict.getName());
             return data;
         } catch(Exception e) {
-            log.error("dictGet [{}] -> error",requestId,e);
+            log.error("dictGet [{},{}] -> error",requestId, dict.getName(),e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
@@ -125,13 +128,13 @@ public class NsiServiceImpl implements NsiService {
                 }
             }
             if(isInsert) {
-                log.info("dictSave [{}] -> inserted [{}]",requestId,builder.getIdAttr());
+                log.info("dictSave [{},{}] -> inserted [{}]",requestId, dict.getName(),builder.getIdAttr());
             } else {
-                log.info("dictSave [{}] -> updated [{}]",requestId,builder.getIdAttr());
+                log.info("dictSave [{},{}] -> updated [{}]",requestId, dict.getName(),builder.getIdAttr());
             }
             return outData;
         } catch(Exception e) {
-            log.error("dictSave [{}] -> error",requestId,e);
+            log.error("dictSave [{},{}] -> error",requestId, dict.getName(),e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
@@ -151,10 +154,47 @@ public class NsiServiceImpl implements NsiService {
                 builder.deleteMarkAttr(value);
                 outData = sqlDao.update(connection, query, builder.build());
             }
-            log.info("dictDelete [{},{},{}] -> ok",requestId, id, value);
+            log.info("dictDelete [{},{},{},{}] -> ok",requestId, dict.getName(), id, value);
             return outData;
         } catch(Exception e) {
-            log.error("dictDelete [{},{},{}] -> error",requestId, id, value, e);
+            log.error("dictDelete [{},{},{},{}] -> error",requestId, dict.getName(), id, value, e);
+            throw new NsiServiceException(e.getMessage());
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
+    public List<DictRow> dictBatchSave(String requestId, NsiConfigDict dict,
+            List<DictRow> dataList) {
+        final Timer.Context t = dictBatchSaveTimer.time();
+        try {
+            NsiQuery query = new NsiQuery(dict);
+            query.addAttrs();
+            List<DictRow> result = new ArrayList<>(dataList.size());
+
+            for (DictRow data : dataList) {
+                DictRowBuilder builder = new DictRowBuilder(query, data);
+                DictRow outData;
+                boolean isInsert = builder.getIdAttr() == null;
+                try(Connection connection = dataSource.getConnection()) {
+                    if(isInsert) {
+                        builder.idAttrNull();
+                        outData = sqlDao.insert(connection, query, data);
+                    } else {
+                        outData = sqlDao.update(connection, query, data);
+                    }
+                }
+                if(isInsert) {
+                    log.info("dictBatchSave [{},{}] -> inserted [{}]",requestId, dict.getName(),builder.getIdAttr());
+                } else {
+                    log.info("dictBatchSave [{},{}] -> updated [{}]",requestId, dict.getName(),builder.getIdAttr());
+                }
+                result.add(outData);
+            }
+            return result;
+        } catch(Exception e) {
+            log.error("dictBatchSave [{},{},{}] -> error",requestId, dict.getName(),dataList.size(),e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
