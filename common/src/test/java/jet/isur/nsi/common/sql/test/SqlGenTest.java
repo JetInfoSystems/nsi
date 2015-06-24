@@ -6,6 +6,7 @@ import java.util.List;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.SortExp;
 import junit.framework.Assert;
 
@@ -67,6 +68,38 @@ public class SqlGenTest extends BaseSqlTest {
                 "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
                 + "from table1 m "
                 + "where m.f1 = ? "
+                + "order by m.id asc, m.last_user asc limit ?", sql);
+    }
+    
+    @Test
+    public void testDict2ListSql() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(dict).addAttrs();
+        BoolExp filter = new BoolExp();
+        filter.setFunc("or");
+        
+        BoolExp e1 = new BoolExp();
+        e1.setFunc("=");
+        e1.setKey("f1");
+        
+        BoolExp e2 = new BoolExp();
+        e2.setFunc("=");
+        e2.setKey("f1");
+        
+        List<BoolExp> expList = new ArrayList<BoolExp>() ;
+        expList.add(e1);
+        expList.add(e2);
+        filter.setExpList(expList );
+        
+        List<SortExp> sortList = new ArrayList<>();
+        sortList.add(buildSortExp("id",true));
+        sortList.add(buildSortExp("last_user",true));
+
+        String sql = sqlGen.getListSql(query, filter ,sortList, 1, 2 );
+        Assert.assertEquals(
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                + "from table1 m "
+                + "where (m.f1 = ? or m.f1 = ?)"
                 + "order by m.id asc, m.last_user asc limit ?", sql);
     }
 
