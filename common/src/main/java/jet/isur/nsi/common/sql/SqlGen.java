@@ -242,8 +242,8 @@ public class SqlGen {
         NsiQueryAttr filterAttr = query.getAttr(filter.getKey());
         List<NsiConfigField> fields = filterAttr.getAttr().getFields();
         Condition condition = getFieldFuncCondition(query, fields.get(0),filter);
-        for(int i=0;i<fields.size();i++) {
-            condition.and(getFieldFuncCondition(query, fields.get(i),filter));
+        for(int i=1;i<fields.size();i++) {
+            condition = condition.and(getFieldFuncCondition(query, fields.get(i),filter));
         }
         return condition;
     }
@@ -262,7 +262,7 @@ public class SqlGen {
         checkExpList(expList);
         Condition condition = getFilterCondition(query, expList.get(0));
         for(int i=1;i<expList.size();i++) {
-            condition.or(getFilterCondition(query, expList.get(i)));
+            condition = condition.or(getFilterCondition(query, expList.get(i)));
         }
         return condition;
     }
@@ -271,7 +271,7 @@ public class SqlGen {
         checkExpList(expList);
         Condition condition = getFilterCondition(query, expList.get(0));
         for(int i=1;i<expList.size();i++) {
-            condition.and(getFilterCondition(query, expList.get(i)));
+            condition = condition.and(getFilterCondition(query, expList.get(i)));
         }
         return condition;
     }
