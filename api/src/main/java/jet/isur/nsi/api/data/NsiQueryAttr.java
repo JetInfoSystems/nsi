@@ -1,6 +1,7 @@
 package jet.isur.nsi.api.data;
 
 public class NsiQueryAttr {
+
     private final String alias;
     private final String refAlias;
     private final NsiConfigAttr attr;
@@ -29,5 +30,9 @@ public class NsiQueryAttr {
         return index;
     }
 
-
+    @Override
+    public String toString() {
+        return "NsiQueryAttr [alias=" + alias + ", refAlias=" + refAlias
+                + ", attr=" + attr.toString() + ", index=" + index + "]";
+    }
 }

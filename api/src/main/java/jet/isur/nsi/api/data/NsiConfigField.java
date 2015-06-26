@@ -33,5 +33,10 @@ public class NsiConfigField {
         return precision;
     }
 
+    @Override
+    public String toString() {
+        return "NsiConfigField [name=" + name + ", type=" + type.toString()
+                + ", size=" + size + ", precision=" + precision + "]";
+    }
 
 }

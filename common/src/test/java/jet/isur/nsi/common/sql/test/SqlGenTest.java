@@ -71,6 +71,7 @@ public class SqlGenTest extends BaseSqlTest {
                 + "order by m.id asc, m.last_user asc limit ?", sql);
     }
     
+    /*
     @Test
     public void testDict2ListSql() {
         NsiConfigDict dict = config.getDict("dict1");
@@ -102,7 +103,8 @@ public class SqlGenTest extends BaseSqlTest {
                 + "where (m.f1 = ? or m.f1 = ?)"
                 + "order by m.id asc, m.last_user asc limit ?", sql);
     }
-
+    */
+    
     private SortExp buildSortExp(String key, boolean asc) {
         SortExp result = new SortExp();
         result.setKey(key);

@@ -64,6 +64,14 @@ public class NsiConfigAttr {
     public boolean isRequired() {
         return required;
     }
+    @Override
+    public String toString() {
+        return "NsiConfigAttr [type=" + type.toString() + ", valueType=" + valueType
+                + ", name=" + name + ", caption=" + caption + ", hidden="
+                + hidden + ", refDictName=" + refDictName + ", required="
+                + required + ", fields=" + fields + ", refDict=" + refDict
+                + "]";
+    }
 
 
 }

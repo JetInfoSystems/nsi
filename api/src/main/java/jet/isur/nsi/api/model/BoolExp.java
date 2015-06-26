@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 
 public class BoolExp implements Serializable {
+    
     private static final long serialVersionUID = 1L;
     /**
      * Название параметрa, соответствует атрибуту справочника.
@@ -46,5 +47,9 @@ public class BoolExp implements Serializable {
         this.expList = expList;
     }
 
-
+    @Override
+    public String toString() {
+        return "BoolExp [key=" + key + ", func=" + func + ", value=" + value
+                + ", expList=" + expList + "]";
+    }
 }
