@@ -252,7 +252,12 @@ public class SqlGen {
             NsiConfigField field, BoolExp filter) {
         switch (filter.getFunc()) {
         case "=":
-            return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).eq(val(null));
+            if (filter.getValue().getValues().get(0) != null){
+                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).eq(val(null));
+            }
+            else{
+                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).isNull();
+            }
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }

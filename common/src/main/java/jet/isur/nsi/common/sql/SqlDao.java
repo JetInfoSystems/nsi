@@ -57,9 +57,11 @@ public class SqlDao {
                     checkDataValues(fields, queryAttrName, dataValues);
                     int i = 0;
                     for (NsiConfigField field : fields) {
-                        setParam(ps, index, field, dataValues.get(i));
-                        index++;
-                        i++;
+                        if (dataValues.get(i) != null){
+                            setParam(ps, index, field, dataValues.get(i));
+                            index++;
+                            i++;    
+                        }
                     }
                 } catch(SQLException e) {
                     throw new NsiDataException("visit",e);
@@ -336,7 +338,8 @@ public class SqlDao {
     public List<DictRow> list(Connection connection, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size) {
         List<DictRow> result = new ArrayList<>();
-        try(PreparedStatement ps = connection.prepareStatement(sqlGen.getListSql(query, filter, sortList, offset, size))) {
+        String sql = sqlGen.getListSql(query, filter, sortList, offset, size);
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
             setParamsForList(query, ps, filter, offset, size);
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
