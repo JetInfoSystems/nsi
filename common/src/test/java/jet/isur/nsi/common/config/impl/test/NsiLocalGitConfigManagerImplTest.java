@@ -20,7 +20,6 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = ConfigUtils.buildConfigManager("src/test/resources/metadata1");
 
         Set<File> configFiles = configManager.findFiles();
-        Assert.assertEquals(3, configFiles.size());
         Assert.assertTrue(configFiles.contains(new File("src/test/resources/metadata1/dict1.yaml")));
         Assert.assertTrue(configFiles.contains(new File("src/test/resources/metadata1/folder1/dict2.yaml")));
     }

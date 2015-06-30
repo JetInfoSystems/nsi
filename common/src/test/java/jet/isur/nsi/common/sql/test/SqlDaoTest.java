@@ -217,4 +217,43 @@ public class SqlDaoTest extends BaseSqlTest {
         return outData;
     }
 
+    @Test
+    public void testInsertAndGetChar1Char2() throws Exception {
+        NsiConfigDict dict = config.getDict("dict4");
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.createTable(dict, connection);
+            try {
+                DaoUtils.createSeq(dict, connection);
+                try {
+                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    DictRow inData = new DictRowBuilder(query)
+                        .deleteMarkAttr(false)
+                        .idAttr(null)
+                        .lastChangeAttr(new DateTime().withMillisOfSecond(0))
+                        .lastUserAttr(null)
+                        .attr("f1", true)
+                        .attr("f2", "A")
+                        .build();
+
+                    DictRow outData = sqlDao.insert(connection, query, inData);
+                    DictRowBuilder outDataBuilder = new DictRowBuilder(query, outData);
+                    Long idValue = outDataBuilder.getLongIdAttr();
+                    Assert.assertEquals(1L, (long) idValue);
+                    Assert.assertEquals(true, outDataBuilder.getBool("f1"));
+                    Assert.assertEquals("A", outDataBuilder.getString("f2"));
+
+                    DictRow getData = sqlDao.get(connection, query,
+                            outDataBuilder.getIdAttr());
+                    DataUtils.assertEquals(query, outData, getData);
+
+                } finally {
+                    DaoUtils.dropSeq(dict, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict, connection);
+            }
+        }
+    }
+
 }

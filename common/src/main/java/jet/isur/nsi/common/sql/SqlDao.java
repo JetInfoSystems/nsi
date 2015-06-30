@@ -27,6 +27,7 @@ import jet.isur.nsi.common.data.NsiDataException;
 
 import org.joda.time.DateTime;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
@@ -60,7 +61,7 @@ public class SqlDao {
                         if (dataValues.get(i) != null){
                             setParam(ps, index, field, dataValues.get(i));
                             index++;
-                            i++;    
+                            i++;
                         }
                     }
                 } catch(SQLException e) {
@@ -121,12 +122,17 @@ public class SqlDao {
             BigDecimal bigDecimalValue = rs.getBigDecimal(index);
             return ConvertUtils.bigDecimalToString(bigDecimalValue);
         case VARCHAR:
-        case CHAR:
             return rs.getString(index);
+        case CHAR:
+            return trimTrailing(rs.getString(index));
 
         default:
             throw new NsiDataException("unsupported field type: " + field.getType());
         }
+    }
+
+    private String trimTrailing(String value) {
+        return value == null ? null : CharMatcher.WHITESPACE.trimTrailingFrom(value);
     }
 
     public void setParamsForInsert(NsiQuery query, DictRow data,
