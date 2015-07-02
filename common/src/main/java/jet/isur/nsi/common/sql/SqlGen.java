@@ -232,6 +232,7 @@ public class SqlGen {
         case "notOr":
             return getOrCondition(query, filter.getExpList()).not();
         case "=":
+        case "like":
             return getFuncCondition(query, filter);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
@@ -254,6 +255,14 @@ public class SqlGen {
         case "=":
             if (filter.getValue().getValues().get(0) != null){
                 return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).eq(val(null));
+            }
+            else{
+                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).isNull();
+            }
+        case "like":
+            if (filter.getValue().getValues().get(0) != null){
+                Field<String> value = null;
+                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).like(value );
             }
             else{
                 return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).isNull();
