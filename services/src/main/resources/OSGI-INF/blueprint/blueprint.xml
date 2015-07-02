@@ -29,28 +29,36 @@
         <argument value="${configPath}"/>
     </bean>
 
-    <bean id="sqlGen" class="jet.isur.nsi.common.sql.SqlGen">
+    <bean id="sqlGen" class="jet.isur.nsi.common.sql.DefaultSqlGen">
     </bean>
 
-    <bean id="sqlDao" class="jet.isur.nsi.common.sql.SqlDao">
+    <bean id="sqlDao" class="jet.isur.nsi.common.sql.DefaultSqlDao">
         <property name="sqlGen" ref="sqlGen"/>
     </bean>
 
-    <bean id="nsiServiceBean" class="jet.isur.nsi.services.impl.NsiServiceImpl">
+    <bean id="nsiService" class="jet.isur.nsi.services.impl.NsiServiceImpl">
         <argument ref="metrics"/>
         <property name="sqlDao" ref="sqlDao"/>
+        <property name="nsiGenericService" ref="nsiGenericService"/>
+    </bean>
+
+    <bean id="nsiGenericService" class="jet.isur.nsi.services.impl.NsiGenericServiceImpl">
+        <argument ref="metrics"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="nsiMetaServiceBean" class="jet.isur.nsi.services.impl.NsiMetaServiceImpl">
+    <bean id="nsiMetaService" class="jet.isur.nsi.services.impl.NsiMetaServiceImpl">
         <argument ref="metrics"/>
         <property name="configManager" ref="configManager"/>
     </bean>
 
-    <service ref="nsiServiceBean" interface="jet.isur.nsi.api.NsiService">
+    <service ref="nsiService" interface="jet.isur.nsi.api.NsiService">
     </service>
 
-    <service ref="nsiMetaServiceBean" interface="jet.isur.nsi.api.NsiMetaService">
+    <service ref="nsiGenericService" interface="jet.isur.nsi.api.NsiGenericService">
+    </service>
+
+    <service ref="nsiMetaService" interface="jet.isur.nsi.api.NsiMetaService">
     </service>
 
 </blueprint>

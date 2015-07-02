@@ -7,7 +7,7 @@ import javax.sql.DataSource;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
-import jet.isur.nsi.common.sql.SqlGen;
+import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.common.utils.ConfigUtils;
 import jet.isur.nsi.common.utils.DaoUtils;
 
@@ -16,7 +16,7 @@ import org.junit.Before;
 
 public class BaseSqlTest {
     protected NsiConfig config;
-    protected SqlGen sqlGen;
+    protected DefaultSqlGen sqlGen;
     protected DataSource dataSource;
 
     @Before
@@ -27,7 +27,7 @@ public class BaseSqlTest {
     public void setup() throws Exception {
         NsiLocalGitConfigManagerImpl manager = ConfigUtils.buildConfigManager("src/test/resources/metadata1");
         config = manager.getConfig();
-        sqlGen = new SqlGen();
+        sqlGen = new DefaultSqlGen();
 
         Properties properties = new Properties();
         try(FileReader reader = new FileReader("target/test-classes/project.properties")) {

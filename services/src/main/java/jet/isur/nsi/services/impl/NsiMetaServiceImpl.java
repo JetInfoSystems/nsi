@@ -5,6 +5,7 @@ import java.util.Collection;
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.NsiMetaService;
 import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
@@ -61,6 +62,11 @@ public class NsiMetaServiceImpl implements NsiMetaService {
         } finally {
             t.stop();
         }
+    }
+
+    @Override
+    public NsiConfig getConfig() {
+        return configManager.getConfig();
     }
 
 

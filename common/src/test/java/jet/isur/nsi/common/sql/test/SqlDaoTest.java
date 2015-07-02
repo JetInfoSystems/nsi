@@ -10,7 +10,7 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.api.model.builder.SortListBuilder;
-import jet.isur.nsi.common.sql.SqlDao;
+import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.utils.DaoUtils;
 import jet.isur.nsi.common.utils.DataUtils;
 
@@ -20,12 +20,12 @@ import org.junit.Test;
 
 public class SqlDaoTest extends BaseSqlTest {
 
-    private SqlDao sqlDao;
+    private DefaultSqlDao sqlDao;
 
     @Override
     public void setup() throws Exception {
         super.setup();
-        sqlDao = new SqlDao();
+        sqlDao = new DefaultSqlDao();
         sqlDao.setSqlGen(sqlGen);
     }
 

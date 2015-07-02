@@ -39,7 +39,7 @@ import org.jooq.conf.RenderNameStyle;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
-public class SqlGen {
+public class DefaultSqlGen {
 
     private static Settings settings = new Settings();
     static {
@@ -50,12 +50,12 @@ public class SqlGen {
         return createBaseQuery(query, true).where(getIdCondition(query)).getSQL();
     }
 
-    private DSLContext getQueryBuilder() {
+    protected DSLContext getQueryBuilder() {
         DSLContext queryBuilder = DSL.using(SQLDialect.DEFAULT,settings );
         return queryBuilder;
     }
 
-    private SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields) {
+    protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields) {
         Collection<? extends SelectField<?>> selectFields = getSelectFields(query, true);
         SelectJoinStep<Record> selectJoinStep = getQueryBuilder().select(selectFields)
             .from(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
@@ -64,7 +64,7 @@ public class SqlGen {
     }
 
 
-    private Condition getIdCondition(NsiQuery query) {
+    protected Condition getIdCondition(NsiQuery query) {
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
 
         Condition result = field(NsiQuery.MAIN_ALIAS + "." + idAttr.getFields().get(0).getName()).equal(val(null));
@@ -74,7 +74,7 @@ public class SqlGen {
         return result;
     }
 
-    private SelectJoinStep<?> addRefAttrJoins(NsiQuery query, SelectJoinStep<?> selectJoinStep) {
+    protected SelectJoinStep<?> addRefAttrJoins(NsiQuery query, SelectJoinStep<?> selectJoinStep) {
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
             // включаем поля RefObject атрибутов
@@ -100,14 +100,14 @@ public class SqlGen {
         return selectJoinStep;
     }
 
-    private Condition createJoinFieldCondition(NsiQueryAttr queryAttr,
+    protected Condition createJoinFieldCondition(NsiQueryAttr queryAttr,
             NsiConfigField refAttrField, NsiConfigField refIdField) {
         Condition condition = field(queryAttr.getAlias() + "." + refAttrField.getName())
             .eq(field(queryAttr.getRefAlias() + "." + refIdField.getName()));
         return condition;
     }
 
-    private List<SelectField<?>> getSelectFields(NsiQuery query, boolean includeRefFields) {
+    protected List<SelectField<?>> getSelectFields(NsiQuery query, boolean includeRefFields) {
         List<SelectField<?>> result = new ArrayList<>();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             // включаем поля атрибутов
@@ -155,7 +155,7 @@ public class SqlGen {
         }
     }
 
-    private List<Field<?>> getReturningFields(NsiQuery query) {
+    protected List<Field<?>> getReturningFields(NsiQuery query) {
         List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
         List<Field<?>> result = new ArrayList<>(fields.size());
         for (NsiConfigField field : fields) {
@@ -203,7 +203,7 @@ public class SqlGen {
         return baseQueryPart.getSQL();
     }
 
-    private Collection<? extends SortField<?>> getSortFields(NsiQuery query, List<SortExp> sortList) {
+    protected Collection<? extends SortField<?>> getSortFields(NsiQuery query, List<SortExp> sortList) {
         if(sortList == null) {
             return null;
         }
@@ -218,7 +218,7 @@ public class SqlGen {
         return result;
     }
 
-    private Condition getFilterCondition(NsiQuery query, BoolExp filter) {
+    protected Condition getFilterCondition(NsiQuery query, BoolExp filter) {
         if(filter == null) {
             return null;
         }
@@ -238,7 +238,7 @@ public class SqlGen {
         }
     }
 
-    private Condition getFuncCondition(NsiQuery query, BoolExp filter) {
+    protected Condition getFuncCondition(NsiQuery query, BoolExp filter) {
         NsiQueryAttr filterAttr = query.getAttr(filter.getKey());
         List<NsiConfigField> fields = filterAttr.getAttr().getFields();
         Condition condition = getFieldFuncCondition(query, fields.get(0),filter);
@@ -248,7 +248,7 @@ public class SqlGen {
         return condition;
     }
 
-    private Condition getFieldFuncCondition(NsiQuery query,
+    protected Condition getFieldFuncCondition(NsiQuery query,
             NsiConfigField field, BoolExp filter) {
         switch (filter.getFunc()) {
         case "=":
@@ -263,7 +263,7 @@ public class SqlGen {
         }
     }
 
-    private Condition getOrCondition(NsiQuery query, List<BoolExp> expList) {
+    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList) {
         checkExpList(expList);
         Condition condition = getFilterCondition(query, expList.get(0));
         for(int i=1;i<expList.size();i++) {
@@ -272,7 +272,7 @@ public class SqlGen {
         return condition;
     }
 
-    private Condition getAndCondition(NsiQuery query, List<BoolExp> expList) {
+    protected Condition getAndCondition(NsiQuery query, List<BoolExp> expList) {
         checkExpList(expList);
         Condition condition = getFilterCondition(query, expList.get(0));
         for(int i=1;i<expList.size();i++) {
@@ -281,7 +281,7 @@ public class SqlGen {
         return condition;
     }
 
-    private void checkExpList(List<BoolExp> expList) {
+    protected void checkExpList(List<BoolExp> expList) {
         if(expList == null || expList.size() == 0) {
             throw new NsiDataException("empty exp list");
         }

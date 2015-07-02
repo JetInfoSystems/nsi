@@ -23,6 +23,7 @@ import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.common.data.NsiDataException;
 
 import org.joda.time.DateTime;
@@ -31,7 +32,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
-public class SqlDao {
+public class DefaultSqlDao implements SqlDao {
 
     public class SetParamBoolExpVisitor extends BoolExpVisitor {
         private final NsiQuery query;
@@ -75,7 +76,7 @@ public class SqlDao {
         }
     }
 
-    private SqlGen sqlGen;
+    protected DefaultSqlGen sqlGen;
 
     public void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result) throws SQLException {
         int index = 1;
@@ -109,7 +110,7 @@ public class SqlDao {
         }
     }
 
-    private String getFieldValue(ResultSet rs, int index, NsiConfigField field) throws SQLException {
+    protected String getFieldValue(ResultSet rs, int index, NsiConfigField field) throws SQLException {
         // TODO нужен внутренний интерфейс без конверсии в строки
         switch (field.getType()) {
         case BOOLEAN:
@@ -131,7 +132,7 @@ public class SqlDao {
         }
     }
 
-    private String trimTrailing(String value) {
+    protected String trimTrailing(String value) {
         return value == null ? null : CharMatcher.WHITESPACE.trimTrailingFrom(value);
     }
 
@@ -223,7 +224,7 @@ public class SqlDao {
         return setParamsForFilter(query, ps, 1, filter);
     }
 
-    private int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index,
+    protected int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index,
             BoolExp filter) {
         SetParamBoolExpVisitor visitor = new SetParamBoolExpVisitor(query, ps, index);
         if(filter != null) {
@@ -232,7 +233,7 @@ public class SqlDao {
         return visitor.getIndex();
     }
 
-    private void checkDataValues(List<NsiConfigField> fields,
+    protected void checkDataValues(List<NsiConfigField> fields,
             String queryAttrName, List<String> dataValues) {
         if (dataValues == null) {
             throw new NsiDataException("empty values in data attr: "
@@ -266,7 +267,7 @@ public class SqlDao {
         return rs.getBigDecimal(1).longValue();
     }
 
-    public void setSqlGen(SqlGen sqlGen) {
+    public void setSqlGen(DefaultSqlGen sqlGen) {
         this.sqlGen = sqlGen;
     }
 
@@ -288,7 +289,7 @@ public class SqlDao {
         return result;
     }
 
-    private void setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
+    protected void setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
             DictRowAttr id) throws SQLException {
         List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
         for(int i=0;i<fields.size();i++) {
@@ -297,7 +298,7 @@ public class SqlDao {
         }
     }
 
-    private void setParam(PreparedStatement ps, int index, NsiConfigField field,
+    protected void setParam(PreparedStatement ps, int index, NsiConfigField field,
             String value) throws SQLException {
         switch (field.getType()) {
         case BOOLEAN:

@@ -13,7 +13,7 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.SortExp;
-import jet.isur.nsi.common.sql.SqlDao;
+import jet.isur.nsi.api.sql.SqlDao;
 
 import com.google.common.base.Joiner;
 

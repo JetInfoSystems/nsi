@@ -71,7 +71,8 @@
                             jet.isur.nsi.api.data;version=${project.version},
                             jet.isur.nsi.api.data.builder;version=${project.version},
                             jet.isur.nsi.api.model;version=${project.version},
-                            jet.isur.nsi.api.model.builder;version=${project.version}
+                            jet.isur.nsi.api.model.builder;version=${project.version},
+                            jet.isur.nsi.api.sql;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -2,6 +2,7 @@ package jet.isur.nsi.api;
 
 import java.util.Collection;
 
+import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 
 public interface NsiMetaService {
@@ -16,4 +17,8 @@ public interface NsiMetaService {
      */
     NsiConfigDict metaDictGet(String requestId, String name);
 
+    /**
+     * Получить конфигурацию метаданных
+     */
+    NsiConfig getConfig();
 }
