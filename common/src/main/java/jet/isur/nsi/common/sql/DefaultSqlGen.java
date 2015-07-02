@@ -186,7 +186,7 @@ public class DefaultSqlGen {
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size) {
         SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true);
-        Condition filterCondition = getFilterCondition(query, filter);
+        Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
         }
@@ -218,27 +218,27 @@ public class DefaultSqlGen {
         return result;
     }
 
-    protected Condition getFilterCondition(NsiQuery query, BoolExp filter) {
+    protected Condition getFilterCondition(NsiQuery query, BoolExp filter, SelectJoinStep<?> baseQuery) {
         if(filter == null) {
             return null;
         }
         switch (filter.getFunc()) {
         case "and":
-            return getAndCondition(query, filter.getExpList());
+            return getAndCondition(query, filter.getExpList(), baseQuery);
         case "or":
-            return getOrCondition(query, filter.getExpList());
+            return getOrCondition(query, filter.getExpList(), baseQuery);
         case "notAnd":
-            return getAndCondition(query, filter.getExpList()).not();
+            return getAndCondition(query, filter.getExpList(), baseQuery).not();
         case "notOr":
-            return getOrCondition(query, filter.getExpList()).not();
+            return getOrCondition(query, filter.getExpList(), baseQuery).not();
         case "=":
-            return getFuncCondition(query, filter);
+            return getFuncCondition(query, filter, baseQuery);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }
     }
 
-    protected Condition getFuncCondition(NsiQuery query, BoolExp filter) {
+    protected Condition getFuncCondition(NsiQuery query, BoolExp filter,SelectJoinStep<?> baseQuery) {
         NsiQueryAttr filterAttr = query.getAttr(filter.getKey());
         List<NsiConfigField> fields = filterAttr.getAttr().getFields();
         Condition condition = getFieldFuncCondition(query, fields.get(0),filter);
@@ -263,20 +263,26 @@ public class DefaultSqlGen {
         }
     }
 
-    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList) {
+    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList,SelectJoinStep<?> baseQuery) {
         checkExpList(expList);
-        Condition condition = getFilterCondition(query, expList.get(0));
+        Condition condition = getFilterCondition(query, expList.get(0), baseQuery);
         for(int i=1;i<expList.size();i++) {
-            condition = condition.or(getFilterCondition(query, expList.get(i)));
+            Condition c = getFilterCondition(query, expList.get(i), baseQuery);
+            if(c != null) {
+                condition = condition.or(c);
+            }
         }
         return condition;
     }
 
-    protected Condition getAndCondition(NsiQuery query, List<BoolExp> expList) {
+    protected Condition getAndCondition(NsiQuery query, List<BoolExp> expList, SelectJoinStep<?> baseQuery) {
         checkExpList(expList);
-        Condition condition = getFilterCondition(query, expList.get(0));
+        Condition condition = getFilterCondition(query, expList.get(0), baseQuery);
         for(int i=1;i<expList.size();i++) {
-            condition = condition.and(getFilterCondition(query, expList.get(i)));
+            Condition c = getFilterCondition(query, expList.get(i), baseQuery);
+            if(c != null) {
+                condition = condition.and(c);
+            }
         }
         return condition;
     }
@@ -295,7 +301,7 @@ public class DefaultSqlGen {
 
         SelectJoinStep<?> baseQueryPart = addRefAttrJoins(query, selectQueryPart);
 
-        Condition filterCondition = getFilterCondition(query, filter);
+        Condition filterCondition = getFilterCondition(query, filter, selectQueryPart);
 
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
