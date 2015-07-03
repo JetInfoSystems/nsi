@@ -77,7 +77,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict3ListSql() {
         NsiConfigDict dict = config.getDict("dict1");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp filter = new BoolExp();
         filter.setFunc("like");
         filter.setKey("f1");
