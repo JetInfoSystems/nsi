@@ -17,6 +17,7 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.MetaAttrType;
+import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.common.data.NsiDataException;
 
@@ -223,16 +224,17 @@ public class DefaultSqlGen {
             return null;
         }
         switch (filter.getFunc()) {
-        case "and":
+        case OperationType.AND:
             return getAndCondition(query, filter.getExpList(), baseQuery);
-        case "or":
+        case OperationType.OR:
             return getOrCondition(query, filter.getExpList(), baseQuery);
-        case "notAnd":
+        case OperationType.NOTAND:
             return getAndCondition(query, filter.getExpList(), baseQuery).not();
-        case "notOr":
+        case OperationType.NOTOR:
             return getOrCondition(query, filter.getExpList(), baseQuery).not();
-        case "=":
-        case "like":
+        case OperationType.EQUALS:
+            return getFuncCondition(query, filter, baseQuery);
+        case OperationType.LIKE:
             return getFuncCondition(query, filter, baseQuery);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());

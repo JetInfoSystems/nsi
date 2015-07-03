@@ -22,6 +22,7 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
+import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.common.data.NsiDataException;
@@ -60,7 +61,12 @@ public class DefaultSqlDao implements SqlDao {
                     int i = 0;
                     for (NsiConfigField field : fields) {
                         if (dataValues.get(i) != null){
-                            setParam(ps, index, field, dataValues.get(i));
+                            String val = dataValues.get(i);
+                            if (filter.getFunc().equals(OperationType.LIKE))
+                            {
+                                val = val+"%";
+                            }
+                            setParam(ps, index, field, val);
                             index++;
                             i++;
                         }
