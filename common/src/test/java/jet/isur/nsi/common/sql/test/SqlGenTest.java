@@ -74,6 +74,30 @@ public class SqlGenTest extends BaseSqlTest {
                         + "order by m.id asc, m.last_user asc limit ?", sql);
     }
 
+    @Test
+    public void testDict3ListSql() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(dict).addAttrs();
+        BoolExp filter = new BoolExp();
+        filter.setFunc("like");
+        filter.setKey("f1");
+
+        DictRowAttr value = new DictRowAttr();
+        List<String> values = new ArrayList<String>();
+        values.add("1");
+        value.setValues(values);
+        filter.setValue(value);
+        
+        List<SortExp> sortList = new ArrayList<>();
+        sortList.add(buildSortExp("id", true));
+        sortList.add(buildSortExp("last_user", true));
+
+        String sql = sqlGen.getListSql(query, filter, sortList, 1, 2);
+        Assert.assertEquals(
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                        + "from table1 m " + "where m.f1 like ? "
+                        + "order by m.id asc, m.last_user asc limit ?", sql);
+    }
     /*
      * @Test public void testDict2ListSql() { NsiConfigDict dict =
      * config.getDict("dict1"); NsiQuery query = new NsiQuery(dict).addAttrs();
