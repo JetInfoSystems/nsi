@@ -1,6 +1,7 @@
 package jet.isur.nsi.api.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,13 @@ public class DictRowAttr implements Serializable {
 
     public void setValues(List<String> values) {
         this.values = values;
+    }
+
+    public void addValue(String value) {
+        if(values == null) {
+            values = new LinkedList<>();
+        }
+        values.add(value);
     }
 
     public Map<String, DictRowAttr> getRefAttrs() {
