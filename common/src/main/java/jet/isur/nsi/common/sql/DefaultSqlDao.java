@@ -35,9 +35,9 @@ import com.google.common.base.Strings;
 public class DefaultSqlDao implements SqlDao {
 
     public class SetParamBoolExpVisitor extends BoolExpVisitor {
-        private final NsiQuery query;
-        private final PreparedStatement ps;
-        private int index;
+        protected final NsiQuery query;
+        protected final PreparedStatement ps;
+        protected int index;
 
         public SetParamBoolExpVisitor(NsiQuery query, PreparedStatement ps, int index) {
             this.query = query;
