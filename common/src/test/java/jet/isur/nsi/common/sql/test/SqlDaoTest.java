@@ -37,7 +37,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
                     DictRowBuilder outDataBuilder = new DictRowBuilder(query, outData);
                     Long idValue = outDataBuilder.getLongIdAttr();
@@ -65,7 +65,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
 
                     DictRow inUpdatedData = new DictRowBuilder(query,
@@ -94,7 +94,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 100; i++) {
                         DictRow outData = insertDict1Row(connection, query, "value" + i);
                     }
@@ -121,7 +121,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 100; i++) {
                         DictRow outData = insertDict1Row(connection, query, "value" + i);
                     }
@@ -152,7 +152,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 100; i++) {
                         DictRow outData = insertDict1Row(connection, query, "value" + i);
                     }
@@ -184,7 +184,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 100; i++) {
                         DictRow outData = insertDict1Row(connection, query, "value" + i);
                     }
@@ -225,7 +225,7 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.createSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(dict).addAttrs();
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     DictRow inData = new DictRowBuilder(query)
                         .deleteMarkAttr(false)
                         .idAttr(null)

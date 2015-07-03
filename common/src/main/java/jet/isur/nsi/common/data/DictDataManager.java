@@ -27,7 +27,7 @@ public class DictDataManager {
         NsiConfigDict dict = getDict(dictName);
 
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(dict).addAttrs();
+            NsiQuery query = new NsiQuery(config, dict).addAttrs();
             return sqlDao.get(connection, query, id);
         }
     }
@@ -43,7 +43,7 @@ public class DictDataManager {
     public DictRow save(String dictName, DictRow data, boolean insert) throws SQLException {
         NsiConfigDict dict = config.getDict(dictName);
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(dict).addAttrs();
+            NsiQuery query = new NsiQuery(config, dict).addAttrs();
             if(insert) {
                 return sqlDao.insert(connection, query, data);
             } else {
@@ -56,7 +56,7 @@ public class DictDataManager {
         NsiConfigDict dict = getDict(dictName);
 
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(dict).addTableObjectAttrs();
+            NsiQuery query = new NsiQuery(config, dict).addTableObjectAttrs();
             return sqlDao.list(connection, query, filter, sortList, offset, size);
         }
     }
@@ -64,7 +64,7 @@ public class DictDataManager {
     public long count(String dictName, BoolExp filter) throws SQLException {
         NsiConfigDict dict = getDict(dictName);
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(dict).addTableObjectAttrs();
+            NsiQuery query = new NsiQuery(config, dict).addTableObjectAttrs();
             return sqlDao.count(connection, query, filter);
         }
     }

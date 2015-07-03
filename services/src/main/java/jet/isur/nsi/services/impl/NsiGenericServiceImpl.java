@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.NsiConfigDict;
@@ -45,6 +46,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         dictDeleteTimer = metrics.timer(getClass(), "dictDelete");
     }
 
+    private NsiConfigManager configManager;
     private DataSource dataSource;
 
     public void setDataSource(DataSource dataSource) {
@@ -97,7 +99,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id, SqlDao sqlDao) {
         final Timer.Context t = dictGetTimer.time();
         try {
-            NsiQuery query = new NsiQuery(dict);
+            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
             query.addAttrs();
             DictRow data;
             try (Connection connection = dataSource.getConnection()) {
@@ -117,7 +119,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictSave(String requestId, NsiConfigDict dict, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
         try {
-            NsiQuery query = new NsiQuery(dict);
+            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
             query.addAttrs();
             DictRowBuilder builder = new DictRowBuilder(query, data);
             DictRow outData;
@@ -158,7 +160,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             DictRowAttr id, Boolean value, SqlDao sqlDao) {
         final Timer.Context t = dictDeleteTimer.time();
         try {
-            NsiQuery query = new NsiQuery(dict);
+            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
             query.addAttrs();
             DictRow outData;
             try (Connection connection = dataSource.getConnection()) {
@@ -184,7 +186,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
         try {
-            NsiQuery query = new NsiQuery(dict);
+            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
             query.addAttrs();
             List<DictRow> result = new ArrayList<>(dataList.size());
 
@@ -217,6 +219,10 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         } finally {
             t.stop();
         }
+    }
+
+    public void setConfigManager(NsiConfigManager configManager) {
+        this.configManager = configManager;
     }
 
 }

@@ -9,6 +9,7 @@ import jet.isur.nsi.api.model.MetaAttrType;
 
 public class NsiQuery {
     public static final String MAIN_ALIAS = "m";
+    private final NsiConfig config;
     private final NsiConfigDict dict;
     private int aliasIndex = 0;
     private List<NsiQueryAttr> attrs = new ArrayList<>();
@@ -19,7 +20,8 @@ public class NsiQuery {
         return "a" + aliasIndex;
     }
 
-    public NsiQuery(NsiConfigDict dict) {
+    public NsiQuery(NsiConfig config, NsiConfigDict dict) {
+        this.config = config;
         this.dict = dict;
     }
 
@@ -137,6 +139,10 @@ public class NsiQuery {
     public String toString() {
         return "NsiQuery [dict=" + dict + ", aliasIndex=" + aliasIndex
                 + ", attrs=" + attrs + ", aliasNameMap=" + aliasNameMap + "]";
+    }
+
+    public NsiConfig getConfig() {
+        return config;
     }
 
 }
