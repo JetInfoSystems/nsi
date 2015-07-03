@@ -44,6 +44,7 @@
 
     <bean id="nsiGenericService" class="jet.isur.nsi.services.impl.NsiGenericServiceImpl">
         <argument ref="metrics"/>
+        <property name="configManager" ref="configManager"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 

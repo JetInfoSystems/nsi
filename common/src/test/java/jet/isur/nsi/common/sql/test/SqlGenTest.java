@@ -17,7 +17,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict1RowGetSql() {
         NsiConfigDict dict = config.getDict("dict1");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
                 "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
@@ -27,7 +27,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict2RowGetSql() {
         NsiConfigDict dict = config.getDict("dict2");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
                 "select m.f1, m.dict1_id, a1.f1, m.id, m.last_change, m.is_deleted, m.last_user "
@@ -39,7 +39,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict3RowGetSql() {
         NsiConfigDict dict = config.getDict("dict3");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
                 "select m.f1, m.dict1_id, a1.f1, m.dict1_a_id, a2.f1, m.id, m.last_change, m.is_deleted, m.last_user "
@@ -52,7 +52,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict1ListSql() {
         NsiConfigDict dict = config.getDict("dict1");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp filter = new BoolExp();
         filter.setFunc("=");
         filter.setKey("f1");
@@ -62,7 +62,7 @@ public class SqlGenTest extends BaseSqlTest {
         values.add("1");
         value.setValues(values);
         filter.setValue(value);
-        
+
         List<SortExp> sortList = new ArrayList<>();
         sortList.add(buildSortExp("id", true));
         sortList.add(buildSortExp("last_user", true));
@@ -78,18 +78,18 @@ public class SqlGenTest extends BaseSqlTest {
      * @Test public void testDict2ListSql() { NsiConfigDict dict =
      * config.getDict("dict1"); NsiQuery query = new NsiQuery(dict).addAttrs();
      * BoolExp filter = new BoolExp(); filter.setFunc("or");
-     * 
+     *
      * BoolExp e1 = new BoolExp(); e1.setFunc("="); e1.setKey("f1");
-     * 
+     *
      * BoolExp e2 = new BoolExp(); e2.setFunc("="); e2.setKey("f1");
-     * 
+     *
      * List<BoolExp> expList = new ArrayList<BoolExp>() ; expList.add(e1);
      * expList.add(e2); filter.setExpList(expList );
-     * 
+     *
      * List<SortExp> sortList = new ArrayList<>();
      * sortList.add(buildSortExp("id",true));
      * sortList.add(buildSortExp("last_user",true));
-     * 
+     *
      * String sql = sqlGen.getListSql(query, filter ,sortList, 1, 2 );
      * Assert.assertEquals(
      * "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user " +
@@ -107,14 +107,14 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict1CountSql() {
         NsiConfigDict dict = config.getDict("dict1");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp filter = new BoolExp();
         filter.setFunc("=");
         filter.setKey("f1");
 
         List<String> values = new ArrayList<String>();
         values.add("1");
-        
+
         DictRowAttr value = new DictRowAttr();
         value.setValues(values);
         filter.setValue(value);
@@ -127,7 +127,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict1RowInsertSeq() {
         NsiConfigDict dict = config.getDict("dict1");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
@@ -139,7 +139,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict1RowInsertWithoutSeq() {
         NsiConfigDict dict = config.getDict("dict1");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
         String sql = sqlGen.getRowInsertSql(query, false);
         Assert.assertEquals(
@@ -151,7 +151,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict2RowInsertSeq() {
         NsiConfigDict dict = config.getDict("dict2");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
@@ -163,7 +163,7 @@ public class SqlGenTest extends BaseSqlTest {
     @Test
     public void testDict2RowUpdateSeq() {
         NsiConfigDict dict = config.getDict("dict2");
-        NsiQuery query = new NsiQuery(dict).addAttrs();
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
