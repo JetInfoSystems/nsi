@@ -193,7 +193,14 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             for (DictRow data : dataList) {
                 DictRowBuilder builder = new DictRowBuilder(query, data);
                 DictRow outData;
-                boolean isInsert = builder.getIdAttr() == null;
+                boolean isInsert = false;
+                if (builder.getIdAttr() == null
+                        || builder.getIdAttr().getValues() == null
+                        || builder.getIdAttr().getValues().size() == 0
+                        || builder.getIdAttr().getValues().get(0) == null) {
+                    isInsert = true;
+                }
+
                 try (Connection connection = dataSource.getConnection()) {
                     if (isInsert) {
                         builder.idAttrNull();
