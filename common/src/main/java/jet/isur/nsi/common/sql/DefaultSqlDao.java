@@ -18,6 +18,7 @@ import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
+import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
@@ -428,6 +429,18 @@ public class DefaultSqlDao implements SqlDao {
         } catch (SQLException e) {
             throw new NsiDataException("update",e);
         }
+    }
+
+    @Override
+    public DictRow save(Connection connection, NsiQuery query, DictRow data,
+            boolean insert) {
+        DictRow temp = null;
+        if(insert) {
+            temp = insert(connection, query, data);
+        } else {
+            temp = update(connection, query, data);
+        }
+        return get(connection, query, new DictRowBuilder(query, temp).getIdAttr());
     }
 
 }

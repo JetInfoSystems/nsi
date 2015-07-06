@@ -44,11 +44,7 @@ public class DictDataManager {
         NsiConfigDict dict = config.getDict(dictName);
         try(Connection connection = dataSource.getConnection()) {
             NsiQuery query = new NsiQuery(config, dict).addAttrs();
-            if(insert) {
-                return sqlDao.insert(connection, query, data);
-            } else {
-                return sqlDao.update(connection, query, data);
-            }
+            return sqlDao.save(connection, query, data, insert);
         }
     }
 

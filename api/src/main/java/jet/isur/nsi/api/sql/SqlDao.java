@@ -11,15 +11,65 @@ import jet.isur.nsi.api.model.SortExp;
 
 public interface SqlDao {
 
+    /**
+     * Получить запись справочника, если есть REF атрибуты то для низ возвращаютмя ref атрибуты
+     * @param connection
+     * @param query
+     * @param id
+     * @return
+     */
     public DictRow get(Connection connection, NsiQuery query, DictRowAttr id);
 
+    /**
+     * Получить страницу записей справочника удовлетворяющих критерию,
+     * если есть REF атрибуты то для низ возвращаютмя ref атрибуты
+     * @param connection
+     * @param query
+     * @param filter
+     * @param sortList
+     * @param offset
+     * @param size
+     * @return
+     */
     public List<DictRow> list(Connection connection, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size);
 
+    /**
+     * Получить количество записей справочника, удовлетворяющих критерию,
+     * если есть REF атрибуты то для низ возвращаютмя ref атрибуты
+     * @param connection
+     * @param query
+     * @param filter
+     * @return
+     */
     public long count(Connection connection, NsiQuery query, BoolExp filter);
 
+    /**
+     * Вставить запись, ref атрибуты для ссылосных атрибутов не получаются
+     * @param connection
+     * @param query
+     * @param data
+     * @return
+     */
     public DictRow insert(Connection connection, NsiQuery query, DictRow data);
 
+    /**
+     * Обновить запись, ref атрибуты для ссылочных атрибутов не возвращаются
+     * @param connection
+     * @param query
+     * @param data
+     * @return
+     */
     public DictRow update(Connection connection, NsiQuery query, DictRow data);
+
+    /**
+     * Вставить или обновить запись, возвращаются ref атрибуты для ссылочных атрибутов
+     * @param connection
+     * @param query
+     * @param data
+     * @param insert
+     * @return
+     */
+    public DictRow save(Connection connection, NsiQuery query, DictRow data, boolean insert);
 
 }

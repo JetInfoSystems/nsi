@@ -7,6 +7,7 @@ import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaField;
+import oracle.net.aso.k;
 
 import org.junit.Assert;
 
@@ -73,6 +74,16 @@ public class DataUtils {
             DictRowAttr o2AttrValue = o2Reader.getAttr(attrName);
             Assert.assertNotNull(o2AttrValue);
             Assert.assertArrayEquals(o1AttrValue.getValues().toArray(), o2AttrValue.getValues().toArray());
+            if(o1AttrValue.getRefAttrs() == o2AttrValue.getRefAttrs()) {
+                continue;
+            }
+            Assert.assertNotNull(o1AttrValue.getRefAttrs());
+            for ( String rk : o1AttrValue.getRefAttrs().keySet()) {
+                DictRowAttr r1AttrValue = o1AttrValue.getRefAttrs().get(rk);
+                DictRowAttr r2AttrValue = o2AttrValue.getRefAttrs().get(rk);
+                Assert.assertNotNull(r2AttrValue);
+                Assert.assertArrayEquals(r1AttrValue.getValues().toArray(), r2AttrValue.getValues().toArray());
+            }
         }
     }
 

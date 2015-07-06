@@ -58,6 +58,42 @@ public class SqlDaoTest extends BaseSqlTest {
     }
 
     @Test
+    public void testInsertAndGetWithRefFields() throws Exception {
+        NsiConfigDict dict1 = config.getDict("dict1");
+        NsiConfigDict dict2 = config.getDict("dict2");
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.createTable(dict1, connection);
+            DaoUtils.createTable(dict2, connection);
+            try {
+                DaoUtils.createSeq(dict1, connection);
+                DaoUtils.createSeq(dict2, connection);
+                try {
+                    NsiQuery query1 = new NsiQuery(config, dict1).addAttrs();
+                    DictRow dict1Data = insertDict1Row(connection, query1, "f1-value");
+
+                    NsiQuery query2 = new NsiQuery(config, dict2).addAttrs();
+                    long dict1Id = new DictRowBuilder(query1, dict1Data).getLongIdAttr();
+                    DictRow dict2Data = saveDict2Row(connection, query2, dict1Id, true);
+
+                    NsiQuery query = new NsiQuery(config, dict2).addAttrs();
+
+                    DictRow getData = sqlDao.get(connection, query, new DictRowBuilder(query2, dict2Data).getIdAttr());
+                    DataUtils.assertEquals(query, dict2Data, getData);
+
+
+                } finally {
+                    DaoUtils.dropSeq(dict1, connection);
+                    DaoUtils.dropSeq(dict2, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict2, connection);
+                DaoUtils.dropTable(dict1, connection);
+            }
+        }
+    }
+
+    @Test
     public void testInsertAndUpdate() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
@@ -208,12 +244,30 @@ public class SqlDaoTest extends BaseSqlTest {
 
     private DictRow insertDict1Row(Connection connection, NsiQuery query,
             String f1Value) {
-        DictRow inData = new DictRowBuilder(query).deleteMarkAttr(false)
+        DictRow inData = new DictRowBuilder(query)
+                .deleteMarkAttr(false)
                 .idAttr(null)
                 .lastChangeAttr(new DateTime().withMillisOfSecond(0))
-                .lastUserAttr(null).attr("f1", f1Value).build();
+                .lastUserAttr(null)
+                .attr("f1", f1Value)
+                .build();
 
         DictRow outData = sqlDao.insert(connection, query, inData);
+        return outData;
+    }
+
+    private DictRow saveDict2Row(Connection connection, NsiQuery query,
+            long  dic1Id, boolean insert) {
+        DictRow inData = new DictRowBuilder(query)
+                .deleteMarkAttr(false)
+                .idAttr(null)
+                .lastChangeAttr(new DateTime().withMillisOfSecond(0))
+                .lastUserAttr(null)
+                .attr("f1", "test")
+                .attr("dict1_id", dic1Id)
+                .build();
+
+        DictRow outData = sqlDao.save(connection, query, inData, insert);
         return outData;
     }
 
