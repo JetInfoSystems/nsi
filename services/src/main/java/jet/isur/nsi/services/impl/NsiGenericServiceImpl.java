@@ -134,9 +134,9 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             try (Connection connection = dataSource.getConnection()) {
                 if (isInsert) {
                     builder.idAttrNull();
-                    outData = sqlDao.insert(connection, query, data);
+                    outData = sqlDao.save(connection, query, data, isInsert);
                 } else {
-                    outData = sqlDao.update(connection, query, data);
+                    outData = sqlDao.save(connection, query, data, isInsert);
                 }
             }
             if (isInsert) {
@@ -204,9 +204,9 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 try (Connection connection = dataSource.getConnection()) {
                     if (isInsert) {
                         builder.idAttrNull();
-                        outData = sqlDao.insert(connection, query, data);
+                        outData = sqlDao.save(connection, query, data, isInsert);
                     } else {
-                        outData = sqlDao.update(connection, query, data);
+                        outData = sqlDao.save(connection, query, data, isInsert);
                     }
                 }
                 if (isInsert) {
