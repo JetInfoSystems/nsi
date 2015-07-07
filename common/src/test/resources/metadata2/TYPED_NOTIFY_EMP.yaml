@@ -88,6 +88,11 @@ fields:
  - name: NOTIFY_TYPE
    size: 2
    type: char
+   enumValues:
+     1: EMAIL
+     2: SMS
+     3: PHONE AUTO
+     4: PHONE MANUAL
  - name: NOTIFY_ADDR
    size: 200
    type: varchar

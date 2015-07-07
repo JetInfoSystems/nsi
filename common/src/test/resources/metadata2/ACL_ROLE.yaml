@@ -4,36 +4,25 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: MSG_ID
-   fields: [MSG_ID]
-   hidden: false
-   name: MSG_ID
-   type: ref
-   refDict: MSG
  - caption: NAME
    fields: [NAME]
    hidden: false
    name: NAME
    type: value
- - caption: DELIVERY_STATE
-   fields: [DELIVERY_STATE]
+ - caption: DESCRIPTION
+   fields: [DESCRIPTION]
    hidden: false
-   name: DELIVERY_STATE
+   name: DESCRIPTION
    type: value
- - caption: SCHEDULE
-   fields: [SCHEDULE]
+ - caption: LDAP_GROUP
+   fields: [LDAP_GROUP]
    hidden: false
-   name: SCHEDULE
+   name: LDAP_GROUP
    type: value
- - caption: DAYS_TO_READ
-   fields: [DAYS_TO_READ]
+ - caption: STATE
+   fields: [STATE]
    hidden: false
-   name: DAYS_TO_READ
-   type: value
- - caption: DAYS_TO_PERFORM
-   fields: [DAYS_TO_PERFORM]
-   hidden: false
-   name: DAYS_TO_PERFORM
+   name: STATE
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -50,33 +39,27 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: РАССЫЛКА
+caption: Роли
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
    size: 19
    type: number
- - name: MSG_ID
-   size: 19
-   type: number
  - name: NAME
-   size: 500
+   size: 100
    type: varchar
- - name: DELIVERY_STATE
+ - name: DESCRIPTION
+   size: 1000
+   type: varchar
+ - name: LDAP_GROUP
+   size: 1000
+   type: varchar
+ - name: STATE
    size: 2
    type: char
    enumValues:
-     1: Действует
-     2: Отключена
- - name: SCHEDULE
-   size: 500
-   type: varchar
- - name: DAYS_TO_READ
-   size: 10
-   type: number
- - name: DAYS_TO_PERFORM
-   size: 10
-   type: number
+     1: Активна
+     2: Неактивна
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -89,7 +72,7 @@ fields:
 idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: DELIVERY
+name: ACL_ROLE
 refObjectAttrs: [NAME]
-table: DELIVERY
-tableObjectAttrs: [MSG_ID,NAME,DELIVERY_STATE,SCHEDULE,DAYS_TO_READ,DAYS_TO_PERFORM,IS_DELETED,LAST_USER,LAST_CHANGE]
+table: ACL_ROLE
+tableObjectAttrs: [NAME,DESCRIPTION,LDAP_GROUP,STATE,IS_DELETED,LAST_USER,LAST_CHANGE]

@@ -4,22 +4,12 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: IS_MAIN
-   fields: [IS_MAIN]
-   hidden: false
-   name: IS_MAIN
-   type: value
  - caption: MSG_ID
    fields: [MSG_ID]
    hidden: false
    name: MSG_ID
    type: ref
    refDict: MSG
- - caption: READ_DATE
-   fields: [READ_DATE]
-   hidden: false
-   name: READ_DATE
-   type: value
  - caption: ORG_ID
    fields: [ORG_ID]
    hidden: false
@@ -32,6 +22,22 @@ attrs:
    name: EMP_GROUP_ID
    type: ref
    refDict: EMP_GROUP
+ - caption: EMP_ID
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
+ - caption: IS_MAIN
+   fields: [IS_MAIN]
+   hidden: false
+   name: IS_MAIN
+   type: value
+ - caption: READ_DATE
+   fields: [READ_DATE]
+   hidden: false
+   name: READ_DATE
+   type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -53,21 +59,24 @@ fields:
  - name: ID
    size: 19
    type: number
- - name: IS_MAIN
-   size: 1
-   type: boolean
  - name: MSG_ID
    size: 19
    type: number
- - name: READ_DATE
-   size: 0
-   type: date-time
  - name: ORG_ID
    size: 10
    type: number
  - name: EMP_GROUP_ID
    size: 10
    type: number
+ - name: EMP_ID
+   size: 19
+   type: number
+ - name: IS_MAIN
+   size: 1
+   type: boolean
+ - name: READ_DATE
+   size: 0
+   type: date-time
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -82,6 +91,6 @@ lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
 name: MSG_EMP
 ownerAttr: MSG_ID
-refObjectAttrs: [IS_MAIN]
+refObjectAttrs: [MSG_ID]
 table: MSG_EMP
-tableObjectAttrs: [IS_MAIN,MSG_ID,READ_DATE,ORG_ID,EMP_GROUP_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [MSG_ID,ORG_ID,EMP_GROUP_ID,EMP_ID,IS_MAIN,READ_DATE,IS_DELETED,LAST_USER,LAST_CHANGE]

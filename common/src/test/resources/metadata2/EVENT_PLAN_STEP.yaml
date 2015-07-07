@@ -10,6 +10,12 @@ attrs:
    name: EVENT_PLAN_ID
    type: ref
    refDict: EVENT_PLAN
+ - caption: EMP_ID
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
  - caption: NUM
    fields: [NUM]
    hidden: false
@@ -30,12 +36,6 @@ attrs:
    hidden: false
    name: ACHIEVED
    type: value
- - caption: EMP_ID
-   fields: [EMP_ID]
-   hidden: false
-   name: EMP_ID
-   type: ref
-   refDict: EMP
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -70,21 +70,24 @@ fields:
  - name: EVENT_PLAN_ID
    size: 19
    type: number
+ - name: EMP_ID
+   size: 19
+   type: number
  - name: NUM
    size: 4
    type: number
  - name: STATE
    size: 2
    type: char
+   enumValues:
+     1: Запланирован
+     2: Выполнен
  - name: PERFORM_TO
    size: 0
    type: date-time
  - name: ACHIEVED
    size: 0
    type: date-time
- - name: EMP_ID
-   size: 19
-   type: number
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -98,12 +101,12 @@ fields:
    size: 2000
    type: varchar
  - name: CMT
-   size: 2000
-   type: number
+   size: 255
+   type: varchar
 idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
 name: EVENT_PLAN_STEP
 refObjectAttrs: [DESCRIPTION]
 table: EVENT_PLAN_STEP
-tableObjectAttrs: [EVENT_PLAN_ID,NUM,STATE,PERFORM_TO,ACHIEVED,EMP_ID,IS_DELETED,LAST_USER,LAST_CHANGE,DESCRIPTION,CMT]
+tableObjectAttrs: [EVENT_PLAN_ID,EMP_ID,NUM,STATE,PERFORM_TO,ACHIEVED,IS_DELETED,LAST_USER,LAST_CHANGE,DESCRIPTION,CMT]

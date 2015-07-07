@@ -89,6 +89,10 @@ fields:
  - name: STATE
    size: 2
    type: char
+   enumValues:
+     1: Запланирован
+     2: Выполнен
+     3: Отменен
  - name: TIME_STAMP
    size: 0
    type: date-time

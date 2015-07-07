@@ -4,11 +4,18 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: NAME
-   fields: [NAME]
+ - caption: ORG_ID
+   fields: [ORG_ID]
    hidden: false
-   name: NAME
-   type: value
+   name: ORG_ID
+   type: ref
+   refDict: ORG
+ - caption: USER_PROFILE_ID
+   fields: [USER_PROFILE_ID]
+   hidden: false
+   name: USER_PROFILE_ID
+   type: ref
+   refDict: USER_PROFILE
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -24,15 +31,18 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: группа сотрудников
+caption: Организации
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
    size: 10
    type: number
- - name: NAME
-   size: 200
-   type: varchar
+ - name: ORG_ID
+   size: 10
+   type: number
+ - name: USER_PROFILE_ID
+   size: 19
+   type: number
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -45,7 +55,8 @@ fields:
 idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: EMP_GROUP
-refObjectAttrs: [NAME]
-table: EMP_GROUP
-tableObjectAttrs: [NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+name: USER_PROFILE_ORG
+ownerAttr: USER_PROFILE_ID
+refObjectAttrs: [ORG_ID]
+table: USER_PROFILE_ORG
+tableObjectAttrs: [ORG_ID,USER_PROFILE_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

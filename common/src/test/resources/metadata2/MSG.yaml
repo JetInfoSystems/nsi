@@ -4,6 +4,18 @@ attrs:
    hidden: false
    name: ID
    type: value
+ - caption: EMP_ID
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
+ - caption: EMP_ALT_ID
+   fields: [EMP_ALT_ID]
+   hidden: false
+   name: EMP_ALT_ID
+   type: ref
+   refDict: EMP
  - caption: DESCRIPTION
    fields: [DESCRIPTION]
    hidden: false
@@ -34,18 +46,11 @@ attrs:
    hidden: false
    name: SEND_DATE
    type: value
- - caption: EMP_ID
-   fields: [EMP_ID]
+ - caption: NUM
+   fields: [NUM]
    hidden: false
-   name: EMP_ID
-   type: ref
-   refDict: EMP
- - caption: EMP_ALT_ID
-   fields: [EMP_ALT_ID]
-   hidden: false
-   name: EMP_ALT_ID
-   type: ref
-   refDict: EMP
+   name: NUM
+   type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -67,12 +72,22 @@ fields:
  - name: ID
    size: 19
    type: number
+ - name: EMP_ID
+   size: 19
+   type: number
+ - name: EMP_ALT_ID
+   size: 19
+   type: number
  - name: DESCRIPTION
    size: 2000
    type: varchar
  - name: MSG_STATE
    size: 2
    type: char
+   enumValues:
+     1: Черновик
+     2: В работе
+     3: Архив
  - name: SUBJECT
    size: 500
    type: varchar
@@ -85,12 +100,9 @@ fields:
  - name: SEND_DATE
    size: 0
    type: date-time
- - name: EMP_ID
-   size: 19
-   type: number
- - name: EMP_ALT_ID
-   size: 19
-   type: number
+ - name: NUM
+   size: 100
+   type: varchar
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -106,4 +118,4 @@ lastUserAttr: LAST_USER
 name: MSG
 refObjectAttrs: [DESCRIPTION]
 table: MSG
-tableObjectAttrs: [DESCRIPTION,MSG_STATE,SUBJECT,IS_TEMPLATE,READ_UP_DATE,SEND_DATE,EMP_ID,EMP_ALT_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [EMP_ID,EMP_ALT_ID,DESCRIPTION,MSG_STATE,SUBJECT,IS_TEMPLATE,READ_UP_DATE,SEND_DATE,NUM,IS_DELETED,LAST_USER,LAST_CHANGE]

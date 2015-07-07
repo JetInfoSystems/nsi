@@ -4,10 +4,10 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: MESSAGE_ID
-   fields: [MESSAGE_ID]
+ - caption: MSG_ID
+   fields: [MSG_ID]
    hidden: false
-   name: MESSAGE_ID
+   name: MSG_ID
    type: ref
    refDict: MSG
  - caption: DESCRIPTION
@@ -46,7 +46,7 @@ fields:
  - name: ID
    size: 10
    type: number
- - name: MESSAGE_ID
+ - name: MSG_ID
    size: 19
    type: number
  - name: DESCRIPTION
@@ -71,7 +71,7 @@ idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
 name: MSG_INSTRUCTION
-ownerAttr: MESSAGE_ID
+ownerAttr: MSG_ID
 refObjectAttrs: [DESCRIPTION]
 table: MSG_INSTRUCTION
-tableObjectAttrs: [MESSAGE_ID,DESCRIPTION,SUBJECT,TO_PERFORM_DATE,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [MSG_ID,DESCRIPTION,SUBJECT,TO_PERFORM_DATE,IS_DELETED,LAST_USER,LAST_CHANGE]

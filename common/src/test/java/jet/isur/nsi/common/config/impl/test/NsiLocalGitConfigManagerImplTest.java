@@ -46,6 +46,8 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
         Assert.assertNotNull(config.getDict("ORG"));
+        Assert.assertEquals("Черновик", config.getDict("EVENT").getField("STATE").getEnumValues().get("1"));
+        Assert.assertEquals("ALLOW", config.getDict("ACL_ROLE_PERMISSION").getField("ACL_MODE").getEnumValues().get("A"));
     }
 
 }

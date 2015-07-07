@@ -4,6 +4,24 @@ attrs:
    hidden: false
    name: ID
    type: value
+ - caption: ORG_ID
+   fields: [ORG_ID]
+   hidden: false
+   name: ORG_ID
+   type: ref
+   refDict: ORG
+ - caption: ACTIVITY_TYPE_ID
+   fields: [ACTIVITY_TYPE_ID]
+   hidden: false
+   name: ACTIVITY_TYPE_ID
+   type: ref
+   refDict: ACTIVITY_TYPE
+ - caption: PARENT_ID
+   fields: [PARENT_ID]
+   hidden: false
+   name: PARENT_ID
+   type: ref
+   refDict: ORG_UNIT
  - caption: NAME
    fields: [NAME]
    hidden: false
@@ -34,18 +52,6 @@ attrs:
    hidden: false
    name: ADDR_TEXT
    type: value
- - caption: ORG_ID
-   fields: [ORG_ID]
-   hidden: false
-   name: ORG_ID
-   type: ref
-   refDict: ORG
- - caption: WORKING_TYPE_ID
-   fields: [WORKING_TYPE_ID]
-   hidden: false
-   name: WORKING_TYPE_ID
-   type: ref
-   refDict: ACTIVITY_TYPE
  - caption: EXTERNAL_ID
    fields: [EXTERNAL_ID]
    hidden: false
@@ -56,12 +62,6 @@ attrs:
    hidden: false
    name: IS_CLOSED
    type: value
- - caption: PARENT_ID
-   fields: [PARENT_ID]
-   hidden: false
-   name: PARENT_ID
-   type: ref
-   refDict: ORG_UNIT
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -83,6 +83,15 @@ fields:
  - name: ID
    size: 19
    type: number
+ - name: ORG_ID
+   size: 10
+   type: number
+ - name: ACTIVITY_TYPE_ID
+   size: 19
+   type: number
+ - name: PARENT_ID
+   size: 19
+   type: number
  - name: NAME
    size: 200
    type: varchar
@@ -101,21 +110,12 @@ fields:
  - name: ADDR_TEXT
    size: 100
    type: varchar
- - name: ORG_ID
-   size: 10
-   type: number
- - name: WORKING_TYPE_ID
-   size: 19
-   type: number
  - name: EXTERNAL_ID
    size: 20
    type: varchar
  - name: IS_CLOSED
    size: 1
-   type: varchar
- - name: PARENT_ID
-   size: 19
-   type: number
+   type: boolean
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -133,4 +133,4 @@ ownerAttr: ORG_ID
 parentAttr: PARENT_ID
 refObjectAttrs: [NAME]
 table: ORG_UNIT
-tableObjectAttrs: [NAME,DESCRIPTION,ADDR_REGION,ADDR_AREA,ADDR_CITY,ADDR_TEXT,ORG_ID,WORKING_TYPE_ID,EXTERNAL_ID,IS_CLOSED,PARENT_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [ORG_ID,ACTIVITY_TYPE_ID,PARENT_ID,NAME,DESCRIPTION,ADDR_REGION,ADDR_AREA,ADDR_CITY,ADDR_TEXT,EXTERNAL_ID,IS_CLOSED,IS_DELETED,LAST_USER,LAST_CHANGE]

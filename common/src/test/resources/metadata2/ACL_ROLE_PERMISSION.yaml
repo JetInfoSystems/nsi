@@ -4,23 +4,27 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: COR_TYPE
-   fields: [COR_TYPE]
+ - caption: ACL_ROLE_ID
+   fields: [ACL_ROLE_ID]
    hidden: false
-   name: COR_TYPE
+   name: ACL_ROLE_ID
+   type: ref
+   refDict: ACL_ROLE
+ - caption: OBJ_KEY
+   fields: [OBJ_KEY]
+   hidden: false
+   name: OBJ_KEY
    type: value
- - caption: ORG_ID
-   fields: [ORG_ID]
+ - caption: ACTION
+   fields: [ACTION]
    hidden: false
-   name: ORG_ID
-   type: ref
-   refDict: ORG
- - caption: ORG_UNIT_ID
-   fields: [ORG_UNIT_ID]
+   name: ACTION
+   type: value
+ - caption: ACL_MODE
+   fields: [ACL_MODE]
    hidden: false
-   name: ORG_UNIT_ID
-   type: ref
-   refDict: ORG_UNIT
+   name: ACL_MODE
+   type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -36,23 +40,27 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: ОГ_ОТНОШЕНИЕ
+caption: Права
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
-   size: 10
+   size: 19
    type: number
- - name: COR_TYPE
+ - name: ACL_ROLE_ID
+   size: 19
+   type: number
+ - name: OBJ_KEY
+   size: 1000
+   type: varchar
+ - name: ACTION
+   size: 100
+   type: varchar
+ - name: ACL_MODE
    size: 2
    type: char
    enumValues:
-     1: Курирует
- - name: ORG_ID
-   size: 10
-   type: number
- - name: ORG_UNIT_ID
-   size: 19
-   type: number
+     A: ALLOW
+     D: DENY
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -65,8 +73,8 @@ fields:
 idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: ORG_COR
-ownerAttr: ORG_ID
-refObjectAttrs: [COR_TYPE]
-table: ORG_COR
-tableObjectAttrs: [COR_TYPE,ORG_ID,ORG_UNIT_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+name: ACL_ROLE_PERMISSION
+ownerAttr: ACL_ROLE_ID
+refObjectAttrs: [ACL_ROLE_ID]
+table: ACL_ROLE_PERMISSION
+tableObjectAttrs: [ACL_ROLE_ID,OBJ_KEY,ACTION,ACL_MODE,IS_DELETED,LAST_USER,LAST_CHANGE]

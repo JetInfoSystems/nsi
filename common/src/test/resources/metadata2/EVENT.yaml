@@ -118,6 +118,10 @@ fields:
  - name: STATE
    size: 2
    type: char
+   enumValues:
+     1: Черновик
+     2: В работе
+     3: Архив
  - name: DESCRIPTION
    size: 2000
    type: varchar

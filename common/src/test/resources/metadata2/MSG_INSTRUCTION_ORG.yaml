@@ -16,6 +16,18 @@ attrs:
    name: ORG_ID
    type: ref
    refDict: ORG
+ - caption: EMP_GROUP_ID
+   fields: [EMP_GROUP_ID]
+   hidden: false
+   name: EMP_GROUP_ID
+   type: ref
+   refDict: EMP_GROUP
+ - caption: EMP_ID
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
  - caption: PERFORM_DATE
    fields: [PERFORM_DATE]
    hidden: false
@@ -58,12 +70,18 @@ fields:
  - name: ORG_ID
    size: 10
    type: number
+ - name: EMP_GROUP_ID
+   size: 10
+   type: number
+ - name: EMP_ID
+   size: 19
+   type: number
  - name: PERFORM_DATE
    size: 0
    type: date-time
  - name: DESCRIPTION
-   size: 0
-   type: date-time
+   size: 2000
+   type: varchar
  - name: TO_PERFORM_DATE
    size: 0
    type: date-time
@@ -83,4 +101,4 @@ name: MSG_INSTRUCTION_ORG
 ownerAttr: MSG_INSTRUCTION_ID
 refObjectAttrs: [DESCRIPTION]
 table: MSG_INSTRUCTION_ORG
-tableObjectAttrs: [MSG_INSTRUCTION_ID,ORG_ID,PERFORM_DATE,DESCRIPTION,TO_PERFORM_DATE,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [MSG_INSTRUCTION_ID,ORG_ID,EMP_GROUP_ID,EMP_ID,PERFORM_DATE,DESCRIPTION,TO_PERFORM_DATE,IS_DELETED,LAST_USER,LAST_CHANGE]

@@ -4,11 +4,6 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: NAME
-   fields: [NAME]
-   hidden: false
-   name: NAME
-   type: value
  - caption: EVENT_CATEGORY_ID
    fields: [EVENT_CATEGORY_ID]
    hidden: false
@@ -27,6 +22,11 @@ attrs:
    name: EVENT_TYPE_ID
    type: ref
    refDict: EVENT_TYPE
+ - caption: NAME
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
    hidden: false
@@ -48,9 +48,6 @@ fields:
  - name: ID
    size: 19
    type: number
- - name: NAME
-   size: 300
-   type: varchar
  - name: EVENT_CATEGORY_ID
    size: 19
    type: number
@@ -60,6 +57,9 @@ fields:
  - name: EVENT_TYPE_ID
    size: 19
    type: number
+ - name: NAME
+   size: 300
+   type: varchar
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -75,4 +75,4 @@ lastUserAttr: LAST_USER
 name: TYPED_PLAN
 refObjectAttrs: [NAME]
 table: TYPED_PLAN
-tableObjectAttrs: [NAME,EVENT_CATEGORY_ID,PLAN_TYPE_ID,EVENT_TYPE_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [EVENT_CATEGORY_ID,PLAN_TYPE_ID,EVENT_TYPE_ID,NAME,IS_DELETED,LAST_USER,LAST_CHANGE]

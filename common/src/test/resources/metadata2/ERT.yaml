@@ -101,6 +101,11 @@ fields:
  - name: ERT_TYPE
    size: 2
    type: char
+   enumValues:
+     1: Сторонний (ПАСФ)
+     2: Орнагизация (ПАСФ)
+     3: Собственное штатное (ПАСФ)
+     4: Собственное нештатное (НАСФ)
  - name: ORG_ID
    size: 10
    type: number

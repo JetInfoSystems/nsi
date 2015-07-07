@@ -10,18 +10,18 @@ attrs:
    name: ORG_UNIT_ID
    type: ref
    refDict: ORG_UNIT
- - caption: EMP_PARAM_EMAIL_ID
-   fields: [EMP_PARAM_EMAIL_ID]
+ - caption: EMP_PHONE_ID
+   fields: [EMP_PHONE_ID]
    hidden: false
-   name: EMP_PARAM_EMAIL_ID
+   name: EMP_PHONE_ID
    type: ref
-   refDict: EMP_PARAM
- - caption: EMP_PARAM_PHONE_ID
-   fields: [EMP_PARAM_PHONE_ID]
+   refDict: EMP_PHONE
+ - caption: EMP_EMAIL_ID
+   fields: [EMP_EMAIL_ID]
    hidden: false
-   name: EMP_PARAM_PHONE_ID
+   name: EMP_EMAIL_ID
    type: ref
-   refDict: EMP_PARAM
+   refDict: EMP_EMAIL
  - caption: FIRST_NAME
    fields: [FIRST_NAME]
    hidden: false
@@ -81,10 +81,10 @@ fields:
  - name: ORG_UNIT_ID
    size: 19
    type: number
- - name: EMP_PARAM_EMAIL_ID
+ - name: EMP_PHONE_ID
    size: 19
    type: number
- - name: EMP_PARAM_PHONE_ID
+ - name: EMP_EMAIL_ID
    size: 19
    type: number
  - name: FIRST_NAME
@@ -123,4 +123,4 @@ lastUserAttr: LAST_USER
 name: EMP
 refObjectAttrs: [DESCRIPTION]
 table: EMP
-tableObjectAttrs: [ORG_UNIT_ID,EMP_PARAM_EMAIL_ID,EMP_PARAM_PHONE_ID,FIRST_NAME,MIDDLE_NAME,SECONDARY_NAME,EXTERNAL_ID,FUNCTION,DESCRIPTION,IS_CLOSED,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [ORG_UNIT_ID,EMP_PHONE_ID,EMP_EMAIL_ID,FIRST_NAME,MIDDLE_NAME,SECONDARY_NAME,EXTERNAL_ID,FUNCTION,DESCRIPTION,IS_CLOSED,IS_DELETED,LAST_USER,LAST_CHANGE]

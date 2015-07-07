@@ -4,10 +4,10 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: WORKING_TYPE_ID
-   fields: [WORKING_TYPE_ID]
+ - caption: ACTIVITY_TYPE_ID
+   fields: [ACTIVITY_TYPE_ID]
    hidden: false
-   name: WORKING_TYPE_ID
+   name: ACTIVITY_TYPE_ID
    type: ref
    refDict: ACTIVITY_TYPE
  - caption: ORG_FORM_ID
@@ -87,7 +87,7 @@ fields:
  - name: ID
    size: 10
    type: number
- - name: WORKING_TYPE_ID
+ - name: ACTIVITY_TYPE_ID
    size: 19
    type: number
  - name: ORG_FORM_ID
@@ -138,4 +138,4 @@ lastUserAttr: LAST_USER
 name: ORG
 refObjectAttrs: [NAME]
 table: ORG
-tableObjectAttrs: [WORKING_TYPE_ID,ORG_FORM_ID,ADDR_AREA,ADDR_CITY,ADDR_TEXT,DESCRIPTION,NAME,ADDR_REGION,IS_MAJOR,IS_CLOSED,NUM,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [ACTIVITY_TYPE_ID,ORG_FORM_ID,ADDR_AREA,ADDR_CITY,ADDR_TEXT,DESCRIPTION,NAME,ADDR_REGION,IS_MAJOR,IS_CLOSED,NUM,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

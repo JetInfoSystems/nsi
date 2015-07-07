@@ -1,13 +1,13 @@
 attrs:
- - caption: НАИМЕНОВАНИЕ
-   fields: [НАИМЕНОВАНИЕ]
-   hidden: false
-   name: НАИМЕНОВАНИЕ
-   type: value
  - caption: ID
    fields: [ID]
    hidden: false
    name: ID
+   type: value
+ - caption: NAME
+   fields: [NAME]
+   hidden: false
+   name: NAME
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -27,12 +27,12 @@ attrs:
 caption: ТИП_ЛИЧНОГО_СОСТАВА
 deleteMarkAttr: IS_DELETED
 fields:
- - name: НАИМЕНОВАНИЕ
-   size: 10
-   type: number
  - name: ID
    size: 10
    type: number
+ - name: NAME
+   size: 200
+   type: varchar
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -46,6 +46,6 @@ idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
 name: STAFF_TYPE
-refObjectAttrs: [НАИМЕНОВАНИЕ]
+refObjectAttrs: [NAME]
 table: STAFF_TYPE
-tableObjectAttrs: [НАИМЕНОВАНИЕ,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [NAME,IS_DELETED,LAST_USER,LAST_CHANGE]

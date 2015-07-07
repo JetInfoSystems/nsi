@@ -1,4 +1,27 @@
 attrs:
+ - caption: ID
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: OBJ_TYPE_ID
+   fields: [OBJ_TYPE_ID]
+   hidden: false
+   name: OBJ_TYPE_ID
+   type: ref
+   refDict: OBJ_TYPE
+ - caption: ORG_ID
+   fields: [ORG_ID]
+   hidden: false
+   name: ORG_ID
+   type: ref
+   refDict: ORG
+ - caption: ORG_OBJ_ID
+   fields: [ORG_OBJ_ID]
+   hidden: false
+   name: ORG_OBJ_ID
+   type: ref
+   refDict: ORG_OBJ
  - caption: ADDR_AREA
    fields: [ADDR_AREA]
    hidden: false
@@ -14,29 +37,6 @@ attrs:
    hidden: false
    name: ADDR_TEXT
    type: value
- - caption: ID
-   fields: [ID]
-   hidden: false
-   name: ID
-   type: value
- - caption: ORG_OBJ_ID
-   fields: [ORG_OBJ_ID]
-   hidden: false
-   name: ORG_OBJ_ID
-   type: ref
-   refDict: ORG_OBJ
- - caption: OBJ_TYPE_ID
-   fields: [OBJ_TYPE_ID]
-   hidden: false
-   name: OBJ_TYPE_ID
-   type: ref
-   refDict: OBJ_TYPE
- - caption: ORG_ID
-   fields: [ORG_ID]
-   hidden: false
-   name: ORG_ID
-   type: ref
-   refDict: ORG
  - caption: ADDR_REGION
    fields: [ADDR_REGION]
    hidden: false
@@ -46,6 +46,11 @@ attrs:
    fields: [NAME]
    hidden: false
    name: NAME
+   type: value
+ - caption: IS_DANGEROUS
+   fields: [IS_DANGEROUS]
+   hidden: false
+   name: IS_DANGEROUS
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -65,6 +70,18 @@ attrs:
 caption: ОБЪЕКТ
 deleteMarkAttr: IS_DELETED
 fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: OBJ_TYPE_ID
+   size: 19
+   type: number
+ - name: ORG_ID
+   size: 10
+   type: number
+ - name: ORG_OBJ_ID
+   size: 19
+   type: number
  - name: ADDR_AREA
    size: 36
    type: varchar
@@ -74,24 +91,15 @@ fields:
  - name: ADDR_TEXT
    size: 100
    type: varchar
- - name: ID
-   size: 19
-   type: number
- - name: ORG_OBJ_ID
-   size: 19
-   type: number
- - name: OBJ_TYPE_ID
-   size: 19
-   type: number
- - name: ORG_ID
-   size: 10
-   type: number
  - name: ADDR_REGION
    size: 36
    type: varchar
  - name: NAME
    size: 200
    type: varchar
+ - name: IS_DANGEROUS
+   size: 1
+   type: boolean
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -109,4 +117,4 @@ ownerAttr: ORG_ID
 parentAttr: ORG_OBJ_ID
 refObjectAttrs: [NAME]
 table: ORG_OBJ
-tableObjectAttrs: [ADDR_AREA,ADDR_CITY,ADDR_TEXT,ORG_OBJ_ID,OBJ_TYPE_ID,ORG_ID,ADDR_REGION,NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [OBJ_TYPE_ID,ORG_ID,ORG_OBJ_ID,ADDR_AREA,ADDR_CITY,ADDR_TEXT,ADDR_REGION,NAME,IS_DANGEROUS,IS_DELETED,LAST_USER,LAST_CHANGE]

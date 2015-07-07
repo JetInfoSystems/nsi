@@ -4,10 +4,21 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: NAME
-   fields: [NAME]
+ - caption: EMP_ID
+   fields: [EMP_ID]
    hidden: false
-   name: NAME
+   name: EMP_ID
+   type: ref
+   refDict: EMP
+ - caption: LOGIN
+   fields: [LOGIN]
+   hidden: false
+   name: LOGIN
+   type: value
+ - caption: STATE
+   fields: [STATE]
+   hidden: false
+   name: STATE
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -24,15 +35,24 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: группа сотрудников
+caption: Профили пользователей
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
-   size: 10
+   size: 19
    type: number
- - name: NAME
+ - name: EMP_ID
+   size: 19
+   type: number
+ - name: LOGIN
    size: 200
    type: varchar
+ - name: STATE
+   size: 2
+   type: char
+   enumValues:
+     1: Активен
+     2: Заблокирован
  - name: IS_DELETED
    size: 1
    type: boolean
@@ -45,7 +65,7 @@ fields:
 idAttr: ID
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: EMP_GROUP
-refObjectAttrs: [NAME]
-table: EMP_GROUP
-tableObjectAttrs: [NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+name: USER_PROFILE
+refObjectAttrs: [EMP_ID]
+table: USER_PROFILE
+tableObjectAttrs: [EMP_ID,LOGIN,STATE,IS_DELETED,LAST_USER,LAST_CHANGE]

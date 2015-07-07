@@ -1,6 +1,7 @@
 package jet.isur.nsi.api.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Описание поля таблицы.
@@ -25,6 +26,13 @@ public class MetaField implements Serializable {
      * Точность.
      */
     private Integer precision = 0;
+
+    /**
+     * Если данный map задан то поле является перечислением.
+     */
+    private Map<String, String> enumValues;
+
+
     public String getName() {
         return name;
     }
@@ -48,6 +56,12 @@ public class MetaField implements Serializable {
     }
     public void setPrecision(Integer precision) {
         this.precision = precision;
+    }
+    public Map<String, String> getEnumValues() {
+        return enumValues;
+    }
+    public void setEnumValues(Map<String, String> enumValues) {
+        this.enumValues = enumValues;
     }
 
 

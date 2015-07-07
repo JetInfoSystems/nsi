@@ -4,31 +4,21 @@ attrs:
    hidden: false
    name: ID
    type: value
- - caption: PARENT_ID
-   fields: [PARENT_ID]
+ - caption: EMP_ID
+   fields: [EMP_ID]
    hidden: false
-   name: PARENT_ID
+   name: EMP_ID
    type: ref
-   refDict: PARAM
- - caption: IS_GROUP
-   fields: [IS_GROUP]
-   hidden: false
-   name: IS_GROUP
-   type: value
+   refDict: EMP
  - caption: NAME
    fields: [NAME]
    hidden: false
    name: NAME
    type: value
- - caption: PARAM_TYPE
-   fields: [PARAM_TYPE]
+ - caption: VALUE
+   fields: [VALUE]
    hidden: false
-   name: PARAM_TYPE
-   type: value
- - caption: DIC_NAME
-   fields: [DIC_NAME]
-   hidden: false
-   name: DIC_NAME
+   name: VALUE
    type: value
  - caption: IS_DELETED
    fields: [IS_DELETED]
@@ -45,32 +35,20 @@ attrs:
    hidden: false
    name: LAST_CHANGE
    type: value
-caption: ПАРАМЕТР
+caption: 
 deleteMarkAttr: IS_DELETED
 fields:
  - name: ID
    size: 19
    type: number
- - name: PARENT_ID
+ - name: EMP_ID
    size: 19
    type: number
- - name: IS_GROUP
-   size: 1
-   type: boolean
  - name: NAME
-   size: 255
+   size: 100
    type: varchar
- - name: PARAM_TYPE
-   size: 2
-   type: char
-   enumValues:
-     1: Строка
-     2: Целое
-     3: Логическое
-     4: Дата время
-     5: С плавающей точкой
- - name: DIC_NAME
-   size: 255
+ - name: VALUE
+   size: 2000
    type: varchar
  - name: IS_DELETED
    size: 1
@@ -82,11 +60,10 @@ fields:
    size: 0
    type: date-time
 idAttr: ID
-isGroupAttr: IS_GROUP
 lastChangeAttr: LAST_CHANGE
 lastUserAttr: LAST_USER
-name: PARAM
-parentAttr: PARENT_ID
+name: EMP_PHONE
+ownerAttr: EMP_ID
 refObjectAttrs: [NAME]
-table: PARAM
-tableObjectAttrs: [PARENT_ID,IS_GROUP,NAME,PARAM_TYPE,DIC_NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
+table: EMP_PHONE
+tableObjectAttrs: [EMP_ID,NAME,VALUE,IS_DELETED,LAST_USER,LAST_CHANGE]

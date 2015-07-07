@@ -10,10 +10,10 @@ attrs:
    name: EVENT_ID
    type: ref
    refDict: EVENT
- - caption: PARAM_EVENT_ID
-   fields: [PARAM_EVENT_ID]
+ - caption: PARAM_EVENT_TYPE_ID
+   fields: [PARAM_EVENT_TYPE_ID]
    hidden: false
-   name: PARAM_EVENT_ID
+   name: PARAM_EVENT_TYPE_ID
    type: ref
    refDict: PARAM_EVENT_TYPE
  - caption: VALUE
@@ -45,7 +45,7 @@ fields:
  - name: EVENT_ID
    size: 19
    type: number
- - name: PARAM_EVENT_ID
+ - name: PARAM_EVENT_TYPE_ID
    size: 19
    type: number
  - name: VALUE
@@ -67,4 +67,4 @@ name: EVENT_PARAM
 ownerAttr: EVENT_ID
 refObjectAttrs: [EVENT_ID]
 table: EVENT_PARAM
-tableObjectAttrs: [EVENT_ID,PARAM_EVENT_ID,VALUE,IS_DELETED,LAST_USER,LAST_CHANGE]
+tableObjectAttrs: [EVENT_ID,PARAM_EVENT_TYPE_ID,VALUE,IS_DELETED,LAST_USER,LAST_CHANGE]

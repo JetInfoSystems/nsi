@@ -80,12 +80,22 @@ fields:
  - name: NOTIFY_TYPE
    size: 2
    type: char
+   enumValues:
+     1: EMAIL
+     2: SMS
+     3: PHONE AUTO
+     4: PHONE MANUAL
  - name: NOTIFY_ADDR
    size: 200
    type: varchar
  - name: STATE
    size: 2
    type: char
+   enumValues:
+     1: Запланировано
+     2: Уведомляется
+     3: Уведомлен
+     4: Ошибка
  - name: SEND_DATE
    size: 0
    type: date-time
