@@ -341,7 +341,7 @@ public class DefaultSqlDao implements SqlDao {
             if(Strings.isNullOrEmpty(value)) {
                 ps.setNull(index, Types.CHAR);
             } else {
-                ps.setString(index, value);
+                ps.setString(index, Strings.padEnd(value, field.getSize(), ' '));
             }
             break;
         default:
