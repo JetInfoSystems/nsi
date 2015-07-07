@@ -1,6 +1,10 @@
 package jet.isur.nsi.common.sql.test;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import jet.isur.nsi.api.data.NsiConfigDict;
@@ -11,6 +15,7 @@ import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.api.model.builder.SortListBuilder;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
+import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.common.utils.DaoUtils;
 import jet.isur.nsi.common.utils.DataUtils;
 
@@ -300,6 +305,62 @@ public class SqlDaoTest extends BaseSqlTest {
                             outDataBuilder.getIdAttr());
                     DataUtils.assertEquals(query, outData, getData);
 
+                } finally {
+                    DaoUtils.dropSeq(dict, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict, connection);
+            }
+        }
+    }
+
+
+    @Test
+    public void testBatchInsert() throws Exception {
+        NsiConfigDict dict = config.getDict("dict1");
+        DefaultSqlDao dao = new DefaultSqlDao();
+        DefaultSqlGen gen = new DefaultSqlGen();
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.recreateTable(dict, connection);
+            try {
+
+                DaoUtils.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    // ID будем задавать явно, поэтому последовательность не
+                    // используем
+                    String sql = gen.getRowInsertSql(query, false);
+                    try (PreparedStatement psGetId = connection
+                            .prepareStatement("select " + dict.getSeq()
+                                    + ".nextval from dual");
+                            PreparedStatement ps = connection
+                                    .prepareStatement(sql)) {
+
+                        DictRowBuilder builder = new DictRowBuilder(query);
+                        List<DictRow> dataList = new ArrayList<>();
+                        for (Integer i = 0; i < 10; i++) {
+                            ResultSet rs = psGetId.executeQuery();
+                            rs.next();
+                            long id = rs.getLong(1);
+
+                            dataList.add(builder
+                                    .deleteMarkAttr(false)
+                                    .idAttr(id)
+                                    .lastChangeAttr(
+                                            new DateTime()
+                                                    .withMillisOfSecond(0))
+                                    .lastUserAttr(null)
+                                    .attr("f1", true)
+                                    .attr("f2", i.toString())
+                                    .build());
+                        }
+                        for (DictRow data : dataList) {
+                            dao.setParamsForInsert(query, data, ps);
+                            ps.addBatch();
+                        }
+                        ps.executeBatch();
+                    }
                 } finally {
                     DaoUtils.dropSeq(dict, connection);
                 }

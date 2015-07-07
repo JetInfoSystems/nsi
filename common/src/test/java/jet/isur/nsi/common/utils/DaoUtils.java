@@ -45,6 +45,17 @@ public class DaoUtils {
         }
     }
 
+    public static void recreateTable(NsiConfigDict dict, Connection connection) {
+        try {
+            createTable(dict, connection);
+        }
+        catch(Exception e) {
+            dropTable(dict, connection);
+            createTable(dict, connection);
+        }
+
+    }
+
     public static DSLContext getQueryBuilder(Connection connection) {
         Settings settings = new Settings();
         settings.setRenderNameStyle(RenderNameStyle.UPPER);
@@ -66,6 +77,17 @@ public class DaoUtils {
     public static void createSeq(String name, Connection connection) {
         getQueryBuilder(connection).createSequence(name).execute();
     }
+
+    public static void recreateSeq(NsiConfigDict dict, Connection connection) {
+        try {
+            createSeq(dict, connection);
+        }
+        catch (Exception e) {
+            dropSeq(dict,connection);
+            createSeq(dict, connection);
+        }
+    }
+
 
     public static void dropSeq(NsiConfigDict dict, Connection connection) {
         dropSeq(dict.getSeq(), connection);
