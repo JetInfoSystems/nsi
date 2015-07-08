@@ -1,18 +1,34 @@
 package jet.isur.nsi.common.sql.test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
+import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
+import jet.isur.nsi.common.sql.DefaultSqlGen;
+import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 public class SqlGenTest extends BaseSqlTest {
+
+    private NsiConfig config;
+    private DefaultSqlGen sqlGen;
+
+    @Override
+    public void setup() throws Exception {
+        NsiLocalGitConfigManagerImpl factory = new NsiLocalGitConfigManagerImpl(new File("src/test/resources/metadata1"), new NsiYamlMetaDictReaderImpl());
+        config = factory.getConfig();
+        sqlGen = new DefaultSqlGen();
+    }
 
     @Test
     public void testDict1RowGetSql() {
@@ -87,7 +103,7 @@ public class SqlGenTest extends BaseSqlTest {
         values.add("1");
         value.setValues(values);
         filter.setValue(value);
-        
+
         List<SortExp> sortList = new ArrayList<>();
         sortList.add(buildSortExp("id", true));
         sortList.add(buildSortExp("last_user", true));

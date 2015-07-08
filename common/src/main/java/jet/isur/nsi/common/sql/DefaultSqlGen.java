@@ -19,6 +19,7 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
 
 import org.jooq.Condition;
@@ -40,7 +41,7 @@ import org.jooq.conf.RenderNameStyle;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
-public class DefaultSqlGen {
+public class DefaultSqlGen implements SqlGen {
 
     private static Settings settings = new Settings();
     static {

@@ -1,4 +1,4 @@
-package jet.isur.nsi.common.utils;
+package jet.isur.nsi.testkit.utils;
 
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;

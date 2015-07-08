@@ -26,6 +26,7 @@ import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
+import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
 
 import org.joda.time.DateTime;
@@ -83,7 +84,7 @@ public class DefaultSqlDao implements SqlDao {
         }
     }
 
-    protected DefaultSqlGen sqlGen;
+    protected SqlGen sqlGen;
 
     public void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result) throws SQLException {
         int index = 1;
@@ -274,7 +275,7 @@ public class DefaultSqlDao implements SqlDao {
         return rs.getBigDecimal(1).longValue();
     }
 
-    public void setSqlGen(DefaultSqlGen sqlGen) {
+    public void setSqlGen(SqlGen sqlGen) {
         this.sqlGen = sqlGen;
     }
 

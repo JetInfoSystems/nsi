@@ -1,14 +1,14 @@
-package jet.isur.nsi.common.utils;
+package jet.isur.nsi.testkit.utils;
 
 import java.sql.Connection;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.model.MetaFieldType;
-import jet.isur.nsi.common.data.NsiDataException;
 
 import org.jooq.CreateTableAsStep;
 import org.jooq.CreateTableColumnStep;
@@ -41,7 +41,7 @@ public class DaoUtils {
         if(createTableColumnStep != null) {
             createTableColumnStep.execute();
         } else {
-            throw new NsiDataException("no fields found");
+            throw new NsiServiceException("no fields found");
         }
     }
 
@@ -116,7 +116,7 @@ public class DaoUtils {
             type = "char";
             break;
         default:
-            throw new NsiDataException("unsupported field type: " + fieldType);
+            throw new NsiServiceException("unsupported field type: " + fieldType);
         }
         return DefaultDataType.getDataType(SQLDialect.DEFAULT, type);
     }

@@ -6,9 +6,9 @@ import java.nio.charset.StandardCharsets;
 
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
-import jet.isur.nsi.common.utils.DataGen;
-import jet.isur.nsi.common.utils.DataUtils;
 import jet.isur.nsi.common.yaml.JaxbRepresenter;
+import jet.isur.nsi.testkit.utils.DataGen;
+import jet.isur.nsi.testkit.utils.DataUtils;
 
 import org.junit.Test;
 import org.yaml.snakeyaml.DumperOptions;

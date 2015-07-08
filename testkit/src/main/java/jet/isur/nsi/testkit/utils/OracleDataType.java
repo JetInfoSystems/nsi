@@ -1,4 +1,4 @@
-package jet.isur.nsi.common.utils;
+package jet.isur.nsi.testkit.utils;
 
 import java.math.BigDecimal;
 import java.sql.Date;

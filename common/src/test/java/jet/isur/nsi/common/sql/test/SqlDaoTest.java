@@ -1,12 +1,13 @@
 package jet.isur.nsi.common.sql.test;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
@@ -14,10 +15,14 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.api.model.builder.SortListBuilder;
+import jet.isur.nsi.api.sql.SqlGen;
+import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
+import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
-import jet.isur.nsi.common.utils.DaoUtils;
-import jet.isur.nsi.common.utils.DataUtils;
+import jet.isur.nsi.testkit.test.BaseSqlTest;
+import jet.isur.nsi.testkit.utils.DaoUtils;
+import jet.isur.nsi.testkit.utils.DataUtils;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -26,10 +31,16 @@ import org.junit.Test;
 public class SqlDaoTest extends BaseSqlTest {
 
     private DefaultSqlDao sqlDao;
+    private DefaultSqlGen sqlGen;
+    private NsiConfig config;
+
 
     @Override
     public void setup() throws Exception {
         super.setup();
+        NsiLocalGitConfigManagerImpl factory = new NsiLocalGitConfigManagerImpl(new File("src/test/resources/metadata1"), new NsiYamlMetaDictReaderImpl());
+        config = factory.getConfig();
+        sqlGen = new DefaultSqlGen();
         sqlDao = new DefaultSqlDao();
         sqlDao.setSqlGen(sqlGen);
     }

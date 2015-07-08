@@ -6,8 +6,8 @@
         <artifactId>parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>nsi-common</artifactId>
-    <packaging>bundle</packaging>
+    <artifactId>nsi-testkit</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -44,59 +44,26 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jolbox</groupId>
             <artifactId>bonecp</artifactId>
             <version>0.8.0.RELEASE</version>
-            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>jet.isur.nsi</groupId>
-            <artifactId>nsi-testkit</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+
 
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Version>${project.version}</Bundle-Version>
-                        <Import-Package>*</Import-Package>
-                        <Export-Package>
-                            jet.isur.nsi.common.config.impl;version=${project.version},
-                            jet.isur.nsi.common.data;version=${project.version},
-                            jet.isur.nsi.common.sql;version=${project.version},
-                            jet.isur.nsi.common.utils;version=${project.version},
-                            jet.isur.nsi.common.yaml;version=${project.version}
-                        </Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
