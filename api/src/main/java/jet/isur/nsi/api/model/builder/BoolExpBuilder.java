@@ -51,14 +51,11 @@ public class BoolExpBuilder {
     }
 
     public BoolExpBuilder expList() {
-        getPrototype().setExpList(new ArrayList<BoolExp>());
         return new BoolExpBuilder(this, false);
     }
 
     public BoolExpBuilder add() {
-        owner.getPrototype().getExpList().add(getPrototype());
-        prototype = null;
-        return this;
+        return add(getPrototype());
     }
 
     public BoolExpBuilder end() {
@@ -70,7 +67,11 @@ public class BoolExpBuilder {
     }
 
     public BoolExpBuilder add(BoolExp filter) {
-        owner.getPrototype().getExpList().add(filter);
+        BoolExp ownerPrototype = owner.getPrototype();
+        if(ownerPrototype.getExpList() == null) {
+            ownerPrototype.setExpList(new ArrayList<BoolExp>());
+        }
+        ownerPrototype.getExpList().add(filter);
         prototype = null;
         return this;
     }

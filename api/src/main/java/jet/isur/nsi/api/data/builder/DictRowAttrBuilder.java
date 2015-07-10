@@ -45,6 +45,9 @@ public class DictRowAttrBuilder {
         return from(Long.toString(value));
     }
 
+    public static DictRowAttr from(boolean value) {
+        return from(Boolean.toString(value));
+    }
 
     public static DictRowAttr build(List<String> values) {
         DictRowAttr result = new DictRowAttr();

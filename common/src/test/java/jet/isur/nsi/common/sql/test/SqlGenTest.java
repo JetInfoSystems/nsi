@@ -7,9 +7,11 @@ import java.util.List;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
+import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
 import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
@@ -69,15 +71,11 @@ public class SqlGenTest extends BaseSqlTest {
     public void testDict1ListSql() {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
-        BoolExp filter = new BoolExp();
-        filter.setFunc("=");
-        filter.setKey("f1");
-
-        DictRowAttr value = new DictRowAttr();
-        List<String> values = new ArrayList<String>();
-        values.add("1");
-        value.setValues(values);
-        filter.setValue(value);
+        BoolExp filter = new BoolExpBuilder()
+            .key("f1")
+            .func("=")
+            .value(DictRowAttrBuilder.from("1"))
+            .build();
 
         List<SortExp> sortList = new ArrayList<>();
         sortList.add(buildSortExp("id", true));
@@ -91,18 +89,39 @@ public class SqlGenTest extends BaseSqlTest {
     }
 
     @Test
+    public void testDict1ListComplexFilterSql() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        BoolExp f1Filter = new BoolExpBuilder()
+            .func("and")
+            .expList()
+                .key("f1").func("=").value(DictRowAttrBuilder.from("1")).add()
+                .key("is_deleted").func("=").value(DictRowAttrBuilder.from(true)).add()
+            .end()
+            .build();
+
+        List<SortExp> sortList = new ArrayList<>();
+        sortList.add(buildSortExp("id", true));
+        sortList.add(buildSortExp("last_user", true));
+
+        String sql = sqlGen.getListSql(query, f1Filter, sortList, 1, 2);
+        Assert.assertEquals(
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                + "from table1 m "
+                + "where (m.f1 = ? and m.is_deleted = ?) "
+                + "order by m.id asc, m.last_user asc "
+                + "limit ?", sql);
+    }
+
+    @Test
     public void testDict3ListSql() {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
-        BoolExp filter = new BoolExp();
-        filter.setFunc("like");
-        filter.setKey("f1");
-
-        DictRowAttr value = new DictRowAttr();
-        List<String> values = new ArrayList<String>();
-        values.add("1");
-        value.setValues(values);
-        filter.setValue(value);
+        BoolExp filter = new BoolExpBuilder()
+            .key("f1")
+            .func("like")
+            .value(DictRowAttrBuilder.from("1"))
+            .build();
 
         List<SortExp> sortList = new ArrayList<>();
         sortList.add(buildSortExp("id", true));
@@ -148,16 +167,11 @@ public class SqlGenTest extends BaseSqlTest {
     public void testDict1CountSql() {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
-        BoolExp filter = new BoolExp();
-        filter.setFunc("=");
-        filter.setKey("f1");
-
-        List<String> values = new ArrayList<String>();
-        values.add("1");
-
-        DictRowAttr value = new DictRowAttr();
-        value.setValues(values);
-        filter.setValue(value);
+        BoolExp filter = new BoolExpBuilder()
+        .key("f1")
+        .func("=")
+        .value(DictRowAttrBuilder.from("1"))
+        .build();
 
         String sql = sqlGen.getCountSql(query, filter);
         Assert.assertEquals("select count(*) " + "from table1 m "
