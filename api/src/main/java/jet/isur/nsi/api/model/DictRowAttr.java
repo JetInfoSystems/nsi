@@ -35,6 +35,13 @@ public class DictRowAttr implements Serializable {
         values.add(value);
     }
 
+    public String getFirstValue() {
+        if(values != null && !values.isEmpty()) {
+            return values.iterator().next();
+        }
+        return null;
+    }
+
     public Map<String, DictRowAttr> getRefAttrs() {
         return refAttrs;
     }
