@@ -1,5 +1,6 @@
 package jet.isur.nsi.testkit.test;
 
+import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
 
@@ -20,7 +21,8 @@ public class BaseSqlTest {
 
     public void setup() throws Exception {
         Properties properties = new Properties();
-        try(FileReader reader = new FileReader("target/test-classes/project.properties")) {
+        File file = new File("target/test-classes/project.properties").getAbsoluteFile();
+        try(FileReader reader = new FileReader(file)) {
             properties.load(reader);
         }
         dataSource = DaoUtils.createDataSource("isur", properties);
