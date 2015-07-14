@@ -1,0 +1,70 @@
+attrs:
+ - caption: ID
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: STAFF_TYPE_ID
+   fields: [STAFF_TYPE_ID]
+   hidden: false
+   name: STAFF_TYPE_ID
+   type: ref
+   refDict: STAFF_TYPE
+ - caption: ERT_ID
+   fields: [ERT_ID]
+   hidden: false
+   name: ERT_ID
+   type: ref
+   refDict: ERT
+ - caption: COUNT
+   fields: [COUNT]
+   hidden: false
+   name: COUNT
+   type: value
+ - caption: IS_DELETED
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: LAST_USER
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: LAST_CHANGE
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: АСФ_ЛИЧНЫЙ_СОСТАВ
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 10
+   type: number
+ - name: STAFF_TYPE_ID
+   size: 10
+   type: number
+ - name: ERT_ID
+   size: 19
+   type: number
+ - name: COUNT
+   size: 10
+   type: number
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: ERT_STAFF
+ownerAttr: ERT_ID
+refObjectAttrs: [STAFF_TYPE_ID]
+table: ERT_STAFF
+tableObjectAttrs: [STAFF_TYPE_ID,ERT_ID,COUNT,IS_DELETED,LAST_USER,LAST_CHANGE]
