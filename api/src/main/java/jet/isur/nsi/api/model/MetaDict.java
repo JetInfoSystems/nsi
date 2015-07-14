@@ -69,6 +69,9 @@ public class MetaDict extends MetaDictRef {
      * Список наименований атрибутов кторые используются для табличного представления записи.
      */
     private List<String> tableObjectAttrs;
+
+    private Boolean hidden;
+
     public String getTable() {
         return table;
     }
@@ -158,6 +161,12 @@ public class MetaDict extends MetaDictRef {
     }
     public void setCaption(String caption) {
         this.caption = caption;
+    }
+    public Boolean getHidden() {
+        return hidden;
+    }
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
     }
 
 }

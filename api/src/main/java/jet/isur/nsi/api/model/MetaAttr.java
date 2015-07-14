@@ -38,6 +38,10 @@ public class MetaAttr implements Serializable {
      * Атрибут является скрытым.
      */
     private Boolean hidden;
+    /**
+     * Если данный атрибут установлен в true то справочник не редактируется во frontend
+     */
+    private Boolean readonly;
 
     /**
      * Атрибут является требуемым.
@@ -95,5 +99,11 @@ public class MetaAttr implements Serializable {
         this.hidden = hidden;
     }
 
+    public Boolean getReadonly() {
+        return readonly;
+    }
+    public void setReadonly(Boolean readonly) {
+        this.readonly = readonly;
+    }
 
 }

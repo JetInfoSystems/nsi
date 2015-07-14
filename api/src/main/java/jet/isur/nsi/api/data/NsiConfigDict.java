@@ -12,6 +12,7 @@ public class NsiConfigDict {
     private final String name;
     private final String caption;
     private final String table;
+    private final boolean hidden;
 
     private NsiConfigAttr idAttr;
     private NsiConfigAttr parentAttr;
@@ -28,6 +29,7 @@ public class NsiConfigDict {
         name = metaDict.getName();
         caption = metaDict.getCaption();
         table = metaDict.getTable();
+        hidden = metaDict.getHidden() == Boolean.TRUE ;
     }
 
     private List<NsiConfigField> fields = new ArrayList<>();
@@ -169,6 +171,10 @@ public class NsiConfigDict {
                 + ", attrs=" + attrs.toString() + ", attrNameMap="
                 + attrNameMap.toString() + ", fieldNameMap="
                 + fieldNameMap.toString() + "]";
+    }
+
+    public boolean isHidden() {
+        return hidden;
     }
 
 }

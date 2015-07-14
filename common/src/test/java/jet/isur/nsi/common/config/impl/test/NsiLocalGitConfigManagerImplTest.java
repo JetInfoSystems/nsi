@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Set;
 
 import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
 import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
@@ -37,7 +38,10 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
-        Assert.assertNotNull(config.getDict("dict1"));
+        NsiConfigDict dict1 = config.getDict("dict1");
+        Assert.assertNotNull(dict1);
+        Assert.assertTrue(dict1.isHidden());
+        Assert.assertTrue(dict1.getAttr("last_user").isReadonly());
     }
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {

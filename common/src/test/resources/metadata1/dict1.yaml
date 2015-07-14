@@ -24,6 +24,7 @@ attrs:
   hidden: false
   name: last_user
   type: value
+  readonly: true
 caption: Справочник1
 captionAttrs: [f1]
 deleteMarkAttr: is_deleted
@@ -33,6 +34,7 @@ fields:
 - {name: last_change, type: date-time}
 - {name: last_user, size: 19, type: number}
 - {name: f1, size: 100, type: varchar}
+hidden: true
 idAttr: id
 lastChangeAttr: last_change
 lastUserAttr: last_user

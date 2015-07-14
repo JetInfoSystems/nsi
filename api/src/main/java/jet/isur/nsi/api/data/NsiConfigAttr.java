@@ -15,6 +15,7 @@ public class NsiConfigAttr {
     private final Boolean hidden;
     private final String refDictName;
     private final boolean required;
+    private final boolean readonly;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
@@ -24,9 +25,10 @@ public class NsiConfigAttr {
         valueType = metaAttr.getValueType();
         name = metaAttr.getName();
         caption = metaAttr.getCaption();
-        hidden = metaAttr.getHidden();
+        hidden = metaAttr.getHidden() == Boolean.TRUE;
         refDictName = metaAttr.getRefDict();
         required = metaAttr.isRequired();
+        readonly = metaAttr.getReadonly() == Boolean.TRUE;
     }
     public MetaAttrType getType() {
         return type;
@@ -71,6 +73,9 @@ public class NsiConfigAttr {
                 + hidden + ", refDictName=" + refDictName + ", required="
                 + required + ", fields=" + fields + ", refDict=" + refDict
                 + "]";
+    }
+    public boolean isReadonly() {
+        return readonly;
     }
 
 
