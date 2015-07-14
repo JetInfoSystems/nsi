@@ -297,13 +297,14 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
-    protected void setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
+    protected int setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
             DictRowAttr id) throws SQLException {
         List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
         for(int i=0;i<fields.size();i++) {
             NsiConfigField field = fields.get(i);
             setParam(ps,i+1,field,id.getValues().get(i));
         }
+        return fields.size();
     }
 
     protected void setParam(PreparedStatement ps, int index, NsiConfigField field,

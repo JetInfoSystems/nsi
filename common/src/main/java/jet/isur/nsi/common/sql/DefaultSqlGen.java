@@ -49,7 +49,9 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowGetSql(NsiQuery query) {
-        return createBaseQuery(query, true).where(getIdCondition(query)).getSQL();
+        SelectJoinStep<?> baseQuery = createBaseQuery(query, true);
+        Condition condition = getIdCondition(query, baseQuery);
+        return baseQuery.where(condition).getSQL();
     }
 
     protected DSLContext getQueryBuilder() {
@@ -65,6 +67,10 @@ public class DefaultSqlGen implements SqlGen {
         return addRefAttrJoins(query, selectJoinStep);
     }
 
+
+    protected Condition getIdCondition(NsiQuery query, SelectJoinStep<?> baseQueryPart) {
+        return getIdCondition(query);
+    }
 
     protected Condition getIdCondition(NsiQuery query) {
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
@@ -186,9 +192,10 @@ public class DefaultSqlGen implements SqlGen {
         }
     }
 
+
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size) {
         SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true);
-        Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
+        Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
         }
@@ -203,6 +210,12 @@ public class DefaultSqlGen implements SqlGen {
         }
 
         return baseQueryPart.getSQL();
+    }
+
+    protected Condition getWhereCondition(NsiQuery query, BoolExp filter,
+            SelectJoinStep<?> baseQueryPart) {
+        Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
+        return filterCondition;
     }
 
     protected Collection<? extends SortField<?>> getSortFields(NsiQuery query, List<SortExp> sortList) {
@@ -313,7 +326,7 @@ public class DefaultSqlGen implements SqlGen {
 
         SelectJoinStep<?> baseQueryPart = addRefAttrJoins(query, selectQueryPart);
 
-        Condition filterCondition = getFilterCondition(query, filter, selectQueryPart);
+        Condition filterCondition = getWhereCondition(query, filter, selectQueryPart);
 
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
