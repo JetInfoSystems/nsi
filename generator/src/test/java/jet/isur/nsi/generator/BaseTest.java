@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 
 public class BaseTest {
-    protected NsiConfig config;
     protected DataSource dataSource;
 
     @Before
@@ -24,10 +23,6 @@ public class BaseTest {
     }
 
     public void setup() throws Exception {
-        String configPath = "src/test/resources/metadata";
-        NsiLocalGitConfigManagerImpl manager = new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl());
-        config = manager.getConfig();
-
         Properties properties = new Properties();
         try(FileReader reader = new FileReader("target/test-classes/project.properties")) {
             properties.load(reader);

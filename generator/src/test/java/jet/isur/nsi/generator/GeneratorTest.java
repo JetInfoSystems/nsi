@@ -1,38 +1,53 @@
 package jet.isur.nsi.generator;
 
+import java.io.File;
+
+import jet.isur.nsi.api.NsiConfigManager;
+import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+
 import org.junit.Test;
 
 public class GeneratorTest extends BaseTest{
 
+    private NsiConfig config;
     private Generator generator;
 
     @Override
     public void setup() throws Exception {
         super.setup();
-        generator = new Generator(dataSource, config);
+
+        File configPath = new File("/opt/isur/database/metadata");
+        NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
+        config = manager.getConfig();
+        DBAppender appender = new DBAppender(dataSource, config);
+        generator = new Generator(config, appender );
     }
 
     @Test
-    public void testAddData() {
-        /*
+    public void testAppendWORK_TYPE() {
+        generator.addData("WORK_TYPE");
+        generator.appendData();
+    }
+
+    @Test
+    public void testAppendEMP() {
+        generator.addData("EMP");
+        generator.appendData();
+    }
+
+    @Test
+    public void testAppendEVENT() {
+        generator.addData("EVENT", 100);
+        generator.appendData();
+    }
+
+    @Test
+    public void testAppendMSG() {
         generator.addData("MSG");
-        */
+        generator.appendData();
     }
 
-    @Test
-    public void testfillDatabase() {
-        /*
-        generator.setDefCount(100);
-        generator.setCustomCount("MSG", 1000);
-        generator.setCustomCount("MSG_EMP", 1000);
-        generator.setCustomCount("MSG_INSTRUCTION", 1200);
-        generator.setCustomCount("MSG_INSTRUCTION_ORG", 1200);
-        generator.setCustomCount("EVENT", 1000);
-        generator.setCustomCount("EVENT_PARAM", 3000);
-        generator.setCustomCount("ORG_UNIT", 150);
-        generator.fillDatabase();
-        */
-    }
 
     @Test
     public void testCleanDatabase() {

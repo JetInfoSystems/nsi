@@ -132,7 +132,7 @@ public class DictRowBuilder {
     public DictRowAttrBuilder deleteMarkAttr() {
         NsiConfigAttr a = query.getDict().getDeleteMarkAttr();
         if(a == null) {
-            throw new NsiServiceException("deleteMarkAttr not exists");
+            throw new NsiServiceException("deleteMarkAttr not exists: " + query.getDict().getName());
         }
         return attr(a);
     }

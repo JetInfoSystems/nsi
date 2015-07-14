@@ -8,32 +8,43 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DBAppender {
 
-    Logger log = LoggerFactory.getLogger(DBAppender.class);
+    private static final Logger log = LoggerFactory.getLogger(DBAppender.class);
 
-    private DataSource dataSource;
-    private NsiConfig config;
-    private DefaultSqlGen defaultSqlGen;
-    private DefaultSqlDao defaultSqlDao;
+    private final DataSource dataSource;
+    private final NsiConfig config;
+    private final DefaultSqlGen sqlGen;
+    private final DefaultSqlDao sqlDao;
 
     public DBAppender(DataSource dataSource, NsiConfig config) {
         this.dataSource = dataSource;
         this.config = config;
-        this.defaultSqlGen = new DefaultSqlGen();
-        this.defaultSqlDao = new DefaultSqlDao();
+        this.sqlGen = new DefaultSqlGen();
+        this.sqlDao = new DefaultSqlDao();
+        this.sqlDao.setSqlGen(sqlGen);
+    }
+
+    public List<DictRow> getData(NsiConfigDict dict) {
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        try (Connection connection = dataSource.getConnection()) {
+            return sqlDao.list(connection, query, null, null, -1, -1);
+        } catch (SQLException e) {
+            log.error("Ошибка добавления данных в "+dict.getName(), e);
+        }
+        return null;
+
     }
 
     /**
@@ -42,15 +53,14 @@ public class DBAppender {
      * @param dataList данные для вставки в базу
      * @return данные с заполненными id
      */
-    public  List<DictRow> addData(String dictName, List<DictRow> dataList){
-        log.info("DBAppender addData "+dictName+ " rows count="+dataList.size());
-        NsiConfigDict configDict = config.getDict(dictName);
-        NsiQuery query = new NsiQuery(config, configDict).addAttrs();
+    public  List<DictRow> addData(NsiConfigDict dict, List<DictRow> dataList){
+        log.info("DBAppender addData "+dict.getName()+ " rows count="+dataList.size());
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
         try (Connection connection = dataSource.getConnection()) {
-            String sql = defaultSqlGen.getRowInsertSql(query, false);
+            String sql = sqlGen.getRowInsertSql(query, false);
             try (PreparedStatement psGetId = connection
-                    .prepareStatement("select " + configDict.getSeq()
+                    .prepareStatement("select " + dict.getSeq()
                             + ".nextval from dual");
                     PreparedStatement ps = connection
                             .prepareStatement(sql)) {
@@ -60,36 +70,36 @@ public class DBAppender {
                     rs.next();
                     long id = rs.getLong(1);
                     // проблема с иерархией в справочнике PARAM
+                    /*
                     if (data.getAttrs().get("PARENT_ID") != null) {
                         data.getAttrs().put("PARENT_ID", DictRowAttrBuilder.from(id));
                     }
+                    */
                     builder = new DictRowBuilder(query, data).idAttr(id);
-                    defaultSqlDao.setParamsForInsert(query, builder.build(), ps);
+                    sqlDao.setParamsForInsert(query, builder.build(), ps);
                     ps.addBatch();
                 }
                 ps.executeBatch();
                 return dataList;
             }
         } catch (SQLException e) {
-            log.error("Ошибка добавления данных в "+dictName, e);
+            log.error("Ошибка добавления данных в "+dict.getName(), e);
         }
         return null;
     }
 
 
 
-    public boolean cleanData(String dictName){
+    public boolean cleanData(NsiConfigDict dict){
 
-        log.info("appender cleanData "+dictName);
+        log.info("appender cleanData "+dict.getName());
 
         try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement ps = connection
-                    .prepareStatement("delete from " + dictName
-                            + " where ID > 0 ");) {
+            try (PreparedStatement ps = connection.prepareStatement("delete from " + dict.getTable())) {
                 ps.executeQuery();
             }
         } catch (SQLException e) {
-            log.error("Ошибка удаления данных в "+dictName, e);
+            log.error("Ошибка удаления данных в "+dict.getName(), e);
             return false;
         }
         return true;

@@ -2,17 +2,10 @@ package jet.isur.nsi.generator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import javax.sql.DataSource;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
@@ -25,18 +18,22 @@ import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;
 
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Generator {
 
-    Logger log = LoggerFactory.getLogger(Generator.class);
+    private static final Logger log = LoggerFactory.getLogger(Generator.class);
 
     /**
      * конфигурация с метаданными
      */
-    private NsiConfig config;
+    private final NsiConfig config;
     /**
      * appender - добавляет данные непосредственно в базу
      */
-    private DBAppender appender;
+    private final DBAppender appender;
     /**
      * количество по-умолчанию создаваемых в таблицах строк (если не определен список значений)
      */
@@ -45,39 +42,17 @@ public class Generator {
     private String defString = "test ";
 
     /**
-     * карта для задания количество создаваемых записей в конкретных таблицах
-     */
-    private Map<String, Integer> customCount = new HashMap<String, Integer>();
-
-    /**
-     * добавленные в базу данные с помощью данного экземпляра генератора 
-     */
-    private Map<String, List<DictRow>> addedData= new HashMap<String, List<DictRow>>();
-
-    /**
      * список таблиц, для которых применяется именование в зависимости от привязки к типу
      */
     private List<String> customNaming = Arrays.asList("EVENT", "ORG_OBJ");
 
-    /**
-     * список таблиц для максимального заполнения базы
-     */
-    public List<String> fillDatabaseTables = new ArrayList<>(Arrays.asList("ORG_OBJ","EVENT_PARAM","MSG_INSTRUCTION_ORG","MSG_EMP"));
+    private Map<NsiConfigDict, List<Long>> dictsIds = new HashMap<>();
+    private final Map<NsiConfigDict, Integer> dictCount;
 
-    /**
-     * сопоставляем имена таблиц со списком имен таблиц, которые на неё ссылаются
-     */
-    private Map<String, List<String>> inLinksMap;
-    /**
-     * сопоставляем имена таблиц со списком имен таблиц, на которые она ссылается
-     */
-    private Map<String, List<String>> outLinksMap;
-
-
-    public Generator(DataSource dataSource, NsiConfig config) {
+    public Generator(NsiConfig config, DBAppender appender) {
         this.config = config;
-        appender = new DBAppender(dataSource, config);
-        prepareLinksMaps();
+        this.dictCount = new HashMap<>();
+        this.appender = appender;
     }
 
     /**
@@ -88,32 +63,42 @@ public class Generator {
     }
 
     /**
-     * добавляет количество создаваемых записей для конкретной таблицы
-     */
-    public void setCustomCount(String tableName, int count) {
-        this.customCount.put(tableName, count);
-    }
-
-    /**
      * Устанавливает значение по-умолчанию для строковых полей.
      */
-    public void setDefЫекштп(String defString) {
+    public void setDefString(String defString) {
         this.defString = defString;
     }
 
-    /**
-     * Генерация и добавление данных в справочник
-     * @param dict описание справочника
-     */
-    public void addData(String dictName){
-        //System.out.println("!!! addData "+dictName);
-        if (StaticContent.checkPredefinedNames(dictName)) {
-            addData(dictName, StaticContent.getPredefinedSize(dictName));
-        } else if (customCount.containsKey(dictName)) {
-            addData(dictName, customCount.get(dictName));
+    private int getDictCount(NsiConfigDict dict) {
+        if (StaticContent.checkPredefinedNames(dict.getName())) {
+            return StaticContent.getPredefinedSize(dict.getName());
+        } else if (dictCount.containsKey(dict)) {
+            return dictCount.get(dict);
         } else {
-            addData(dictName, defCount);
+            return defCount;
         }
+    }
+
+    public void addData(String dictName){
+        NsiConfigDict dict = config.getDict(dictName);
+        addData(dictName, getDictCount(dict));
+    }
+
+    public void addData(String dictName, int count) {
+        dictCount.put(config.getDict(dictName), count);
+    }
+
+    public void appendData() {
+        DictDependencyGraph dictGraph = getGraph();
+        List<NsiConfigDict> dictList = dictGraph.sort();
+        for (NsiConfigDict dict : dictList) {
+            addData(dict, getDictCount(dict));
+        }
+    }
+
+    private DictDependencyGraph getGraph() {
+        DictDependencyGraph dictGraph = DictDependencyGraph.build(config, dictCount.keySet());
+        return dictGraph;
     }
 
     /**
@@ -121,74 +106,51 @@ public class Generator {
      * @param dict описание справочника
      * @param count количество записей
      */
-    private void addData(String dictName, int count){
-        //System.out.println("!!! addData "+dictName+"  "+count);
+    private void addData(NsiConfigDict dict, int count){
 
-        List<DictRow> dataList = new ArrayList<>(count);
+        List<DictRow> curDataList = appender.getData(dict);
 
-        NsiConfigDict configDict = config.getDict(dictName);
-        NsiQuery query = new NsiQuery(config, configDict).addAttrs();
-
-        if (outLinksMap.get(dictName) != null) {
-            for (String link : outLinksMap.get(dictName)) {
-                if ("EMP_PHONE".equals(link)) {
-                    // проблема с перекрестным внешним ключамем на EMP
-                    continue;
-                }
-                if (addedData.get(link) == null) {
-                    addedData.put(link, new ArrayList<DictRow>());
-                    addData(link);
-                }
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        if(curDataList.size() < count) {
+            List<DictRow> newDataList = new ArrayList<>(count);
+            for (int i=curDataList.size(); i < count; i++) {
+                newDataList.add(genDictRow(query, i));
             }
+            newDataList = appender.addData(dict, newDataList);
+            curDataList.addAll(newDataList);
         }
-
-        DictRow row = null;
-        for (int i=0; i<count; i++) {
-            row = getDictRowBuilder(query, i).build();
-            dataList.add(row);
+        DictRowBuilder reader = new DictRowBuilder(query);
+        if(!dictsIds.containsKey(dict)) {
+            dictsIds.put(dict, new ArrayList<Long>(curDataList.size()));
         }
-
-        dataList = appender.addData(dictName, dataList);
-        List<DictRow> added = addedData.get(dictName);
-        if (added == null ) {
-            addedData.put(dictName, dataList);
-        } else {
-            added.addAll(dataList);
+        List<Long> ids = dictsIds.get(dict);
+        for (DictRow dictRow : curDataList) {
+            reader.setPrototype(dictRow);
+            ids.add(reader.getLongIdAttr());
         }
+        dictsIds.put(dict, ids);
     }
 
     /**
      * Создание заполненной строки
      */
-    private DictRowBuilder getDictRowBuilder(NsiQuery query, int number) {
+    private DictRow genDictRow(NsiQuery query, int number) {
         DictRowBuilder drb = new DictRowBuilder(query);
 
-        String dictName = query.getDict().getName();
-        List<String> filledAttrs = new ArrayList<String>();
         for(NsiQueryAttr attr:query.getAttrs()) {
             NsiConfigAttr attrConfig = attr.getAttr();
             String attrName = attrConfig.getName();
 
-            /*
-             * если атрибут заполнен, пропускаем
-             */
-            if (filledAttrs.contains(attrName)) {
-                continue;
-            }
-
-            /*
-             * если атрибут - ссылка, то заполняем из ранее созданного
-             */
+            // если атрибут - ссылка, то заполняем из ранее созданного
             if (attrConfig.getType() == MetaAttrType.REF) {
-                String refDict = attrConfig.getRefDictName();
-                List<DictRow> added = addedData.get(refDict);
-                if (added != null) {
-                    if (added.size() > 0) {
-                        int addedIndex = number % added.size();
-                        DictRow row = added.get(addedIndex);
-                        drb.attr(attrName, row.getAttrs().get("ID").getFirstValue());
-
-                        if (refDict.endsWith("_TYPE")) {
+                NsiConfigDict refDict = attrConfig.getRefDict();
+                List<Long> ids = dictsIds.get(refDict);
+                if(ids != null) {
+                    if (ids.size() > 0) {
+                        Long id = ids.get(number % ids.size());
+                        drb.attr(attrName, id);
+                        /*
+                        if (refDict.getName().endsWith("_TYPE")) {
                             if (customNaming.contains(dictName)) {
                                 String name = row.getAttrs().get("NAME").getFirstValue()+" "+number;
                                 drb.attr("DESCRIPTION", name);
@@ -197,11 +159,12 @@ public class Generator {
                                 filledAttrs.add("NAME");
                             }
                         }
+                        */
                     } else {
                         drb.attr(attrName, (Long) null);
                     }
                 } else {
-                    drb.attr(attrName, (Long)null);
+                    drb.attr(attrName, (Long) null);
                 }
             } else {
                 /*
@@ -211,8 +174,7 @@ public class Generator {
                 NsiConfigField field = fields.get(0);
                 MetaFieldType type = field.getType();
                 if (field.getEnumValues() != null) {
-                    List<String> enums = new ArrayList<>(field.getEnumValues()
-                            .keySet());
+                    List<String> enums = new ArrayList<>(field.getEnumValues().keySet());
                     int index = RandomUtils.getInt(enums.size());
                     drb.attr(attrName, enums.get(index));
                 } else {
@@ -247,82 +209,21 @@ public class Generator {
                 }
             }
         }
-        drb.deleteMarkAttr(false).idAttr(null).lastUserAttr(null)
+        drb
+            .deleteMarkAttr(false)
+            .idAttr(null)
+            .lastUserAttr(null)
             .lastChangeAttr(new DateTime().withMillisOfSecond(0));
-        return drb;
+        return drb.build();
     }
 
-    private void prepareLinksMaps() {
-        if (inLinksMap != null && outLinksMap != null) {
-            return;
-        }
-        inLinksMap = new TreeMap<>();
-        outLinksMap = new TreeMap<>();
-        Collection<NsiConfigDict> dicts = config.getDicts();
-        for (NsiConfigDict dict : dicts) {
-            inLinksMap.put(dict.getName(), new ArrayList<String>());
-            outLinksMap.put(dict.getName(), new ArrayList<String>());
-        }
-        inLinksMap.put("NOT FOUND", new ArrayList<String>());
-        for (NsiConfigDict dict : dicts) {
-            String dictName = dict.getName();
-            List<NsiConfigField> fields = dict.getFields();
-            List<String> outList = outLinksMap.get(dictName);
-            for (NsiConfigField field : fields) {
-                String name = field.getName();
-                if (name.endsWith("_ID")) {
-                    String table = name.substring(0, name.length()-3);
-                    List<String> list = inLinksMap.get(table);
-                    if (list != null) {
-                        list.add(dictName);
-                        outList.add(table);
-                    }
-
-                }
-            }
+    public void cleanData() {
+        DictDependencyGraph graph = getGraph();
+        List<NsiConfigDict> dictList = graph.sort();
+        Collections.reverse(dictList);
+        for (NsiConfigDict dict : dictList) {
+            appender.cleanData(dict);
         }
     }
 
-
-    //private static List<String> cleaned = new ArrayList<>();
-    public void cleanData(String dictName){
-        cleanData(dictName, new ArrayList<String>());
-    }
-
-    private void cleanData(String dictName, List<String> cleaned){
-
-        boolean success = appender.cleanData(dictName);
-        cleaned.add(dictName);
-
-        if (outLinksMap.get(dictName) != null) {
-            for (String link : outLinksMap.get(dictName)) {
-                if (!cleaned.contains(link)) {
-                    cleanData(link, cleaned);
-                }
-            }
-        }
-
-        if (!success) {
-            appender.cleanData(dictName);
-        }
-    }
-
-
-    public void addFillDatabaseTables(String tableName) {
-        if (config.getDict(tableName) != null && !fillDatabaseTables.contains(tableName)) {
-            fillDatabaseTables.add(tableName);
-        }
-    }
-
-    public void fillDatabase() {
-        for (String tableName:fillDatabaseTables) {
-            addData(tableName);
-        }
-    }
-
-    public void cleanDatabase() {
-        for (String tableName:fillDatabaseTables) {
-            cleanData(tableName);
-        }
-    }
 }
