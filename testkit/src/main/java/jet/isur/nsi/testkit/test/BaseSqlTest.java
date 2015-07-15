@@ -13,6 +13,7 @@ import org.junit.Before;
 
 public class BaseSqlTest {
     protected DataSource dataSource;
+    protected Properties properties;
 
     @Before
     public void setupInternal() throws Exception {
@@ -20,7 +21,7 @@ public class BaseSqlTest {
     }
 
     public void setup() throws Exception {
-        Properties properties = new Properties();
+        properties = new Properties();
         File file = new File("target/test-classes/project.properties").getAbsoluteFile();
         try(FileReader reader = new FileReader(file)) {
             properties.load(reader);
@@ -34,5 +35,9 @@ public class BaseSqlTest {
     }
 
     public void cleanup() {
+    }
+
+    protected String getProperty(String key,String defaultValue) {
+        return properties.getProperty(key, defaultValue);
     }
 }
