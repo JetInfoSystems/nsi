@@ -5,6 +5,7 @@ import java.util.Set;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
 import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
@@ -45,7 +46,8 @@ public class NsiLocalGitConfigManagerImplTest {
     }
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {
-        return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl());
+        NsiConfigParams configParams = new NsiConfigParams();
+        return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl(), configParams );
     }
 
 }

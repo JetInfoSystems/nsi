@@ -9,15 +9,14 @@ import java.util.List;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.api.model.builder.SortListBuilder;
-import jet.isur.nsi.api.sql.SqlGen;
-import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
-import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
+import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
@@ -38,8 +37,8 @@ public class SqlDaoTest extends BaseSqlTest {
     @Override
     public void setup() throws Exception {
         super.setup();
-        NsiLocalGitConfigManagerImpl factory = new NsiLocalGitConfigManagerImpl(new File("src/test/resources/metadata1"), new NsiYamlMetaDictReaderImpl());
-        config = factory.getConfig();
+        NsiConfigParams configParams = new NsiConfigParams();
+        config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
         sqlGen = new DefaultSqlGen();
         sqlDao = new DefaultSqlDao();
         sqlDao.setSqlGen(sqlGen);

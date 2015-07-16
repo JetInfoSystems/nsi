@@ -8,14 +8,14 @@ import jet.isur.nsi.api.model.MetaAttrType;
 
 public class NsiConfigAttr {
 
-    private final MetaAttrType type;
+    private MetaAttrType type;
     private final String valueType;
     private final String name;
     private final String caption;
     private final Boolean hidden;
     private final String refDictName;
-    private final boolean required;
-    private final boolean readonly;
+    private boolean required;
+    private boolean readonly;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
@@ -76,6 +76,15 @@ public class NsiConfigAttr {
     }
     public boolean isReadonly() {
         return readonly;
+    }
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
+    }
+    public void setType(MetaAttrType type) {
+        this.type = type;
     }
 
 

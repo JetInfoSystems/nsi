@@ -12,6 +12,7 @@ import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
+import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
@@ -27,6 +28,12 @@ public class NsiConfigImpl implements NsiConfig {
     private static final CharMatcher NAME_MATCHER = CharMatcher.JAVA_LETTER_OR_DIGIT.or(new OneCharMatcher('_'));
 
     private Map<String,NsiConfigDict> dictMap = new HashMap<>();
+
+    private final NsiConfigParams params;
+
+    public NsiConfigImpl(NsiConfigParams params) {
+        this.params = params;
+    }
 
     public void addDict(MetaDict metaDict) {
         NsiConfigDict dict = new NsiConfigDict(metaDict);
@@ -61,24 +68,31 @@ public class NsiConfigImpl implements NsiConfig {
         }
         if(metaDict.getLastUserAttr()!=null) {
             dict.setLastUserAttr(checkAttrExists(dict,metaDict.getLastUserAttr()));
+            dict.getLastUserAttr().setReadonly(true);
         }
         if(metaDict.getLastChangeAttr()!=null) {
             dict.setLastChangeAttr(checkAttrExists(dict,metaDict.getLastChangeAttr()));
+            dict.getLastChangeAttr().setReadonly(true);
         }
         if(metaDict.getParentAttr()!=null) {
             dict.setParentAttr(checkAttrExists(dict,metaDict.getParentAttr()));
+            dict.getParentAttr().setReadonly(true);
         }
         if(metaDict.getOwnerAttr()!=null) {
             dict.setOwnerAttr(checkAttrExists(dict,metaDict.getOwnerAttr()));
+            dict.getOwnerAttr().setReadonly(true);
+            dict.getOwnerAttr().setRequired(true);
         }
         if(metaDict.getDeleteMarkAttr()!=null) {
             dict.setDeleteMarkAttr(checkAttrExists(dict,metaDict.getDeleteMarkAttr()));
+            dict.getDeleteMarkAttr().setReadonly(true);
         }
 
         // проверяем, что id атрибут задан
         if(dict.getIdAttr()==null) {
             throwDictException(dict, "empty idAttr");
         }
+        dict.getIdAttr().setReadonly(true);
 
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
@@ -213,6 +227,19 @@ public class NsiConfigImpl implements NsiConfig {
         for (String dictName : dictMap.keySet()) {
             NsiConfigDict nsiMetaDict = dictMap.get(dictName);
             postCheckDict(nsiMetaDict);
+        }
+        if(params != null && params.getLastUserDict() != null) {
+            NsiConfigDict lastUserDict = getDict(params.getLastUserDict());
+            if(lastUserDict == null) {
+                throw new NsiConfigException("Invalid lastUserDict in params: " + params.getLastUserDict());
+            }
+            for ( NsiConfigDict dict : dictMap.values()) {
+                NsiConfigAttr lastUserAttr = dict.getLastUserAttr();
+                if(lastUserAttr != null) {
+                    lastUserAttr.setType(MetaAttrType.REF);
+                    lastUserAttr.setRefDict(lastUserDict);
+                }
+            }
         }
     }
 

@@ -12,6 +12,7 @@ import java.util.Set;
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.NsiMetaDictReader;
 import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.model.MetaDict;
 
 import org.apache.commons.io.DirectoryWalker;
@@ -44,11 +45,13 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
     private final File configPath;
     private final NsiMetaDictReader reader;
-    private NsiConfig config;
+    private final NsiConfigParams configParams;
+    private NsiConfigImpl config;
 
-    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader) {
+    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiConfigParams configParams) {
         this.configPath = configPath;
         this.reader = reader;
+        this.configParams = configParams;
     }
 
     @Override
@@ -59,8 +62,8 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         return config;
     }
 
-    public NsiConfig readConfig() {
-        NsiConfigImpl config = new NsiConfigImpl();
+    public NsiConfigImpl readConfig() {
+        NsiConfigImpl config = new NsiConfigImpl(configParams);
         Set<File> configFiles = findFiles();
         for (File configFile : configFiles) {
             MetaDict metaDict = readConfigFile(configFile);
