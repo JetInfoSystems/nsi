@@ -11,7 +11,7 @@ public class RandomUtils {
     /**
      * Интервал даты в секундах для рандомизации (до текущей)
      */
-    private static int timePeriod = 10_000_000;
+    private static int timePeriod = 60*60*24*30*6;
     /**
      * Начало периода рандомизации даты
      */
