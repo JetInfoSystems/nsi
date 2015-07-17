@@ -7,7 +7,6 @@ import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaField;
-import oracle.net.aso.k;
 
 import org.junit.Assert;
 

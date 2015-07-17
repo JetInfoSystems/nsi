@@ -2,15 +2,11 @@ package jet.isur.nsi.testkit.utils;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
 
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DefaultDataType;
 import org.jooq.impl.SQLDataType;
-import org.jooq.types.DayToSecond;
-import org.jooq.types.YearToMonth;
 
 public class OracleDataType {
     public static final DataType<Long>         BIGINT                   = new DefaultDataType<Long>(SQLDialect.DEFAULT, SQLDataType.BIGINT, "bigint");
