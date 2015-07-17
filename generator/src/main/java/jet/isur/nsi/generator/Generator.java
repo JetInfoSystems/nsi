@@ -78,7 +78,7 @@ public class Generator {
 
     private DictDependencyGraph getGraph() {
         List<NsiConfigDict> dicts = new ArrayList<>();
-        for (String dictName : params.getAdd()) {
+        for (String dictName : params.getDictList()) {
             dicts.add(config.getDict(dictName));
         }
         DictDependencyGraph dictGraph = DictDependencyGraph.build(config, dicts);

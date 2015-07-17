@@ -12,7 +12,7 @@ import com.google.common.base.Splitter;
 
 public class GeneratorParams {
 
-    public static final String ADD = "add";
+    public static final String LIST = "list";
     public static final String COUNT = "count";
     public static final String TYPE = "type";
     public static final String DICT = "dict";
@@ -48,9 +48,9 @@ public class GeneratorParams {
     }
 
 
-    public List<String> getAdd() {
+    public List<String> getDictList() {
         ArrayList<String> result = new ArrayList<>();
-        for (String v : Splitter.on(',').split(getProperty(ADD, ""))) {
+        for (String v : Splitter.on(',').split(getProperty(key(DICT,LIST), ""))) {
             result.add(v);
         }
         return result;
