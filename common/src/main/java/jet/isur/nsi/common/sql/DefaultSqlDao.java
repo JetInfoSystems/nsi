@@ -30,12 +30,17 @@ import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 public class DefaultSqlDao implements SqlDao {
+
+    private static final Logger log = LoggerFactory
+            .getLogger(DefaultSqlDao.class);
 
     public class SetParamBoolExpVisitor extends BoolExpVisitor {
         protected final NsiQuery query;
@@ -282,7 +287,9 @@ public class DefaultSqlDao implements SqlDao {
     public DictRow get(Connection connection, NsiQuery query,
             DictRowAttr id) {
         DictRow result = new DictRow();
-        try(PreparedStatement ps = connection.prepareStatement(sqlGen.getRowGetSql(query))) {
+        String sql = sqlGen.getRowGetSql(query);
+        log.info(sql);
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
             setParamsForGetWhere(query, ps, id);
             try(ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
@@ -297,13 +304,14 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
-    protected void setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
+    protected int setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
             DictRowAttr id) throws SQLException {
         List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
         for(int i=0;i<fields.size();i++) {
             NsiConfigField field = fields.get(i);
             setParam(ps,i+1,field,id.getValues().get(i));
         }
+        return fields.size();
     }
 
     protected void setParam(PreparedStatement ps, int index, NsiConfigField field,
@@ -354,6 +362,7 @@ public class DefaultSqlDao implements SqlDao {
             BoolExp filter, List<SortExp> sortList, long offset, int size) {
         List<DictRow> result = new ArrayList<>();
         String sql = sqlGen.getListSql(query, filter, sortList, offset, size);
+        log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             setParamsForList(query, ps, filter, offset, size);
             if(ps.execute()) {
@@ -374,7 +383,9 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     public long count(Connection connection, NsiQuery query, BoolExp filter) {
-        try(PreparedStatement ps = connection.prepareStatement(sqlGen.getCountSql(query, filter))) {
+        String sql = sqlGen.getCountSql(query, filter);
+        log.info(sql);
+        try(PreparedStatement ps = connection.prepareStatement(sql )) {
             setParamsForFilter(query, ps, 1, filter);
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
@@ -399,6 +410,7 @@ public class DefaultSqlDao implements SqlDao {
                 && idAttrValue.getValues().size() == 1
                 && idAttrValue.getValues().get(0) == null);
 
+        log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql,
                 new String[] {query.getDict().getIdAttr().getFields().get(0).getName()})) {
             setParamsForInsert(query, data, ps);
@@ -418,7 +430,9 @@ public class DefaultSqlDao implements SqlDao {
 
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
-        try(PreparedStatement ps = connection.prepareStatement(sqlGen.getRowUpdateSql(query))) {
+        String sql = sqlGen.getRowUpdateSql(query);
+        log.info(sql);
+        try(PreparedStatement ps = connection.prepareStatement(sql )) {
             setParamsForUpdate(query, data, ps);
             int count = ps.executeUpdate();
             if(count == 0) {

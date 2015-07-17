@@ -15,6 +15,7 @@
     <cm:property-placeholder persistent-id="jet.isur.nsi.services" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="configPath" value="/opt/isur/database/metadata"/>
+            <cm:property name="lastUserDict" value="USER_PROFILE"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -23,10 +24,15 @@
     <reference id="dataSource" interface="javax.sql.DataSource"
                filter="(osgi.jndi.service.name=jdbc/isur_ds)" availability="optional"/>
 
+    <bean id="configParams" class="jet.isur.nsi.api.data.NsiConfigParams">
+        <property name="lastUserDict" value="${lastUserDict}"/>
+    </bean>
+
     <bean id="configManagerFactory" class="jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl"/>
 
     <bean id="configManager" factory-ref="configManagerFactory" factory-method="create" activation="lazy">
         <argument value="${configPath}"/>
+        <argument ref="configParams"/>
     </bean>
 
     <bean id="sqlGen" class="jet.isur.nsi.common.sql.DefaultSqlGen">
@@ -36,19 +42,19 @@
         <property name="sqlGen" ref="sqlGen"/>
     </bean>
 
-    <bean id="nsiService" class="jet.isur.nsi.services.impl.NsiServiceImpl">
+    <bean id="nsiService" class="jet.isur.nsi.services.NsiServiceImpl">
         <argument ref="metrics"/>
         <property name="sqlDao" ref="sqlDao"/>
         <property name="nsiGenericService" ref="nsiGenericService"/>
     </bean>
 
-    <bean id="nsiGenericService" class="jet.isur.nsi.services.impl.NsiGenericServiceImpl">
+    <bean id="nsiGenericService" class="jet.isur.nsi.services.NsiGenericServiceImpl">
         <argument ref="metrics"/>
         <property name="configManager" ref="configManager"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="nsiMetaService" class="jet.isur.nsi.services.impl.NsiMetaServiceImpl">
+    <bean id="nsiMetaService" class="jet.isur.nsi.services.NsiMetaServiceImpl">
         <argument ref="metrics"/>
         <property name="configManager" ref="configManager"/>
     </bean>

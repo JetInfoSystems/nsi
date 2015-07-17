@@ -6,14 +6,13 @@ import java.util.List;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
-import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
-import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
+import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
@@ -27,8 +26,8 @@ public class SqlGenTest extends BaseSqlTest {
 
     @Override
     public void setup() throws Exception {
-        NsiLocalGitConfigManagerImpl factory = new NsiLocalGitConfigManagerImpl(new File("src/test/resources/metadata1"), new NsiYamlMetaDictReaderImpl());
-        config = factory.getConfig();
+        NsiConfigParams configParams = new NsiConfigParams();
+        config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
         sqlGen = new DefaultSqlGen();
     }
 
@@ -63,7 +62,7 @@ public class SqlGenTest extends BaseSqlTest {
                 "select m.f1, m.dict1_id, a1.f1, m.dict1_a_id, a2.f1, m.id, m.last_change, m.is_deleted, m.last_user "
                         + "from table3 m "
                         + "left outer join table1 a1 on m.dict1_id = a1.id "
-                        + "join table1 a2 on m.dict1_a_id = a2.id "
+                        + "left outer join table1 a2 on m.dict1_a_id = a2.id "
                         + "where m.id = ?", sql);
     }
 

@@ -1,4 +1,4 @@
-package jet.isur.nsi.services.impl;
+package jet.isur.nsi.services;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -20,6 +20,8 @@ import jet.isur.nsi.api.sql.SqlDao;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,8 +134,17 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 isInsert = true;
             }
             try (Connection connection = dataSource.getConnection()) {
+                if(dict.getLastChangeAttr() != null ) {
+                    builder.lastChangeAttr(DateTime.now(DateTimeZone.UTC));
+                }
                 if (isInsert) {
                     builder.idAttrNull();
+                    if(dict.getDeleteMarkAttr() != null) {
+                        // если явно не задан то false
+                        if(builder.getDeleteMarkAttr() == null) {
+                            builder.deleteMarkAttr(false);
+                        }
+                    }
                     outData = sqlDao.save(connection, query, data, isInsert);
                 } else {
                     outData = sqlDao.save(connection, query, data, isInsert);

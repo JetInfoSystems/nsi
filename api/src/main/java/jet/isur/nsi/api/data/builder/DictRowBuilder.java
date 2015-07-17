@@ -251,6 +251,10 @@ public class DictRowBuilder {
         return getLong(query.getDict().getIdAttr().getName());
     }
 
+    public Boolean getDeleteMarkAttr() {
+        return getBool(query.getDict().getDeleteMarkAttr().getName());
+    }
+
     public DateTime getDateTime(String attrName) {
         NsiQueryAttr queryAttr = query.getAttr(attrName);
         DictRowAttr attrValue = getAttr(attrName);
