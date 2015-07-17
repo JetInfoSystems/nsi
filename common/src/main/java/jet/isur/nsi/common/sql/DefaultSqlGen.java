@@ -88,11 +88,12 @@ public class DefaultSqlGen implements SqlGen {
             // включаем поля RefObject атрибутов
             if(attr.getType()==MetaAttrType.REF) {
                 SelectOnStep<?> beforeOn;
-                if(attr.isRequired()) {
-                     beforeOn = selectJoinStep.join(table(attr.getRefDict().getTable()).as(queryAttr.getRefAlias()));
-                } else {
+                //TODO: пока временно закомментировал эту оптимизацию
+                //if(attr.isRequired()) {
+                //     beforeOn = selectJoinStep.join(table(attr.getRefDict().getTable()).as(queryAttr.getRefAlias()));
+                //} else {
                     beforeOn = selectJoinStep.leftOuterJoin(table(attr.getRefDict().getTable()).as(queryAttr.getRefAlias()));
-                }
+                //}
                 NsiConfigAttr refIdAttr = attr.getRefDict().getIdAttr();
 
                 Condition cond = createJoinFieldCondition(queryAttr, attr.getFields().get(0), refIdAttr.getFields().get(0));
