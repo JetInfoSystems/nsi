@@ -1,4 +1,4 @@
-package jet.isur.nsi.services.impl;
+package jet.isur.nsi.services;
 
 import java.sql.Connection;
 import java.util.ArrayList;
