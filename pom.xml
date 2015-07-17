@@ -15,6 +15,7 @@
     <modules>
         <module>api</module>
         <module>common</module>
+        <module>generator</module>
         <module>services</module>
         <module>testkit</module>
     </modules>

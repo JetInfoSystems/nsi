@@ -53,10 +53,10 @@ public class DictDependencyGraph {
                 // игнорируем parent атрибуты
                 if(attr == dict.getParentAttr()) continue;
                 // выключаем прямые циклы
-                // TODO долна проверятся достижимость по own ребрам
-                if(!graph.containsEdge(refDict, dict)) {
-                    add(refDict);
-                    graph.addEdge(dict, refDict);
+                add(refDict);
+                DefaultEdge e = graph.addEdge(dict, refDict);
+                if(hasCycles()) {
+                    graph.removeEdge(e);
                 }
             }
         }

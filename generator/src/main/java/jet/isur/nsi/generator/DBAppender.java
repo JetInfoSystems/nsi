@@ -95,7 +95,7 @@ public class DBAppender {
         log.info("appender cleanData "+dict.getName());
 
         try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement ps = connection.prepareStatement("delete from " + dict.getTable())) {
+            try (PreparedStatement ps = connection.prepareStatement("TRUNCATE TABLE " + dict.getTable())) {
                 ps.executeQuery();
             }
         } catch (SQLException e) {

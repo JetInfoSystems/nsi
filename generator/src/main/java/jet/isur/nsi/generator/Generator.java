@@ -34,10 +34,6 @@ public class Generator {
      * appender - добавляет данные непосредственно в базу
      */
     private final DBAppender appender;
-    /**
-     * количество по-умолчанию создаваемых в таблицах строк (если не определен список значений)
-     */
-    private int defCount = 100;
 
     private String defString = "test ";
 
@@ -47,19 +43,13 @@ public class Generator {
     private List<String> customNaming = Arrays.asList("EVENT", "ORG_OBJ");
 
     private Map<NsiConfigDict, List<Long>> dictsIds = new HashMap<>();
-    private final Map<NsiConfigDict, Integer> dictCount;
 
-    public Generator(NsiConfig config, DBAppender appender) {
+    private final GeneratorParams params;
+
+    public Generator(NsiConfig config, DBAppender appender, GeneratorParams params) {
         this.config = config;
-        this.dictCount = new HashMap<>();
         this.appender = appender;
-    }
-
-    /**
-     * Устанавливает количество создаваемых записей по-умолчанию
-     */
-    public void setDefCount(int defCount) {
-        this.defCount = defCount;
+        this.params = params;
     }
 
     /**
@@ -72,32 +62,26 @@ public class Generator {
     private int getDictCount(NsiConfigDict dict) {
         if (StaticContent.checkPredefinedNames(dict.getName())) {
             return StaticContent.getPredefinedSize(dict.getName());
-        } else if (dictCount.containsKey(dict)) {
-            return dictCount.get(dict);
         } else {
-            return defCount;
+            return params.getDictCount(dict);
         }
     }
 
-    public void addData(String dictName){
-        NsiConfigDict dict = config.getDict(dictName);
-        addData(dictName, getDictCount(dict));
-    }
-
-    public void addData(String dictName, int count) {
-        dictCount.put(config.getDict(dictName), count);
-    }
-
-    public void appendData() {
+    public Map<NsiConfigDict,List<Long>> appendData() {
         DictDependencyGraph dictGraph = getGraph();
         List<NsiConfigDict> dictList = dictGraph.sort();
         for (NsiConfigDict dict : dictList) {
             addData(dict, getDictCount(dict));
         }
+        return dictsIds;
     }
 
     private DictDependencyGraph getGraph() {
-        DictDependencyGraph dictGraph = DictDependencyGraph.build(config, dictCount.keySet());
+        List<NsiConfigDict> dicts = new ArrayList<>();
+        for (String dictName : params.getAdd()) {
+            dicts.add(config.getDict(dictName));
+        }
+        DictDependencyGraph dictGraph = DictDependencyGraph.build(config, dicts);
         return dictGraph;
     }
 

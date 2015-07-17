@@ -1,34 +1,64 @@
 package jet.isur.nsi.generator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.FileReader;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.isur.nsi.generator.args.AppendDataCmd;
+import jet.isur.nsi.generator.args.CleanDataCmd;
+import jet.isur.nsi.generator.args.CommonArgs;
+import jet.isur.nsi.testkit.utils.DaoUtils;
+
+import com.beust.jcommander.JCommander;
 
 public class GeneratorMain {
-    /**
-     * список таблиц для максимального заполнения базы
-     */
-    public List<String> fillDatabaseTables = new ArrayList<>(Arrays.asList("ORG_OBJ","EVENT_PARAM","MSG_INSTRUCTION_ORG","MSG_EMP"));
 
-    /*
-    public void fillDatabase() {
-        for (String tableName:fillDatabaseTables) {
-            addData(tableName);
+    private static final String CMD_CLEAN_DATA = "cleanData";
+    private static final String CMD_APPEND_DATA = "appendData";
+
+    public static void main(String[] args) throws Exception {
+
+        JCommander jc = new JCommander();
+        CommonArgs commonArgs = new CommonArgs();
+        jc.addObject(commonArgs);
+        AppendDataCmd appendDataCmd = new AppendDataCmd();
+        jc.addCommand(CMD_APPEND_DATA, appendDataCmd);
+        CleanDataCmd cleanDataCmd = new CleanDataCmd();
+        jc.addCommand(CMD_CLEAN_DATA, cleanDataCmd);
+
+        jc.parse(args);
+
+        String command = jc.getParsedCommand();
+        if (command == null) {
+            jc.usage();
+            return;
+        }
+
+        Properties properties = new Properties();
+        properties.load(new FileReader(commonArgs.getCfg()));
+
+        GeneratorParams params = new GeneratorParams(properties);
+
+        NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
+
+        DataSource dataSource = DaoUtils.createDataSource("isur", properties);
+        DBAppender appender = new DBAppender(dataSource, config);
+
+        Generator generator = new Generator(config, appender, params);
+
+        switch (command) {
+        case CMD_APPEND_DATA:
+            generator.appendData();
+            break;
+        case CMD_CLEAN_DATA:
+            generator.cleanData();
+            break;
+        default:
+            break;
         }
     }
-
-    public void cleanDatabase() {
-        for (String tableName:fillDatabaseTables) {
-            cleanData(tableName);
-        }
-    }
-
-    public void addFillDatabaseTables(String tableName) {
-        if (config.getDict(tableName) != null && !fillDatabaseTables.contains(tableName)) {
-            fillDatabaseTables.add(tableName);
-        }
-    }
-    */
-
 
 }
