@@ -14,6 +14,7 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
+import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.api.model.builder.SortListBuilder;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
@@ -210,7 +211,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
 
                     List<DictRow> rows = sqlDao.list(connection, query,
-                            new BoolExpBuilder().key("f1").func("=")
+                            new BoolExpBuilder().key("f1").func(OperationType.EQUALS)
                             .value(DictRowAttrBuilder.build("value5")).build(),
                             new SortListBuilder().add("f1", false).build(), -1, -1);
 
@@ -242,7 +243,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
 
                     long count = sqlDao.count(connection, query,
-                            new BoolExpBuilder().key("f1").func("=")
+                            new BoolExpBuilder().key("f1").func(OperationType.EQUALS)
                             .value(DictRowAttrBuilder.build("value5")).build());
 
                     Assert.assertEquals(1L, count);

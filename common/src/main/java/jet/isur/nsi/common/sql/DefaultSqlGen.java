@@ -248,8 +248,11 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.NOTOR:
             return getOrCondition(query, filter.getExpList(), baseQuery).not();
         case OperationType.EQUALS:
-            return getFuncCondition(query, filter, baseQuery);
         case OperationType.LIKE:
+        case OperationType.GT:
+        case OperationType.GE:
+        case OperationType.LT:
+        case OperationType.LE:
             return getFuncCondition(query, filter, baseQuery);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
@@ -268,21 +271,30 @@ public class DefaultSqlGen implements SqlGen {
 
     protected Condition getFieldFuncCondition(NsiQuery query,
             NsiConfigField field, BoolExp filter) {
+        Field<Object> f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
         switch (filter.getFunc()) {
-        case "=":
+        case OperationType.EQUALS:
             if (filter.getValue().getValues().get(0) != null){
-                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).eq(val(null));
+                return f.eq(val(null));
             }
             else{
-                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).isNull();
+                return f.isNull();
             }
-        case "like":
+        case OperationType.GT:
+            return f.gt(val(null));
+        case OperationType.GE:
+            return f.ge(val(null));
+        case OperationType.LT:
+            return f.lt(val(null));
+        case OperationType.LE:
+            return f.le(val(null));
+        case OperationType.LIKE:
             if (filter.getValue().getValues().get(0) != null){
                 Field<String> value = null;
-                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).like(value );
+                return f.like(value );
             }
             else{
-                return field(NsiQuery.MAIN_ALIAS +"."+field.getName()).isNull();
+                return f.isNull();
             }
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
