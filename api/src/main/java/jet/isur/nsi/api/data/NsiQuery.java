@@ -145,4 +145,29 @@ public class NsiQuery {
         return config;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((dict == null) ? 0 : dict.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NsiQuery other = (NsiQuery) obj;
+        if (dict == null) {
+            if (other.dict != null)
+                return false;
+        } else if (!dict.equals(other.dict))
+            return false;
+        return true;
+    }
+
 }

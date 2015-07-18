@@ -236,15 +236,21 @@ public class DictRowBuilder {
     }
 
     public String getString(String attrName) {
-        NsiQueryAttr queryAttr = query.getAttr(attrName);
         DictRowAttr attrValue = getAttr(attrName);
-        return attrValue.getValues().get(0);
+        if(attrValue != null && attrValue.getValues() != null) {
+            return attrValue.getValues().get(0);
+        } else {
+            return null;
+        }
     }
 
     public Long getLong(String attrName) {
-        NsiQueryAttr queryAttr = query.getAttr(attrName);
         DictRowAttr attrValue = getAttr(attrName);
-        return ConvertUtils.stringToLong(attrValue.getValues().get(0));
+        if(attrValue != null && attrValue.getValues() != null) {
+            return ConvertUtils.stringToLong(attrValue.getValues().get(0));
+        } else {
+            return null;
+        }
     }
 
     public Long getLongIdAttr() {
@@ -256,15 +262,21 @@ public class DictRowBuilder {
     }
 
     public DateTime getDateTime(String attrName) {
-        NsiQueryAttr queryAttr = query.getAttr(attrName);
         DictRowAttr attrValue = getAttr(attrName);
-        return ConvertUtils.stringToDateTime(attrValue.getValues().get(0));
+        if(attrValue != null && attrValue.getValues() != null) {
+            return ConvertUtils.stringToDateTime(attrValue.getValues().get(0));
+        } else {
+            return null;
+        }
     }
 
     public Boolean getBool(String attrName) {
-        NsiQueryAttr queryAttr = query.getAttr(attrName);
         DictRowAttr attrValue = getAttr(attrName);
-        return ConvertUtils.stringToBool(attrValue.getValues().get(0));
+        if(attrValue != null && attrValue.getValues() != null) {
+            return ConvertUtils.stringToBool(attrValue.getValues().get(0));
+        } else {
+            return null;
+        }
     }
 
 }
