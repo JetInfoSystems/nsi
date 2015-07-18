@@ -10,6 +10,7 @@ import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
 import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.model.builder.BoolExpBuilder;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
@@ -72,7 +73,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp filter = new BoolExpBuilder()
             .key("f1")
-            .func("=")
+            .func(OperationType.EQUALS)
             .value(DictRowAttrBuilder.from("1"))
             .build();
 
@@ -92,10 +93,10 @@ public class SqlGenTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp f1Filter = new BoolExpBuilder()
-            .func("and")
+            .func(OperationType.AND)
             .expList()
                 .key("f1").func("=").value(DictRowAttrBuilder.from("1")).add()
-                .key("is_deleted").func("=").value(DictRowAttrBuilder.from(true)).add()
+                .key("is_deleted").func(OperationType.EQUALS).value(DictRowAttrBuilder.from(true)).add()
             .end()
             .build();
 
@@ -118,7 +119,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp filter = new BoolExpBuilder()
             .key("f1")
-            .func("like")
+            .func(OperationType.LIKE)
             .value(DictRowAttrBuilder.from("1"))
             .build();
 
@@ -168,7 +169,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         BoolExp filter = new BoolExpBuilder()
         .key("f1")
-        .func("=")
+        .func(OperationType.EQUALS)
         .value(DictRowAttrBuilder.from("1"))
         .build();
 
@@ -176,6 +177,7 @@ public class SqlGenTest extends BaseSqlTest {
         Assert.assertEquals("select count(*) " + "from table1 m "
                 + "where m.f1 = ?", sql);
     }
+
 
     @Test
     public void testDict1RowInsertSeq() {
@@ -224,6 +226,44 @@ public class SqlGenTest extends BaseSqlTest {
                         + "set m.f1 = ?, m.dict1_id = ?, m.last_change = ?, m.is_deleted = ?, m.last_user = ? "
                         + "where m.id = ?", sql);
 
+    }
+
+    @Test
+    public void testOperationsSql() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        BoolExp filter = new BoolExpBuilder()
+        .func(OperationType.AND)
+        .expList()
+            .key("f1").func(OperationType.EQUALS).value(DictRowAttrBuilder.from("1")).add()
+            .key("f1").func(OperationType.LT).value(DictRowAttrBuilder.from("1")).add()
+            .key("f1").func(OperationType.LE).value(DictRowAttrBuilder.from("1")).add()
+            .func(OperationType.NOTAND)
+            .expList()
+                .key("f1").func(OperationType.GT).value(DictRowAttrBuilder.from("1")).add()
+                .key("f1").func(OperationType.GE).value(DictRowAttrBuilder.from("1")).add()
+            .end().add()
+            .func(OperationType.OR)
+            .expList()
+                .key("f1").func(OperationType.GT).value(DictRowAttrBuilder.from("1")).add()
+                .key("f1").func(OperationType.GE).value(DictRowAttrBuilder.from("1")).add()
+            .end().add()
+            .func(OperationType.NOTOR)
+            .expList()
+                .key("f1").func(OperationType.GT).value(DictRowAttrBuilder.from("1")).add()
+                .key("f1").func(OperationType.GE).value(DictRowAttrBuilder.from("1")).add()
+            .end().add()
+        .end()
+        .build();
+
+        String sql = sqlGen.getCountSql(query, filter);
+        Assert.assertEquals(
+                "select count(*) "
+                + "from table1 m "
+                + "where (m.f1 = ? and m.f1 < ? and m.f1 <= ? "
+                + "and not((m.f1 > ? and m.f1 >= ?)) "
+                + "and (m.f1 > ? or m.f1 >= ?) "
+                + "and not((m.f1 > ? or m.f1 >= ?)))", sql);
     }
 
 }
