@@ -70,7 +70,11 @@ public class ConvertUtils {
     }
 
     public static DateTime stringToDateTime(String value) {
-        return DateTime.parse(value, dateFormatter);
+        if(value == null) {
+            return null;
+        } else {
+            return DateTime.parse(value, dateFormatter);
+        }
     }
 
     public static String longToString(Long value) {
