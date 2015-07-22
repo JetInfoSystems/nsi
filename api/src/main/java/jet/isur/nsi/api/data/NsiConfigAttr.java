@@ -12,7 +12,7 @@ public class NsiConfigAttr {
     private final String valueType;
     private final String name;
     private final String caption;
-    private final Boolean hidden;
+    private Boolean hidden;
     private final String refDictName;
     private boolean required;
     private boolean readonly;
@@ -85,6 +85,9 @@ public class NsiConfigAttr {
     }
     public void setType(MetaAttrType type) {
         this.type = type;
+    }
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
     }
 
 
