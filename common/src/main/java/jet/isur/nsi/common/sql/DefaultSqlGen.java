@@ -198,7 +198,9 @@ public class DefaultSqlGen implements SqlGen {
 
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size) {
-        SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true);
+    	checkPaginationExp(offset, size);
+
+    	SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true);
         Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
@@ -226,6 +228,14 @@ public class DefaultSqlGen implements SqlGen {
         return baseQueryPart.getSQL();
     }
 
+	protected void checkPaginationExp(long offset, int size) {
+		if ((offset == -1 && size == -1) || (offset != -1 && size != -1)) {
+			return;
+		}
+		throw new NsiDataException("invalid condition [offset : "
+				+ offset + ", size : " + size + "]");
+	}
+	
     protected Condition getWhereCondition(NsiQuery query, BoolExp filter,
             SelectJoinStep<?> baseQueryPart) {
         Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
