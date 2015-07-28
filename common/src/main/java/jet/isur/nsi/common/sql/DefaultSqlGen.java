@@ -30,11 +30,13 @@ import org.jooq.InsertSetStep;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.SQLDialect;
+import org.jooq.SelectConditionStep;
 import org.jooq.SelectField;
 import org.jooq.SelectJoinStep;
 import org.jooq.SelectOnStep;
 import org.jooq.SortField;
 import org.jooq.SortOrder;
+import org.jooq.Table;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.UpdateSetMoreStep;
 import org.jooq.conf.RenderNameStyle;
@@ -127,7 +129,8 @@ public class DefaultSqlGen implements SqlGen {
             if(includeRefFields && queryAttr.getAttr().getType()==MetaAttrType.REF) {
                 for (NsiConfigAttr refAttr : queryAttr.getAttr().getRefDict().getRefObjectAttrs()) {
                     for (NsiConfigField field : refAttr.getFields()) {
-                        result.add(field(queryAttr.getRefAlias() + "." + field.getName()));
+                    	String alias = queryAttr.getRefAlias() + "_" + field.getName();
+                    	result.add(field(queryAttr.getRefAlias() + "." + field.getName()).as(alias));
                     }
                 }
             }
@@ -206,8 +209,18 @@ public class DefaultSqlGen implements SqlGen {
             baseQueryPart.orderBy(sortFields);
         }
 
-        if(size != -1) {
-            baseQueryPart.limit(size);
+        if (size != -1 && offset != -1) {
+        	List<SelectField<?>> fields = new ArrayList<>();
+        	fields.add(field("a.*"));
+        	fields.add(field("ROWNUM").as("rnum"));
+
+        	Table<Record> base = getQueryBuilder().select(fields)
+        			.from(baseQueryPart.asTable("a"))
+        			.where("ROWNUM <" + (offset + size)).asTable("b");
+        	SelectConditionStep<Record1<Object>> result = getQueryBuilder()
+        			.select(field("*")).from(base).where("rnum >= " + offset);
+        	
+        	return result.getSQL();
         }
 
         return baseQueryPart.getSQL();
