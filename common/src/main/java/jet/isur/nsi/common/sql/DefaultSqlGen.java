@@ -218,9 +218,9 @@ public class DefaultSqlGen implements SqlGen {
 
         	Table<Record> base = getQueryBuilder().select(fields)
         			.from(baseQueryPart.asTable("a"))
-        			.where("ROWNUM <" + (offset + size)).asTable("b");
+        			.where(field("ROWNUM").lessThan(val(null))).asTable("b");
         	SelectConditionStep<Record1<Object>> result = getQueryBuilder()
-        			.select(field("*")).from(base).where("rnum >= " + offset);
+        			.select(field("*")).from(base).where(field("rnum").greaterOrEqual(val(null)));
         	
         	return result.getSQL();
         }
