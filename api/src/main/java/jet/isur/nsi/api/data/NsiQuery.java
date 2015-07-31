@@ -14,10 +14,22 @@ public class NsiQuery {
     private int aliasIndex = 0;
     private List<NsiQueryAttr> attrs = new ArrayList<>();
     private Map<String,Map<String,NsiQueryAttr>> aliasNameMap = new HashMap<>();
-
-    private String getNextAlias() {
-        aliasIndex ++ ;
+    private Map<String,String> dictAliasMap = new HashMap<>();
+    
+    private String getNextAlias(String dict) {
+        if (dictAliasMap.containsKey(dict)){
+        	return dictAliasMap.get(dict);
+        }
+    	aliasIndex ++ ;
+    	dictAliasMap.put(dict, "a" + aliasIndex);
         return "a" + aliasIndex;
+    }
+    
+    public String getDictAlias(String dict){
+    	if (dictAliasMap.containsKey(dict)){
+        	return dictAliasMap.get(dict);
+        }
+    	return getNextAlias(dict);
     }
 
     public NsiQuery(NsiConfig config, NsiConfigDict dict) {
@@ -33,7 +45,7 @@ public class NsiQuery {
         }
         String refAlias = null;
         if(attr.getType() == MetaAttrType.REF) {
-            refAlias = getNextAlias();
+        	refAlias = getNextAlias(attr.getRefDictName());
         }
         int index = attrs.size();
         NsiQueryAttr queryAttr = new NsiQueryAttr(alias, attr, refAlias, index);
