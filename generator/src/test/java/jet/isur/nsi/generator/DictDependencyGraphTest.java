@@ -59,6 +59,7 @@ public class DictDependencyGraphTest {
         "OBJ_TYPE",
         "PARAM_EVENT_OBJ_TYPE",
         "ORG_FORM",
+        "FIAS_ADDROBJ",
         "ACTIVITY_TYPE",
         "ORG",
         "ORG_UNIT",
