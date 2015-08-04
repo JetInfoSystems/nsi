@@ -48,7 +48,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.f1, m.dict1_id, a1.f1, m.id, m.last_change, m.is_deleted, m.last_user "
+                "select m.f1, m.dict1_id, a1.f1 a1_f1, m.id, m.last_change, m.is_deleted, m.last_user "
                         + "from table2 m "
                         + "left outer join table1 a1 on m.dict1_id = a1.id "
                         + "where m.id = ?", sql);
@@ -60,7 +60,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.f1, m.dict1_id, a1.f1, m.dict1_a_id, a2.f1, m.id, m.last_change, m.is_deleted, m.last_user "
+                "select m.f1, m.dict1_id, a1.f1 a1_f1, m.dict1_a_id, a2.f1 a2_f1, m.id, m.last_change, m.is_deleted, m.last_user "
                         + "from table3 m "
                         + "left outer join table1 a1 on m.dict1_id = a1.id "
                         + "left outer join table1 a2 on m.dict1_a_id = a2.id "
@@ -83,9 +83,10 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getListSql(query, filter, sortList, 1, 2);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
-                        + "from table1 m " + "where m.f1 = ? "
-                        + "order by m.id asc, m.last_user asc limit ?", sql);
+                "select * from (select a.*, ROWNUM rnum from (" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        " where m.f1 = ? order by m.id asc, m.last_user asc" +
+                        ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
 
     @Test
@@ -106,11 +107,10 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getListSql(query, f1Filter, sortList, 1, 2);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
-                + "from table1 m "
-                + "where (m.f1 = ? and m.is_deleted = ?) "
-                + "order by m.id asc, m.last_user asc "
-                + "limit ?", sql);
+                "select * from (select a.*, ROWNUM rnum from (" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        " where (m.f1 = ? and m.is_deleted = ?) order by m.id asc, m.last_user asc" +
+                        ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
 
     @Test
@@ -129,9 +129,10 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getListSql(query, filter, sortList, 1, 2);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
-                        + "from table1 m " + "where m.f1 like ? "
-                        + "order by m.id asc, m.last_user asc limit ?", sql);
+                "select * from (select a.*, ROWNUM rnum from (" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        " where m.f1 like ? order by m.id asc, m.last_user asc" +
+                        ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
     /*
      * @Test public void testDict2ListSql() { NsiConfigDict dict =
