@@ -309,6 +309,9 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
+    /**
+     * Биндит к запросу значения полей, составляющих id (primary key). Возвращает индекс следующего placeholder-а
+     */
     protected int setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
             DictRowAttr id) throws SQLException {
         List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
@@ -316,9 +319,12 @@ public class DefaultSqlDao implements SqlDao {
             NsiConfigField field = fields.get(i);
             setParam(ps,i+1,field,id.getValues().get(i));
         }
-        return fields.size();
+        return fields.size() + 1;
     }
 
+    /**
+     * Биндит к запросу значение поля под заданным индексом
+     */
     protected void setParam(PreparedStatement ps, int index, NsiConfigField field,
             String value) throws SQLException {
         switch (field.getType()) {
