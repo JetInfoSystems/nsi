@@ -236,8 +236,8 @@ public class DefaultSqlDao implements SqlDao {
     public int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size) throws SQLException {
        	int index = setParamsForFilter(query, ps, 1, filter);
        	if (offset != -1 && size != -1){
-       		ps.setLong(index++, offset+size);
-       		ps.setLong(index++, offset);
+       		ps.setLong(index++, offset+size+1);
+       		ps.setLong(index++, offset+1);
        	}
        	return index;
     }
