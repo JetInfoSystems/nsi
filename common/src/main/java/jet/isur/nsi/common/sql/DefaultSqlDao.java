@@ -237,7 +237,7 @@ public class DefaultSqlDao implements SqlDao {
        	int index = setParamsForFilter(query, ps, 1, filter);
        	if (offset != -1 && size != -1){
        		ps.setLong(index++, offset+size);
-       		ps.setLong(index++, size);
+       		ps.setLong(index++, offset);
        	}
        	return index;
     }
