@@ -210,7 +210,7 @@ public class NsiConfigImpl implements NsiConfig {
             if(field.getSize() == null) {
                 throwDictException(dict, "empty field size", field.getName());
             }
-            if(field.getSize() > 2000) {
+            if(field.getSize() > 4000) {
                 throwDictException(dict, "field size too big", field.getName());
             }
             break;

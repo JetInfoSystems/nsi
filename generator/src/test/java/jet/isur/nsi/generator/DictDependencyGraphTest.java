@@ -1,9 +1,12 @@
 package jet.isur.nsi.generator;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +20,13 @@ import junit.framework.Assert;
 public class DictDependencyGraphTest {
 
     private NsiConfig config;
+	private String metadataPath;
 
     @Before
-    public void setup() {
-        File configPath = new File("/opt/isur/database/metadata");
+    public void setup() throws IOException {
+        getConfiguration();
+
+        File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
     }
@@ -30,7 +36,7 @@ public class DictDependencyGraphTest {
     }
 
     @Test
-    public void testWORJ_TYPE() {
+    public void testWORK_TYPE() {
         DictDependencyGraph graph = DictDependencyGraph.build(config, Arrays.asList(getDict("WORK_TYPE")));
         List<NsiConfigDict> sortedDicts = graph.sort();
         Assert.assertFalse(graph.hasCycles());
@@ -38,7 +44,7 @@ public class DictDependencyGraphTest {
     }
 
     @Test
-    public void testEVENT() {
+    public void testEMP() {
         DictDependencyGraph graph = DictDependencyGraph.build(config, Arrays.asList(getDict("EMP")));
         List<NsiConfigDict> sortedDicts = graph.sort();
         Assert.assertFalse(graph.hasCycles());
@@ -54,14 +60,12 @@ public class DictDependencyGraphTest {
         "TECH_MEAN_TYPE",
         "STAFF_TYPE",
         "PARAM",
-        "EVENT_TYPE",
-        "PARAM_EVENT_TYPE",
-        "OBJ_TYPE",
-        "PARAM_EVENT_OBJ_TYPE",
         "ORG_FORM",
+        "FIAS_ADDROBJ",
         "ACTIVITY_TYPE",
         "ORG",
         "ORG_UNIT",
+        "OBJ_TYPE",
         "ORG_OBJ",
         "ORG_COR",
         "EMP",
@@ -80,4 +84,12 @@ public class DictDependencyGraphTest {
         "EMP_PHONE",
         "EMP_EMAIL"),sortedDictNames);
     }
+    
+    private void getConfiguration() throws IOException {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project.properties");
+        Properties props = new Properties();
+        props.load(in);
+        metadataPath = props.getProperty("database.metadata.path", "/opt/isur/database/metadata");
+    }
+
 }
