@@ -1,6 +1,9 @@
 package jet.isur.nsi.generator;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.data.NsiConfig;
@@ -13,12 +16,15 @@ public class GeneratorTest extends BaseSqlTest{
 
     private NsiConfig config;
     private Generator generator;
+	private String metadataPath;
 
     @Override
     public void setup() throws Exception {
         super.setup();
 
-        File configPath = new File("/opt/isur/database/metadata");
+        getConfiguration();
+        
+        File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
         DBAppender appender = new DBAppender(dataSource, config);
@@ -55,5 +61,12 @@ public class GeneratorTest extends BaseSqlTest{
         /*
         generator.cleanDatabase();
         */
+    }
+
+    private void getConfiguration() throws IOException {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project.properties");
+        Properties props = new Properties();
+        props.load(in);
+        metadataPath = props.getProperty("database.metadata.path", "/opt/isur/database/metadata");
     }
 }
