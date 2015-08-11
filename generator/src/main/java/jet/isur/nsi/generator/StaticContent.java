@@ -20,10 +20,10 @@ public class StaticContent {
         fields.put("MSG.DESCRIPTION", values);
 
         values = new String[] {"Подразделение "};
-        fields.put("ORG_UNIT.NAME", values);
+        fields.put("ORG_UNIT.ORG_UNIT_NAME", values);
 
         values = new String[] {"Должность "};
-        fields.put("EMP.FUNCTION", values);
+        fields.put("EMP.EMP_FUNCTION", values);
 
         values = new String[] {"Александр", "Алексей", "Иван", "Петр", "Сергей", "Николай"};
         fields.put("EMP.FIRST_NAME", values);
@@ -51,15 +51,15 @@ public class StaticContent {
         values = new String[] { "Роснефть", "ООО «РН-Юганскнефтегаз»",
                 "ЗАО «Ванкорнефть»", "ОАО «Самаранефтегаз»",
                 "ОАО «Куйбышевский НПЗ»" };
-        fields.put("ORG.NAME", values);
+        fields.put("ORG.ORG_NAME", values);
 
         values = new String[] { "Угроза", "ЧС",
                 "Происшествие 1-го уровня", "Происшествие 2-го уровня",
                 "Происшествие 3-го уровня", "Информация к сведению" };
-        fields.put("EVENT_CATEGORY.NAME", values);
+        fields.put("EVENT_CATEGORY.EVENT_CATEGORY_NAME", values);
 
         values = new String[] { "Инцидент", "Авария", "Пожар" };
-        fields.put("EVENT_CLASSIFIER.NAME", values);
+        fields.put("EVENT_CLASSIFIER.EVENT_CLASSIFIER_NAME", values);
 
         values = new String[] {
                 "Дорожно-транспортное происшествие (ДТП)",
@@ -81,7 +81,7 @@ public class StaticContent {
                 "Нарушение теплоснабжения",
                 "Несанкционированная врезка",
                 "Прочие" };
-        fields.put("EVENT_TYPE.NAME", values);
+        fields.put("EVENT_TYPE.EVENT_TYPE_NAME", values);
 
         values = new String[] {
                 "Разведка и добыча",
@@ -102,15 +102,11 @@ public class StaticContent {
                 "Служба безопасности",
                 "Информационные технологии",
                 "Информация и реклама" };
-        fields.put("ACTIVITY_TYPE.NAME", values);
+        fields.put("ACTIVITY_TYPE.ACTIVITY_TYPE_NAME", values);
 
         values = new String[] { "Завод", "Месторождение", "Скважина",
                 "АЗС", "Прочее" };
-        fields.put("OBJ_TYPE.NAME", values);
-
-        values = new String[] { "Завод", "Месторождение", "Скважина",
-                "АЗС", "Прочее" };
-        fields.put("OBJ_TYPE.NAME", values);
+        fields.put("OBJ_TYPE.OBJ_TYPE_NAME", values);
 
         values = new String[] {
             "Причина",
@@ -154,7 +150,7 @@ public class StaticContent {
             "Автомобильный",
             "Железнодорожный",
             "Авиационный" };
-        fields.put("PARAM.NAME", values);
+        fields.put("PARAM.PARAM_NAME", values);
     }
 
     public static String getString(String fieldName, int index) {
@@ -165,19 +161,19 @@ public class StaticContent {
         if (values.length == 1) {
             return values[0] + index;
         }
-        if (fieldName.endsWith(".NAME")) {
+        if (fieldName.endsWith("_NAME")) {
             return values[index % values.length];
         }
         return values[RandomUtils.getInt(values.length)];
     };
 
     public static boolean checkPredefinedNames(String tableName) {
-        String[] values = fields.get(tableName+".NAME");
+        String[] values = fields.get(tableName+"."+tableName+"_NAME");
         return values != null && values.length > 1;
     };
 
     public static int getPredefinedSize(String tableName) {
-        String[] values = fields.get(tableName+".NAME");
+        String[] values = fields.get(tableName+"." +tableName+"_NAME");
         if (values != null && values.length > 1){
             return values.length;
         }

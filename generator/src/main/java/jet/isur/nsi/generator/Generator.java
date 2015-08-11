@@ -70,8 +70,14 @@ public class Generator {
     public Map<NsiConfigDict,List<Long>> appendData() {
         DictDependencyGraph dictGraph = getGraph();
         List<NsiConfigDict> dictList = dictGraph.sort();
+        
+        log.info("Generated Graph ['{}']", getDictListAsString(dictList));
         for (NsiConfigDict dict : dictList) {
-            addData(dict, getDictCount(dict));
+            if (dict.getName().startsWith("FIAS")) {
+                log.info("Skipping FIAS dicts");
+            } else {
+                addData(dict, getDictCount(dict));
+            }
         }
         return dictsIds;
     }
@@ -85,13 +91,22 @@ public class Generator {
         return dictGraph;
     }
 
+    private String getDictListAsString(List<NsiConfigDict> dictList) {
+        String listStr = "";
+        for (NsiConfigDict dict : dictList) {
+            listStr += dict.getName() + ", ";
+        }
+        return listStr.substring(0, listStr.lastIndexOf(','));
+    }
     /**
      * Генерация и добавление данных в справочник
      * @param dict описание справочника
      * @param count количество записей
      */
     private void addData(NsiConfigDict dict, int count){
-
+        
+        log.info("addData start for ['{}']", dict.getName());
+        
         List<DictRow> curDataList = appender.getData(dict);
 
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
@@ -136,11 +151,11 @@ public class Generator {
                         /*
                         if (refDict.getName().endsWith("_TYPE")) {
                             if (customNaming.contains(dictName)) {
-                                String name = row.getAttrs().get("NAME").getFirstValue()+" "+number;
+                                String name = row.getAttrs().get(dictName + "_NAME").getFirstValue()+" "+number;
                                 drb.attr("DESCRIPTION", name);
-                                drb.attr("NAME", name);
+                                drb.attr(dictName + "_NAME", name);
                                 filledAttrs.add("DESCRIPTION");
-                                filledAttrs.add("NAME");
+                                filledAttrs.add(dictName + "_NAME");
                             }
                         }
                         */
