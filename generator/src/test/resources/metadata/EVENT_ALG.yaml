@@ -1,0 +1,123 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Событие
+   fields: [EVENT_ID]
+   hidden: false
+   name: EVENT_ID
+   type: ref
+   refDict: EVENT
+ - caption: Комментарии по выполнению
+   fields: [DESCRIPTION]
+   hidden: false
+   name: DESCRIPTION
+   type: value
+ - caption: Исполнить до
+   fields: [ALLOTTED_TIME]
+   hidden: false
+   name: ALLOTTED_TIME
+   type: value
+ - caption: Исполнено
+   fields: [TOOK_TIME]
+   hidden: false
+   name: TOOK_TIME
+   type: value
+ - caption: Статус
+   fields: [STATE]
+   hidden: false
+   name: STATE
+   type: value
+ - caption: Дата, время выполнения
+   fields: [TIME_STAMP]
+   hidden: false
+   name: TIME_STAMP
+   type: value
+ - caption: Действие
+   fields: [ALG_ACTION_TYPE_ID]
+   hidden: false
+   name: ALG_ACTION_TYPE_ID
+   type: ref
+   refDict: ALG_ACTION_TYPE
+ - caption: Роль в смене
+   fields: [SHIFT_ROLE_ID]
+   hidden: false
+   name: SHIFT_ROLE_ID
+   type: ref
+   refDict: SHIFT_ROLE
+ - caption: Автор
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Алгоритм действий дежурных СЦУКС при реагировании на событие
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: EVENT_ID
+   size: 19
+   type: number
+ - name: DESCRIPTION
+   size: 2000
+   type: varchar
+ - name: ALLOTTED_TIME
+   size: 10
+   type: number
+ - name: TOOK_TIME
+   size: 10
+   type: number
+ - name: STATE
+   size: 2
+   type: char
+   enumValues:
+     1: В работе
+     2: Выполнен
+ - name: TIME_STAMP
+   size: 0
+   type: date-time
+ - name: ALG_ACTION_TYPE_ID
+   size: 19
+   type: number
+ - name: SHIFT_ROLE_ID
+   size: 19
+   type: number
+ - name: EMP_ID
+   size: 19
+   type: number
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: EVENT_ALG
+ownerAttr: EVENT_ID
+refObjectAttrs: [DESCRIPTION]
+table: EVENT_ALG
+tableObjectAttrs: [EVENT_ID,DESCRIPTION,ALLOTTED_TIME,TOOK_TIME,STATE,TIME_STAMP,ALG_ACTION_TYPE_ID,SHIFT_ROLE_ID,EMP_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

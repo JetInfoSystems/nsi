@@ -1,0 +1,52 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Название АСР
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Виды аварийно-спасательных работ (АСР)
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: NAME
+   size: 100
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: WORK_TYPE
+refObjectAttrs: [NAME]
+table: WORK_TYPE
+tableObjectAttrs: [NAME,IS_DELETED,LAST_USER,LAST_CHANGE]

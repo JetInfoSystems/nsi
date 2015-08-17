@@ -1,0 +1,71 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Событие
+   fields: [EVENT_ID]
+   hidden: false
+   name: EVENT_ID
+   type: ref
+   refDict: EVENT
+ - caption: Объект
+   fields: [ORG_OBJ_ID]
+   hidden: false
+   name: ORG_OBJ_ID
+   type: ref
+   refDict: ORG_OBJ
+ - caption: Описание объекта
+   fields: [DESCRIPTION]
+   hidden: false
+   name: DESCRIPTION
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Объекты события
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: EVENT_ID
+   size: 19
+   type: number
+ - name: ORG_OBJ_ID
+   size: 19
+   type: number
+ - name: DESCRIPTION
+   size: 2000
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: EVENT_OBJ
+ownerAttr: EVENT_ID
+refObjectAttrs: [DESCRIPTION]
+table: EVENT_OBJ
+tableObjectAttrs: [EVENT_ID,ORG_OBJ_ID,DESCRIPTION,IS_DELETED,LAST_USER,LAST_CHANGE]

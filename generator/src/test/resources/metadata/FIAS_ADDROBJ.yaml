@@ -1,0 +1,127 @@
+attrs:
+ - caption: "Глобальный уникальный идентификатор адресного объекта"
+   fields: [AOGUID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: "Идентификатор объекта родительского объекта"
+   fields: [PARENTGUID]
+   hidden: false
+   name: PARENTGUID
+   required: false
+   type: value
+ - caption: "Краткое наименование типа объекта"
+   fields: [SHORTNAME]
+   hidden: false
+   name: SHORTNAME
+   required: true
+   type: value
+ - caption: "Формализованное наименование"
+   fields: [FORMALNAME]
+   hidden: false
+   name: FORMALNAME
+   required: true
+   type: value
+ - caption: "Уровень адресного объекта"
+   fields: [AOLEVEL]
+   hidden: false
+   name: AOLEVEL
+   required: true
+   type: value
+ - caption: "Код региона"
+   fields: [REGIONCODE]
+   hidden: false
+   name: REGIONCODE
+   required: true
+   type: value
+ - caption: "Код автономии"
+   fields: [AUTOCODE]
+   hidden: false
+   name: AUTOCODE
+   required: true
+   type: value
+ - caption: "Код района"
+   fields: [AREACODE]
+   hidden: false
+   name: AREACODE
+   required: true
+   type: value
+ - caption: "Код города"
+   fields: [CITYCODE]
+   hidden: false
+   name: CITYCODE
+   required: true
+   type: value
+ - caption: "Код внутригородского района"
+   fields: [CTARCODE]
+   hidden: false
+   name: CTARCODE
+   required: true
+   type: value
+ - caption: "Код населенного пункта"
+   fields: [PLACECODE]
+   hidden: false
+   name: PLACECODE
+   required: true
+   type: value
+ - caption: "Удален ли адресный объект (являет неактуальным) или нет: Y|N"
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   required: true
+   type: value
+ - caption: "Дата внесения (обновления) записи"
+   fields: [UPDATEDATE]
+   hidden: false
+   name: UPDATEDATE
+   required: true
+   type: value
+caption: "Адресные объекты ФИАС"
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: AOGUID
+   size: 36
+   type: varchar
+ - name: PARENTGUID
+   size: 36
+   type: varchar
+ - name: SHORTNAME
+   size: 10
+   type: varchar
+ - name: FORMALNAME
+   size: 255
+   type: varchar
+ - name: AOLEVEL
+   size: 2
+   type: varchar
+ - name: REGIONCODE
+   size: 2
+   type: varchar
+ - name: AUTOCODE
+   size: 1
+   type: varchar
+ - name: AREACODE
+   size: 3
+   type: varchar
+ - name: CITYCODE
+   size: 3
+   type: varchar
+ - name: CTARCODE
+   size: 3
+   type: varchar
+ - name: PLACECODE
+   size: 3
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: UPDATEDATE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: UPDATEDATE
+name: FIAS_ADDROBJ
+refObjectAttrs: [SHORTNAME,FORMALNAME]
+table: FIAS_ADDROBJ
+tableObjectAttrs: [ID,PARENTGUID,SHORTNAME,FORMALNAME,AOLEVEL,REGIONCODE,AUTOCODE,AREACODE,CITYCODE,CTARCODE,PLACECODE,IS_DELETED,UPDATEDATE]

@@ -49,9 +49,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndGet() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
@@ -78,11 +78,11 @@ public class SqlDaoTest extends BaseSqlTest {
         NsiConfigDict dict1 = config.getDict("dict1");
         NsiConfigDict dict2 = config.getDict("dict2");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict1, connection);
-            DaoUtils.createTable(dict2, connection);
+            DaoUtils.recreateTable(dict2, connection);
+            DaoUtils.recreateTable(dict1, connection);
             try {
-                DaoUtils.createSeq(dict1, connection);
-                DaoUtils.createSeq(dict2, connection);
+                DaoUtils.recreateSeq(dict2, connection);
+                DaoUtils.recreateSeq(dict1, connection);
                 try {
                     NsiQuery query1 = new NsiQuery(config, dict1).addAttrs();
                     DictRow dict1Data = insertDict1Row(connection, query1, "f1-value");
@@ -98,8 +98,8 @@ public class SqlDaoTest extends BaseSqlTest {
 
 
                 } finally {
-                    DaoUtils.dropSeq(dict1, connection);
                     DaoUtils.dropSeq(dict2, connection);
+                    DaoUtils.dropSeq(dict1, connection);
                 }
 
             } finally {
@@ -113,9 +113,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndUpdate() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
@@ -142,9 +142,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testList() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -169,9 +169,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testListReverseSort() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -200,9 +200,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testListFilterSort() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -232,9 +232,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testCountFilter() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -291,9 +291,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndGetChar1Char2() throws Exception {
         NsiConfigDict dict = config.getDict("dict4");
         try (Connection connection = dataSource.getConnection()) {
-            DaoUtils.createTable(dict, connection);
+            DaoUtils.recreateTable(dict, connection);
             try {
-                DaoUtils.createSeq(dict, connection);
+                DaoUtils.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = new NsiQuery(config, dict).addAttrs();
                     DictRow inData = new DictRowBuilder(query)
