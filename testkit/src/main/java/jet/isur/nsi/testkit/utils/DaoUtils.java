@@ -1,6 +1,9 @@
 package jet.isur.nsi.testkit.utils;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -17,6 +20,7 @@ import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.conf.RenderNameStyle;
 import org.jooq.conf.Settings;
+import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 
@@ -67,7 +71,23 @@ public class DaoUtils {
     }
 
     public static void dropTable(String name, Connection connection) {
-        getQueryBuilder(connection).dropTable(name).execute();
+        try {
+            getQueryBuilder(connection).dropTable(name).execute();
+        }
+        catch(DataAccessException e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLSyntaxErrorException) {
+                throwIfNot((SQLSyntaxErrorException)cause, 942);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private static void throwIfNot(SQLSyntaxErrorException e, int errorCode) {
+        if(e.getErrorCode() != errorCode) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void createSeq(NsiConfigDict dict, Connection connection) {
@@ -94,7 +114,23 @@ public class DaoUtils {
     }
 
     public static void dropSeq(String name, Connection connection) {
-        getQueryBuilder(connection).dropSequence(name).execute();
+        try {
+            getQueryBuilder(connection).dropSequence(name).execute();
+        }
+        catch(DataAccessException e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLSyntaxErrorException) {
+                throwIfNot((SQLSyntaxErrorException)cause, 942);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public static void executeSql(String sql, Connection connection) throws SQLException {
+        try( PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.execute();
+        }
     }
 
     public static DataType<?> getDataType(MetaFieldType fieldType) {

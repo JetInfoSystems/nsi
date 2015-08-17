@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
 import jet.isur.nsi.migrator.hibernate.LogActionsTargetImpl;
 import jet.isur.nsi.migrator.hibernate.NsiDatabaseInformationImpl;
 import jet.isur.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
@@ -61,7 +62,7 @@ public class Migrator {
 
                 addTarget( new LogActionsTargetImpl() );
 
-                //addTarget( new NsiTargetDatabaseImpl( jdbcConnectionAccess ) );
+                addTarget( new ExecuteSqlTargetImpl( jdbcConnectionAccess ) );
 
                 SchemaMigrator schemaMigrator = new NsiSchemaMigratorImpl();
 
