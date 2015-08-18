@@ -1,0 +1,70 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Параметр
+   fields: [PARAM_ID]
+   hidden: false
+   name: PARAM_ID
+   type: ref
+   refDict: PARAM
+ - caption: Обязательный
+   fields: [REQUIRED]
+   hidden: false
+   name: REQUIRED
+   type: value
+ - caption: Тип объекта
+   fields: [OBJ_TYPE_ID]
+   hidden: false
+   name: OBJ_TYPE_ID
+   type: ref
+   refDict: OBJ_TYPE
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Параметы по типу объекта
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: PARAM_ID
+   size: 19
+   type: number
+ - name: REQUIRED
+   size: 1
+   type: boolean
+ - name: OBJ_TYPE_ID
+   size: 19
+   type: number
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: OBJ_PARAM
+refObjectAttrs: [PARAM_ID]
+table: OBJ_PARAM
+tableObjectAttrs: [PARAM_ID,REQUIRED,OBJ_TYPE_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

@@ -1,0 +1,151 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Вид деятельности
+   fields: [ACTIVITY_TYPE_ID]
+   hidden: false
+   name: ACTIVITY_TYPE_ID
+   type: ref
+   refDict: ACTIVITY_TYPE
+ - caption: Организационно-правовая форма
+   fields: [ORG_FORM_ID]
+   hidden: false
+   name: ORG_FORM_ID
+   type: ref
+   refDict: ORG_FORM
+   required: true
+ - caption: Район
+   fields: [ADDR_AREA]
+   hidden: false
+   name: ADDR_AREA
+   required: true
+   type: ref
+   refDict: FIAS_ADDROBJ
+ - caption: Город
+   fields: [ADDR_CITY]
+   hidden: false
+   name: ADDR_CITY
+   type: ref
+   refDict: FIAS_ADDROBJ
+ - caption: Адрес
+   fields: [ADDR_TEXT]
+   hidden: false
+   name: ADDR_TEXT
+   required: true
+   type: value
+ - caption: Краткое описание деятельности
+   fields: [DESCRIPTION]
+   hidden: false
+   name: DESCRIPTION
+   type: value
+ - caption: Название общества
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   required: true
+   type: value
+ - caption: Регион
+   fields: [ADDR_REGION]
+   hidden: false
+   name: ADDR_REGION
+   required: true
+   type: ref
+   refDict: FIAS_ADDROBJ
+ - caption: Ключевое
+   fields: [IS_MAJOR]
+   hidden: false
+   name: IS_MAJOR
+   type: value
+ - caption: Ликвидировано
+   fields: [IS_CLOSED]
+   hidden: false
+   name: IS_CLOSED
+   type: value
+ - caption: Номер
+   fields: [NUM]
+   hidden: false
+   name: NUM
+   required: true
+   type: value
+ - caption: Внешний идентификатор
+   fields: [EXTERNAL_ID]
+   hidden: false
+   name: EXTERNAL_ID
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Общества Группы
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 10
+   type: number
+ - name: ACTIVITY_TYPE_ID
+   size: 19
+   type: number
+ - name: ORG_FORM_ID
+   size: 19
+   type: number
+ - name: ADDR_AREA
+   size: 36
+   type: varchar
+ - name: ADDR_CITY
+   size: 36
+   type: varchar
+ - name: ADDR_TEXT
+   size: 100
+   type: varchar
+ - name: DESCRIPTION
+   size: 2000
+   type: varchar
+ - name: NAME
+   size: 100
+   type: varchar
+ - name: ADDR_REGION
+   size: 36
+   type: varchar
+ - name: IS_MAJOR
+   size: 1
+   type: boolean
+ - name: IS_CLOSED
+   size: 1
+   type: boolean
+ - name: NUM
+   size: 50
+   type: varchar
+ - name: EXTERNAL_ID
+   size: 20
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: ORG
+refObjectAttrs: [NAME]
+table: ORG
+tableObjectAttrs: [ACTIVITY_TYPE_ID,ORG_FORM_ID,ADDR_AREA,ADDR_CITY,ADDR_TEXT,DESCRIPTION,NAME,ADDR_REGION,IS_MAJOR,IS_CLOSED,NUM,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

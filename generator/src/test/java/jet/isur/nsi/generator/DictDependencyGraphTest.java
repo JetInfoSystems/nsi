@@ -20,7 +20,7 @@ import junit.framework.Assert;
 public class DictDependencyGraphTest {
 
     private NsiConfig config;
-	private String metadataPath;
+    private String metadataPath;
 
     @Before
     public void setup() throws IOException {
@@ -60,12 +60,15 @@ public class DictDependencyGraphTest {
         "TECH_MEAN_TYPE",
         "STAFF_TYPE",
         "PARAM",
+        "EVENT_TYPE",
+        "PARAM_EVENT_TYPE",
+        "OBJ_TYPE",
+        "PARAM_EVENT_OBJ_TYPE",
         "ORG_FORM",
         "FIAS_ADDROBJ",
         "ACTIVITY_TYPE",
         "ORG",
         "ORG_UNIT",
-        "OBJ_TYPE",
         "ORG_OBJ",
         "ORG_COR",
         "EMP",
@@ -84,12 +87,12 @@ public class DictDependencyGraphTest {
         "EMP_PHONE",
         "EMP_EMAIL"),sortedDictNames);
     }
-    
+
     private void getConfiguration() throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project.properties");
         Properties props = new Properties();
         props.load(in);
-        metadataPath = props.getProperty("database.metadata.path", "/opt/isur/database/metadata");
+        metadataPath = "src/test/resources/metadata";
     }
 
 }

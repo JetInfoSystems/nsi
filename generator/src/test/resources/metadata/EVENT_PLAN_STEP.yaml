@@ -1,0 +1,114 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: План реагирования на событие
+   fields: [EVENT_PLAN_ID]
+   hidden: false
+   name: EVENT_PLAN_ID
+   type: ref
+   refDict: EVENT_PLAN
+ - caption: Автор
+   fields: [EMP_ID]
+   hidden: false
+   name: EMP_ID
+   type: ref
+   refDict: EMP
+ - caption: Номер
+   fields: [NUM]
+   hidden: false
+   name: NUM
+   type: value
+ - caption: Статус
+   fields: [STATE]
+   hidden: false
+   name: STATE
+   type: value
+ - caption: Исполнить до
+   fields: [PERFORM_TO]
+   hidden: false
+   name: PERFORM_TO
+   type: value
+ - caption: Исполнено
+   fields: [ACHIEVED]
+   hidden: false
+   name: ACHIEVED
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+ - caption: Мероприятие (работа)
+   fields: [DESCRIPTION]
+   hidden: false
+   name: DESCRIPTION
+   type: value
+ - caption: Комментарии по выполнению
+   fields: [CMT]
+   hidden: false
+   name: CMT
+   type: value
+caption: Мероприятия (работы) плана реагирования на событие
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 10
+   type: number
+ - name: EVENT_PLAN_ID
+   size: 19
+   type: number
+ - name: EMP_ID
+   size: 19
+   type: number
+ - name: NUM
+   size: 4
+   type: number
+ - name: STATE
+   size: 2
+   type: char
+   enumValues:
+     1: В ожидании
+     2: В работе
+     3: Выполнен
+ - name: PERFORM_TO
+   size: 0
+   type: date-time
+ - name: ACHIEVED
+   size: 0
+   type: date-time
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+ - name: DESCRIPTION
+   size: 2000
+   type: varchar
+ - name: CMT
+   size: 255
+   type: varchar
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: EVENT_PLAN_STEP
+ownerAttr: EVENT_PLAN_ID
+refObjectAttrs: [DESCRIPTION]
+table: EVENT_PLAN_STEP
+tableObjectAttrs: [EVENT_PLAN_ID,EMP_ID,NUM,STATE,PERFORM_TO,ACHIEVED,IS_DELETED,LAST_USER,LAST_CHANGE,DESCRIPTION,CMT]

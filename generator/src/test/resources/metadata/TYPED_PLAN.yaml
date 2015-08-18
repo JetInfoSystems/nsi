@@ -1,0 +1,79 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Категория события
+   fields: [EVENT_CATEGORY_ID]
+   hidden: false
+   name: EVENT_CATEGORY_ID
+   type: ref
+   refDict: EVENT_CATEGORY
+ - caption: Тип плана
+   fields: [PLAN_TYPE_ID]
+   hidden: false
+   name: PLAN_TYPE_ID
+   type: ref
+   refDict: PLAN_TYPE
+ - caption: Тип события
+   fields: [EVENT_TYPE_ID]
+   hidden: false
+   name: EVENT_TYPE_ID
+   type: ref
+   refDict: EVENT_TYPE
+ - caption: Название плана
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Типовые планы реагирования
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: EVENT_CATEGORY_ID
+   size: 19
+   type: number
+ - name: PLAN_TYPE_ID
+   size: 19
+   type: number
+ - name: EVENT_TYPE_ID
+   size: 19
+   type: number
+ - name: NAME
+   size: 300
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: TYPED_PLAN
+refObjectAttrs: [NAME]
+table: TYPED_PLAN
+tableObjectAttrs: [EVENT_CATEGORY_ID,PLAN_TYPE_ID,EVENT_TYPE_ID,NAME,IS_DELETED,LAST_USER,LAST_CHANGE]
