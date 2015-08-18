@@ -35,6 +35,10 @@ import org.hibernate.tool.schema.spi.Target;
 
 import com.beust.jcommander.Strings;
 
+/**
+ * Класс реализует логику актуализации структуры СУБД
+ * Стандартный класс не подошел, потому что его код содержал ошибку
+ */
 public class NsiSchemaMigratorImpl implements SchemaMigrator {
 
     @Override

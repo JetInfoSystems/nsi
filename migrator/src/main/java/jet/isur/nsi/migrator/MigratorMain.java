@@ -46,7 +46,7 @@ public class MigratorMain {
 
         switch (command) {
         case CMD_UPDATE:
-            generator.update();
+            generator.update(updateCmd.getTag());
             break;
         default:
             break;

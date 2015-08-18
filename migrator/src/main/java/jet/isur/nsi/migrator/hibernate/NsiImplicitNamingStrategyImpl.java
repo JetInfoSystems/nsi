@@ -7,6 +7,12 @@ import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
 import org.hibernate.boot.model.naming.ImplicitUniqueKeyNameSource;
 import org.hibernate.boot.model.naming.NamingHelper;
 
+
+/**
+ * Используется для формирования наименований для ограничений
+ * Старндартный вариант не подошел потому что не включает в имя таблицу и по имени ограничения непонятно к
+ * какой таблице оно относится
+ */
 public class NsiImplicitNamingStrategyImpl extends
         ImplicitNamingStrategyJpaCompliantImpl {
 

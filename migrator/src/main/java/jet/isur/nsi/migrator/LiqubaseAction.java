@@ -29,15 +29,16 @@ public class LiqubaseAction {
         db.setOutputDefaultCatalog(false);
 
         Liquibase l = new Liquibase(file, new ClassLoaderResourceAccessor(), db);
-        l.setChangeLogParameter("key","value");
+        // TODO: set parameters l.setChangeLogParameter("key","value");
         return l;
     }
 
 
-    public void update(Connection c) {
+    public void update(Connection c, String tag) {
         try {
             Liquibase l = createLiquibase(c);
             l.update((String) null);
+            l.tag(tag);
         } catch (LiquibaseException e) {
             throw new MigratorException("update: " + name, e);
         }
@@ -53,4 +54,15 @@ public class LiqubaseAction {
         }
 
     }
+
+    public void tag(Connection c, String tag) {
+        try {
+            Liquibase l = createLiquibase(c);
+            l.tag(tag);
+        } catch (LiquibaseException e) {
+            throw new MigratorException("tag: " + name, e);
+        }
+
+    }
+
 }
