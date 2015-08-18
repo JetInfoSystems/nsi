@@ -48,9 +48,11 @@ public class NsiImplicitNamingStrategyImpl extends
     }
 
     private String compose(String prefix, Identifier tableName, String suffix) {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(prefix).append("_").append(tableName.render())
-                .append("_").append(Integer.toString(Math.abs(suffix.hashCode())))
-                .toString();
+        String a = new StringBuilder().append(prefix).append("_").append(tableName.render()).toString();
+        String b = new StringBuilder().append("_").append(Integer.toString(Math.abs(suffix.hashCode()))).toString();
+        if(a.length() + b.length() > 30) {
+            a = a.substring(0, a.length() + b.length() - 30);
+        }
+        return a + b;
     }
 }

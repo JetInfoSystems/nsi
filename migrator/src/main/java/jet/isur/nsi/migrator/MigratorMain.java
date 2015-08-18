@@ -7,6 +7,8 @@ import javax.sql.DataSource;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.isur.nsi.migrator.args.RollbackCmd;
+import jet.isur.nsi.migrator.args.TagCmd;
 import jet.isur.nsi.migrator.args.UpdateCmd;
 import jet.isur.nsi.migrator.args.CommonArgs;
 import jet.isur.nsi.testkit.utils.DaoUtils;
@@ -15,7 +17,9 @@ import com.beust.jcommander.JCommander;
 
 public class MigratorMain {
 
-    private static final String CMD_UPDATE = "execute";
+    private static final String CMD_UPDATE = "update";
+    private static final String CMD_ROLLBACK = "rollback";
+    private static final String CMD_TAG = "tag";
 
     public static void main(String[] args) throws Exception {
 
@@ -24,6 +28,10 @@ public class MigratorMain {
         jc.addObject(commonArgs);
         UpdateCmd updateCmd = new UpdateCmd();
         jc.addCommand(CMD_UPDATE, updateCmd);
+        RollbackCmd rollbackCmd = new RollbackCmd();
+        jc.addCommand(CMD_ROLLBACK, rollbackCmd);
+        TagCmd tagCmd = new TagCmd();
+        jc.addCommand(CMD_TAG, tagCmd);
 
         jc.parse(args);
 
