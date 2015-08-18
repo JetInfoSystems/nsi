@@ -1,6 +1,7 @@
 package jet.isur.nsi.migrator;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,14 @@ import org.slf4j.LoggerFactory;
 
 public class Migrator {
 
+    private static final String LIQUIBASE_PREPARE_CHANGELOG_XML = "liquibase/prepare/changelog.xml";
+    private static final String LIQUIBASE_POSTPROC_CHANGELOG_XML = "liquibase/postproc/changelog.xml";
+    private static final String ACTION_ROLLBACK = "rollback";
+    private static final String ACTION_UPDATE = "update";
+
+    private static final String MIGRATIONS_PREPARE = "prepare";
+    private static final String MIGRATIONS_POSTPROC = "postproc";
+
     private static final Logger log = LoggerFactory.getLogger(Migrator.class);
 
     private final NsiConfig config;
@@ -50,9 +59,12 @@ public class Migrator {
         this.params = params;
     }
 
-    public void execute() {
+    public void update() {
 
         try {
+
+            doLiquibaseUpdate(MIGRATIONS_PREPARE,LIQUIBASE_PREPARE_CHANGELOG_XML);
+
             StandardServiceRegistry serviceRegistry = buildStandardServiceRegistry();
 
             try {
@@ -88,11 +100,40 @@ public class Migrator {
             finally {
                 StandardServiceRegistryBuilder.destroy( serviceRegistry );
             }
+            doLiquibaseUpdate(MIGRATIONS_POSTPROC,LIQUIBASE_POSTPROC_CHANGELOG_XML);
         }
         catch (Exception e) {
-            throw new MigratorException("execute", e);
+            throw new MigratorException(ACTION_UPDATE, e);
         }
 
+    }
+
+    public void rollback(String tag) {
+        try {
+            doLiquibaseRollback(MIGRATIONS_POSTPROC, LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
+        }
+        catch (Exception e) {
+            throw new MigratorException(ACTION_ROLLBACK, e);
+        }
+
+    }
+
+    private void doLiquibaseUpdate(String name, String file) {
+        LiqubaseAction la = new LiqubaseAction(name, file);
+        try(Connection c = dataSource.getConnection()) {
+            la.update(c);
+        } catch (SQLException e) {
+            throw new MigratorException(ACTION_UPDATE, e);
+        }
+    }
+
+    private void doLiquibaseRollback(String name, String file, String tag) {
+        LiqubaseAction la = new LiqubaseAction(name, file);
+        try(Connection c = dataSource.getConnection()) {
+            la.rollback(c, tag);
+        } catch (SQLException e) {
+            throw new MigratorException(ACTION_ROLLBACK, e);
+        }
     }
 
     public void addTarget(Target target) {

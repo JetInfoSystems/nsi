@@ -120,7 +120,7 @@ public class DaoUtils {
         catch(DataAccessException e) {
             Throwable cause = e.getCause();
             if(cause instanceof SQLSyntaxErrorException) {
-                throwIfNot((SQLSyntaxErrorException)cause, 942);
+                throwIfNot((SQLSyntaxErrorException)cause, 2289);
             } else {
                 throw e;
             }

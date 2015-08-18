@@ -15,6 +15,11 @@ import jet.isur.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 import junit.framework.Assert;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.core.OracleDatabase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.ClassLoaderResourceAccessor;
 
 import org.junit.Test;
 
@@ -46,7 +51,7 @@ public class MigratorTest extends BaseSqlTest{
 
 
     @Test
-    public void test() throws Exception {
+    public void updateTest() throws Exception {
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("table2", connection);
             DaoUtils.dropTable("table1", connection);
@@ -58,7 +63,7 @@ public class MigratorTest extends BaseSqlTest{
             Migrator migrator = new Migrator(config, dataSource, params );
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
-            migrator.execute();
+            migrator.update();
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(5, actions.size());
@@ -81,11 +86,13 @@ public class MigratorTest extends BaseSqlTest{
             Migrator migrator = new Migrator(config, dataSource, params );
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
-            migrator.execute();
+            migrator.update();
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(1, actions.size());
             Assert.assertEquals("alter table table1 add f1 varchar2(100 char)",actions.get(0));
         }
     }
+
+
 }

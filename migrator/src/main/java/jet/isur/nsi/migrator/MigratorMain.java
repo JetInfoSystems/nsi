@@ -7,7 +7,7 @@ import javax.sql.DataSource;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
-import jet.isur.nsi.migrator.args.ExecuteCmd;
+import jet.isur.nsi.migrator.args.UpdateCmd;
 import jet.isur.nsi.migrator.args.CommonArgs;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 
@@ -15,15 +15,15 @@ import com.beust.jcommander.JCommander;
 
 public class MigratorMain {
 
-    private static final String CMD_EXECUTE = "execute";
+    private static final String CMD_UPDATE = "execute";
 
     public static void main(String[] args) throws Exception {
 
         JCommander jc = new JCommander();
         CommonArgs commonArgs = new CommonArgs();
         jc.addObject(commonArgs);
-        ExecuteCmd executeCmd = new ExecuteCmd();
-        jc.addCommand(CMD_EXECUTE, executeCmd);
+        UpdateCmd updateCmd = new UpdateCmd();
+        jc.addCommand(CMD_UPDATE, updateCmd);
 
         jc.parse(args);
 
@@ -45,8 +45,8 @@ public class MigratorMain {
         Migrator generator = new Migrator(config, dataSource, params);
 
         switch (command) {
-        case CMD_EXECUTE:
-            generator.execute();
+        case CMD_UPDATE:
+            generator.update();
             break;
         default:
             break;
