@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,10 +16,12 @@ import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 import junit.framework.Assert;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 public class MigratorTest extends BaseSqlTest{
 
+    private static final String IDENT_ISUR = "isur";
     private NsiConfig config;
     private String metadataPath;
     private MigratorParams params;
@@ -108,5 +111,36 @@ public class MigratorTest extends BaseSqlTest{
 
     }
 
+    @Test
+    public void tablespaceTest() throws SQLException {
+        String tempName = "t" + DateTime.now().getMillis();
+        properties.put("db.isur.tablespace.name", tempName);
+        try(Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties)) {
+            DaoUtils.createTablespace(connection,
+                    params.getTablespace(IDENT_ISUR),
+                    params.getDataFileName(IDENT_ISUR), "1M", "1M", "10M");
+            DaoUtils.dropTablespace(connection, params.getTablespace(IDENT_ISUR));
+        }
+    }
 
+    @Test
+    public void userTest() throws SQLException {
+        String tempName = "t" + DateTime.now().getMillis();
+        properties.put("db.isur.tablespace.name", tempName);
+        properties.put("db.isur.username", tempName);
+        try(Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties)) {
+            DaoUtils.createTablespace(connection,
+                    params.getTablespace(IDENT_ISUR),
+                    params.getDataFileName(IDENT_ISUR), "1M", "1M", "10M");
+            try {
+                DaoUtils.createUser(connection,
+                        params.getUsername(IDENT_ISUR),
+                        params.getPassword(IDENT_ISUR),
+                        params.getTablespace(IDENT_ISUR),
+                        params.getTempTablespace(IDENT_ISUR));
+            } finally {
+                DaoUtils.dropTablespace(connection, params.getTablespace(IDENT_ISUR));
+            }
+        }
+    }
 }

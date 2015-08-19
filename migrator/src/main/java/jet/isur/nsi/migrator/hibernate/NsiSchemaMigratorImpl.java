@@ -119,6 +119,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 }
             }
 
+            // first pass
             for (Table table : namespace.getTables()) {
                 if (!table.isPhysicalTable()) {
                     continue;
@@ -135,11 +136,19 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 } else {
                     migrateTable(table, tableInformation, targets, metadata);
                 }
+            }
+
+            // second pass
+            for (Table table : namespace.getTables()) {
+                if (!table.isPhysicalTable()) {
+                    continue;
+                }
+                final TableInformation tableInformation = existingDatabase
+                        .getTableInformation(table.getQualifiedTableName());
 
                 applyIndexes(table, tableInformation, metadata, targets);
                 applyUniqueKeys(table, tableInformation, metadata, targets);
                 applyForeignKeys(table, tableInformation, metadata, targets);
-
             }
 
             for (Sequence sequence : namespace.getSequences()) {

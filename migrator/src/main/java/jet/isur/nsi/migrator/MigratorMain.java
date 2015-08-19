@@ -22,6 +22,7 @@ import com.beust.jcommander.JCommander;
 
 public class MigratorMain {
 
+    private static final String IDENT_ISUR = "isur";
     private static final String CMD_UPDATE = "update";
     private static final String CMD_ROLLBACK = "rollback";
     private static final String CMD_TAG = "tag";
@@ -67,7 +68,7 @@ public class MigratorMain {
         case CMD_UPDATE:
         case CMD_ROLLBACK:
         case CMD_TAG:
-            DataSource dataSource = DaoUtils.createDataSource(MigratorParams.IDENT_NSI, properties);
+            DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
 
             NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
             Migrator migrator = new Migrator(config, dataSource, params);
@@ -92,31 +93,31 @@ public class MigratorMain {
         case CMD_CREATE_USER:
         case CMD_DROP_USER:
 
-            Connection connection = DaoUtils.createAdminConnection(MigratorParams.IDENT_NSI, properties);
+            Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
 
             switch (command) {
             case CMD_CREATE_TABLESPACE:
                 DaoUtils.createTablespace(connection,
-                        params.getTablespace(MigratorParams.IDENT_NSI),
-                        params.getDataFileName(MigratorParams.IDENT_NSI),
-                        params.getDataFileSize(MigratorParams.IDENT_NSI),
-                        params.getDataFileAutoSize(MigratorParams.IDENT_NSI),
-                        params.getDataFileMaxSize(MigratorParams.IDENT_NSI));
+                        params.getTablespace(IDENT_ISUR),
+                        params.getDataFilePath(IDENT_ISUR) + params.getDataFileName(IDENT_ISUR),
+                        params.getDataFileSize(IDENT_ISUR),
+                        params.getDataFileAutoSize(IDENT_ISUR),
+                        params.getDataFileMaxSize(IDENT_ISUR));
                 break;
             case CMD_DROP_TABLESPACE:
                 DaoUtils.dropTablespace(connection,
-                        params.getTablespace(MigratorParams.IDENT_NSI));
+                        params.getTablespace(IDENT_ISUR));
                 break;
             case CMD_CREATE_USER:
                 DaoUtils.createUser(connection,
-                        params.getUsername(MigratorParams.IDENT_NSI),
-                        params.getPassword(MigratorParams.IDENT_NSI),
-                        params.getTablespace(MigratorParams.IDENT_NSI),
-                        params.getTempTablespace(MigratorParams.IDENT_NSI));
+                        params.getUsername(IDENT_ISUR),
+                        params.getPassword(IDENT_ISUR),
+                        params.getTablespace(IDENT_ISUR),
+                        params.getTempTablespace(IDENT_ISUR));
                 break;
             case CMD_DROP_USER:
                 DaoUtils.dropUser(connection,
-                        params.getUsername(MigratorParams.IDENT_NSI));
+                        params.getUsername(IDENT_ISUR));
                 break;
             default:
                 break;

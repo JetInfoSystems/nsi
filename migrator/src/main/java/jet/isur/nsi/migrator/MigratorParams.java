@@ -7,10 +7,10 @@ import com.google.common.base.Joiner;
 
 public class MigratorParams {
 
+    private static final String DATA_FILE = "dataFile";
     public static final String NAME = "name";
     public static final String TABLESPACE = "tablespace";
     public static final String DB = "db";
-    public static final String IDENT_NSI = "nsi";
 
 
     public static final String METADATA_PATH = "metadataPath";
@@ -43,7 +43,7 @@ public class MigratorParams {
     }
 
     public String getGlobalName(String ident) {
-        return getProperty(key(DB,ident,"globalName"), null);
+        return getProperty(key(DB,ident,"global","name"), null);
     }
 
     public String getTablespace(String ident) {
@@ -54,20 +54,24 @@ public class MigratorParams {
         return getProperty(key(DB,ident,"tempTablespace",NAME), "TEMP");
     }
 
+    public String getDataFilePath(String ident) {
+        return getProperty(key(DB,ident,TABLESPACE,"dataFile","path"),
+                "+DATA/" + getGlobalName(ident) + "/datafile/");
+    }
+
     public String getDataFileName(String ident) {
-        return getProperty(key(DB,ident,TABLESPACE,"dataFileName"),
-                "+DATA/" + getGlobalName(ident) + "/datafile/" + getUsername(ident) + ".dbf");
+        return getProperty(key(DB,ident,TABLESPACE,"dataFile","name"), getTablespace(ident) + ".dbf");
     }
 
     public String getDataFileSize(String ident) {
-        return getProperty(key(DB,ident,TABLESPACE,"dataFileSize"), "100M");
+        return getProperty(key(DB,ident,TABLESPACE,DATA_FILE,"size"), "100M");
     }
 
     public String getDataFileAutoSize(String ident) {
-        return getProperty(key(DB,ident,TABLESPACE,"dataFileAutoSize"), "100M");
+        return getProperty(key(DB,ident,TABLESPACE,DATA_FILE,"autoSize"), "100M");
     }
 
     public String getDataFileMaxSize(String ident) {
-        return getProperty(key(DB,ident,TABLESPACE,"dataFileMaxSize"), "15360M");
+        return getProperty(key(DB,ident,TABLESPACE,DATA_FILE,"maxSize"), "15360M");
     }
 }

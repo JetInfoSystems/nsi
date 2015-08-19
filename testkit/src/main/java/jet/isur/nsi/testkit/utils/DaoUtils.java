@@ -128,9 +128,11 @@ public class DaoUtils {
         }
     }
 
-    public static void executeSql(Connection connection, String sql) throws SQLException {
+    public static void executeSql(Connection connection, String sql) {
         try( PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException("execute: " + sql, e);
         }
     }
 
@@ -173,9 +175,8 @@ public class DaoUtils {
 
     public static Connection createAdminConnection(String name, Properties properties) throws SQLException {
         Properties connectProperties = new Properties();
-        connectProperties.put("user", properties.getProperty("db." + name + ".adminUsername"));
-        connectProperties.put("password", properties.getProperty("db." + name + ".adminPassword"));
-        connectProperties.put("internal_logon", "sysoper");
+        connectProperties.put("user", properties.getProperty("db." + name + ".sys.username") + " as sysdba");
+        connectProperties.put("password", properties.getProperty("db." + name + ".sys.password"));
         return DriverManager.getConnection (properties.getProperty("db." + name + ".url"), connectProperties );
     }
 
@@ -198,15 +199,15 @@ public class DaoUtils {
             String defaultTablespace, String tempTablespace) throws SQLException {
         executeSql(connection, new StringBuilder()
             .append(" create user ").append(name)
-            .append(" IDENTIFIED BY '").append(password).append("' ")
+            .append(" IDENTIFIED BY \"").append(password).append("\" ")
             .append(" DEFAULT TABLESPACE ").append(defaultTablespace)
             .append(" TEMPORARY TABLESPACE ").append(tempTablespace).toString());
         executeSql(connection, new StringBuilder()
-            .append("ALTER USER ").append(name)
-            .append("QUOTA UNLIMITED ON ").append(defaultTablespace).toString());
-        executeSql(connection, new StringBuilder().append("GRANT RESOURCE TO ").append(name).toString());
-        executeSql(connection, new StringBuilder().append("GRANT CONNECT TO ").append(name).toString());
-        executeSql(connection, new StringBuilder().append("GRANT CREATE ANY VIEW TO ").append(name).toString());
+            .append(" ALTER USER ").append(name)
+            .append(" QUOTA UNLIMITED ON ").append(defaultTablespace).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT RESOURCE TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT CONNECT TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT CREATE ANY VIEW TO ").append(name).toString());
     }
 
     public static void dropUser(Connection connection, String name) throws SQLException {
