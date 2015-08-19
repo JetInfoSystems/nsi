@@ -8,10 +8,8 @@ import com.beust.jcommander.converters.FileConverter;
 
 @Parameters(separators = "=")
 public class CommonArgs {
-    public final static File DEFAULT_CFG = new File("default.properties");
-
-    @Parameter(names = "-cfg", converter = FileConverter.class, description="Файл конфигурации", required = false)
-    private File cfg = DEFAULT_CFG;
+    @Parameter(names = "-cfg", converter = FileConverter.class, description="Файл конфигурации", required = true)
+    private File cfg;
 
     public File getCfg() {
         return cfg;

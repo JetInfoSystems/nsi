@@ -1,6 +1,7 @@
 package jet.isur.nsi.testkit.utils;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
@@ -127,7 +128,7 @@ public class DaoUtils {
         }
     }
 
-    public static void executeSql(String sql, Connection connection) throws SQLException {
+    public static void executeSql(Connection connection, String sql) throws SQLException {
         try( PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.execute();
         }
@@ -168,5 +169,48 @@ public class DaoUtils {
         dataSource.setMaxConnectionsPerPartition(Integer.parseInt(properties.getProperty("db." + name + ".size", "20")));
         dataSource.setDefaultAutoCommit(true);
         return dataSource;
+    }
+
+    public static Connection createAdminConnection(String name, Properties properties) throws SQLException {
+        Properties connectProperties = new Properties();
+        connectProperties.put("user", properties.getProperty("db." + name + ".adminUsername"));
+        connectProperties.put("password", properties.getProperty("db." + name + ".adminPassword"));
+        connectProperties.put("internal_logon", "sysoper");
+        return DriverManager.getConnection (properties.getProperty("db." + name + ".url"), connectProperties );
+    }
+
+    public static void createTablespace(Connection connection, String name,String dataFileName,
+            String dataFileSize, String dataFileAutoSize, String dataFileMaxSize) throws SQLException {
+        executeSql(connection, new StringBuilder()
+            .append(" create tablespace ").append(name)
+            .append(" datafile '").append(dataFileName).append("' ")
+            .append(" size ").append(dataFileSize).append(" reuse ")
+            .append(" autoextend on next ").append(dataFileAutoSize)
+            .append(" maxsize ").append(dataFileMaxSize).toString());
+    }
+
+    public static void dropTablespace(Connection connection, String name) throws SQLException {
+        executeSql(connection, new StringBuilder()
+            .append(" drop tablespace ").append(name).append(" including contents and datafiles").toString());
+    }
+
+    public static void createUser(Connection connection, String name,String password,
+            String defaultTablespace, String tempTablespace) throws SQLException {
+        executeSql(connection, new StringBuilder()
+            .append(" create user ").append(name)
+            .append(" IDENTIFIED BY '").append(password).append("' ")
+            .append(" DEFAULT TABLESPACE ").append(defaultTablespace)
+            .append(" TEMPORARY TABLESPACE ").append(tempTablespace).toString());
+        executeSql(connection, new StringBuilder()
+            .append("ALTER USER ").append(name)
+            .append("QUOTA UNLIMITED ON ").append(defaultTablespace).toString());
+        executeSql(connection, new StringBuilder().append("GRANT RESOURCE TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append("GRANT CONNECT TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append("GRANT CREATE ANY VIEW TO ").append(name).toString());
+    }
+
+    public static void dropUser(Connection connection, String name) throws SQLException {
+        executeSql(connection, new StringBuilder()
+            .append(" DROP USER  ").append(name).append(" CASCADE").toString());
     }
 }

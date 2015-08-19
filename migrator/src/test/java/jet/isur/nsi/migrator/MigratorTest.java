@@ -78,11 +78,11 @@ public class MigratorTest extends BaseSqlTest{
 
         // check SEQ_POSTPROC1
         try(Connection connection = dataSource.getConnection()) {
-            DaoUtils.executeSql("select SEQ_POSTPROC1.nextval from dual", connection);
+            DaoUtils.executeSql(connection, "select SEQ_POSTPROC1.nextval from dual");
         }
 
         try(Connection connection = dataSource.getConnection()) {
-            DaoUtils.executeSql("ALTER TABLE TABLE1 DROP COLUMN F1", connection);
+            DaoUtils.executeSql(connection, "ALTER TABLE TABLE1 DROP COLUMN F1");
         }
 
         {
