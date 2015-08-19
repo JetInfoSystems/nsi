@@ -75,7 +75,7 @@ public class MigratorTest extends BaseSqlTest{
             Assert.assertEquals("create table table2 (id number(19,0) not null, dict1_id number(19,0), "
                     + "name char(100 char), is_deleted char(1 char), last_change date, last_user number(19,0), "
                     + "primary key (id))", actions.get(1));
-            Assert.assertEquals("alter table table2 add constraint fk_table2_28129655 foreign key (dict1_id) references table1", actions.get(2));
+            Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(2));
             Assert.assertEquals("create sequence seq_table2 start with 1 increment by 1", actions.get(3));
         }
 
@@ -107,6 +107,18 @@ public class MigratorTest extends BaseSqlTest{
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(0, actions.size());
+        }
+
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("table2", connection);
+            DaoUtils.dropTable("table1", connection);
+            DaoUtils.dropSeq("seq_table2", connection);
+            DaoUtils.dropSeq("SEQ_TABLE1", connection);
+
+            DaoUtils.dropSeq("SEQ_POSTPROC1", connection);
+
+            DaoUtils.dropTable("TEST_NSI_PREPARE_LOG", connection);
+            DaoUtils.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
 
     }
