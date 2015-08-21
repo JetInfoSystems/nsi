@@ -225,15 +225,10 @@ public class SqlGenTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
-        DictRowBuilder builder = new DictRowBuilder(query);
-        builder.attr("id", "1");
-        builder.attr("dict1_id", "1");
-        builder.attr("f1", "1");
-
-        String sql = sqlGen.getRowUpdateSql(query, builder.build());
+        String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
                 "update table2 m "
-                        + "set m.f1 = ?, m.dict1_id = ? "
+                        + "set m.f1 = ?, m.dict1_id = ?, m.last_change = ?, m.is_deleted = ?, m.last_user = ? "
                         + "where m.id = ?", sql);
     }
 

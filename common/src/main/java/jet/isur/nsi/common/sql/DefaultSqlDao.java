@@ -195,24 +195,29 @@ public class DefaultSqlDao implements SqlDao {
             PreparedStatement ps) throws SQLException {
         int index = 1;
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
-        for (String field : data.getAttrs().keySet()) {
-        	if (!field.equals(idAttr.getName())) {
-        		NsiQueryAttr attr = query.getAttr(field);
-        		if(attr == null) {
-                    throw new NsiDataException(
-                            "can't find data attr for query attr: " + field);
-                }
-        		List<NsiConfigField> fields = attr.getAttr().getFields();
-        		DictRowAttr dataAttr = data.getAttrs().get(field);
-        		List<String> dataValues = dataAttr.getValues();
-                checkDataValues(fields, field, dataValues);
-                
-                int i = 0;
-                for (NsiConfigField key : fields) {
-                    setParam(ps, index, key, dataValues.get(i));
-                    index++;
-                    i++;
-                }
+        for (NsiQueryAttr queryAttr : query.getAttrs()) {
+            NsiConfigAttr attr = queryAttr.getAttr();
+
+            List<NsiConfigField> fields = attr.getFields();
+
+            String queryAttrName = attr.getName();
+            DictRowAttr dataAttr = data.getAttrs().get(queryAttrName);
+            // пропускаем id
+            if (attr == idAttr) {
+                continue;
+            }
+
+            if(dataAttr == null) {
+                throw new NsiDataException(
+                        "can't find data attr for query attr: " + queryAttrName);
+            }
+            List<String> dataValues = dataAttr.getValues();
+            checkDataValues(fields, queryAttrName, dataValues);
+            int i = 0;
+            for (NsiConfigField field : fields) {
+                setParam(ps, index, field, dataValues.get(i));
+                index++;
+                i++;
             }
         }
 
@@ -436,11 +441,24 @@ public class DefaultSqlDao implements SqlDao {
         }
     }
 
+	private void updateRowData(DictRow row, DictRow data) throws SQLException {
+		for (String field : row.getAttrs().keySet()){
+			if (!data.getAttrs().containsKey(field)){
+				data.getAttrs().put(field, row.getAttrs().get(field));
+			}
+		}
+ 	}
+	
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
-        String sql = sqlGen.getRowUpdateSql(query, data);
+    	String sql = sqlGen.getRowUpdateSql(query);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
+        	if (query.getAttrs().size() != data.getAttrs().size()){
+        		DictRow row = get(connection, query, data.getAttrs()
+        				.get(query.getDict().getIdAttr().getName()));
+        		updateRowData(row, data);
+        	}
             setParamsForUpdate(query, data, ps);
             int count = ps.executeUpdate();
             if(count == 0) {
