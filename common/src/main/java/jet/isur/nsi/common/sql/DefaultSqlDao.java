@@ -1,5 +1,8 @@
 package jet.isur.nsi.common.sql;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.val;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -191,42 +194,36 @@ public class DefaultSqlDao implements SqlDao {
     public void setParamsForUpdate(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
-        //if(dataAttrMap.size() != query.getAttrs().size()) {
-        //    throw new NsiDataException("data and query attr count not match: " + query.getAttrs().size());
-        //}
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
-        for (NsiQueryAttr queryAttr : query.getAttrs()) {
-            NsiConfigAttr attr = queryAttr.getAttr();
-
-            List<NsiConfigField> fields = attr.getFields();
-
-            String queryAttrName = attr.getName();
-            DictRowAttr dataAttr = data.getAttrs().get(queryAttrName);
-            // пропускаем id
-            if (attr == idAttr) {
-                continue;
-            }
-
-            if(dataAttr == null) {
-                throw new NsiDataException(
-                        "can't find data attr for query attr: " + queryAttrName);
-            }
-            List<String> dataValues = dataAttr.getValues();
-            checkDataValues(fields, queryAttrName, dataValues);
-            int i = 0;
-            for (NsiConfigField field : fields) {
-                setParam(ps, index, field, dataValues.get(i));
-                index++;
-                i++;
+        for (String field : data.getAttrs().keySet()) {
+        	if (!field.equals(idAttr.getName())) {
+        		NsiQueryAttr attr = query.getAttr(field);
+        		if(attr == null) {
+                    throw new NsiDataException(
+                            "can't find data attr for query attr: " + field);
+                }
+        		List<NsiConfigField> fields = attr.getAttr().getFields();
+        		DictRowAttr dataAttr = data.getAttrs().get(field);
+        		List<String> dataValues = dataAttr.getValues();
+                checkDataValues(fields, field, dataValues);
+                
+                int i = 0;
+                for (NsiConfigField key : fields) {
+                    setParam(ps, index, key, dataValues.get(i));
+                    index++;
+                    i++;
+                }
             }
         }
+
         // для обновления дополнительные параметры для where условия
-        List<NsiConfigField> idFields = idAttr.getFields();
-        DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
-        List<String> dataValues = idAttrValue.getValues();
-        checkDataValues(idFields, idAttr.getName(), dataValues);
+        List<NsiConfigField> fields = idAttr.getFields();
+        DictRowAttr attrValue = data.getAttrs().get(idAttr.getName());
+        List<String> dataValues = attrValue.getValues();
+        checkDataValues(fields, idAttr.getName(), dataValues);
+        
         int i=0;
-        for (NsiConfigField field : idFields) {
+        for (NsiConfigField field : fields) {
             setParam(ps, index, field, dataValues.get(i));
             index++;
             i++;
@@ -433,7 +430,7 @@ public class DefaultSqlDao implements SqlDao {
                     throw new NsiDataException("not found");
                 }
             }
-            return data;
+            return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
         } catch (SQLException e) {
             throw new NsiDataException("insert",e);
         }
@@ -441,7 +438,7 @@ public class DefaultSqlDao implements SqlDao {
 
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
-        String sql = sqlGen.getRowUpdateSql(query);
+        String sql = sqlGen.getRowUpdateSql(query, data);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
             setParamsForUpdate(query, data, ps);
@@ -451,7 +448,7 @@ public class DefaultSqlDao implements SqlDao {
             } if(count > 1) {
                 throw new NsiDataException(Joiner.on(" ").join("too many row updated:",count));
             }
-            return data;
+            return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
         } catch (SQLException e) {
             throw new NsiDataException("update",e);
         }
@@ -460,13 +457,13 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
             boolean insert) {
-        DictRow temp = null;
+        DictRow result = null;
         if(insert) {
-            temp = insert(connection, query, data);
+        	result = insert(connection, query, data);
         } else {
-            temp = update(connection, query, data);
+        	result = update(connection, query, data);
         }
-        return get(connection, query, new DictRowBuilder(query, temp).getIdAttr());
+        return result;
     }
 
 }

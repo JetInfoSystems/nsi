@@ -16,6 +16,7 @@ import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
@@ -176,17 +177,15 @@ public class DefaultSqlGen implements SqlGen {
         return result;
     }
 
-    public String getRowUpdateSql(NsiQuery query) {
+    public String getRowUpdateSql(NsiQuery query, DictRow data) {
         UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
                 .update(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
-        for (NsiQueryAttr queryAttr : query.getAttrs()) {
-            NsiConfigAttr attr = queryAttr.getAttr();
-            if(attr != query.getDict().getIdAttr()) {
-                for (NsiConfigField field : attr.getFields()) {
-                   updateSetMoreStep  = updateSetFirstStep.set(
-                           field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
-                }
+        for (String field : data.getAttrs().keySet()) {
+        	if (!field.equals(query.getDict().getIdAttr().getName())){
+        		NsiQueryAttr attr = query.getAttr(field);
+        		updateSetMoreStep  = updateSetFirstStep.set(
+                           field(attr.getAlias() + "." + field, String.class), val(""));
             }
         }
         if(updateSetMoreStep != null) {

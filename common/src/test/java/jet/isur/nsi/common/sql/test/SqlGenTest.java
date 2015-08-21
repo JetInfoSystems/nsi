@@ -4,11 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
+import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
@@ -18,6 +20,8 @@ import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 public class SqlGenTest extends BaseSqlTest {
@@ -221,12 +225,16 @@ public class SqlGenTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
-        String sql = sqlGen.getRowUpdateSql(query);
+        DictRowBuilder builder = new DictRowBuilder(query);
+        builder.attr("id", "1");
+        builder.attr("dict1_id", "1");
+        builder.attr("f1", "1");
+
+        String sql = sqlGen.getRowUpdateSql(query, builder.build());
         Assert.assertEquals(
                 "update table2 m "
-                        + "set m.f1 = ?, m.dict1_id = ?, m.last_change = ?, m.is_deleted = ?, m.last_user = ? "
+                        + "set m.f1 = ?, m.dict1_id = ? "
                         + "where m.id = ?", sql);
-
     }
 
     @Test
