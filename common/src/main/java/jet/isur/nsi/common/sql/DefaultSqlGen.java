@@ -177,16 +177,18 @@ public class DefaultSqlGen implements SqlGen {
         return result;
     }
 
-    public String getRowUpdateSql(NsiQuery query, DictRow data) {
+    public String getRowUpdateSql(NsiQuery query) {
         UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
                 .update(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
-        for (String field : data.getAttrs().keySet()) {
-        	if (!field.equals(query.getDict().getIdAttr().getName())){
-        		NsiQueryAttr attr = query.getAttr(field);
-        		updateSetMoreStep  = updateSetFirstStep.set(
-                           field(attr.getAlias() + "." + field, String.class), val(""));
-            }
+        for (NsiQueryAttr queryAttr : query.getAttrs()) {
+        	NsiConfigAttr attr = queryAttr.getAttr();
+        	 if(attr != query.getDict().getIdAttr()) {
+        		for (NsiConfigField field : attr.getFields()) {
+        			updateSetMoreStep  = updateSetFirstStep.set(
+        				field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
+        		}
+        	 }
         }
         if(updateSetMoreStep != null) {
             return updateSetMoreStep.where(getIdCondition(query)).getSQL();
@@ -194,7 +196,6 @@ public class DefaultSqlGen implements SqlGen {
             throw new NsiDataException("no attrs found");
         }
     }
-
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size) {
     	checkPaginationExp(offset, size);
