@@ -276,6 +276,7 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.GE:
         case OperationType.LT:
         case OperationType.LE:
+        case OperationType.NOTNULL:
             return getFuncCondition(query, filter, baseQuery);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
@@ -319,6 +320,8 @@ public class DefaultSqlGen implements SqlGen {
             else{
                 return f.isNull();
             }
+        case OperationType.NOTNULL:
+        	return f.isNotNull();
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }

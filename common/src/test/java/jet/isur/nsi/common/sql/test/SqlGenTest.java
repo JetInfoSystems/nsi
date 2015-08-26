@@ -138,6 +138,23 @@ public class SqlGenTest extends BaseSqlTest {
                         " where m.f1 like ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
+    
+    @Test
+    public void testDict4ListSql() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        BoolExp filter = new BoolExpBuilder()
+            .key("f1")
+            .func(OperationType.NOTNULL)
+            .value(null)
+            .build();
+
+        String sql = sqlGen.getListSql(query, filter, null, -1, -1);
+        Assert.assertEquals(
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        " where m.f1 is not null", sql);
+    }
+    
     /*
      * @Test public void testDict2ListSql() { NsiConfigDict dict =
      * config.getDict("dict1"); NsiQuery query = new NsiQuery(dict).addAttrs();
