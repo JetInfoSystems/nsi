@@ -8,6 +8,7 @@ import java.util.Map;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.NsiConfigAttr;
+import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
@@ -108,13 +109,16 @@ public class DictRowBuilder {
         return attr(a);
     }
 
-    public DictRowBuilder idAttrNull() {
-        idAttr();
-        for ( NsiConfigField field : query.getDict().getIdAttr().getFields()) {
-            attrBuilder.value(null);
+    private List<String> createNullList(NsiConfigAttr attr) {
+        List<String> result = new ArrayList<>();
+        for ( NsiConfigField field : attr.getFields()) {
+            result.add(null);
         }
-        attrBuilder.add();
-        return this;
+        return result;
+    }
+
+    public DictRowBuilder idAttrNull() {
+        return attrNull(query.getDict().getIdAttr().getName());
     }
 
     public DictRowAttrBuilder attr(NsiConfigAttr dictAttr) {
@@ -203,6 +207,26 @@ public class DictRowBuilder {
 
     public DictRowBuilder attr(String name, Boolean value) {
         return attr(name,1).value(ConvertUtils.boolToString(value)).add();
+    }
+
+    public DictRowBuilder attr(String name, DictRow data) {
+        NsiConfigDict refDict = query.getAttr(name).getAttr().getRefDict();
+        if(refDict == null) {
+            throw new NsiServiceException("dict {} attr {} is not ref", query.getDict().getName(), name);
+        }
+        if(data != null) {
+            return attr(name,new DictRowBuilder(new NsiQuery(query.getConfig(), refDict).addId(), data).getIdAttr());
+        } else {
+            return attrNull(name);
+        }
+    }
+
+    public DictRowBuilder attrNull(String name) {
+        return attr(name,1).value(createNullList(query.getAttr(name).getAttr())).add();
+    }
+
+    public DictRowBuilder attr(String name, DictRowAttr value) {
+        return attr(name,1).value(value.getValues()).add();
     }
 
     public DictRowBuilder attr(String name, Long value) {

@@ -61,27 +61,43 @@ public class DataUtils {
     }
 
     public static void assertEquals(NsiQuery query,DictRow o1, DictRow o2) {
+        assertEquals(query, o1, o2, false);
+    }
+
+    public static void assertEquals(NsiQuery query,DictRow o1, DictRow o2, boolean matchOnlyPresent) {
         if(o1 == o2) {
             return;
         }
         Assert.assertNotNull(o1);
         Assert.assertNotNull(o2);
-        Assert.assertEquals(o1.getAttrs().size(), o2.getAttrs().size());
+        if(!matchOnlyPresent) {
+            Assert.assertEquals(o1.getAttrs().size(), o2.getAttrs().size());
+        }
         DictRowBuilder o2Reader = new DictRowBuilder(query, o2);
         for ( String attrName : o1.getAttrs().keySet()) {
             DictRowAttr o1AttrValue = o1.getAttrs().get(attrName);
             DictRowAttr o2AttrValue = o2Reader.getAttr(attrName);
-            Assert.assertNotNull(o2AttrValue);
-            Assert.assertArrayEquals(o1AttrValue.getValues().toArray(), o2AttrValue.getValues().toArray());
+            if(!matchOnlyPresent) {
+                Assert.assertNotNull(attrName, o2AttrValue);
+            }
+            if(matchOnlyPresent && (o1AttrValue == null || o2AttrValue == null) ) {
+                continue;
+            }
+            Assert.assertArrayEquals(attrName, o1AttrValue.getValues().toArray(), o2AttrValue.getValues().toArray());
             if(o1AttrValue.getRefAttrs() == o2AttrValue.getRefAttrs()) {
                 continue;
             }
-            Assert.assertNotNull(o1AttrValue.getRefAttrs());
-            for ( String rk : o1AttrValue.getRefAttrs().keySet()) {
-                DictRowAttr r1AttrValue = o1AttrValue.getRefAttrs().get(rk);
-                DictRowAttr r2AttrValue = o2AttrValue.getRefAttrs().get(rk);
-                Assert.assertNotNull(r2AttrValue);
-                Assert.assertArrayEquals(r1AttrValue.getValues().toArray(), r2AttrValue.getValues().toArray());
+            if(matchOnlyPresent) {
+                if(o1AttrValue.getRefAttrs() != null) {
+                    for ( String rk : o1AttrValue.getRefAttrs().keySet()) {
+                        DictRowAttr r1AttrValue = o1AttrValue.getRefAttrs().get(rk);
+                        DictRowAttr r2AttrValue = o2AttrValue.getRefAttrs().get(rk);
+                        Assert.assertNotNull(attrName, r2AttrValue);
+                        Assert.assertArrayEquals(attrName, r1AttrValue.getValues().toArray(), r2AttrValue.getValues().toArray());
+                    }
+                }
+            } else {
+                Assert.assertNotNull(attrName, o1AttrValue.getRefAttrs());
             }
         }
     }
