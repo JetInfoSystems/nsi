@@ -21,6 +21,11 @@ public class DictRowAttrBuilder {
         return this;
     }
 
+    public DictRowAttrBuilder value(List<String> value) {
+        prototype.getValues().addAll(value);
+        return this;
+    }
+
     public DictRowBuilder add() {
         owner.getPrototype().getAttrs().put(name, prototype);
         return owner;
