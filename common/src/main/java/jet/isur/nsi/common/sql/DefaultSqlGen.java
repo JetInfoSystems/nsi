@@ -16,6 +16,7 @@ import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
@@ -181,13 +182,13 @@ public class DefaultSqlGen implements SqlGen {
                 .update(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
-            NsiConfigAttr attr = queryAttr.getAttr();
-            if(attr != query.getDict().getIdAttr()) {
-                for (NsiConfigField field : attr.getFields()) {
-                   updateSetMoreStep  = updateSetFirstStep.set(
-                           field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
-                }
-            }
+        	NsiConfigAttr attr = queryAttr.getAttr();
+        	 if(attr != query.getDict().getIdAttr()) {
+        		for (NsiConfigField field : attr.getFields()) {
+        			updateSetMoreStep  = updateSetFirstStep.set(
+        				field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
+        		}
+        	 }
         }
         if(updateSetMoreStep != null) {
             return updateSetMoreStep.where(getIdCondition(query)).getSQL();
@@ -195,7 +196,6 @@ public class DefaultSqlGen implements SqlGen {
             throw new NsiDataException("no attrs found");
         }
     }
-
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size) {
     	checkPaginationExp(offset, size);
@@ -276,6 +276,7 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.GE:
         case OperationType.LT:
         case OperationType.LE:
+        case OperationType.NOTNULL:
             return getFuncCondition(query, filter, baseQuery);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
@@ -319,6 +320,8 @@ public class DefaultSqlGen implements SqlGen {
             else{
                 return f.isNull();
             }
+        case OperationType.NOTNULL:
+        	return f.isNotNull();
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }

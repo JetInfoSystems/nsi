@@ -1,5 +1,8 @@
 package jet.isur.nsi.common.sql;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.val;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -191,9 +194,6 @@ public class DefaultSqlDao implements SqlDao {
     public void setParamsForUpdate(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
-        //if(dataAttrMap.size() != query.getAttrs().size()) {
-        //    throw new NsiDataException("data and query attr count not match: " + query.getAttrs().size());
-        //}
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
@@ -220,13 +220,15 @@ public class DefaultSqlDao implements SqlDao {
                 i++;
             }
         }
+
         // для обновления дополнительные параметры для where условия
-        List<NsiConfigField> idFields = idAttr.getFields();
-        DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
-        List<String> dataValues = idAttrValue.getValues();
-        checkDataValues(idFields, idAttr.getName(), dataValues);
+        List<NsiConfigField> fields = idAttr.getFields();
+        DictRowAttr attrValue = data.getAttrs().get(idAttr.getName());
+        List<String> dataValues = attrValue.getValues();
+        checkDataValues(fields, idAttr.getName(), dataValues);
+        
         int i=0;
-        for (NsiConfigField field : idFields) {
+        for (NsiConfigField field : fields) {
             setParam(ps, index, field, dataValues.get(i));
             index++;
             i++;
@@ -433,17 +435,30 @@ public class DefaultSqlDao implements SqlDao {
                     throw new NsiDataException("not found");
                 }
             }
-            return data;
+            return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
         } catch (SQLException e) {
             throw new NsiDataException("insert",e);
         }
     }
 
+	private void updateRowData(DictRow row, DictRow data) throws SQLException {
+		for (String field : row.getAttrs().keySet()){
+			if (!data.getAttrs().containsKey(field)){
+				data.getAttrs().put(field, row.getAttrs().get(field));
+			}
+		}
+ 	}
+	
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
-        String sql = sqlGen.getRowUpdateSql(query);
+    	String sql = sqlGen.getRowUpdateSql(query);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
+        	if (query.getAttrs().size() != data.getAttrs().size()){
+        		DictRow row = get(connection, query, data.getAttrs()
+        				.get(query.getDict().getIdAttr().getName()));
+        		updateRowData(row, data);
+        	}
             setParamsForUpdate(query, data, ps);
             int count = ps.executeUpdate();
             if(count == 0) {
@@ -451,7 +466,7 @@ public class DefaultSqlDao implements SqlDao {
             } if(count > 1) {
                 throw new NsiDataException(Joiner.on(" ").join("too many row updated:",count));
             }
-            return data;
+            return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
         } catch (SQLException e) {
             throw new NsiDataException("update",e);
         }
@@ -460,13 +475,13 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
             boolean insert) {
-        DictRow temp = null;
+        DictRow result = null;
         if(insert) {
-            temp = insert(connection, query, data);
+        	result = insert(connection, query, data);
         } else {
-            temp = update(connection, query, data);
+        	result = update(connection, query, data);
         }
-        return get(connection, query, new DictRowBuilder(query, temp).getIdAttr());
+        return result;
     }
 
 }

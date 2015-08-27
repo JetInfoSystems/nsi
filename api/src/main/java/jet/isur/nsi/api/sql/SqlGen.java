@@ -13,7 +13,7 @@ public interface SqlGen {
     public String getRowInsertSql(NsiQuery query, boolean useSeq);
 
     public String getRowUpdateSql(NsiQuery query);
-
+    
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size);
 
     public String getCountSql(NsiQuery query, BoolExp filter);
