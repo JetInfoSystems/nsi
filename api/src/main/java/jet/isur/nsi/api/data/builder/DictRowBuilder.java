@@ -17,6 +17,8 @@ import jet.isur.nsi.api.model.DictRowAttr;
 
 import org.joda.time.DateTime;
 
+import com.google.common.collect.Maps;
+
 public class DictRowBuilder {
 
     private final NsiQuery query;
@@ -32,6 +34,10 @@ public class DictRowBuilder {
     public DictRowBuilder(NsiQuery query, DictRow data) {
         this(query);
         setPrototype(data);
+    }
+
+    public NsiQuery getQuery() {
+        return query;
     }
 
     public static DictRow cloneRow(DictRow src) {
@@ -201,6 +207,16 @@ public class DictRowBuilder {
         return attr(a);
     }
 
+    public DictRowBuilder builder(NsiConfigDict dict) {
+        return new DictRowBuilder(new NsiQuery(query.getConfig(), dict).addAttrs());
+    }
+
+    public DictRowBuilder builder(NsiConfigDict dict, DictRow data) {
+        DictRowBuilder result = builder(dict);
+        result.setPrototype(data);
+        return result;
+    }
+
     public DictRowBuilder ownerAttr(Long value) {
         return ownerAttr().value(ConvertUtils.longToString(value)).add();
     }
@@ -215,7 +231,7 @@ public class DictRowBuilder {
             throw new NsiServiceException("dict {} attr {} is not ref", query.getDict().getName(), name);
         }
         if(data != null) {
-            return attr(name,new DictRowBuilder(new NsiQuery(query.getConfig(), refDict).addId(), data).getIdAttr());
+            return attr(name,builder(refDict, data));
         } else {
             return attrNull(name);
         }
@@ -225,8 +241,36 @@ public class DictRowBuilder {
         return attr(name,1).value(createNullList(query.getAttr(name).getAttr())).add();
     }
 
+    public DictRowBuilder attr(String name, DictRowBuilder valueBuilder) {
+        DictRowAttrBuilder builder = attr(name,1).value(valueBuilder.getIdAttr().getValues());
+        NsiConfigDict dict = query.getDict();
+        NsiConfigAttr attr = dict.getAttr(name);
+        if(dict.isAttrHasRefAttrs(attr)) {
+            List<NsiConfigAttr> refObjectAttrs = valueBuilder.getQuery().getDict().getRefObjectAttrs();
+            if(refObjectAttrs.size() > 0) {
+                Map<String, DictRowAttr> refAttrMap = new HashMap<>(refObjectAttrs.size());
+                for (NsiConfigAttr refAttr : refObjectAttrs ) {
+                    // получаю значение атрибута, из него нужно взять только values
+                    DictRowAttr refAttrValue = valueBuilder.getAttr(refAttr.getName());
+                    DictRowAttr tmp = new DictRowAttr();
+                    tmp.setValues(refAttrValue.getValues());
+                    refAttrMap.put(refAttr.getName(),tmp );
+                }
+                builder.refAttrs(refAttrMap);
+            }
+        }
+
+        return builder.add();
+    }
+
     public DictRowBuilder attr(String name, DictRowAttr value) {
-        return attr(name,1).value(value.getValues()).add();
+        DictRowAttrBuilder builder = attr(name,1).value(value.getValues());
+        NsiConfigDict dict = query.getDict();
+        NsiConfigAttr attr = dict.getAttr(name);
+        if(value.getRefAttrs() != null && dict.isAttrHasRefAttrs(attr)) {
+            builder.refAttrs(Maps.newHashMap(value.getRefAttrs()));
+        }
+        return builder.add();
     }
 
     public DictRowBuilder attr(String name, Long value) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 
 public class NsiConfigDict {
@@ -158,6 +159,10 @@ public class NsiConfigDict {
 
     public boolean isHidden() {
         return hidden;
+    }
+
+    public boolean isAttrHasRefAttrs(NsiConfigAttr attr) {
+        return attr.getType() == MetaAttrType.REF && attr != ownerAttr && attr != parentAttr;
     }
 
     @Override

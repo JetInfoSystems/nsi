@@ -18,6 +18,7 @@ import java.util.Map;
 import jet.isur.nsi.api.data.BoolExpVisitor;
 import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.NsiConfigAttr;
+import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
@@ -98,6 +99,7 @@ public class DefaultSqlDao implements SqlDao {
         int index = 1;
         Map<String, DictRowAttr> resultAttrs = new HashMap<String, DictRowAttr>(query.getAttrs().size());
         result.setAttrs(resultAttrs);
+        NsiConfigDict dict = query.getDict();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
             DictRowAttr attrValue = new DictRowAttr();
@@ -108,7 +110,7 @@ public class DefaultSqlDao implements SqlDao {
                 fieldValues.add(getFieldValue(rs,index,field));
                 index++;
             }
-            if(attr.getType()==MetaAttrType.REF) {
+            if(dict.isAttrHasRefAttrs(attr)) {
                 int refAttrCount = attr.getRefDict().getRefObjectAttrs().size();
                 Map<String, DictRowAttr> refAttrValues = new HashMap<>(refAttrCount);
                 attrValue.setRefAttrs(refAttrValues);
@@ -226,7 +228,7 @@ public class DefaultSqlDao implements SqlDao {
         DictRowAttr attrValue = data.getAttrs().get(idAttr.getName());
         List<String> dataValues = attrValue.getValues();
         checkDataValues(fields, idAttr.getName(), dataValues);
-        
+
         int i=0;
         for (NsiConfigField field : fields) {
             setParam(ps, index, field, dataValues.get(i));
@@ -236,12 +238,12 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     public int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size) throws SQLException {
-       	int index = setParamsForFilter(query, ps, 1, filter);
-       	if (offset != -1 && size != -1){
-       		ps.setLong(index++, offset+size+1);
-       		ps.setLong(index++, offset+1);
-       	}
-       	return index;
+           int index = setParamsForFilter(query, ps, 1, filter);
+           if (offset != -1 && size != -1){
+               ps.setLong(index++, offset+size+1);
+               ps.setLong(index++, offset+1);
+           }
+           return index;
     }
 
     protected int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index,
@@ -441,24 +443,24 @@ public class DefaultSqlDao implements SqlDao {
         }
     }
 
-	private void updateRowData(DictRow row, DictRow data) throws SQLException {
-		for (String field : row.getAttrs().keySet()){
-			if (!data.getAttrs().containsKey(field)){
-				data.getAttrs().put(field, row.getAttrs().get(field));
-			}
-		}
- 	}
-	
+    private void updateRowData(DictRow row, DictRow data) throws SQLException {
+        for (String field : row.getAttrs().keySet()){
+            if (!data.getAttrs().containsKey(field)){
+                data.getAttrs().put(field, row.getAttrs().get(field));
+            }
+        }
+     }
+
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
-    	String sql = sqlGen.getRowUpdateSql(query);
+        String sql = sqlGen.getRowUpdateSql(query);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
-        	if (query.getAttrs().size() != data.getAttrs().size()){
-        		DictRow row = get(connection, query, data.getAttrs()
-        				.get(query.getDict().getIdAttr().getName()));
-        		updateRowData(row, data);
-        	}
+            if (query.getAttrs().size() != data.getAttrs().size()){
+                DictRow row = get(connection, query, data.getAttrs()
+                        .get(query.getDict().getIdAttr().getName()));
+                updateRowData(row, data);
+            }
             setParamsForUpdate(query, data, ps);
             int count = ps.executeUpdate();
             if(count == 0) {
@@ -477,9 +479,9 @@ public class DefaultSqlDao implements SqlDao {
             boolean insert) {
         DictRow result = null;
         if(insert) {
-        	result = insert(connection, query, data);
+            result = insert(connection, query, data);
         } else {
-        	result = update(connection, query, data);
+            result = update(connection, query, data);
         }
         return result;
     }
