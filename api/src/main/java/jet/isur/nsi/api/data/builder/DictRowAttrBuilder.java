@@ -2,6 +2,7 @@ package jet.isur.nsi.api.data.builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import jet.isur.nsi.api.model.DictRowAttr;
 
@@ -23,6 +24,11 @@ public class DictRowAttrBuilder {
 
     public DictRowAttrBuilder value(List<String> value) {
         prototype.getValues().addAll(value);
+        return this;
+    }
+
+    public DictRowAttrBuilder refAttrs(Map<String, DictRowAttr> value) {
+        prototype.setRefAttrs(value);
         return this;
     }
 

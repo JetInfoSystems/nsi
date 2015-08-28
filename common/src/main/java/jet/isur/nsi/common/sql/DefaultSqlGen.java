@@ -121,17 +121,18 @@ public class DefaultSqlGen implements SqlGen {
 
     protected List<SelectField<?>> getSelectFields(NsiQuery query, boolean includeRefFields) {
         List<SelectField<?>> result = new ArrayList<>();
+        NsiConfigDict dict = query.getDict();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
+            NsiConfigAttr attr = queryAttr.getAttr();
             // включаем поля атрибутов
-            for (NsiConfigField field : queryAttr.getAttr().getFields()) {
+            for (NsiConfigField field : attr.getFields()) {
                 result.add(field(queryAttr.getAlias() + "." + field.getName()));
             }
-            // включаем поля RefObject атрибутов
-            if(includeRefFields && queryAttr.getAttr().getType()==MetaAttrType.REF) {
-                for (NsiConfigAttr refAttr : queryAttr.getAttr().getRefDict().getRefObjectAttrs()) {
+            if(includeRefFields && dict.isAttrHasRefAttrs(attr)) {
+                for (NsiConfigAttr refAttr : attr.getRefDict().getRefObjectAttrs()) {
                     for (NsiConfigField field : refAttr.getFields()) {
-                    	String alias = queryAttr.getRefAlias() + "_" + field.getName();
-                    	result.add(field(queryAttr.getRefAlias() + "." + field.getName()).as(alias));
+                        String alias = queryAttr.getRefAlias() + "_" + field.getName();
+                        result.add(field(queryAttr.getRefAlias() + "." + field.getName()).as(alias));
                     }
                 }
             }
@@ -182,13 +183,13 @@ public class DefaultSqlGen implements SqlGen {
                 .update(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
-        	NsiConfigAttr attr = queryAttr.getAttr();
-        	 if(attr != query.getDict().getIdAttr()) {
-        		for (NsiConfigField field : attr.getFields()) {
-        			updateSetMoreStep  = updateSetFirstStep.set(
-        				field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
-        		}
-        	 }
+            NsiConfigAttr attr = queryAttr.getAttr();
+             if(attr != query.getDict().getIdAttr()) {
+                for (NsiConfigField field : attr.getFields()) {
+                    updateSetMoreStep  = updateSetFirstStep.set(
+                        field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
+                }
+             }
         }
         if(updateSetMoreStep != null) {
             return updateSetMoreStep.where(getIdCondition(query)).getSQL();
@@ -198,9 +199,9 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size) {
-    	checkPaginationExp(offset, size);
+        checkPaginationExp(offset, size);
 
-    	SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true);
+        SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true);
         Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
@@ -212,30 +213,30 @@ public class DefaultSqlGen implements SqlGen {
         }
 
         if (size != -1 && offset != -1) {
-        	List<SelectField<?>> fields = new ArrayList<>();
-        	fields.add(field("a.*"));
-        	fields.add(field("ROWNUM").as("rnum"));
+            List<SelectField<?>> fields = new ArrayList<>();
+            fields.add(field("a.*"));
+            fields.add(field("ROWNUM").as("rnum"));
 
-        	Table<Record> base = getQueryBuilder().select(fields)
-        			.from(baseQueryPart.asTable("a"))
-        			.where(field("ROWNUM").lessThan(val(null))).asTable("b");
-        	SelectConditionStep<Record1<Object>> result = getQueryBuilder()
-        			.select(field("*")).from(base).where(field("rnum").greaterOrEqual(val(null)));
-        	
-        	return result.getSQL();
+            Table<Record> base = getQueryBuilder().select(fields)
+                    .from(baseQueryPart.asTable("a"))
+                    .where(field("ROWNUM").lessThan(val(null))).asTable("b");
+            SelectConditionStep<Record1<Object>> result = getQueryBuilder()
+                    .select(field("*")).from(base).where(field("rnum").greaterOrEqual(val(null)));
+
+            return result.getSQL();
         }
 
         return baseQueryPart.getSQL();
     }
 
-	protected void checkPaginationExp(long offset, int size) {
-		if ((offset == -1 && size == -1) || (offset != -1 && size != -1)) {
-			return;
-		}
-		throw new NsiDataException("invalid condition [offset : "
-				+ offset + ", size : " + size + "]");
-	}
-	
+    protected void checkPaginationExp(long offset, int size) {
+        if ((offset == -1 && size == -1) || (offset != -1 && size != -1)) {
+            return;
+        }
+        throw new NsiDataException("invalid condition [offset : "
+                + offset + ", size : " + size + "]");
+    }
+
     protected Condition getWhereCondition(NsiQuery query, BoolExp filter,
             SelectJoinStep<?> baseQueryPart) {
         Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
@@ -321,7 +322,7 @@ public class DefaultSqlGen implements SqlGen {
                 return f.isNull();
             }
         case OperationType.NOTNULL:
-        	return f.isNotNull();
+            return f.isNotNull();
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }

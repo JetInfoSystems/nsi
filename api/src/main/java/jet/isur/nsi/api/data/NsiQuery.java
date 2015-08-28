@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jet.isur.nsi.api.data.builder.DictRowBuilder;
+import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 
 public class NsiQuery {
@@ -14,15 +16,27 @@ public class NsiQuery {
     private int aliasIndex = 0;
     private List<NsiQueryAttr> attrs = new ArrayList<>();
     private Map<String,Map<String,NsiQueryAttr>> aliasNameMap = new HashMap<>();
-    
+
     private String getNextAlias() {
-    	aliasIndex ++ ;
+        aliasIndex ++ ;
         return "a" + aliasIndex;
     }
-    
+
     public NsiQuery(NsiConfig config, NsiConfigDict dict) {
         this.config = config;
         this.dict = dict;
+    }
+
+    public NsiQuery(NsiConfig config, String dictName) {
+        this(config, config.getDict(dictName));
+    }
+
+    public DictRowBuilder builder() {
+        return new DictRowBuilder(this);
+    }
+
+    public DictRowBuilder builder(DictRow data) {
+        return new DictRowBuilder(this, data);
     }
 
     private NsiQueryAttr addAttr(String alias, NsiConfigAttr attr) {
@@ -33,7 +47,7 @@ public class NsiQuery {
         }
         String refAlias = null;
         if(attr.getType() == MetaAttrType.REF) {
-        	refAlias = getNextAlias();
+            refAlias = getNextAlias();
         }
         int index = attrs.size();
         NsiQueryAttr queryAttr = new NsiQueryAttr(alias, attr, refAlias, index);

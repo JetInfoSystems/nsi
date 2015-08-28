@@ -78,26 +78,27 @@ public class DataUtils {
             DictRowAttr o1AttrValue = o1.getAttrs().get(attrName);
             DictRowAttr o2AttrValue = o2Reader.getAttr(attrName);
             if(!matchOnlyPresent) {
-                Assert.assertNotNull(attrName, o2AttrValue);
+                Assert.assertNotNull("actual attr value not present:" + attrName, o2AttrValue);
             }
             if(matchOnlyPresent && (o1AttrValue == null || o2AttrValue == null) ) {
                 continue;
             }
-            Assert.assertArrayEquals(attrName, o1AttrValue.getValues().toArray(), o2AttrValue.getValues().toArray());
+            Assert.assertArrayEquals("actual attr value not match:" + attrName, o1AttrValue.getValues().toArray(), o2AttrValue.getValues().toArray());
             if(o1AttrValue.getRefAttrs() == o2AttrValue.getRefAttrs()) {
                 continue;
             }
             if(matchOnlyPresent) {
                 if(o1AttrValue.getRefAttrs() != null) {
+                    Assert.assertNotNull("actual attr refValues not present:" + attrName, o2AttrValue.getRefAttrs());
                     for ( String rk : o1AttrValue.getRefAttrs().keySet()) {
                         DictRowAttr r1AttrValue = o1AttrValue.getRefAttrs().get(rk);
                         DictRowAttr r2AttrValue = o2AttrValue.getRefAttrs().get(rk);
-                        Assert.assertNotNull(attrName, r2AttrValue);
-                        Assert.assertArrayEquals(attrName, r1AttrValue.getValues().toArray(), r2AttrValue.getValues().toArray());
+                        Assert.assertNotNull("actual attr ref value not paresent:" + attrName + ", " + rk, r2AttrValue);
+                        Assert.assertArrayEquals("actual attr ref value not match:" + attrName + ", " + rk, r1AttrValue.getValues().toArray(), r2AttrValue.getValues().toArray());
                     }
                 }
             } else {
-                Assert.assertNotNull(attrName, o1AttrValue.getRefAttrs());
+                Assert.assertNotNull("expected attr refValues not present:" + attrName, o1AttrValue.getRefAttrs());
             }
         }
     }
