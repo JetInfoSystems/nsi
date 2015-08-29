@@ -1,8 +1,5 @@
 package jet.isur.nsi.common.sql;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.val;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +23,6 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
-import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
@@ -308,7 +304,7 @@ public class DefaultSqlDao implements SqlDao {
                 }
             }
         } catch (Exception e) {
-            throw new NsiDataException("get",e);
+            throw new NsiDataException("get:" + e.getMessage(),e);
         }
         return result;
     }
@@ -392,7 +388,7 @@ public class DefaultSqlDao implements SqlDao {
                 throw new RuntimeException();
             }
         } catch (Exception e) {
-            throw new NsiDataException("list",e);
+            throw new NsiDataException("list:" + e.getMessage(),e);
         }
         return result;
     }
@@ -414,7 +410,7 @@ public class DefaultSqlDao implements SqlDao {
                 throw new RuntimeException();
             }
         } catch (Exception e) {
-            throw new NsiDataException("count",e);
+            throw new NsiDataException("count:" + e.getMessage(),e);
         }
     }
 
@@ -439,7 +435,7 @@ public class DefaultSqlDao implements SqlDao {
             }
             return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
         } catch (SQLException e) {
-            throw new NsiDataException("insert",e);
+            throw new NsiDataException("insert:" + e.getMessage(),e);
         }
     }
 
@@ -470,7 +466,7 @@ public class DefaultSqlDao implements SqlDao {
             }
             return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
         } catch (SQLException e) {
-            throw new NsiDataException("update",e);
+            throw new NsiDataException("update:" + e.getMessage(),e);
         }
     }
 
