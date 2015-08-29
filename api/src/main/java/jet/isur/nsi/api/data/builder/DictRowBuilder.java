@@ -225,8 +225,16 @@ public class DictRowBuilder {
         return attr(name,1).value(ConvertUtils.boolToString(value)).add();
     }
 
+    private NsiQueryAttr queryGetAttr(String name) {
+        NsiQueryAttr result = query.getAttr(name);
+        if(result == null) {
+            throw new NsiServiceException("attr {} not found in query from dict {}", name, query.getDict().getName());
+        }
+        return result;
+    }
+
     public DictRowBuilder attr(String name, DictRow data) {
-        NsiConfigDict refDict = query.getAttr(name).getAttr().getRefDict();
+        NsiConfigDict refDict = queryGetAttr(name).getAttr().getRefDict();
         if(refDict == null) {
             throw new NsiServiceException("dict {} attr {} is not ref", query.getDict().getName(), name);
         }
@@ -238,7 +246,7 @@ public class DictRowBuilder {
     }
 
     public DictRowBuilder attrNull(String name) {
-        return attr(name,1).value(createNullList(query.getAttr(name).getAttr())).add();
+        return attr(name,1).value(createNullList(queryGetAttr(name).getAttr())).add();
     }
 
     public DictRowBuilder attr(String name, DictRowBuilder valueBuilder) {
