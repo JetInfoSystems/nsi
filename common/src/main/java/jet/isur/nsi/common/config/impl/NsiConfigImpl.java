@@ -2,11 +2,14 @@ package jet.isur.nsi.common.config.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
@@ -27,7 +30,7 @@ public class NsiConfigImpl implements NsiConfig {
 
     private static final CharMatcher NAME_MATCHER = CharMatcher.JAVA_LETTER_OR_DIGIT.or(new OneCharMatcher('_'));
 
-    private Map<String,NsiConfigDict> dictMap = new HashMap<>();
+    private Map<String,NsiConfigDict> dictMap = new TreeMap<>();
 
     private final NsiConfigParams params;
 
@@ -96,8 +99,8 @@ public class NsiConfigImpl implements NsiConfig {
 
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
-        dict.getRefObjectAttrs().addAll(createFieldList(dict,metaDict.getRefObjectAttrs()));
-        dict.getTableObjectAttrs().addAll(createFieldList(dict,metaDict.getTableObjectAttrs()));
+        dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
+        dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
         dictMap.put(dictName, dict);
     }
 
@@ -111,7 +114,7 @@ public class NsiConfigImpl implements NsiConfig {
 
     private List<NsiConfigAttr> createFieldList(NsiConfigDict dict, List<String> attrNames) {
         List<NsiConfigAttr> result = new ArrayList<>();
-        Set<String> attrNameSet = new HashSet<>(attrNames);
+        Set<String> attrNameSet = new TreeSet<>(attrNames);
         if(attrNameSet.size() != attrNames.size()) {
             throwDictException(dict, "attr names dubbed", attrNames.toString());
         }
@@ -247,7 +250,17 @@ public class NsiConfigImpl implements NsiConfig {
         // TODO: RNSC-746 temporary disable
         for ( NsiConfigDict dict : dictMap.values()) {
             if(dict.getLastUserAttr() != null) {
-                dict.getTableObjectAttrs().remove(dict.getLastUserAttr());
+                List<NsiConfigAttr> tmp = new ArrayList<>(dict.getTableObjectAttrs());
+                tmp.remove(dict.getLastUserAttr());
+                Collections.sort(tmp, new Comparator<NsiConfigAttr>() {
+
+                    @Override
+                    public int compare(NsiConfigAttr o1, NsiConfigAttr o2) {
+                        return o1.getName().compareTo(o2.getName());
+                    }
+                });
+
+                dict.setTableObjectAttrs(tmp);
                 dict.getLastUserAttr().setHidden(true);
             }
         }

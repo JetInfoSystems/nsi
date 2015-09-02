@@ -1,6 +1,7 @@
 package jet.isur.nsi.api.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class NsiQuery {
         return this;
     }
 
-    private NsiQuery addAttrs(List<NsiConfigAttr> attrs) {
+    private NsiQuery addAttrs(Collection<NsiConfigAttr> attrs) {
         for ( NsiConfigAttr attr : attrs) {
             addAttr(MAIN_ALIAS, attr);
         }
