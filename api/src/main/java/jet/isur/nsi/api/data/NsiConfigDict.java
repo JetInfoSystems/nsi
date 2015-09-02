@@ -1,9 +1,12 @@
 package jet.isur.nsi.api.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
@@ -33,10 +36,8 @@ public class NsiConfigDict {
         hidden = metaDict.getHidden() == Boolean.TRUE ;
     }
 
-    private List<NsiConfigField> fields = new ArrayList<>();
-    private List<NsiConfigAttr> attrs = new ArrayList<>();
-    private Map<String, NsiConfigAttr> attrNameMap = new HashMap<>();
-    private Map<String, NsiConfigField> fieldNameMap = new HashMap<>();
+    private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
+    private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
 
     public Map<String, NsiConfigAttr> getAttrNameMap() {
         return attrNameMap;
@@ -107,23 +108,23 @@ public class NsiConfigDict {
     }
 
     public List<NsiConfigAttr> getCaptionAttrs() {
-        return captionAttrs;
+        return Collections.unmodifiableList(captionAttrs);
     }
 
     public List<NsiConfigAttr> getRefObjectAttrs() {
-        return refObjectAttrs;
+        return Collections.unmodifiableList(refObjectAttrs);
     }
 
     public List<NsiConfigAttr> getTableObjectAttrs() {
-        return tableObjectAttrs;
+        return Collections.unmodifiableList(tableObjectAttrs);
     }
 
-    public List<NsiConfigField> getFields() {
-        return fields;
+    public Collection<NsiConfigField> getFields() {
+        return Collections.unmodifiableCollection(fieldNameMap.values());
     }
 
-    public List<NsiConfigAttr> getAttrs() {
-        return attrs;
+    public Collection<NsiConfigAttr> getAttrs() {
+        return Collections.unmodifiableCollection(attrNameMap.values());
     }
 
     public NsiConfigAttr getDeleteMarkAttr() {
@@ -136,11 +137,9 @@ public class NsiConfigDict {
 
     public void addField(NsiConfigField nsiMetaField) {
         fieldNameMap.put(nsiMetaField.getName().toUpperCase(), nsiMetaField);
-        fields.add(nsiMetaField);
     }
 
     public void addAttr(NsiConfigAttr attr) {
-        attrs.add(attr);
         attrNameMap.put(attr.getName().toUpperCase(), attr);
     }
 
@@ -193,6 +192,18 @@ public class NsiConfigDict {
     @Override
     public String toString() {
         return "NsiConfigDict [name=" + name + "]";
+    }
+
+    public void setCaptionAttrs(List<NsiConfigAttr> captionAttrs) {
+        this.captionAttrs = captionAttrs;
+    }
+
+    public void setRefObjectAttrs(List<NsiConfigAttr> refObjectAttrs) {
+        this.refObjectAttrs = refObjectAttrs;
+    }
+
+    public void setTableObjectAttrs(List<NsiConfigAttr> tableObjectAttrs) {
+        this.tableObjectAttrs = tableObjectAttrs;
     }
 
 }

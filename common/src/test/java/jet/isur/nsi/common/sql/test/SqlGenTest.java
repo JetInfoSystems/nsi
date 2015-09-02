@@ -4,13 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
@@ -20,8 +18,6 @@ import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 public class SqlGenTest extends BaseSqlTest {
@@ -52,7 +48,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.f1, m.dict1_id, a1.f1 a1_f1, m.id, m.last_change, m.is_deleted, m.last_user "
+                "select m.dict1_id, a1.f1 a1_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
                         + "from table2 m "
                         + "left outer join table1 a1 on m.dict1_id = a1.id "
                         + "where m.id = ?", sql);
@@ -64,10 +60,10 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.f1, m.dict1_id, a1.f1 a1_f1, m.dict1_a_id, a2.f1 a2_f1, m.id, m.last_change, m.is_deleted, m.last_user "
+                "select m.dict1_a_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
                         + "from table3 m "
-                        + "left outer join table1 a1 on m.dict1_id = a1.id "
-                        + "left outer join table1 a2 on m.dict1_a_id = a2.id "
+                        + "left outer join table1 a1 on m.dict1_a_id = a1.id "
+                        + "left outer join table1 a2 on m.dict1_id = a2.id "
                         + "where m.id = ?", sql);
     }
 
@@ -138,7 +134,7 @@ public class SqlGenTest extends BaseSqlTest {
                         " where m.f1 like ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
-    
+
     @Test
     public void testDict4ListSql() {
         NsiConfigDict dict = config.getDict("dict1");
@@ -154,7 +150,7 @@ public class SqlGenTest extends BaseSqlTest {
                 "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
                         " where m.f1 is not null", sql);
     }
-    
+
     /*
      * @Test public void testDict2ListSql() { NsiConfigDict dict =
      * config.getDict("dict1"); NsiQuery query = new NsiQuery(dict).addAttrs();
@@ -232,7 +228,7 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
-                "insert into table2 (f1, dict1_id, id, last_change, is_deleted, last_user) "
+                "insert into table2 (dict1_id, f1, id, is_deleted, last_change, last_user) "
                         + "values (?, ?, seq_table2.nextval, ?, ?, ?)", sql);
 
     }
@@ -245,7 +241,7 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
                 "update table2 m "
-                        + "set m.f1 = ?, m.dict1_id = ?, m.last_change = ?, m.is_deleted = ?, m.last_user = ? "
+                        + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ? "
                         + "where m.id = ?", sql);
     }
 

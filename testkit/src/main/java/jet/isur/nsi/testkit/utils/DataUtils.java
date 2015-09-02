@@ -1,5 +1,9 @@
 package jet.isur.nsi.testkit.utils;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
@@ -27,13 +31,39 @@ public class DataUtils {
         Assert.assertEquals(o1.getCaptionAttrs(), o2.getCaptionAttrs());
         Assert.assertEquals(o1.getRefObjectAttrs(), o2.getRefObjectAttrs());
         Assert.assertEquals(o1.getTableObjectAttrs(), o2.getTableObjectAttrs());
-        Assert.assertEquals(o1.getFields().size(), o2.getFields().size());
-        for(int i=0;i<o1.getFields().size();i++) {
-            assertEquals(o1.getFields().get(i), o2.getFields().get(i));
+        assertEquals("fields", o1.getFields(), o2.getFields(), new Comparator<MetaField>() {
+
+            @Override
+            public int compare(MetaField o1, MetaField o2) {
+                assertEquals(o1, o2);
+                return 0;
+            }
+
+        });
+        assertEquals("attrs", o1.getAttrs(), o2.getAttrs(), new Comparator<MetaAttr>() {
+
+            @Override
+            public int compare(MetaAttr o1, MetaAttr o2) {
+                assertEquals(o1, o2);
+                return 0;
+            }
+
+        });
+    }
+
+    public static <T> void assertEquals(final String message, final Collection<T> expected, final Collection<T> actual, final Comparator<T> c) {
+        if(expected == actual) {
+            return;
         }
-        Assert.assertEquals(o1.getAttrs().size(), o2.getAttrs().size());
-        for(int i=0;i<o1.getAttrs().size();i++) {
-            assertEquals(o1.getAttrs().get(i), o2.getAttrs().get(i));
+        Assert.assertNotNull(message + ": expected is null", expected);
+        Assert.assertNotNull(message + "actual is null", actual);
+        Assert.assertEquals(message + ": size not match", expected.size(), actual.size());
+        Iterator<T> ie = expected.iterator();
+        Iterator<T> ia = actual.iterator();
+        while (ie.hasNext()) {
+            T oe = ie.next();
+            T oa = ia.next();
+            Assert.assertTrue(message + ": item not match",c.compare(oe, oa) == 0);
         }
     }
 

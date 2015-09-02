@@ -44,7 +44,7 @@ public class DictSerializer {
         return result;
     }
 
-    public static List<MetaField> serializeFields(List<NsiConfigField> fields) {
+    public static Collection<MetaField> serializeFields(Collection<NsiConfigField> fields) {
         if(fields == null) {
             return null;
         }
@@ -64,7 +64,7 @@ public class DictSerializer {
         return result;
     }
 
-    public static List<MetaAttr> serializeAttrs(List<NsiConfigAttr> attrs) {
+    public static Collection<MetaAttr> serializeAttrs(Collection<NsiConfigAttr> attrs) {
         if(attrs == null) {
             return null;
         }

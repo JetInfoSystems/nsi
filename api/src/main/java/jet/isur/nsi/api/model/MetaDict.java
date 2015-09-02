@@ -1,5 +1,6 @@
 package jet.isur.nsi.api.model;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,11 +25,11 @@ public class MetaDict extends MetaDictRef {
     /**
      * Список полей таблицы.
      */
-    private List<MetaField> fields;
+    private Collection<MetaField> fields;
     /**
      * Список атрибутов справочника.
      */
-    private List<MetaAttr> attrs;
+    private Collection<MetaAttr> attrs;
     /**
      * атрибут кторый представлет ид.
      */
@@ -78,16 +79,16 @@ public class MetaDict extends MetaDictRef {
     public void setTable(String table) {
         this.table = table;
     }
-    public List<MetaField> getFields() {
+    public Collection<MetaField> getFields() {
         return fields;
     }
-    public void setFields(List<MetaField> fields) {
+    public void setFields(Collection<MetaField> fields) {
         this.fields = fields;
     }
-    public List<MetaAttr> getAttrs() {
+    public Collection<MetaAttr> getAttrs() {
         return attrs;
     }
-    public void setAttrs(List<MetaAttr> attrs) {
+    public void setAttrs(Collection<MetaAttr> attrs) {
         this.attrs = attrs;
     }
     public String getIdAttr() {
