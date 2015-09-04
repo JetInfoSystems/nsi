@@ -1,8 +1,10 @@
 package jet.isur.nsi.api.sql;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 
+import jet.isur.nsi.api.data.NsiParamValue;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
@@ -34,6 +36,9 @@ public interface SqlDao {
     public List<DictRow> list(Connection connection, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size);
 
+    public List<DictRow> list(Connection connection, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQuery, Collection<NsiParamValue> params);
+
     /**
      * Получить количество записей справочника, удовлетворяющих критерию,
      * если есть REF атрибуты то для низ возвращаютмя ref атрибуты
@@ -43,6 +48,8 @@ public interface SqlDao {
      * @return
      */
     public long count(Connection connection, NsiQuery query, BoolExp filter);
+
+    public long count(Connection connection, NsiQuery query, BoolExp filter, String sourceQuery, Collection<NsiParamValue> params);
 
     /**
      * Вставить запись, ref атрибуты для ссылосных атрибутов не получаются

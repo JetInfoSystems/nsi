@@ -63,13 +63,16 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields) {
+        return createBaseQuery(query, includeRefFields, null);
+    }
+
+    protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields, String sourceQuery) {
         Collection<? extends SelectField<?>> selectFields = getSelectFields(query, true);
         SelectJoinStep<Record> selectJoinStep = getQueryBuilder().select(selectFields)
             .from(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
 
         return addRefAttrJoins(query, selectJoinStep);
     }
-
 
     protected Condition getIdCondition(NsiQuery query, SelectJoinStep<?> baseQueryPart) {
         return getIdCondition(query);
@@ -373,6 +376,19 @@ public class DefaultSqlGen implements SqlGen {
         }
 
         return baseQueryPart.getSQL();
+    }
+
+    @Override
+    public String getListSql(NsiQuery query, BoolExp filter,
+            List<SortExp> sortList, long offset, int size, String sourceQuery) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getCountSql(NsiQuery query, BoolExp filter, String sourceQuery) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
