@@ -21,6 +21,7 @@ public class GeneratorParams {
     public static final String MIN = "min";
     public static final String MAX = "max";
     public static final String METADATA_PATH = "metadataPath";
+    public static final String DICTDATA_PATH = "dictdataPath";
 
 
     private final Properties properties;
@@ -57,6 +58,10 @@ public class GeneratorParams {
     }
 
     public File getMetadataPath() {
-        return new File(getProperty(METADATA_PATH, "/opt/isur/database/metadata"));
+        return new File(getProperty(METADATA_PATH, "/opt/isur/metadata"));
+    }
+    
+    public File getDictdataPath() {
+        return new File(getProperty(DICTDATA_PATH, "./dictdata"));
     }
 }
