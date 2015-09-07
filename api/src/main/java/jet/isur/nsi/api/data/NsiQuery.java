@@ -97,7 +97,7 @@ public class NsiQuery {
     }
 
     public NsiQuery addStdAttrs() {
-        addId();
+        if(dict.getIdAttr() != null) addId();
         if(dict.getDeleteMarkAttr() != null) addDeleteMark();
         if(dict.getIsGroupAttr() != null) addIsGroup();
         if(dict.getLastChangeAttr() != null) addLastChange();

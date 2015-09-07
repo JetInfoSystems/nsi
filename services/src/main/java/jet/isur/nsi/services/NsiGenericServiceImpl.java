@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
+import com.google.common.base.Preconditions;
 
 @MetricsDomain(name = "genericNsiService")
 public class NsiGenericServiceImpl implements NsiGenericService {
@@ -69,8 +70,10 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         final Timer.Context t = dictCountTimer.time();
         try {
             long count;
+            checkSourceQuery(query, sourceQueryName);
+
             try (Connection connection = dataSource.getConnection()) {
-                count = sqlDao.count(connection, query, filter);
+                count = sqlDao.count(connection, query, filter, sourceQueryName, sourceQueryParams);
             }
             log.info("dictCount [{},{}] -> ok [{}]", requestId, query.getDict()
                     .getName(), count);
@@ -98,9 +101,11 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         final Timer.Context t = dictListTimer.time();
         try {
             List<DictRow> data;
+            checkSourceQuery(query, sourceQueryName);
+
             try (Connection connection = dataSource.getConnection()) {
                 data = sqlDao.list(connection, query, filter, sortList, offset,
-                        size);
+                        size, sourceQueryName, sourceQueryParams);
             }
             log.info("dictList [{},{}] -> ok [{}]", requestId, query.getDict()
                     .getName(), data.size());
@@ -111,6 +116,15 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
+        }
+    }
+
+    private void checkSourceQuery(NsiQuery query, String sourceQueryName) {
+        NsiConfigDict dict = query.getDict();
+        if(sourceQueryName != null) {
+            Preconditions.checkNotNull(dict.getSourceQuery(sourceQueryName),"dict %s source query %s not exists",dict.getName(), sourceQueryName);
+        } else {
+            Preconditions.checkNotNull(dict.getTable(),"dict %s has not table, source query must set",dict.getName());
         }
     }
 
