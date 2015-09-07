@@ -40,11 +40,11 @@ public class NsiQuery {
         return new DictRowBuilder(this, data);
     }
 
-    private NsiQueryAttr addAttr(String alias, NsiConfigAttr attr) {
+    public NsiQuery addAttr(String alias, NsiConfigAttr attr) {
         Map<String,NsiQueryAttr> attrMap = getAttrMap(alias);
         String attrName = attr.getName();
         if(attrMap.containsKey(attrName)) {
-            return attrMap.get(attrName);
+            return this;
         }
         String refAlias = null;
         if(attr.getType() == MetaAttrType.REF) {
@@ -54,7 +54,11 @@ public class NsiQuery {
         NsiQueryAttr queryAttr = new NsiQueryAttr(alias, attr, refAlias, index);
         attrMap.put(attrName, queryAttr);
         attrs.add(queryAttr);
-        return queryAttr;
+        return this;
+    }
+
+    public NsiQuery addAttr(String name) {
+        return addAttr(MAIN_ALIAS, dict.getAttr(name));
     }
 
     public Map<String, NsiQueryAttr> getAttrMap(String alias) {
@@ -65,42 +69,35 @@ public class NsiQuery {
     }
 
     public NsiQuery addId() {
-        addAttr(MAIN_ALIAS, dict.getIdAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getIdAttr());
     }
 
     public NsiQuery addDeleteMark() {
-        addAttr(MAIN_ALIAS, dict.getDeleteMarkAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getDeleteMarkAttr());
     }
 
     public NsiQuery addIsGroup() {
-        addAttr(MAIN_ALIAS, dict.getIsGroupAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getIsGroupAttr());
     }
 
     public NsiQuery addLastChange() {
-        addAttr(MAIN_ALIAS, dict.getLastChangeAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getLastChangeAttr());
     }
 
     public NsiQuery addLastUser() {
-        addAttr(MAIN_ALIAS, dict.getLastUserAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getLastUserAttr());
     }
 
     public NsiQuery addOwner() {
-        addAttr(MAIN_ALIAS, dict.getOwnerAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getOwnerAttr());
     }
 
     public NsiQuery addParent() {
-        addAttr(MAIN_ALIAS, dict.getParentAttr());
-        return this;
+        return addAttr(MAIN_ALIAS, dict.getParentAttr());
     }
 
     public NsiQuery addStdAttrs() {
-        addId();
+        if(dict.getIdAttr() != null) addId();
         if(dict.getDeleteMarkAttr() != null) addDeleteMark();
         if(dict.getIsGroupAttr() != null) addIsGroup();
         if(dict.getLastChangeAttr() != null) addLastChange();

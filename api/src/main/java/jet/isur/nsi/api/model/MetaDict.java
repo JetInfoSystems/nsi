@@ -2,6 +2,7 @@ package jet.isur.nsi.api.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Описание справочника.
@@ -72,6 +73,8 @@ public class MetaDict extends MetaDictRef {
     private List<String> tableObjectAttrs;
 
     private Boolean hidden;
+
+    private Map<String, MetaSourceQuery> sourceQueries;
 
     public String getTable() {
         return table;
@@ -168,6 +171,12 @@ public class MetaDict extends MetaDictRef {
     }
     public void setHidden(Boolean hidden) {
         this.hidden = hidden;
+    }
+    public Map<String, MetaSourceQuery> getSourceQueries() {
+        return sourceQueries;
+    }
+    public void setSourceQueries(Map<String, MetaSourceQuery> sourceQueries) {
+        this.sourceQueries = sourceQueries;
     }
 
 }

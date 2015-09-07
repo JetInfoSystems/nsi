@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaFieldType;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 public class DefaultSqlDao implements SqlDao {
@@ -234,12 +238,34 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     public int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size) throws SQLException {
-           int index = setParamsForFilter(query, ps, 1, filter);
-           if (offset != -1 && size != -1){
-               ps.setLong(index++, offset+size+1);
-               ps.setLong(index++, offset+1);
-           }
-           return index;
+           return setParamsForList(query, ps, filter, offset, size, null, null);
+    }
+
+    public int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams ) throws SQLException {
+        // если заданы параметры для источника то они должны задаваться первыми
+        int index = 1;
+        if(sourceQueryParams != null) {
+            index = setParamsForSourceQuery(query, ps, index, sourceQueryName, sourceQueryParams);
+        }
+        // затем параметры для фильтра
+        index = setParamsForFilter(query, ps, index, filter);
+        // затем огарничение выборки
+        if (offset != -1 && size != -1){
+            ps.setLong(index++, offset+size+1);
+            ps.setLong(index++, offset+1);
+        }
+        return index;
+ }
+
+    protected int setParamsForSourceQuery(NsiQuery query, PreparedStatement ps,
+            int index, String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) throws SQLException {
+        for (MetaParamValue p : sourceQueryParams) {
+            String v = p.getValue();
+            setParam(ps, index, p.getType(), v != null ? v.length() : 0, v);
+            index++;
+        }
+        return index;
     }
 
     protected int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index,
@@ -291,6 +317,7 @@ public class DefaultSqlDao implements SqlDao {
 
     public DictRow get(Connection connection, NsiQuery query,
             DictRowAttr id) {
+        checkDictHasIdAttr(query);
         DictRow result = new DictRow();
         String sql = sqlGen.getRowGetSql(query);
         log.info(sql);
@@ -307,6 +334,11 @@ public class DefaultSqlDao implements SqlDao {
             throw new NsiDataException("get:" + e.getMessage(),e);
         }
         return result;
+    }
+
+    private void checkDictHasIdAttr(NsiQuery query) {
+        NsiConfigDict dict = query.getDict();
+        Preconditions.checkNotNull(dict.getIdAttr(), "dict %s have't id attr", (Object)dict.getName());
     }
 
     /**
@@ -327,7 +359,12 @@ public class DefaultSqlDao implements SqlDao {
      */
     protected void setParam(PreparedStatement ps, int index, NsiConfigField field,
             String value) throws SQLException {
-        switch (field.getType()) {
+        setParam(ps, index, field.getType(), field.getSize(), value);
+    }
+
+    protected void setParam(PreparedStatement ps, int index, MetaFieldType fieldType, int fieldSize,
+            String value) throws SQLException {
+        switch (fieldType) {
         case BOOLEAN:
             if(Strings.isNullOrEmpty(value)) {
                 ps.setNull(index, Types.VARCHAR);
@@ -361,21 +398,29 @@ public class DefaultSqlDao implements SqlDao {
             if(Strings.isNullOrEmpty(value)) {
                 ps.setNull(index, Types.CHAR);
             } else {
-                ps.setString(index, Strings.padEnd(value, field.getSize(), ' '));
+                ps.setString(index, Strings.padEnd(value, fieldSize, ' '));
             }
             break;
         default:
-            throw new NsiDataException(Joiner.on(" ").join("unsupported param type:",field.getType()));
+            throw new NsiDataException(Joiner.on(" ").join("unsupported param type:",fieldType));
         }
     }
 
+    @Override
     public List<DictRow> list(Connection connection, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size) {
+        return list(connection, query, filter, sortList, offset, size, null, null);
+    }
+
+    @Override
+    public List<DictRow> list(Connection connection, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
         List<DictRow> result = new ArrayList<>();
-        String sql = sqlGen.getListSql(query, filter, sortList, offset, size);
+        String sql = sqlGen.getListSql(query, filter, sortList, offset, size, sourceQueryName);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
-            setParamsForList(query, ps, filter, offset, size);
+            setParamsForList(query, ps, filter, offset, size, sourceQueryName, sourceQueryParams);
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
                     while(rs.next()) {
@@ -393,11 +438,22 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
+    @Override
     public long count(Connection connection, NsiQuery query, BoolExp filter) {
-        String sql = sqlGen.getCountSql(query, filter);
+        return count(connection, query, filter, null, null);
+    }
+
+    @Override
+    public long count(Connection connection, NsiQuery query, BoolExp filter,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
+        String sql = sqlGen.getCountSql(query, filter, sourceQueryName);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
-            setParamsForFilter(query, ps, 1, filter);
+            int index = 1;
+            if(sourceQueryParams != null) {
+                index = setParamsForSourceQuery(query, ps, index, sourceQueryName, sourceQueryParams);
+            }
+            setParamsForFilter(query, ps, index, filter);
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
                     if(rs.next()) {
@@ -414,7 +470,10 @@ public class DefaultSqlDao implements SqlDao {
         }
     }
 
+
     public DictRow insert(Connection connection, NsiQuery query, DictRow data) {
+        checkDictHasIdAttr(query);
+
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
         DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
         String sql = sqlGen.getRowInsertSql(query, idAttrValue != null
@@ -449,6 +508,8 @@ public class DefaultSqlDao implements SqlDao {
 
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
+        checkDictHasIdAttr(query);
+
         String sql = sqlGen.getRowUpdateSql(query);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
@@ -473,6 +534,8 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
             boolean insert) {
+        checkDictHasIdAttr(query);
+
         DictRow result = null;
         if(insert) {
             result = insert(connection, query, data);
