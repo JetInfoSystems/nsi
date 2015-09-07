@@ -1,0 +1,19 @@
+attrs:
+- caption: f 1
+  fields: [f1]
+  hidden: false
+  name: f1
+  type: value
+- caption: cnt
+  fields: [cnt]
+  hidden: false
+  name: cnt
+  type: value
+fields:
+- {name: f1, size: 100, type: varchar}
+- {name: cnt, size: 19, type: number}
+hidden: true
+name: dict1_view
+sourceQueries:
+  QUERY1:
+    sql: select f1, 1 as cnt from table1 where f1 <> ?

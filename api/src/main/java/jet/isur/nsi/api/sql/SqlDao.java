@@ -4,11 +4,11 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 
-import jet.isur.nsi.api.data.NsiParamValue;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 
 public interface SqlDao {
@@ -37,7 +37,8 @@ public interface SqlDao {
             BoolExp filter, List<SortExp> sortList, long offset, int size);
 
     public List<DictRow> list(Connection connection, NsiQuery query,
-            BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQuery, Collection<NsiParamValue> params);
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams);
 
     /**
      * Получить количество записей справочника, удовлетворяющих критерию,
@@ -49,7 +50,8 @@ public interface SqlDao {
      */
     public long count(Connection connection, NsiQuery query, BoolExp filter);
 
-    public long count(Connection connection, NsiQuery query, BoolExp filter, String sourceQuery, Collection<NsiParamValue> params);
+    public long count(Connection connection, NsiQuery query, BoolExp filter,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams);
 
     /**
      * Вставить запись, ref атрибуты для ссылосных атрибутов не получаются

@@ -1,14 +1,22 @@
-package jet.isur.nsi.api.data;
+package jet.isur.nsi.api.model;
 
 import java.io.Serializable;
 
-import jet.isur.nsi.api.model.MetaFieldType;
-
-public class NsiParamValue implements Serializable {
+public class MetaParamValue implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private MetaFieldType type;
+    private MetaFieldType type = MetaFieldType.VARCHAR;
     private String value;
+
+    public MetaParamValue() {
+
+    }
+
+    public MetaParamValue(MetaFieldType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
     public MetaFieldType getType() {
         return type;
     }

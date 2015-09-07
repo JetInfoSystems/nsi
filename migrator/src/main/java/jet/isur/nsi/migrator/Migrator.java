@@ -177,10 +177,13 @@ public class Migrator {
         NsiDictToHbmEntitySerializer serializer = new NsiDictToHbmEntitySerializer();
 
         for ( NsiConfigDict dict : config.getDicts()) {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            serializer.marshalTo(dict, os);
-            ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-            metadataSources.addInputStream(is);
+            // только те сущности для которых задана таблица
+            if(dict.getTable() != null) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                serializer.marshalTo(dict, os);
+                ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+                metadataSources.addInputStream(is);
+            }
         }
 
         MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();

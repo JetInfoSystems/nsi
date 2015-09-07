@@ -16,9 +16,9 @@ public interface SqlGen {
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size);
 
-    public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQuery);
+    public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQueryName);
 
     public String getCountSql(NsiQuery query, BoolExp filter);
 
-    public String getCountSql(NsiQuery query, BoolExp filter, String sourceQuery);
+    public String getCountSql(NsiQuery query, BoolExp filter, String sourceQueryName);
 }

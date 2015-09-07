@@ -65,7 +65,10 @@ public class NsiConfigImpl implements NsiConfig {
         }
 
         // обрабатываем служебные атрибуты
-        dict.setIdAttr(checkAttrExists(dict, metaDict.getIdAttr()));
+        if(metaDict.getIdAttr() != null) {
+            dict.setIdAttr(checkAttrExists(dict, metaDict.getIdAttr()));
+            dict.getIdAttr().setReadonly(true);
+        }
         if(metaDict.getIsGroupAttr()!=null) {
             dict.setIsGroupAttr(checkAttrExists(dict,metaDict.getIsGroupAttr()));
         }
@@ -91,12 +94,6 @@ public class NsiConfigImpl implements NsiConfig {
             dict.getDeleteMarkAttr().setReadonly(true);
         }
 
-        // проверяем, что id атрибут задан
-        if(dict.getIdAttr()==null) {
-            throwDictException(dict, "empty idAttr");
-        }
-        dict.getIdAttr().setReadonly(true);
-
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
@@ -114,14 +111,15 @@ public class NsiConfigImpl implements NsiConfig {
 
     private List<NsiConfigAttr> createFieldList(NsiConfigDict dict, List<String> attrNames) {
         List<NsiConfigAttr> result = new ArrayList<>();
-        Set<String> attrNameSet = new TreeSet<>(attrNames);
-        if(attrNameSet.size() != attrNames.size()) {
-            throwDictException(dict, "attr names dubbed", attrNames.toString());
+        if(attrNames != null) {
+            Set<String> attrNameSet = new TreeSet<>(attrNames);
+            if(attrNameSet.size() != attrNames.size()) {
+                throwDictException(dict, "attr names dubbed", attrNames.toString());
+            }
+            for (String attrName : attrNames) {
+                result.add(checkAttrExists(dict, attrName));
+            }
         }
-        for (String attrName : attrNames) {
-            result.add(checkAttrExists(dict, attrName));
-        }
-
         return result;
     }
 
@@ -301,6 +299,10 @@ public class NsiConfigImpl implements NsiConfig {
         }
 
         NsiConfigAttr idAttr = idDict.getIdAttr();
+        // проверяем что сущность на которую ссылается атрибут имеет ид атрибут
+        if(idAttr == null) {
+            throwDictException(dict, "ref dict must have id attr", idDict.getName());
+        }
 
         if(refAttr.getFields().size() != idAttr.getFields().size()) {
             throwDictException(dict, "ref attr fields count not match id attr fields", refAttr.getName());

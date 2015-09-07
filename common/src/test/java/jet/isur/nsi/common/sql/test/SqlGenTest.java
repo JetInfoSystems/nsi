@@ -283,4 +283,26 @@ public class SqlGenTest extends BaseSqlTest {
                 + "and not((m.f1 > ? or m.f1 >= ?)))", sql);
     }
 
+    @Test
+    public void testCountFromSourceQuery() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+
+        String sql = sqlGen.getCountSql(query, null, "TEST1");
+        Assert.assertEquals(
+                "select count(*) from ( select f1 from table1 )  m", sql);
+
+    }
+
+    @Test
+    public void testListFromSourceQuery() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = new NsiQuery(config, dict).addAttr("f1");
+
+        String sql = sqlGen.getListSql(query, null, null, -1, -1, "TEST1");
+        Assert.assertEquals(
+                "select m.f1 from ( select f1 from table1 )  m", sql);
+
+    }
+
 }

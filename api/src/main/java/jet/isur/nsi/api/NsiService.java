@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.List;
 
 import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.api.data.NsiParamValue;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 
 public interface NsiService {
@@ -21,7 +21,8 @@ public interface NsiService {
     /**
      * Получить количество записей справочника соответствующих заданному условию
      */
-    long dictCount(String requestId, NsiQuery query, BoolExp filter, String sourceQuery, Collection<NsiParamValue> params);
+    long dictCount(String requestId, NsiQuery query, BoolExp filter,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams);
 
     /**
      * Получить страницу списка записей справочника соответствующих заданному условию
@@ -31,7 +32,8 @@ public interface NsiService {
     /**
      * Получить страницу списка записей справочника соответствующих заданному условию
      */
-    List<DictRow> dictList(String requestId, NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQuery, Collection<NsiParamValue> params );
+    List<DictRow> dictList(String requestId, NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams );
 
     /**
      * Получить полное состояние строки справочника, со всеми атрибутами

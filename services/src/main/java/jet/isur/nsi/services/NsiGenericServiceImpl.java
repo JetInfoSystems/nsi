@@ -2,6 +2,7 @@ package jet.isur.nsi.services;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -15,6 +16,7 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.scdp.metrics.api.Metrics;
@@ -57,6 +59,13 @@ public class NsiGenericServiceImpl implements NsiGenericService {
 
     @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter, SqlDao sqlDao) {
+        return dictCount(requestId, query, filter, sqlDao, null, null);
+    }
+
+    @Override
+    public long dictCount(String requestId, NsiQuery query, BoolExp filter,
+            SqlDao sqlDao, String sourceQueryName,
+            Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictCountTimer.time();
         try {
             long count;
@@ -78,6 +87,14 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public List<DictRow> dictList(String requestId, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size, SqlDao sqlDao) {
+        return dictList(requestId, query, filter, sortList, offset, size, sqlDao, null, null);
+    }
+
+    @Override
+    public List<DictRow> dictList(String requestId, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            SqlDao sqlDao, String sourceQueryName,
+            Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictListTimer.time();
         try {
             List<DictRow> data;
