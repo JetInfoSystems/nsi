@@ -250,14 +250,6 @@ public class NsiConfigImpl implements NsiConfig {
             if(dict.getLastUserAttr() != null) {
                 List<NsiConfigAttr> tmp = new ArrayList<>(dict.getTableObjectAttrs());
                 tmp.remove(dict.getLastUserAttr());
-                Collections.sort(tmp, new Comparator<NsiConfigAttr>() {
-
-                    @Override
-                    public int compare(NsiConfigAttr o1, NsiConfigAttr o2) {
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                });
-
                 dict.setTableObjectAttrs(tmp);
                 dict.getLastUserAttr().setHidden(true);
             }
