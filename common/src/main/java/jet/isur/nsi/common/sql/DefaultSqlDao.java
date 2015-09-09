@@ -154,7 +154,7 @@ public class DefaultSqlDao implements SqlDao {
         return value == null ? null : CharMatcher.WHITESPACE.trimTrailingFrom(value);
     }
 
-    public void setParamsForInsert(NsiQuery query, DictRow data,
+    public int setParamsForInsert(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
         //if(dataAttrMap.size() != query.getAttrs().size()) {
@@ -191,9 +191,10 @@ public class DefaultSqlDao implements SqlDao {
                 i++;
             }
         }
+        return index;
     }
 
-    public void setParamsForUpdate(NsiQuery query, DictRow data,
+    public int setParamsForUpdate(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
@@ -235,6 +236,7 @@ public class DefaultSqlDao implements SqlDao {
             index++;
             i++;
         }
+        return index;
     }
 
     public int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size) throws SQLException {
@@ -322,7 +324,9 @@ public class DefaultSqlDao implements SqlDao {
         String sql = sqlGen.getRowGetSql(query);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
-            setParamsForGetWhere(query, ps, id);
+            int paramCount = setParamsForGetWhere(query, ps, id) - 1;
+            log.info("params: {}", paramCount);
+
             try(ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
                     rsToDictRow(query, rs, result);
@@ -420,7 +424,8 @@ public class DefaultSqlDao implements SqlDao {
         String sql = sqlGen.getListSql(query, filter, sortList, offset, size, sourceQueryName);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
-            setParamsForList(query, ps, filter, offset, size, sourceQueryName, sourceQueryParams);
+            int paramCount = setParamsForList(query, ps, filter, offset, size, sourceQueryName, sourceQueryParams) - 1;
+            log.info("params: {}", paramCount);
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
                     while(rs.next()) {
@@ -453,7 +458,9 @@ public class DefaultSqlDao implements SqlDao {
             if(sourceQueryParams != null) {
                 index = setParamsForSourceQuery(query, ps, index, sourceQueryName, sourceQueryParams);
             }
-            setParamsForFilter(query, ps, index, filter);
+            int paramCount = setParamsForFilter(query, ps, index, filter) - 1;
+            log.info("params: {}", paramCount);
+
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
                     if(rs.next()) {
@@ -483,7 +490,9 @@ public class DefaultSqlDao implements SqlDao {
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql,
                 new String[] {query.getDict().getIdAttr().getFields().get(0).getName()})) {
-            setParamsForInsert(query, data, ps);
+            int paramCount = setParamsForInsert(query, data, ps) - 1;
+            log.info("params: {}", paramCount);
+
             ps.execute();
             try(ResultSet rs = ps.getGeneratedKeys()) {
                 if(rs.next()) {
@@ -518,7 +527,9 @@ public class DefaultSqlDao implements SqlDao {
                         .get(query.getDict().getIdAttr().getName()));
                 updateRowData(row, data);
             }
-            setParamsForUpdate(query, data, ps);
+            int paramCount = setParamsForUpdate(query, data, ps) - 1;
+            log.info("params: {}", paramCount);
+
             int count = ps.executeUpdate();
             if(count == 0) {
                 throw new NsiDataException("row not updated");
