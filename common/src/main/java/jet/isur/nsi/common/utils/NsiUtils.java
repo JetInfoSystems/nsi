@@ -67,11 +67,7 @@ public class NsiUtils {
     public static DictRowAttr clone(DictRowAttr attr) {
         DictRowAttr clone = new DictRowAttr();
         if(attr.getValues() != null) {
-            List<String> values = new LinkedList<>();
-            for (String value : attr.getValues()) {
-                values.add(value);
-            }
-            clone.setValues(values);
+            clone.setValues(new LinkedList<>(attr.getValues()));
         }
         if(attr.getRefAttrs() != null) {
             Map<String, DictRowAttr> refAttrs = new HashMap<>();
@@ -85,11 +81,7 @@ public class NsiUtils {
 
     public static DictRowAttr createRowAttr(String... values) {
         DictRowAttr attr = new DictRowAttr();
-        setAttrValues(attr, values);
+        attr.setValues(Arrays.asList(values));
         return attr;
-    }
-
-    public static void setAttrValues(DictRowAttr attr, String... values) {
-        attr.setValues(new LinkedList<>(Arrays.asList(values)));
     }
 }
