@@ -4,6 +4,10 @@ public class NsiServiceException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
+    public NsiServiceException(String message) {
+        super(message);
+    }
+
     public NsiServiceException(String message, Object... args) {
         super(String.format(message, args));
     }
