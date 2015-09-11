@@ -20,7 +20,6 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;
-import jet.isur.nsi.generator.dictdata.DictData;
 import jet.isur.nsi.generator.dictdata.DictDataContent;
 import jet.isur.nsi.generator.dictdata.DictDataObject;
 
@@ -230,7 +229,7 @@ public class Generator {
             
             if (attrConfig.getType() == MetaAttrType.REF) {
                 // Only PARENT ref could be skipped 
-                // if(!attrConfig.getRefDictName().equals(ddObj.getDictName())) {
+                // if(!attrConfig.getRefDictName().equals(ddObj.getDictName())) 
                 log.debug("parent ref skipped, will be filled later ['{}']", ddObj.getDictName());
                 Long id = null;
                 drb.attr(attrName, id);
