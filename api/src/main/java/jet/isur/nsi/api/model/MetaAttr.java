@@ -43,6 +43,11 @@ public class MetaAttr implements Serializable {
      */
     private Boolean readonly;
 
+	/**
+	 * Атрибут можно задать при создании но в дальнейшем менять его нельзя
+	 */
+	private Boolean createOnly;
+
     /**
      * Атрибут является требуемым.
      * Если атрибут требуемый, и является ссылкой то для него будут формироваться join условие
@@ -106,4 +111,11 @@ public class MetaAttr implements Serializable {
         this.readonly = readonly;
     }
 
+	public Boolean getCreateOnly() {
+		return createOnly;
+	}
+
+	public void setCreateOnly(Boolean createOnly) {
+		this.createOnly = createOnly;
+	}
 }
