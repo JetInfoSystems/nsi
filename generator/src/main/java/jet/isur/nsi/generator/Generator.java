@@ -20,7 +20,6 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;
-import jet.isur.nsi.generator.dictdata.DictData;
 import jet.isur.nsi.generator.dictdata.DictDataContent;
 import jet.isur.nsi.generator.dictdata.DictDataObject;
 
@@ -38,7 +37,7 @@ public class Generator {
      * конфигурация с метаданными
      */
     private final NsiConfig config;
-    
+
     private final DictDataContent dictdataContent;
     /**
      * appender - добавляет данные непосредственно в базу
@@ -81,7 +80,7 @@ public class Generator {
     public Map<NsiConfigDict,List<Long>> appendData() {
         DictDependencyGraph dictGraph = getGraph();
         List<NsiConfigDict> dictList = dictGraph.sort();
-        
+
         log.info("Generated Graph ['{}']", getDictListAsString(dictList));
         for (NsiConfigDict dict : dictList) {
             if (dict.getName().startsWith("FIAS")) {
@@ -115,18 +114,18 @@ public class Generator {
      * @param count количество записей
      */
     private void addData(NsiConfigDict dict, int count){
-        
+
         log.info("addData start for ['{}']", dict.getName());
-        
+
         List<DictRow> curDataList = appender.getData(dict);
-        
+
         NsiQuery query = new NsiQuery(config, dict).addAttrs();
 
         DictDataObject ddObj = dictdataContent.getDictdataObjsMap().get(dict.getName());
         if (ddObj != null) {
             curDataList.addAll(reloadDictData(query, dict, ddObj, curDataList));
         } else {
-            
+
             if(curDataList.size() < count) {
                 List<DictRow> newDataList = new ArrayList<>(count);
                 for (int i=curDataList.size(); i < count; i++) {
@@ -147,38 +146,38 @@ public class Generator {
         }
         dictsIds.put(dict, ids);
     }
-    
+
     private List<DictRow> reloadDictData(NsiQuery query, NsiConfigDict dict, DictDataObject ddObj, List<DictRow> curDataList) {
         List<DictRow> updateDataList = new ArrayList<>();
         Set<Integer> mergedIdxs = updateEqualByRefAttrs(query, dict, ddObj, curDataList, updateDataList);
-        
+
         List<DictRow> newDataList = new ArrayList<>();
         for(int i = 0; i < ddObj.getRowCount(); i ++) {
             if(mergedIdxs.contains(i)) { //Merged not need to add
                 continue;
             }
-            
+
             DictRow newRow = genDictdataContentRow(query, ddObj, i, null);
             if (newRow != null) {
                 newDataList.add(newRow);
             }
         }
-        
+
 //        // TODO: add fill parents
 //        Collection<DictRow> allData = new ArrayList<>(updateDataList);
 //        allData.addAll(newDataList);
-//        
-        
+//
+
         appender.updateData(dict, updateDataList);
         appender.addData(dict, newDataList);
-        
+
         updateDataList.addAll(newDataList);
         return updateDataList;
     }
-    
+
     private Set<Integer> updateEqualByRefAttrs(NsiQuery query, NsiConfigDict dict, DictDataObject ddObj, List<DictRow> curDataList, List<DictRow> updateDataList) {
         Map<String, Collection<String>> ddFields = ddObj.getFields();
-        
+
         List<NsiConfigAttr> refDictAttrs = dict.getRefObjectAttrs();
         List<String> refDictAttrNames = new ArrayList<>();
         for (NsiConfigAttr refDictAttr : refDictAttrs) {
@@ -186,7 +185,7 @@ public class Generator {
         }
         Set<String> ks = new HashSet<>(ddFields.keySet());
         ks.retainAll(refDictAttrNames);
-        
+
         Set<Integer> mergedIndexes = new HashSet<>();
         for (DictRow cdr : curDataList) {
             Map<String, Integer> eqValueIdxs = new HashMap<>();
@@ -227,9 +226,9 @@ public class Generator {
         for(NsiQueryAttr attr:query.getAttrs()) {
             NsiConfigAttr attrConfig = attr.getAttr();
             String attrName = attrConfig.getName();
-            
+
             if (attrConfig.getType() == MetaAttrType.REF) {
-                // Only PARENT ref could be skipped 
+                // Only PARENT ref could be skipped
                 // if(!attrConfig.getRefDictName().equals(ddObj.getDictName())) {
                 log.debug("parent ref skipped, will be filled later ['{}']", ddObj.getDictName());
                 Long id = null;
@@ -242,7 +241,7 @@ public class Generator {
                 values.addAll(ddFields.get(attrName));
                 value = values.get(idx);
             }
-            
+
             List<NsiConfigField> fields = attr.getAttr().getFields();
             NsiConfigField field = fields.get(0);
             MetaFieldType type = field.getType();
@@ -304,7 +303,7 @@ public class Generator {
                     } else if (old != null) {
                         drb.attr(attrName, old.getAttrs().get(attrName).getValues().get(0));
                     } else {
-                        
+
                         String fieldName = query.getDict().getName()+"."+field.getName();
                         String val = StaticContent.getString(fieldName, idx);
                         if (val == null) {
@@ -328,11 +327,11 @@ public class Generator {
             .lastChangeAttr(new DateTime().withMillisOfSecond(0));
         return drb.build();
     }
-    
+
     private void addParents(NsiQuery query, NsiConfigDict dict, DictDataObject ddObj, List<DictRow> updateList, List<DictRow> newList){
         Collection<String> ddParentNames = ddObj.getFields().get("parent");
-        
-        
+
+
     }
 
     /**
