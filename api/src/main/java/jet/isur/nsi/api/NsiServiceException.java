@@ -11,6 +11,11 @@ public class NsiServiceException extends RuntimeException {
 		setError(NsiError.INTERNAL_ERROR);
 	}
 
+    public NsiServiceException(String message) {
+        super(message);
+		setError(NsiError.INTERNAL_ERROR);
+    }
+
 	public NsiServiceException(Throwable th, String message, Object... args) {
 		super(String.format(message, args), th);
 		setError(NsiError.INTERNAL_ERROR);
