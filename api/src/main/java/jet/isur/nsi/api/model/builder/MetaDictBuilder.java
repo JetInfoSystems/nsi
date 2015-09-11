@@ -35,6 +35,8 @@ public interface MetaDictBuilder {
 
         MetaAttrBuilder hidden(Boolean value);
 
+		MetaAttrBuilder createOnly(Boolean value);
+
         MetaDictBuilder add();
     }
 

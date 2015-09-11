@@ -48,6 +48,7 @@ public class DataGen {
             .type(MetaAttrType.VALUE)
             .caption("id")
             .hidden(false)
+            .createOnly(true)
             .name("id")
         .add()
         .attr()

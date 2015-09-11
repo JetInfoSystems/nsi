@@ -122,7 +122,14 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             getPrototype().setHidden(value);
             return this;
         }
-    }
+
+		@Override
+		public MetaAttrBuilder createOnly(Boolean value) {
+			getPrototype().setCreateOnly(value);
+			return this;
+		}
+
+	}
 
     private MetaDict prototype;
 

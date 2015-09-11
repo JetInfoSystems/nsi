@@ -9,6 +9,7 @@ attrs:
   hidden: false
   name: id
   type: value
+  createOnly : true
 - caption: is_deleted
   fields: [is_deleted]
   hidden: false
