@@ -2,6 +2,7 @@ package jet.isur.nsi.services;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -15,6 +16,7 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.scdp.metrics.api.Metrics;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
+import com.google.common.base.Preconditions;
 
 @MetricsDomain(name = "genericNsiService")
 public class NsiGenericServiceImpl implements NsiGenericService {
@@ -57,11 +60,20 @@ public class NsiGenericServiceImpl implements NsiGenericService {
 
     @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter, SqlDao sqlDao) {
+        return dictCount(requestId, query, filter, sqlDao, null, null);
+    }
+
+    @Override
+    public long dictCount(String requestId, NsiQuery query, BoolExp filter,
+            SqlDao sqlDao, String sourceQueryName,
+            Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictCountTimer.time();
         try {
             long count;
+            checkSourceQuery(query, sourceQueryName);
+
             try (Connection connection = dataSource.getConnection()) {
-                count = sqlDao.count(connection, query, filter);
+                count = sqlDao.count(connection, query, filter, sourceQueryName, sourceQueryParams);
             }
             log.info("dictCount [{},{}] -> ok [{}]", requestId, query.getDict()
                     .getName(), count);
@@ -78,12 +90,22 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public List<DictRow> dictList(String requestId, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size, SqlDao sqlDao) {
+        return dictList(requestId, query, filter, sortList, offset, size, sqlDao, null, null);
+    }
+
+    @Override
+    public List<DictRow> dictList(String requestId, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            SqlDao sqlDao, String sourceQueryName,
+            Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictListTimer.time();
         try {
             List<DictRow> data;
+            checkSourceQuery(query, sourceQueryName);
+
             try (Connection connection = dataSource.getConnection()) {
                 data = sqlDao.list(connection, query, filter, sortList, offset,
-                        size);
+                        size, sourceQueryName, sourceQueryParams);
             }
             log.info("dictList [{},{}] -> ok [{}]", requestId, query.getDict()
                     .getName(), data.size());
@@ -94,6 +116,15 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
+        }
+    }
+
+    private void checkSourceQuery(NsiQuery query, String sourceQueryName) {
+        NsiConfigDict dict = query.getDict();
+        if(sourceQueryName != null) {
+            Preconditions.checkNotNull(dict.getSourceQuery(sourceQueryName),"dict %s source query %s not exists",dict.getName(), sourceQueryName);
+        } else {
+            Preconditions.checkNotNull(dict.getTable(),"dict %s has not table, source query must set",dict.getName());
         }
     }
 

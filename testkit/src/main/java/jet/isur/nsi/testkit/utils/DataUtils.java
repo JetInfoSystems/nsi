@@ -78,6 +78,7 @@ public class DataUtils {
         Assert.assertEquals(o1.getValueType(), o2.getValueType());
         Assert.assertEquals(o1.getFields(), o2.getFields());
         Assert.assertEquals(o1.getHidden(), o2.getHidden());
+		Assert.assertEquals(o1.getCreateOnly(), o2.getCreateOnly());
     }
 
     public static void assertEquals(MetaField o1, MetaField o2) {

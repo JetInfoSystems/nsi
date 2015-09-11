@@ -1,5 +1,6 @@
 package jet.isur.nsi.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import jet.isur.nsi.api.data.NsiConfigDict;
@@ -7,6 +8,7 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 
@@ -18,10 +20,21 @@ public interface NsiGenericService {
     long dictCount(String requestId, NsiQuery query, BoolExp filter, SqlDao sqlDao);
 
     /**
+     * Получить количество записей справочника соответствующих заданному условию
+     */
+    long dictCount(String requestId, NsiQuery query, BoolExp filter, SqlDao sqlDao,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams);
+
+    /**
      * Получить страницу списка записей справочника соответствующих заданному условию
      */
     List<DictRow> dictList(String requestId, NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, SqlDao sqlDao );
 
+    /**
+     * Получить страницу списка записей справочника соответствующих заданному условию
+     */
+    List<DictRow> dictList(String requestId, NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, SqlDao sqlDao,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams );
     /**
      * Получить полное состояние строки справочника, со всеми атрибутами
      */

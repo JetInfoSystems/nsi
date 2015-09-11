@@ -1,5 +1,6 @@
 package jet.isur.nsi.services;
 
+import java.util.Collection;
 import java.util.List;
 
 import jet.isur.nsi.api.NsiGenericService;
@@ -9,6 +10,7 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.scdp.metrics.api.Metrics;
@@ -44,9 +46,15 @@ public class NsiServiceImpl implements NsiService {
 
     @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter) {
+        return dictCount(requestId, query, filter, null, null);
+    }
+
+    @Override
+    public long dictCount(String requestId, NsiQuery query, BoolExp filter,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictCountTimer.time();
         try {
-            return nsiGenericService.dictCount(requestId, query, filter, sqlDao);
+            return nsiGenericService.dictCount(requestId, query, filter, sqlDao, sourceQueryName, sourceQueryParams);
         } finally {
             t.stop();
         }
@@ -55,13 +63,21 @@ public class NsiServiceImpl implements NsiService {
     @Override
     public List<DictRow> dictList(String requestId, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size) {
+        return dictList(requestId, query, filter, sortList, offset, size, null, null);
+    }
+
+    @Override
+    public List<DictRow> dictList(String requestId, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictListTimer.time();
         try {
-            return nsiGenericService.dictList(requestId, query, filter, sortList, offset, size, sqlDao);
+            return nsiGenericService.dictList(requestId, query, filter, sortList, offset, size, sqlDao, sourceQueryName, sourceQueryParams);
         } finally {
             t.stop();
         }
     }
+
 
     @Override
     public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id) {

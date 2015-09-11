@@ -6,10 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
+
+import com.google.common.base.Preconditions;
 
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
+import jet.isur.nsi.api.model.MetaSourceQuery;
 
 public class NsiConfigDict {
 
@@ -34,10 +38,16 @@ public class NsiConfigDict {
         caption = metaDict.getCaption();
         table = metaDict.getTable();
         hidden = metaDict.getHidden() == Boolean.TRUE ;
+        if(metaDict.getSourceQueries() != null) {
+            for ( Entry<String, MetaSourceQuery> q : metaDict.getSourceQueries().entrySet()) {
+                sourceQueries.put(q.getKey(), new NsiConfigSourceQuery(q.getValue()));
+            }
+        }
     }
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
     private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
+    private Map<String, NsiConfigSourceQuery> sourceQueries = new TreeMap<>();
 
     public Map<String, NsiConfigAttr> getAttrNameMap() {
         return attrNameMap;
@@ -206,4 +216,9 @@ public class NsiConfigDict {
         this.tableObjectAttrs = tableObjectAttrs;
     }
 
+    public NsiConfigSourceQuery getSourceQuery(String name) {
+        NsiConfigSourceQuery result = sourceQueries.get(name);
+        Preconditions.checkNotNull(result, "dict %s source query %s not exists", getName(), name);
+        return result;
+    }
 }
