@@ -229,7 +229,7 @@ public class Generator {
 
             if (attrConfig.getType() == MetaAttrType.REF) {
                 // Only PARENT ref could be skipped
-                // if(!attrConfig.getRefDictName().equals(ddObj.getDictName())) {
+                // if(!attrConfig.getRefDictName().equals(ddObj.getDictName()))
                 log.debug("parent ref skipped, will be filled later ['{}']", ddObj.getDictName());
                 Long id = null;
                 drb.attr(attrName, id);
