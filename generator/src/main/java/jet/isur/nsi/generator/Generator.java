@@ -33,6 +33,9 @@ public class Generator {
 
     private static final Logger log = LoggerFactory.getLogger(Generator.class);
 
+    public static final String CMD_CLEAN_DATA = "cleanData";
+    public static final String CMD_APPEND_DATA = "appendData";
+
     /**
      * конфигурация с метаданными
      */

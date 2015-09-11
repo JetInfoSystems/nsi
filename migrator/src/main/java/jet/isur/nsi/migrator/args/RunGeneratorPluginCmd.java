@@ -3,7 +3,7 @@ package jet.isur.nsi.migrator.args;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(separators = "=", commandDescription="Запустить генератор")
+@Parameters(separators = "=", commandDescription="Запустить плагин генератора")
 public class RunGeneratorPluginCmd {
     @Parameter(names = "-pluginClass", description="Класс плагина", required = true)
     private String pluginClass;
