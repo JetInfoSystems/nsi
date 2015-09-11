@@ -20,6 +20,7 @@ import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;
+import jet.isur.nsi.generator.dictdata.DictData;
 import jet.isur.nsi.generator.dictdata.DictDataContent;
 import jet.isur.nsi.generator.dictdata.DictDataObject;
 
@@ -163,7 +164,10 @@ public class Generator {
             }
         }
         
-        // TODO: add fill parents
+//        // TODO: add fill parents
+//        Collection<DictRow> allData = new ArrayList<>(updateDataList);
+//        allData.addAll(newDataList);
+//        
         
         appender.updateData(dict, updateDataList);
         appender.addData(dict, newDataList);
@@ -201,11 +205,11 @@ public class Generator {
                 DictRow toUdate = genDictdataContentRow(query, ddObj, idx, cdr);
                 if ( toUdate != null) {
                     updateDataList.add(toUdate);
-                    curDataList.remove(cdr);
                     mergedIndexes.add(idx);
                 }
             }
         }
+        curDataList.removeAll(updateDataList);
         return mergedIndexes;
     }
 
@@ -224,7 +228,9 @@ public class Generator {
             NsiConfigAttr attrConfig = attr.getAttr();
             String attrName = attrConfig.getName();
             
-            if (attrConfig.getType() == MetaAttrType.REF) { //PARENT
+            if (attrConfig.getType() == MetaAttrType.REF) {
+                // Only PARENT ref could be skipped 
+                // if(!attrConfig.getRefDictName().equals(ddObj.getDictName())) {
                 log.debug("parent ref skipped, will be filled later ['{}']", ddObj.getDictName());
                 Long id = null;
                 drb.attr(attrName, id);
@@ -236,7 +242,6 @@ public class Generator {
                 values.addAll(ddFields.get(attrName));
                 value = values.get(idx);
             }
-            
             
             List<NsiConfigField> fields = attr.getAttr().getFields();
             NsiConfigField field = fields.get(0);
