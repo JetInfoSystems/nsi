@@ -9,6 +9,8 @@ import java.util.*;
 public class NsiUtils {
 
     public static final String IS_DELETED_ATTR = "IS_DELETED";
+    public static final String LAST_CHANGE_ATTR = "LAST_CHANGE";
+    public static final String LAST_USER_ATTR = "LAST_USER";
     public static final String NSI_YES = "Y";
     public static final String NSI_NO = "N";
 
@@ -77,11 +79,5 @@ public class NsiUtils {
             clone.setRefAttrs(refAttrs);
         }
         return clone;
-    }
-
-    public static DictRowAttr createRowAttr(String... values) {
-        DictRowAttr attr = new DictRowAttr();
-        attr.setValues(Arrays.asList(values));
-        return attr;
     }
 }
