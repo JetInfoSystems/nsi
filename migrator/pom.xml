@@ -3,7 +3,7 @@
     <parent>
         <groupId>jet.isur.nsi</groupId>
         <artifactId>parent</artifactId>
-        <version>1.5.3-SNAPSHOT</version>
+        <version>1.6.0-SNAPSHOT</version>
     </parent>
     <artifactId>nsi-migrator</artifactId>
     <packaging>jar</packaging>
