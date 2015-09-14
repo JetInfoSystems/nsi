@@ -10,6 +10,7 @@ attrs:
   name: id
   type: value
   createOnly : true
+  required: true
 - caption: is_deleted
   fields: [is_deleted]
   hidden: false

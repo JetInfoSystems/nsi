@@ -79,6 +79,8 @@ public class DictSerializer {
         MetaAttr result = new MetaAttr();
         result.setCaption(attr.getCaption());
         result.setHidden(attr.getHidden());
+		result.setRequired(attr.isRequired());
+		result.setCreateOnly(attr.getCreateOnly());
         result.setName(attr.getName());
         if(attr.getRefDict()!=null) {
             result.setRefDict(attr.getRefDict().getName());
