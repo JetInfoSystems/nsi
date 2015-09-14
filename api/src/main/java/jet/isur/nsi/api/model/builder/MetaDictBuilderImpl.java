@@ -129,6 +129,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
 			return this;
 		}
 
+		@Override
+		public MetaAttrBuilder required(Boolean value) {
+			getPrototype().setRequired(value);
+			return this;
+		}
+
 	}
 
     private MetaDict prototype;
