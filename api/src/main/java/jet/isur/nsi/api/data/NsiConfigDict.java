@@ -1,13 +1,7 @@
 package jet.isur.nsi.api.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import com.google.common.base.Preconditions;
 
@@ -32,6 +26,7 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
+    private List<String> constraints = new ArrayList<>();
 
     public NsiConfigDict(MetaDict metaDict) {
         name = metaDict.getName();
@@ -214,6 +209,14 @@ public class NsiConfigDict {
 
     public void setTableObjectAttrs(List<NsiConfigAttr> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
+    }
+
+    public List<String> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(List<String> constraints) {
+        this.constraints = constraints;
     }
 
     public NsiConfigSourceQuery getSourceQuery(String name) {

@@ -71,6 +71,10 @@ public class MetaDict extends MetaDictRef {
      * Список наименований атрибутов кторые используются для табличного представления записи.
      */
     private List<String> tableObjectAttrs;
+    /**
+     * Список констрейнтов, которые должны проверяться при создании, сохранении или удалении записи
+     */
+    private List<String> constraints;
 
     private Boolean hidden;
 
@@ -153,6 +157,12 @@ public class MetaDict extends MetaDictRef {
     }
     public void setTableObjectAttrs(List<String> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
+    }
+    public List<String> getConstraints() {
+        return constraints;
+    }
+    public void setConstraints(List<String> constraints) {
+        this.constraints = constraints;
     }
     public String getName() {
         return name;
