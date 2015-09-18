@@ -45,7 +45,7 @@ public class NsiServiceException extends RuntimeException {
 
 	@Override
 	public String toString() {
-		return "NsiProtectedException [error=" + error + ", message="
+		return "NsiServiceException [error=" + error + ", message="
 		        + getMessage() + ", requestId=" + requestId + "]";
 	}
 

@@ -50,6 +50,7 @@ public class DataGen {
             .hidden(false)
             .createOnly(true)
             .name("id")
+.required(true)
         .add()
         .attr()
             .addField("is_deleted")

@@ -29,9 +29,10 @@ public class StaticContent {
 
         values = new String[] {"Александр", "Алексей", "Иван", "Петр", "Сергей", "Николай"};
         fields.put("EMP.FIRST_NAME", values);
+		values = new String[] { "Александров", "Алексеев", "Иванов", "Петров",
+		        "Сергеев", "Николаев" };
+		fields.put("EMP.SECONDARY_NAME", values);
         values = new String[] {"Александрович", "Алексеевич", "Иванович", "Петрович", "Сергеевич", "Николаевич"};
-        fields.put("EMP.SECONDARY_NAME", values);
-        values = new String[] {"Александров", "Алексеев", "Иванов", "Петров", "Сергеев", "Николаев"};
         fields.put("EMP.MIDDLE_NAME", values);
 
         /*values = new String[]{
