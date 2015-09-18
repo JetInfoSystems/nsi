@@ -22,6 +22,7 @@ public class GeneratorParams {
     public static final String MAX = "max";
     public static final String METADATA_PATH = "metadataPath";
     public static final String DICTDATA_PATH = "dictdataPath";
+    public static final String PLUGINDATA_PATH = "plugindataPath";
 
 
     private final Properties properties;
@@ -63,5 +64,9 @@ public class GeneratorParams {
     
     public File getDictdataPath() {
         return new File(getProperty(DICTDATA_PATH, "./dictdata"));
+    }
+    
+    public File getPlugindataPath() {
+        return new File(getProperty(PLUGINDATA_PATH, "./gplugindata"));
     }
 }

@@ -1,4 +1,4 @@
-package jet.isur.nsi.generator.dictdata;
+package jet.isur.nsi.generator.data;
 
 
 
@@ -28,13 +28,9 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 
-public class JsonDictdataParser {
+public class JsonDataParser {
 
-    private static final Logger log = LoggerFactory.getLogger(JsonDictdataParser.class);
-
-    public enum DictdataObjectType {
-        simple,row;
-    }
+    private static final Logger log = LoggerFactory.getLogger(JsonDataParser.class);
     
     private final String TYPE = "type";
     private final String FIELDS = "fields";
@@ -42,23 +38,25 @@ public class JsonDictdataParser {
     private final String VALUES = "values";
     private final String SEPARATOR = "separator";
     private final String ENUM = "enum";
-    private final String PARENT = "parent";
-    private final String IDENT_BY = "identBy";
     private final String ROWSDATA = "rowsdata";
     
-    JsonParser parser = new JsonParser();
+    protected JsonParser parser = new JsonParser();
+    
+    protected final Gson gson;
+    
+    public JsonDataParser() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Collection.class, new CollectionDeserializer());
+        gson = builder.create();
+    }
 
-    public DictDataObject parse(File ddf) throws IOException {
+    public DataObject parse(File ddf, DataObject dataObject) throws IOException {
         String input;
         String filename;
         try (FileInputStream inputStream = new FileInputStream(ddf)) {
             input = IOUtils.toString(inputStream);
             filename = ddf.getCanonicalPath();
         }
-        
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Collection.class, new CollectionDeserializer());
-        Gson gson = builder.create();
         
         JsonObject mainObject = parser.parse(input).getAsJsonObject();
         if (mainObject == null || !mainObject.isJsonObject()) {
@@ -67,7 +65,7 @@ public class JsonDictdataParser {
         }
         log.debug("get main json obj -> ok ['{}'] ", mainObject);
         
-        String dictName = getJsonObjectKey(mainObject);
+        String dictName = getFirstJsonObjectKey(mainObject);
         log.info("get dict name -> ok ['{}'] ", dictName);
         
         JsonElement elem = mainObject.get(dictName);
@@ -82,10 +80,16 @@ public class JsonDictdataParser {
         }
         log.debug("get dict data obj ['{}'] -> ok ['{}']", dictName, obj);
         
-        return parseDictData(gson, obj, dictName);
+        dataObject.setDictName(dictName);
+        
+        dataObject.setObj(obj);
+        
+        return parseCommonData(dataObject);
     }
     
-    private DictDataObject parseDictData(Gson gson, JsonObject obj, String dictName) {
+    protected DataObject parseCommonData(DataObject dataObject) {
+        String dictName = dataObject.getDictName();
+        JsonObject obj = dataObject.getObj();
         JsonElement elem = obj.get(key(FIELDS,LIST));
         if (elem == null || elem.isJsonNull() || !elem.isJsonArray()) {
             log.error("fields list ['{}'] -> not fount or isn't array", dictName);
@@ -101,97 +105,92 @@ public class JsonDictdataParser {
             log.error("get type ['{}'] -> not found", dictName);
             return null;
         }
-        final String type = obj.get(TYPE).getAsString();
+        final String type = obj.get(TYPE).getAsString().trim().toLowerCase();
         log.info("get type -> ok ['{}','{}']", dictName, type);
 
-        DictDataObject dictdataObject = new DictDataObject();
-        dictdataObject.setDictName(dictName);
-        switch (DictdataObjectType.valueOf(type.trim().toLowerCase())) {
+        dataObject.setType(DataObject.DataObjectType.valueOf(type));
+        switch (dataObject.getType()) {
             case row :
-                return parseRowType(gson, obj, fields, dictdataObject);
+                return parseRowType(fields, dataObject);
             case simple :
             default :
-                return parseSimpleType(gson, obj, fields, dictdataObject);
+                return parseSimpleType(fields, dataObject);
         }
     }
     
-    private DictDataObject parseSimpleType(Gson gson, JsonObject obj, Collection<String> fields, DictDataObject dictdataObject) {
+    protected DataObject parseSimpleType(Collection<String> fields, DataObject dataObject) {
         int maxCount = 0;
+        JsonObject obj = dataObject.getObj();
         for ( String field : fields) {
             JsonElement elem = obj.get(field);
             if (elem == null || elem.isJsonNull()) {
-                log.error("Field element ['{}','{}'] -> not found ['{}']", field, dictdataObject.getDictName());
+                log.error("Field element ['{}','{}'] -> not found ['{}']", field, dataObject.getDictName());
                 return null;
             }
             JsonObject fieldObj = elem.getAsJsonObject();
             if (fieldObj == null || fieldObj.isJsonNull()) {
-                log.error("Field object ['{}','{}'] -> not found", field, dictdataObject.getDictName());
+                log.error("Field object ['{}','{}'] -> not found", field, dataObject.getDictName());
                 return null;
             }
             
             elem = fieldObj.get(key(VALUES, LIST));
             if (elem == null || elem.isJsonNull() || !elem.isJsonArray()) {
-                log.error("Field values ['{}','{}'] -> not found or isn't json array", field, dictdataObject.getDictName());
+                log.error("Field values ['{}','{}'] -> not found or isn't json array", field, dataObject.getDictName());
                 return null;
             }
             JsonArray valuesJsonArray = elem.getAsJsonArray();
             Collection<String> fieldValues = gson.fromJson(valuesJsonArray, ArrayList.class);
             
-            dictdataObject.getFields().put(field, fieldValues);
+            dataObject.getFields().put(field, fieldValues);
             
             int count = fieldValues.size();
             maxCount = count > maxCount ? count: maxCount;
         }
-        dictdataObject.setRowCount(maxCount);
-        log.info("parse dict data of Simple type ['{}'] -> ok", dictdataObject.getDictName());
-        return dictdataObject;
+        dataObject.setRowCount(maxCount);
+        log.info("parse dict data of Simple type ['{}'] -> ok", dataObject.getDictName());
+        return dataObject;
     }
     
-    private DictDataObject parseRowType(Gson gson, JsonObject obj, Collection<String> fields, DictDataObject dictdataObject) {
-        String parentFieldName = null;
-        JsonElement elem = obj.get(key(PARENT, IDENT_BY));
-        if (elem != null && !elem.isJsonNull() && elem.isJsonPrimitive() ) {
-            parentFieldName = elem.getAsString();
-        }
-        dictdataObject.setParentFieldName(parentFieldName);
+    protected DataObject parseRowType(Collection<String> fields, DataObject dataObject) {
+        JsonObject obj = dataObject.getObj();
         
         String fieldsSeparator = "|";
-        elem = obj.get(SEPARATOR);
+        JsonElement elem = obj.get(SEPARATOR);
         if (elem != null && !elem.isJsonNull() && elem.isJsonPrimitive() ) {
             fieldsSeparator = elem.getAsString();
         }
         
         elem = obj.get(ROWSDATA);
         if (elem == null || elem.isJsonNull() || !elem.isJsonArray()) {
-            log.error("Rows data['{}'] -> not found or isn't json array", dictdataObject.getDictName());
+            log.error("Rows data['{}'] -> not found or isn't json array", dataObject.getDictName());
             return null;
         }
         JsonArray valuesJsonArray = elem.getAsJsonArray();
         Collection<String> rowsList = gson.fromJson(valuesJsonArray, ArrayList.class);
 
-        return parseRows(dictdataObject, fields, rowsList, fieldsSeparator);
+        return parseRows(dataObject, fields, rowsList, fieldsSeparator);
     }
     
-    private DictDataObject parseRows(DictDataObject dictdataObject, Collection<String> fields, Collection<String> rowsList, String fieldsSeparator) {
-        dictdataObject.setRowCount(rowsList.size());
+    protected DataObject parseRows(DataObject dataObject, Collection<String> fields, Collection<String> rowsList, String fieldsSeparator) {
+        dataObject.setRowCount(rowsList.size());
         for (String row : rowsList) {
-            Collection<String> values = parseOneRow(dictdataObject.getDictName(), row, fieldsSeparator, fields.size());
+            Collection<String> values = parseOneRow(dataObject.getDictName(), row, fieldsSeparator, fields.size());
             Iterator<String> valIter = values.iterator();
             for (String field : fields) {
-                Collection <String> fieldValues = dictdataObject.getFields().get(field);
+                Collection <String> fieldValues = dataObject.getFields().get(field);
                 if (fieldValues == null) {
                     fieldValues = new ArrayList<>(rowsList.size());
                 }
                 fieldValues.add(valIter.next());
                
-                dictdataObject.getFields().put(field, fieldValues);
+                dataObject.getFields().put(field, fieldValues);
             }
         }
-        log.debug("parse rows ['{}'] -> ok '{}'", dictdataObject.getDictName(), dictdataObject.getFields());
-        return dictdataObject;
+        log.debug("parse rows ['{}'] -> ok '{}'", dataObject.getDictName(), dataObject.getFields());
+        return dataObject;
     }
     
-    private Collection<String> parseOneRow (String dictName, String row, String fieldsSeparator, int size) {
+    protected Collection<String> parseOneRow (String dictName, String row, String fieldsSeparator, int size) {
         log.debug("parsing row -> ['{}']", row);
         Splitter splitter = Splitter.on(fieldsSeparator).trimResults();
         Collection<String> values = splitter.splitToList(row);
@@ -217,19 +216,11 @@ public class JsonDictdataParser {
         return retValues;
     }
 
-    private String getJsonObjectKey(JsonObject obj){
+    protected String getFirstJsonObjectKey(JsonObject obj){
         return obj.entrySet().iterator().next().getKey();
     }
     
-    private JsonElement getJsonMember(JsonObject obj, String memberName) {
-        JsonElement elem = obj.get(memberName);
-        if (elem == null) {
-            
-        }
-        return elem;
-    }
-    
-    private String key(String ... args) {
+    protected String key(String ... args) {
         return Joiner.on('.').skipNulls().join(args);
     }
 

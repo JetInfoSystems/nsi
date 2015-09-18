@@ -1,8 +1,6 @@
 package jet.isur.nsi.migrator;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -14,8 +12,6 @@ import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.generator.DBAppender;
 import jet.isur.nsi.generator.Generator;
 import jet.isur.nsi.generator.GeneratorParams;
-import jet.isur.nsi.generator.dictdata.DictDataContent;
-import jet.isur.nsi.generator.dictdata.DictDataFiles;
 import jet.isur.nsi.generator.plugin.GeneratorPlugin;
 import jet.isur.nsi.migrator.args.CreateTablespaceCmd;
 import jet.isur.nsi.migrator.args.CreateUserCmd;
@@ -107,7 +103,7 @@ public class MigratorMain {
             doRunGeneratorCmd(runGeneratorCmd, properties);
             break;
         case CMD_RUN_GENERATOR_PLUGIN:
-            doRunGeneratorPluginCmd(runGeneratorPluginCmd, params, properties);
+            doRunGeneratorPluginCmd(runGeneratorPluginCmd, properties);
             break;
         }
 
@@ -118,13 +114,9 @@ public class MigratorMain {
         GeneratorParams params = new GeneratorParams(properties);
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
 
-        DictDataFiles dictdataFiles = new DictDataFiles(params.getDictdataPath());
-        DictDataContent dictdataContent = new DictDataContent();
-        dictdataContent.loadDictData(dictdataFiles);
-
         DBAppender appender = new DBAppender(dataSource, config);
 
-        Generator generator = new Generator(config, dictdataContent, appender, params);
+        Generator generator = new Generator(config, appender, params);
 
         switch (runGeneratorCmd.getCmd()) {
         case Generator.CMD_APPEND_DATA:
@@ -137,15 +129,15 @@ public class MigratorMain {
 
     }
 
-    private static void doRunGeneratorPluginCmd(
-            RunGeneratorPluginCmd runGeneratorPluginCmd, MigratorParams params,
+    private static void doRunGeneratorPluginCmd(RunGeneratorPluginCmd runGeneratorPluginCmd,
             Properties properties) throws Exception {
+        GeneratorParams params = new GeneratorParams(properties);
         DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
 
         Class<?> pluginClass = Thread.currentThread().getContextClassLoader().loadClass(runGeneratorPluginCmd.getPluginClass());
         GeneratorPlugin plugin = (GeneratorPlugin)pluginClass.newInstance();
-        plugin.execute(config, dataSource, properties);
+        plugin.execute(config, dataSource, params);
     }
 
     private static void doDropUserCmd(MigratorParams params, Properties properties) throws SQLException {

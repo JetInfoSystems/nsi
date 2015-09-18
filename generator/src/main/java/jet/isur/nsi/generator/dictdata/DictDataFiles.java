@@ -5,14 +5,16 @@ import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collection;
 
+import jet.isur.nsi.generator.data.DataFiles;
+
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DictDataFiles {
+public class DictDataFiles implements DataFiles {
     private static final Logger log = LoggerFactory.getLogger(DictDataFiles.class);
 
-    Collection<File> dictFiles;
+    private Collection<File> dictFiles;
     
     
     public DictDataFiles(File dictdataPath) {
@@ -22,6 +24,7 @@ public class DictDataFiles {
         dictFiles = Arrays.asList(dictdataPath.listFiles(filter));
     }
 
+    @Override
     public Collection<File> getFiles(){
         return dictFiles;
     }

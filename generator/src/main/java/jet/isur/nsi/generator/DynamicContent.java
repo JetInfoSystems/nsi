@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import jet.isur.nsi.generator.helpers.RandomUtils;
+
 public class DynamicContent {
 
     private static Map<String, StringGenerator> fields = new HashMap<>();
