@@ -39,8 +39,6 @@ public class DictDataContent {
     
     private Map<String, DictDataObject> dictdataObjsMap = new HashMap<String, DictDataObject>();
     
-    private Map<NsiConfigDict, List<Long>> dictsIds = new HashMap<>();
-    
     public DictDataContent(NsiConfig config, DBAppender appender, GeneratorParams params) {
         this.config = config;
         this.appender = appender;
@@ -54,6 +52,16 @@ public class DictDataContent {
         return dictdataObjsMap;
     }
     
+    /**
+     * Реализует загрузку/обновление всех корневых справочников 
+     * из файлов каталога с данными справочника в json формате
+     * каталог указывается в конфигурации запуска (параметр dictdataPath)
+     * @param dictsIds - отображение конфигурации Nsi-справочник -> идентификаторы строк данных справочника.
+     *                   Заполняется/обновляется в процессе загурузки/обновления корневых справочников
+     * @return множество имен справочников, которые были загружены/обновлены
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     public Set<String> addAllRootDicts(Map <NsiConfigDict, List<Long>> dictsIds) throws FileNotFoundException, IOException{
         DictDataFiles dictdataFiles = new DictDataFiles(params.getDictdataPath());
         
