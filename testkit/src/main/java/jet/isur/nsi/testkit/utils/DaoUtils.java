@@ -1,5 +1,9 @@
 package jet.isur.nsi.testkit.utils;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.table;
+
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,11 +12,6 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
-
-import jet.isur.nsi.api.NsiServiceException;
-import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.api.data.NsiConfigField;
-import jet.isur.nsi.api.model.MetaFieldType;
 
 import org.jooq.CreateTableAsStep;
 import org.jooq.CreateTableColumnStep;
@@ -26,6 +25,11 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 
 import com.jolbox.bonecp.BoneCPDataSource;
+
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
+import jet.isur.nsi.api.model.MetaFieldType;
 
 public class DaoUtils {
 
@@ -61,7 +65,7 @@ public class DaoUtils {
 
     }
 
-    public static DSLContext getQueryBuilder(Connection connection) {
+	public static DSLContext getQueryBuilder(Connection connection) {
         Settings settings = new Settings();
         settings.setRenderNameStyle(RenderNameStyle.UPPER);
         return DSL.using(connection,SQLDialect.DEFAULT,settings );
@@ -214,4 +218,33 @@ public class DaoUtils {
         executeSql(connection, new StringBuilder()
             .append(" DROP USER  ").append(name).append(" CASCADE").toString());
     }
+
+	public static void removeUserProfile(Connection con, String login) throws SQLException {
+		DSLContext dsl = getQueryBuilder(con);
+		dsl.delete(table("USER_PROFILE").as("u")).where(field("u.login").eq(login)).execute();
+	}
+	
+	public static int countUserProfile(Connection con, String login) throws SQLException {
+		DSLContext dsl = getQueryBuilder(con);
+		return dsl.selectCount().from(table("USER_PROFILE").as("u"))
+			.where(field("u.login").eq(login)).fetchOne(0, int.class);
+	}
+	
+	public static boolean createUserProfile(Connection con, String login) throws SQLException {
+		int count = countUserProfile(con, login);
+		
+		if(count > 0) {
+			return false;
+		}
+		
+		DSLContext dsl = getQueryBuilder(con);
+		dsl.insertInto(table("USER_PROFILE").as("u"), 
+			field("u.id"), field("u.IS_DELETED"), field("u.LOGIN"), field("u.STATE"))
+			.values(dsl.nextval("SEQ_USER_PROFILE"), "N", login, "1")
+			.execute();
+		
+		return true;
+	}
+		
+		
 }
