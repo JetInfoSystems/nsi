@@ -6,17 +6,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.generator.DictDependencyGraph;
+import jet.isur.nsi.generator.GeneratorException;
 import jet.isur.nsi.generator.GeneratorParams;
 import jet.isur.nsi.generator.StaticContent;
 
 public class GeneratorHelper {
-	
+    private static final Logger log = LoggerFactory.getLogger(GeneratorHelper.class);
+    
     private final GeneratorParams params;
     private final NsiConfig config;
     
@@ -32,7 +37,12 @@ public class GeneratorHelper {
     public DictDependencyGraph getGraph(Collection<String> dictNames) {
         List<NsiConfigDict> dicts = new ArrayList<>();
         for (String dictName : dictNames) {
-            dicts.add(config.getDict(dictName));
+            NsiConfigDict dict = config.getDict(dictName);
+            if (dict != null) {
+                dicts.add(dict);
+            } else {
+                throw new GeneratorException("Nsi dict metadata not found for name " + dictName);
+            }
         }
         DictDependencyGraph dictGraph = DictDependencyGraph.build(config, dicts);
         return dictGraph;

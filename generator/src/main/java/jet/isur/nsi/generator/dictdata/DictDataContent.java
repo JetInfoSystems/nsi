@@ -20,8 +20,6 @@ import jet.isur.nsi.generator.DBAppender;
 import jet.isur.nsi.generator.DictDependencyGraph;
 import jet.isur.nsi.generator.GeneratorParams;
 import jet.isur.nsi.generator.data.DataFiles;
-import jet.isur.nsi.generator.data.DataObject;
-import jet.isur.nsi.generator.data.JsonDataParser;
 import jet.isur.nsi.generator.helpers.GeneratorDictRowHelper;
 import jet.isur.nsi.generator.helpers.GeneratorHelper;
 
