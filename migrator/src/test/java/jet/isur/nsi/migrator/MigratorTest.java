@@ -48,7 +48,7 @@ public class MigratorTest extends BaseSqlTest{
     }
 
 
-  //  @Test
+    @Test
     public void migratorTest() throws Exception {
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("table2", connection);
@@ -124,7 +124,7 @@ public class MigratorTest extends BaseSqlTest{
 
     }
 
- //   @Test
+    @Test
     public void tablespaceTest() throws SQLException {
         String tempName = "t" + DateTime.now().getMillis();
         properties.put("db.isur.tablespace.name", tempName);
@@ -136,7 +136,7 @@ public class MigratorTest extends BaseSqlTest{
         }
     }
 
-  //  @Test
+    @Test
     public void userTest() throws SQLException {
         String tempName = "t" + DateTime.now().getMillis();
         properties.put("db.isur.tablespace.name", tempName);
@@ -161,11 +161,13 @@ public class MigratorTest extends BaseSqlTest{
     public void createUserProfileTest() throws SQLException {
     	String login = String.valueOf(System.nanoTime()); 
     	try (Connection con = dataSource.getConnection()) {
+    		Long id = null;
     		try {
-    			Assert.assertTrue(DaoUtils.createUserProfile(con, login));
-    			Assert.assertFalse(DaoUtils.createUserProfile(con, login));
+    			id = DaoUtils.createUserProfile(con, login);
+    			Assert.assertNotNull(id);
+    			Assert.assertNull(DaoUtils.createUserProfile(con, login));
     		} finally {
-    			DaoUtils.removeUserProfile(con, login);
+    			DaoUtils.removeUserProfile(con, id);
     		}
     	}
     }

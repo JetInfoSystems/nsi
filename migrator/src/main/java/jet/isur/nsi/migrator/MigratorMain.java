@@ -89,7 +89,7 @@ public class MigratorMain {
                 break;
             case CMD_CREATE_USER_PROFILE:
             	try (Connection con = dataSource.getConnection()) {
-            		if(!DaoUtils.createUserProfile(con, createUserProfileCmd.getLogin())) {
+            		if(DaoUtils.createUserProfile(con, createUserProfileCmd.getLogin()) == null) {
             			System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
             		}
             	}
