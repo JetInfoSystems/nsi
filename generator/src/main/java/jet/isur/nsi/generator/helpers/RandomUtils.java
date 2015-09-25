@@ -1,4 +1,4 @@
-package jet.isur.nsi.generator;
+package jet.isur.nsi.generator.helpers;
 
 import java.util.Date;
 import java.util.Random;

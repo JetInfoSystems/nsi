@@ -1,0 +1,24 @@
+{
+    "PARAM" : {
+        "type" : "row",
+        "fields.list" : ["parent", "PARAM_NAME", "PARAM_KEY", "PARAM_TYPE", "DIC_NAME", "IS_GROUP"],
+        "fields.separator" : "|",
+        "enum.values.PARAM_TYPE" : [
+            {"string" : 1},
+            {"long" : 2},
+            {"boolean" : 3},
+            {"date" : 4},
+            {"float" : 5},
+            {"dict": 6},
+        ],
+        "parent.identBy" : "PARAM_NAME",
+        "rowsdata" : [
+            "null|Окружающая среда  |ENV     |6|PARAM|Y",
+            "null|Транспорт         |vehicles|6|PARAM|Y",
+            "null|Люди              |PEOPLE  |6|PARAM|Y",
+            "Окружающая среда|Площадь загрязнения, га                     |AREA    |5",
+            "Люди            |Несчастный случай, связанный с производством|null    |3"
+        ]
+    }
+}
+

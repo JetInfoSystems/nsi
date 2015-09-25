@@ -8,7 +8,7 @@
 
     <logger name="jet.isur.nsi.common.sql.DefaultSqlDao" level="WARN"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
