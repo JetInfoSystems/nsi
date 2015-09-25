@@ -7,6 +7,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
 
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.data.NsiConfig;
@@ -15,9 +19,6 @@ import jet.isur.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 import junit.framework.Assert;
-
-import org.joda.time.DateTime;
-import org.junit.Test;
 
 public class MigratorTest extends BaseSqlTest{
 
@@ -154,5 +155,20 @@ public class MigratorTest extends BaseSqlTest{
                 DaoUtils.dropTablespace(connection, params.getTablespace(IDENT_ISUR));
             }
         }
+    }
+    
+    @Test
+    public void createUserProfileTest() throws SQLException {
+    	String login = String.valueOf(System.nanoTime()); 
+    	try (Connection con = dataSource.getConnection()) {
+    		Long id = null;
+    		try {
+    			id = DaoUtils.createUserProfile(con, login);
+    			Assert.assertNotNull(id);
+    			Assert.assertNull(DaoUtils.createUserProfile(con, login));
+    		} finally {
+    			DaoUtils.removeUserProfile(con, id);
+    		}
+    	}
     }
 }
