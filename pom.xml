@@ -18,7 +18,6 @@
         <module>generator</module>
         <module>migrator</module>
         <module>services</module>
-        <module>testkit</module>
     </modules>
 
     <properties>
