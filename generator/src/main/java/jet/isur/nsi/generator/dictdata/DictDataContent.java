@@ -16,12 +16,10 @@ import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.DictRow;
+import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.generator.DBAppender;
-import jet.isur.nsi.generator.DictDependencyGraph;
 import jet.isur.nsi.generator.GeneratorParams;
 import jet.isur.nsi.generator.data.DataFiles;
-import jet.isur.nsi.generator.data.DataObject;
-import jet.isur.nsi.generator.data.JsonDataParser;
 import jet.isur.nsi.generator.helpers.GeneratorDictRowHelper;
 import jet.isur.nsi.generator.helpers.GeneratorHelper;
 
