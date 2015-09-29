@@ -9,7 +9,6 @@ import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
 import jet.isur.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
-import jet.isur.nsi.testkit.utils.DataGen;
 import jet.isur.nsi.testkit.utils.DataUtils;
 import junit.framework.Assert;
 
