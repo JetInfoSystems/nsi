@@ -11,22 +11,22 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
+import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.generator.DBAppender;
-import jet.isur.nsi.generator.DictDependencyGraph;
 import jet.isur.nsi.generator.GeneratorParams;
 import jet.isur.nsi.generator.data.DataFiles;
 import jet.isur.nsi.generator.data.Reference;
 import jet.isur.nsi.generator.dictdata.DictDataContent;
 import jet.isur.nsi.generator.helpers.GeneratorDictRowHelper;
 import jet.isur.nsi.generator.helpers.GeneratorHelper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class FileDataGeneratorPlugin implements GeneratorPlugin {
     private static final Logger log = LoggerFactory.getLogger(FileDataGeneratorPlugin.class);

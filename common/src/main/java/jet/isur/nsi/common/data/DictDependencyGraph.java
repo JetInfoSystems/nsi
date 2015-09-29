@@ -1,4 +1,4 @@
-package jet.isur.nsi.generator;
+package jet.isur.nsi.common.data;
 
 import java.util.ArrayList;
 import java.util.Collection;

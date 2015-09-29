@@ -2,7 +2,6 @@ package jet.isur.nsi.generator.helpers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +13,8 @@ import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.DictRow;
-import jet.isur.nsi.generator.DictDependencyGraph;
 import jet.isur.nsi.generator.GeneratorException;
+import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.generator.GeneratorParams;
 import jet.isur.nsi.generator.StaticContent;
 

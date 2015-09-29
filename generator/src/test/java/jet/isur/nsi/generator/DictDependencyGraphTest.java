@@ -8,14 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.isur.nsi.common.data.DictDependencyGraph;
 import junit.framework.Assert;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class DictDependencyGraphTest {
 
