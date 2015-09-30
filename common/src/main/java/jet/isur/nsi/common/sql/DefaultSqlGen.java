@@ -13,6 +13,7 @@ import java.util.List;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
+import jet.isur.nsi.api.data.NsiConfigSourceQuery;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
@@ -42,6 +43,8 @@ import org.jooq.UpdateSetMoreStep;
 import org.jooq.conf.RenderNameStyle;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
+
+import com.google.common.base.Preconditions;
 
 public class DefaultSqlGen implements SqlGen {
 
@@ -104,13 +107,15 @@ public class DefaultSqlGen implements SqlGen {
             // включаем поля RefObject атрибутов
             if(attr.getType()==MetaAttrType.REF) {
                 SelectOnStep<?> beforeOn;
-                //TODO: пока временно закомментировал эту оптимизацию
-                //if(attr.isRequired()) {
-                //     beforeOn = selectJoinStep.join(table(attr.getRefDict().getTable()).as(queryAttr.getRefAlias()));
-                //} else {
-                    beforeOn = selectJoinStep.leftOuterJoin(table(attr.getRefDict().getTable()).as(queryAttr.getRefAlias()));
-                //}
-                NsiConfigAttr refIdAttr = attr.getRefDict().getIdAttr();
+                NsiConfigDict refDict = attr.getRefDict();
+                if(refDict.getTable() != null) {
+                    beforeOn = selectJoinStep.leftOuterJoin(table(refDict.getTable()).as(queryAttr.getRefAlias()));
+                } else {
+                    NsiConfigSourceQuery defaultQuery = refDict.getSourceQuery(NsiQuery.MAIN_QUERY);
+                    Preconditions.checkNotNull(defaultQuery);
+                    beforeOn = selectJoinStep.leftOuterJoin(table("( " + defaultQuery.getSql() + " ) ").as(queryAttr.getRefAlias()));
+                }
+                NsiConfigAttr refIdAttr = refDict.getIdAttr();
 
                 Condition cond = createJoinFieldCondition(queryAttr, attr.getFields().get(0), refIdAttr.getFields().get(0));
 

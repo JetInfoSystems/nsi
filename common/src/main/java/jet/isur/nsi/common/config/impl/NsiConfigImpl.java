@@ -16,6 +16,7 @@ import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiConfigParams;
+import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
@@ -295,6 +296,12 @@ public class NsiConfigImpl implements NsiConfig {
         if(idAttr == null) {
             throwDictException(dict, "ref dict must have id attr", idDict.getName());
         }
+
+        // проверяем что для idDict задана таблица или MAIN запрос
+        if(idDict.getTable()==null && idDict.getSourceQuery(NsiQuery.MAIN_QUERY)==null) {
+            throwDictException(dict, "ref dict must have table or MAIN query", refAttr.getName());
+        }
+
 
         if(refAttr.getFields().size() != idAttr.getFields().size()) {
             throwDictException(dict, "ref attr fields count not match id attr fields", refAttr.getName());
