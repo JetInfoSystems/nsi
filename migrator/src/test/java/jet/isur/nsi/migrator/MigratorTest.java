@@ -191,7 +191,7 @@ public class MigratorTest extends BaseSqlTest{
         migrator.addTarget( rec );
         migrator.update("v1");
     
-        setupMigrator("src/test/resources/metadata/changeColumnSize/alert");
+        setupMigrator("src/test/resources/metadata/changeColumnSize/alter");
         migrator = new Migrator(config, dataSource, params, "TEST_NSI_" );
         migrator.addTarget( rec );
         migrator.update("v1");

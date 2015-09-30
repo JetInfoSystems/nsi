@@ -76,6 +76,7 @@ public class NsiDictToHbmEntitySerializer {
     private JaxbHbmColumnType buildColumn(NsiConfigField field) {
         JaxbHbmColumnType result = new JaxbHbmColumnType();
         result.setName(field.getName());
+        // TODO:  это хардкод
         if(field.getType() == MetaFieldType.DATE_TIME) {
         	result.setLength(7);
         } else if(field.getSize() > 0) {
