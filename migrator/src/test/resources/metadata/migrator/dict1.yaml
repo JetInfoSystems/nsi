@@ -10,7 +10,7 @@ deleteMarkAttr: is_deleted
 fields:
 - {name: id, size: 19, type: number}
 - {name: is_deleted, size: 1, type: boolean}
-- {name: last_change, size: 7, type: date-time}
+- {name: last_change, type: date-time}
 - {name: last_user, size: 19, type: number}
 - {name: f1, size: 100, type: varchar}
 hidden: true

@@ -27,14 +27,20 @@ public class MigratorTest extends BaseSqlTest{
     private String metadataPath;
     private MigratorParams params;
 
+    @Override 
+    public void setup() throws Exception {
+    	super.setup();
+    	getConfiguration();
+    	
+    	params = new MigratorParams(properties);
+    }
+    
     public void setupMigrator(String metadataPath) throws Exception {
-        getConfiguration();
         this.metadataPath = metadataPath;
         
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
-        params = new MigratorParams(properties);
     }
 
 
