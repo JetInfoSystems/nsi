@@ -74,7 +74,6 @@ public class MigratorTest extends BaseSqlTest{
             migrator.update("v1");
 
             List<String> actions = rec.getActions();
-            System.out.println(rec.getActions());
             Assert.assertEquals(4, actions.size());
             Assert.assertEquals("create table table1 (id number(19,0) not null, f1 varchar2(100 char), "
                     + "is_deleted char(1 char), last_change date, last_user number(19,0), "
@@ -101,7 +100,6 @@ public class MigratorTest extends BaseSqlTest{
             migrator.addTarget( rec );
             migrator.update("v2");
 
-            System.out.println(rec.getActions());
             List<String> actions = rec.getActions();
             Assert.assertEquals(1, actions.size());
             Assert.assertEquals("alter table table1 add f1 varchar2(100 char)",actions.get(0));
