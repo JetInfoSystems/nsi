@@ -27,12 +27,10 @@ public class MigratorTest extends BaseSqlTest{
     private String metadataPath;
     private MigratorParams params;
 
-    @Override
-    public void setup() throws Exception {
-        super.setup();
-
+    public void setupMigrator(String metadataPath) throws Exception {
         getConfiguration();
-
+        this.metadataPath = metadataPath;
+        
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
@@ -44,12 +42,13 @@ public class MigratorTest extends BaseSqlTest{
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project.properties");
         Properties props = new Properties();
         props.load(in);
-        metadataPath = "src/test/resources/metadata";
     }
 
 
     @Test
     public void migratorTest() throws Exception {
+    	setupMigrator("src/test/resources/metadata/migrator");
+    	
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("table2", connection);
             DaoUtils.dropTable("table1", connection);
@@ -69,6 +68,7 @@ public class MigratorTest extends BaseSqlTest{
             migrator.update("v1");
 
             List<String> actions = rec.getActions();
+            System.out.println(rec.getActions());
             Assert.assertEquals(4, actions.size());
             Assert.assertEquals("create table table1 (id number(19,0) not null, f1 varchar2(100 char), "
                     + "is_deleted char(1 char), last_change date, last_user number(19,0), "
@@ -95,6 +95,7 @@ public class MigratorTest extends BaseSqlTest{
             migrator.addTarget( rec );
             migrator.update("v2");
 
+            System.out.println(rec.getActions());
             List<String> actions = rec.getActions();
             Assert.assertEquals(1, actions.size());
             Assert.assertEquals("alter table table1 add f1 varchar2(100 char)",actions.get(0));
@@ -170,5 +171,34 @@ public class MigratorTest extends BaseSqlTest{
     			DaoUtils.removeUserProfile(con, id);
     		}
     	}
+    }
+    
+    @Test
+    public void changeColumnSizeTest() throws Exception {
+    	
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("test_size", connection);
+        }
+        
+        RecActionsTargetImpl rec = new RecActionsTargetImpl();
+        
+        setupMigrator("src/test/resources/metadata/changeColumnSize/create");
+        Migrator migrator = new Migrator(config, dataSource, params, "TEST_NSI_" );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+    
+        setupMigrator("src/test/resources/metadata/changeColumnSize/alert");
+        migrator = new Migrator(config, dataSource, params, "TEST_NSI_" );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+        
+        List<String> actions = rec.getActions();
+        Assert.assertEquals(2, actions.size());
+        Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(1));
+        
+        System.out.println(rec.getActions());
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("test_size", connection);
+        }
     }
 }
