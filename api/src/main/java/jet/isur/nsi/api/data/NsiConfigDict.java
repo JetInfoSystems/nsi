@@ -3,17 +3,16 @@ package jet.isur.nsi.api.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import com.google.common.base.Preconditions;
-
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaSourceQuery;
+
+import com.google.common.base.Preconditions;
 
 public class NsiConfigDict {
 
@@ -32,6 +31,8 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
+    private final String mainDictName;
+    private NsiConfigDict mainDict;
 
     public NsiConfigDict(MetaDict metaDict) {
         name = metaDict.getName();
@@ -43,6 +44,7 @@ public class NsiConfigDict {
                 sourceQueries.put(q.getKey(), new NsiConfigSourceQuery(q.getValue()));
             }
         }
+        mainDictName = metaDict.getMainDict();
     }
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
@@ -220,5 +222,17 @@ public class NsiConfigDict {
         NsiConfigSourceQuery result = sourceQueries.get(name);
         Preconditions.checkNotNull(result, "dict %s source query %s not exists", getName(), name);
         return result;
+    }
+
+    public NsiConfigDict getMainDict() {
+        return mainDict;
+    }
+
+    public void setMainDict(NsiConfigDict mainDict) {
+        this.mainDict = mainDict;
+    }
+
+    public String getMainDictName() {
+        return mainDictName;
     }
 }
