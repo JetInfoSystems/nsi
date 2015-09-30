@@ -72,9 +72,17 @@ public class MetaDict extends MetaDictRef {
      */
     private List<String> tableObjectAttrs;
 
+    /**
+     * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.
+     */
     private Boolean hidden;
 
+    /**
+     * Именованные запросы
+     */
     private Map<String, MetaSourceQuery> sourceQueries;
+
+    private String mainDict;
 
     public String getTable() {
         return table;
@@ -177,6 +185,12 @@ public class MetaDict extends MetaDictRef {
     }
     public void setSourceQueries(Map<String, MetaSourceQuery> sourceQueries) {
         this.sourceQueries = sourceQueries;
+    }
+    public String getMainDict() {
+        return mainDict;
+    }
+    public void setMainDict(String mainDict) {
+        this.mainDict = mainDict;
     }
 
 }

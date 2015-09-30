@@ -38,7 +38,7 @@ public class DictDependencyGraph {
     }
 
     private void add(NsiConfigDict dict) {
-        if(graph.addVertex(dict)) {
+        if(graph.addVertex(getMainDict(dict))) {
             // рекурсивно добавляем все справочники для которых dict является владельцем
             addAllOwnedDicts(dict);
             // рекурсивно добавляем все справочники на которые dict ссылается
@@ -54,12 +54,17 @@ public class DictDependencyGraph {
                 if(attr == dict.getParentAttr()) continue;
                 // выключаем прямые циклы
                 add(refDict);
-                DefaultEdge e = graph.addEdge(dict, refDict);
+                // refDict может оказаться прокси представлением
+                DefaultEdge e = graph.addEdge(dict, getMainDict(refDict));
                 if(hasCycles()) {
                     graph.removeEdge(e);
                 }
             }
         }
+    }
+
+    private NsiConfigDict getMainDict(NsiConfigDict refDict) {
+        return refDict.getMainDict() != null ? refDict.getMainDict() : refDict;
     }
 
     private void addAllOwnedDicts(NsiConfigDict ownerDict) {

@@ -226,9 +226,10 @@ public class NsiConfigImpl implements NsiConfig {
 
 
     public void postCheck() {
-        for (String dictName : dictMap.keySet()) {
-            NsiConfigDict nsiMetaDict = dictMap.get(dictName);
-            postCheckDict(nsiMetaDict);
+        postSetMainDict();
+
+        for (NsiConfigDict dict : dictMap.values()) {
+            postCheckDict(dict);
         }
         // TODO: RNSC-746 temporary disable
         /*
@@ -253,6 +254,21 @@ public class NsiConfigImpl implements NsiConfig {
                 tmp.remove(dict.getLastUserAttr());
                 dict.setTableObjectAttrs(tmp);
                 dict.getLastUserAttr().setHidden(true);
+            }
+        }
+    }
+
+    private void postSetMainDict() {
+        for ( NsiConfigDict dict : dictMap.values()) {
+            if(dict.getMainDictName() != null) {
+                NsiConfigDict mainDict = getDict(dict.getMainDictName());
+                if(mainDict == null) {
+                    throwDictException(dict, "main dict not found", dict.getMainDictName());
+                }
+                if(mainDict.getTable() == null) {
+                    throwDictException(dict, "main dict to be given a table", dict.getMainDictName());
+                }
+                dict.setMainDict(mainDict);
             }
         }
     }
@@ -298,8 +314,9 @@ public class NsiConfigImpl implements NsiConfig {
         }
 
         // проверяем что для idDict задана таблица или MAIN запрос
-        if(idDict.getTable()==null && idDict.getSourceQuery(NsiQuery.MAIN_QUERY)==null) {
-            throwDictException(dict, "ref dict must have table or MAIN query", refAttr.getName());
+        if(idDict.getTable()==null)
+            if(idDict.getMainDict() == null || idDict.getSourceQuery(NsiQuery.MAIN_QUERY)==null) {
+            throwDictException(dict, "proxy ref dict must have main dict and MAIN query", refAttr.getName());
         }
 
 
