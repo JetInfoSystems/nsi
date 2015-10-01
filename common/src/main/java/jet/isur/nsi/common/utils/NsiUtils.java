@@ -33,7 +33,7 @@ public class NsiUtils {
     }
 
     public static String getDictAttrFirstValue(DictRowAttr attr) {
-        if(attr.getValues() == null || attr.getValues().isEmpty()) {
+        if(attr==null || attr.getValues() == null || attr.getValues().isEmpty()) {
             return null;
         } else {
             return attr.getValues().get(0);
@@ -60,12 +60,7 @@ public class NsiUtils {
         } else if(row.getAttrs() == null) {
             throw new NsiDataException("dict row attrs list is null");
         }
-        DictRowAttr attr = row.getAttrs().get(attrName);
-        if(attr == null) {
-            throw new NsiDataException("Attribute " + attrName + " not found in dict row");
-        } else {
-            return attr;
-        }
+        return row.getAttrs().get(attrName);
     }
 
     public static DictRow clone(DictRow row) {
