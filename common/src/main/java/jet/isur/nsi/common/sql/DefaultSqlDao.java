@@ -62,8 +62,8 @@ public class DefaultSqlDao implements SqlDao {
             if(filter.getValue() != null) {
                 try {
                 	NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
-                    List<NsiConfigField> fields = configAttr.getFields();
-                    String queryAttrName = configAttr.getName();
+                	List<NsiConfigField> fields = configAttr.getFields();
+                	String queryAttrName = configAttr.getName();
 
                     List<String> dataValues = filter.getValue().getValues();
                     checkDataValues(fields, queryAttrName, dataValues);
