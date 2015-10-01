@@ -4,7 +4,7 @@
     <parent>
         <groupId>jet.isur</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.4</version>
     </parent>
 
     <groupId>jet.isur.nsi</groupId>
