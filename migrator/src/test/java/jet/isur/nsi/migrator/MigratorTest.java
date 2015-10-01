@@ -197,10 +197,10 @@ public class MigratorTest extends BaseSqlTest{
         migrator.update("v1");
         
         List<String> actions = rec.getActions();
+        System.out.println(actions);
         Assert.assertEquals(2, actions.size());
         Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(1));
         
-        System.out.println(rec.getActions());
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("test_size", connection);
         }
