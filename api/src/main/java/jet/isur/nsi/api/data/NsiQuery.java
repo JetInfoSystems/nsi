@@ -12,6 +12,7 @@ import jet.isur.nsi.api.model.MetaAttrType;
 
 public class NsiQuery {
     public static final String MAIN_ALIAS = "m";
+    public static final String MAIN_QUERY = "MAIN";
     private final NsiConfig config;
     private final NsiConfigDict dict;
     private int aliasIndex = 0;

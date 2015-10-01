@@ -16,6 +16,7 @@ import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiConfigParams;
+import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
@@ -225,9 +226,10 @@ public class NsiConfigImpl implements NsiConfig {
 
 
     public void postCheck() {
-        for (String dictName : dictMap.keySet()) {
-            NsiConfigDict nsiMetaDict = dictMap.get(dictName);
-            postCheckDict(nsiMetaDict);
+        postSetMainDict();
+
+        for (NsiConfigDict dict : dictMap.values()) {
+            postCheckDict(dict);
         }
         // TODO: RNSC-746 temporary disable
         /*
@@ -252,6 +254,21 @@ public class NsiConfigImpl implements NsiConfig {
                 tmp.remove(dict.getLastUserAttr());
                 dict.setTableObjectAttrs(tmp);
                 dict.getLastUserAttr().setHidden(true);
+            }
+        }
+    }
+
+    private void postSetMainDict() {
+        for ( NsiConfigDict dict : dictMap.values()) {
+            if(dict.getMainDictName() != null) {
+                NsiConfigDict mainDict = getDict(dict.getMainDictName());
+                if(mainDict == null) {
+                    throwDictException(dict, "main dict not found", dict.getMainDictName());
+                }
+                if(mainDict.getTable() == null) {
+                    throwDictException(dict, "main dict to be given a table", dict.getMainDictName());
+                }
+                dict.setMainDict(mainDict);
             }
         }
     }
@@ -295,6 +312,13 @@ public class NsiConfigImpl implements NsiConfig {
         if(idAttr == null) {
             throwDictException(dict, "ref dict must have id attr", idDict.getName());
         }
+
+        // проверяем что для idDict задана таблица или MAIN запрос
+        if(idDict.getTable()==null)
+            if(idDict.getMainDict() == null || idDict.getSourceQuery(NsiQuery.MAIN_QUERY)==null) {
+            throwDictException(dict, "proxy ref dict must have main dict and MAIN query", refAttr.getName());
+        }
+
 
         if(refAttr.getFields().size() != idAttr.getFields().size()) {
             throwDictException(dict, "ref attr fields count not match id attr fields", refAttr.getName());

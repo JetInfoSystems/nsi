@@ -66,11 +66,15 @@ public class NsiDictToHbmEntitySerializer {
     private JaxbHbmManyToOneType buildManyToOne(NsiConfigAttr attr) {
         JaxbHbmManyToOneType result = new JaxbHbmManyToOneType();
         result.setName(attr.getName());
-        result.setEntityName(attr.getRefDict().getName());
+        result.setEntityName(getMainDict(attr.getRefDict()).getName());
         for ( NsiConfigField field : attr.getFields()) {
             result.getColumnOrFormula().add(buildColumn(field));
         }
         return result;
+    }
+
+    private NsiConfigDict getMainDict(NsiConfigDict refDict) {
+        return refDict.getMainDict() != null ? refDict.getMainDict() : refDict;
     }
 
     private JaxbHbmColumnType buildColumn(NsiConfigField field) {

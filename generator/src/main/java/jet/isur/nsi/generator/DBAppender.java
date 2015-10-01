@@ -41,7 +41,7 @@ public class DBAppender {
         try (Connection connection = dataSource.getConnection()) {
             return sqlDao.list(connection, query, null, null, -1, -1);
         } catch (SQLException e) {
-            log.error("Ошибка добавления данных в "+dict.getName(), e);
+            log.error("Ошибка получения данных из "+dict.getName(), e);
         }
         return null;
 
@@ -88,9 +88,7 @@ public class DBAppender {
         return null;
     }
 
-
-
-    public boolean cleanData(NsiConfigDict dict){
+    public boolean cleanData(NsiConfigDict dict) {
 
         log.info("appender cleanData "+dict.getName());
 
@@ -105,4 +103,22 @@ public class DBAppender {
         return true;
     }
 
+    public List<DictRow> updateData(NsiConfigDict dict, List<DictRow> dataList) {
+        log.info ("appender update dictRow ['{}']", dict.getName());
+        
+        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        String sql = sqlGen.getRowUpdateSql(query);
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (DictRow data : dataList) {
+                sqlDao.setParamsForUpdate(query, data, ps);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            return dataList;
+        } catch (SQLException e) {
+             log.error("updateData ['{}', {}] ->failed", dict.getName(), e);
+        }
+        return dataList;
+    }
 }

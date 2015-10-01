@@ -49,12 +49,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nsi-common</artifactId>
+            <artifactId>nsi-generator</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nsi-testkit</artifactId>
+            <artifactId>nsi-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -77,7 +77,11 @@
             <artifactId>commons-io</artifactId>
             <version>${commons.io.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
