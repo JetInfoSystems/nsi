@@ -61,14 +61,13 @@ public class DefaultSqlDao implements SqlDao {
         protected void visit(BoolExp filter) {
             if(filter.getValue() != null) {
                 try {
-                    NsiQueryAttr queryAttr = query.getAttr(filter.getKey());
-                    NsiConfigAttr attr = queryAttr.getAttr();
-                    String queryAttrName = attr.getName();
-
-                    List<NsiConfigField> fields = attr.getFields();
+                    NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+                    List<NsiConfigField> fields = configAttr.getFields();
+                    String queryAttrName = configAttr.getName();
 
                     List<String> dataValues = filter.getValue().getValues();
                     checkDataValues(fields, queryAttrName, dataValues);
+                    
                     int i = 0;
                     for (NsiConfigField field : fields) {
                         if (dataValues.get(i) != null){
