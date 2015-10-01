@@ -52,3 +52,4 @@ name: dict4
 refObjectAttrs: [f1]
 table: table4
 tableObjectAttrs: [f1]
+constraints: [constraint]

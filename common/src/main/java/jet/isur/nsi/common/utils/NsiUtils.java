@@ -1,5 +1,7 @@
 package jet.isur.nsi.common.utils;
 
+import jet.isur.nsi.api.data.NsiConfigAttr;
+import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.common.data.NsiDataException;
@@ -26,6 +28,10 @@ public class NsiUtils {
         return getDictAttrSingleValue(getDictRowAttr(row, attrName));
     }
 
+    public static String getDictAttrSingleValue(DictRow row, NsiConfigAttr attrCfg) throws NsiDataException {
+        return getDictAttrSingleValue(row, attrCfg.getName());
+    }
+
     public static String getDictAttrFirstValue(DictRowAttr attr) {
         if(attr.getValues() == null || attr.getValues().isEmpty()) {
             return null;
@@ -36,6 +42,14 @@ public class NsiUtils {
 
     public static String getDictAttrFirstValue(DictRow row, String attrName) throws NsiDataException {
         return getDictAttrFirstValue(getDictRowAttr(row, attrName));
+    }
+
+    public static String getDictAttrFirstValue(DictRow row, NsiConfigAttr attrCfg) throws NsiDataException {
+        return getDictAttrFirstValue(getDictRowAttr(row, attrCfg.getName()));
+    }
+
+    public static DictRowAttr getDictRowId(DictRow row, NsiConfigDict dict) throws NsiDataException {
+        return getDictRowAttr(row, dict.getIdAttr().getName());
     }
 
     public static DictRowAttr getDictRowAttr(DictRow row, String attrName) throws NsiDataException {

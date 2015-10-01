@@ -99,6 +99,7 @@ public class NsiConfigImpl implements NsiConfig {
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
         dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
+        dict.setConstraints(createConstraints(metaDict.getConstraints()));
         dictMap.put(dictName, dict);
     }
 
@@ -120,6 +121,14 @@ public class NsiConfigImpl implements NsiConfig {
             for (String attrName : attrNames) {
                 result.add(checkAttrExists(dict, attrName));
             }
+        }
+        return result;
+    }
+
+    private List<String> createConstraints(List<String> constraints) {
+        List<String> result = new ArrayList<>();
+        if(constraints != null) {
+            result.addAll(constraints);
         }
         return result;
     }
