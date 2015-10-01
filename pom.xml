@@ -4,7 +4,7 @@
     <parent>
         <groupId>jet.isur</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.4</version>
     </parent>
 
     <groupId>jet.isur.nsi</groupId>
@@ -14,6 +14,7 @@
 
     <modules>
         <module>api</module>
+        <module>testkit</module>
         <module>common</module>
         <module>generator</module>
         <module>migrator</module>
