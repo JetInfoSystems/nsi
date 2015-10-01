@@ -310,8 +310,8 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected Condition getFuncCondition(NsiQuery query, BoolExp filter,SelectJoinStep<?> baseQuery) {
-        NsiQueryAttr filterAttr = query.getAttr(filter.getKey());
-        List<NsiConfigField> fields = filterAttr.getAttr().getFields();
+        NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+        List<NsiConfigField> fields = configAttr.getFields();
         Condition condition = getFieldFuncCondition(query, fields.get(0),filter);
         for(int i=1;i<fields.size();i++) {
             condition = condition.and(getFieldFuncCondition(query, fields.get(i),filter));
