@@ -1,12 +1,7 @@
 package jet.isur.nsi.api.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
@@ -33,6 +28,7 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
+    private List<String> constraints = new ArrayList<>();
 
     public NsiConfigDict(MetaDict metaDict) {
         name = metaDict.getName();
@@ -216,6 +212,14 @@ public class NsiConfigDict {
 
     public void setTableObjectAttrs(List<NsiConfigAttr> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
+    }
+
+    public List<String> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(List<String> constraints) {
+        this.constraints = constraints;
     }
 
     public NsiConfigSourceQuery getSourceQuery(String name) {

@@ -31,6 +31,7 @@ public class DataUtils {
         Assert.assertEquals(o1.getCaptionAttrs(), o2.getCaptionAttrs());
         Assert.assertEquals(o1.getRefObjectAttrs(), o2.getRefObjectAttrs());
         Assert.assertEquals(o1.getTableObjectAttrs(), o2.getTableObjectAttrs());
+        Assert.assertEquals(o1.getConstraints(), o2.getConstraints());
         assertEquals("fields", o1.getFields(), o2.getFields(), new Comparator<MetaField>() {
 
             @Override

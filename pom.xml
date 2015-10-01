@@ -4,7 +4,7 @@
     <parent>
         <groupId>jet.isur</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>jet.isur.nsi</groupId>
@@ -24,7 +24,6 @@
         <scdp.common.version>1.5.9</scdp.common.version>
         <jcr.311.version>1.1.1</jcr.311.version>
         <scdp.metrics.version>1.0.1</scdp.metrics.version>
-        <bonecp.version>0.8.0.RELEASE</bonecp.version>
     </properties>
 
     <build>
