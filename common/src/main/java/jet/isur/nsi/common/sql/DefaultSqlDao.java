@@ -67,6 +67,7 @@ public class DefaultSqlDao implements SqlDao {
 
                     List<String> dataValues = filter.getValue().getValues();
                     checkDataValues(fields, queryAttrName, dataValues);
+                    
                     int i = 0;
                     for (NsiConfigField field : fields) {
                         if (dataValues.get(i) != null){
