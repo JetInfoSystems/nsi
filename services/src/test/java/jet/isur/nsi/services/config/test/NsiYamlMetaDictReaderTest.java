@@ -1,4 +1,4 @@
-package jet.isur.nsi.common.config.impl.test;
+package jet.isur.nsi.services.config.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

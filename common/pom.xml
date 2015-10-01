@@ -63,11 +63,6 @@
             <artifactId>ojdbc6</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>jet.isur.nsi</groupId>
-            <artifactId>nsi-testkit</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

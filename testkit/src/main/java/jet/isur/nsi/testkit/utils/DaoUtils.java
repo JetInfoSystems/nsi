@@ -65,7 +65,7 @@ public class DaoUtils {
 
     }
 
-	public static DSLContext getQueryBuilder(Connection connection) {
+    public static DSLContext getQueryBuilder(Connection connection) {
         Settings settings = new Settings();
         settings.setRenderNameStyle(RenderNameStyle.UPPER);
         return DSL.using(connection,SQLDialect.DEFAULT,settings );
@@ -219,33 +219,33 @@ public class DaoUtils {
             .append(" DROP USER  ").append(name).append(" CASCADE").toString());
     }
 
-	public static void removeUserProfile(Connection con, Long id) throws SQLException {
-		DSLContext dsl = getQueryBuilder(con);
-		dsl.delete(table("USER_PROFILE").as("u")).where(field("u.id").eq(id)).execute();
-	}
-	 
-	public static int countUserProfile(Connection con, String login) throws SQLException {
-		DSLContext dsl = getQueryBuilder(con);
-		return dsl.selectCount().from(table("USER_PROFILE").as("u"))
-			.where(field("u.login").eq(login)).fetchOne(0, int.class);
-	}
-	
-	public static Long createUserProfile(Connection con, String login) throws SQLException {
-		int count = countUserProfile(con, login);
-		
-		if(count > 0) {
-			return null;
-		}
-		
-		DSLContext dsl = getQueryBuilder(con);
-		Long id = dsl.nextval("SEQ_USER_PROFILE").longValue();
-		dsl.insertInto(table("USER_PROFILE").as("u"), 
-			field("u.id"), field("u.IS_DELETED"), field("u.LOGIN"), field("u.STATE"))
-			.values(id, "N", login, "1")
-			.execute();
-		
-		return id;
-	}
-		
-		
+    public static void removeUserProfile(Connection con, Long id) throws SQLException {
+        DSLContext dsl = getQueryBuilder(con);
+        dsl.delete(table("USER_PROFILE").as("u")).where(field("u.id").eq(id)).execute();
+    }
+
+    public static int countUserProfile(Connection con, String login) throws SQLException {
+        DSLContext dsl = getQueryBuilder(con);
+        return dsl.selectCount().from(table("USER_PROFILE").as("u"))
+            .where(field("u.login").eq(login)).fetchOne(0, int.class);
+    }
+
+    public static Long createUserProfile(Connection con, String login) throws SQLException {
+        int count = countUserProfile(con, login);
+
+        if(count > 0) {
+            return null;
+        }
+
+        DSLContext dsl = getQueryBuilder(con);
+        Long id = dsl.nextval("SEQ_USER_PROFILE").longValue();
+        dsl.insertInto(table("USER_PROFILE").as("u"),
+            field("u.id"), field("u.IS_DELETED"), field("u.LOGIN"), field("u.STATE"))
+            .values(id, "N", login, "1")
+            .execute();
+
+        return id;
+    }
+
+
 }

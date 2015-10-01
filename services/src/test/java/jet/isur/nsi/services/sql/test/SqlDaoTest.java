@@ -1,4 +1,4 @@
-package jet.isur.nsi.common.sql.test;
+package jet.isur.nsi.services.sql.test;
 
 import java.io.File;
 import java.sql.Connection;
