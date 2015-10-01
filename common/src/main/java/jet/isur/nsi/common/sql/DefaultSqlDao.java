@@ -61,7 +61,7 @@ public class DefaultSqlDao implements SqlDao {
         protected void visit(BoolExp filter) {
             if(filter.getValue() != null) {
                 try {
-                	NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+                    NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
                     List<NsiConfigField> fields = configAttr.getFields();
                     String queryAttrName = configAttr.getName();
 
