@@ -9,7 +9,7 @@
 
     <groupId>jet.isur.nsi</groupId>
     <artifactId>parent</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -47,6 +47,6 @@
 
     <scm>
         <developerConnection>scm:git:git@cdpdev.lpr.jet.msk.su:isur/nsi.git</developerConnection>
-        <tag>1.7.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
