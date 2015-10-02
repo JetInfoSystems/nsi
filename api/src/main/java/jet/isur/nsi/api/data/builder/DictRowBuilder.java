@@ -14,7 +14,6 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
-import jet.isur.nsi.api.model.MetaAttrType;
 
 import org.joda.time.DateTime;
 
@@ -22,23 +21,26 @@ import com.google.common.collect.Maps;
 
 public class DictRowBuilder {
 
-    private final NsiQuery query;
+    private final NsiConfigDict dict;
     private DictRowAttrBuilder attrBuilder;
     private DictRow prototype;
 
-
     public DictRowBuilder(NsiQuery query) {
-        this.query = query;
-        attrBuilder = new DictRowAttrBuilder(this);
+        this(query.getDict());
+    }
+
+    public DictRowBuilder(NsiConfigDict dict) {
+        this(dict, null);
     }
 
     public DictRowBuilder(NsiQuery query, DictRow data) {
-        this(query);
-        setPrototype(data);
+        this(query.getDict(), data);
     }
 
-    public NsiQuery getQuery() {
-        return query;
+    public DictRowBuilder(NsiConfigDict dict, DictRow data) {
+        this.dict = dict;
+        this.attrBuilder = new DictRowAttrBuilder(this);
+        setPrototype(data);
     }
 
     public static DictRow cloneRow(DictRow src) {
@@ -87,7 +89,7 @@ public class DictRowBuilder {
     DictRow getPrototype() {
         if(prototype==null) {
             prototype = new DictRow();
-            prototype.setAttrs(new HashMap<String, DictRowAttr>(query.getAttrs().size()));
+            prototype.setAttrs(new HashMap<String, DictRowAttr>(dict.getAttrs().size()));
         }
         return prototype;
     }
@@ -112,7 +114,7 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder idAttr() {
-        NsiConfigAttr a = query.getDict().getIdAttr();
+        NsiConfigAttr a = dict.getIdAttr();
         return attr(a);
     }
 
@@ -125,11 +127,11 @@ public class DictRowBuilder {
     }
 
     public DictRowBuilder idAttrNull() {
-        return attrNull(query.getDict().getIdAttr().getName());
+        return attrNull(dict.getIdAttr().getName());
     }
 
     public DictRowAttrBuilder attr(NsiConfigAttr dictAttr) {
-        return attr(queryGetAttr(dictAttr.getName()));
+        return attr(getDictAttr(dictAttr.getName()));
     }
 
     public DictRowBuilder idAttr(Long value) {
@@ -137,9 +139,9 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder deleteMarkAttr() {
-        NsiConfigAttr a = query.getDict().getDeleteMarkAttr();
+        NsiConfigAttr a = dict.getDeleteMarkAttr();
         if(a == null) {
-            throw new NsiServiceException("deleteMarkAttr not exists in dict %s", query.getDict().getName());
+            throw new NsiServiceException("deleteMarkAttr not exists in dict %s", dict.getName());
         }
         return attr(a);
     }
@@ -149,9 +151,9 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder isGroupAttr() {
-        NsiConfigAttr a = query.getDict().getIsGroupAttr();
+        NsiConfigAttr a = dict.getIsGroupAttr();
         if(a == null) {
-            throw new NsiServiceException("isGroupAttr not exists in dict %s", query.getDict().getName());
+            throw new NsiServiceException("isGroupAttr not exists in dict %s", dict.getName());
         }
         return attr(a);
     }
@@ -161,9 +163,9 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder lastChangeAttr() {
-        NsiConfigAttr a = query.getDict().getLastChangeAttr();
+        NsiConfigAttr a = dict.getLastChangeAttr();
         if(a == null) {
-            throw new NsiServiceException("lastChangeAttr not exists in dict %s", query.getDict().getName());
+            throw new NsiServiceException("lastChangeAttr not exists in dict %s", dict.getName());
         }
         return attr(a);
     }
@@ -173,9 +175,9 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder lastUserAttr() {
-        NsiConfigAttr a = query.getDict().getLastUserAttr();
+        NsiConfigAttr a = dict.getLastUserAttr();
         if(a == null) {
-            throw new NsiServiceException("lastUserAttr not exists in dict %s", query.getDict().getName());
+            throw new NsiServiceException("lastUserAttr not exists in dict %s", dict.getName());
         }
         return attr(a);
     }
@@ -185,9 +187,9 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder parentAttr() {
-        NsiConfigAttr a = query.getDict().getParentAttr();
+        NsiConfigAttr a = dict.getParentAttr();
         if(a == null) {
-            throw new NsiServiceException("parentAttr not exists in dict %s", query.getDict().getName());
+            throw new NsiServiceException("parentAttr not exists in dict %s", dict.getName());
         }
         return attr(a);
     }
@@ -197,21 +199,11 @@ public class DictRowBuilder {
     }
 
     public DictRowAttrBuilder ownerAttr() {
-        NsiConfigAttr a = query.getDict().getOwnerAttr();
+        NsiConfigAttr a = dict.getOwnerAttr();
         if(a == null) {
-            throw new NsiServiceException("ownerAttr not exists in dict %s", query.getDict().getName());
+            throw new NsiServiceException("ownerAttr not exists in dict %s", dict.getName());
         }
         return attr(a);
-    }
-
-    public DictRowBuilder builder(NsiConfigDict dict) {
-        return new DictRowBuilder(new NsiQuery(query.getConfig(), dict).addAttrs());
-    }
-
-    public DictRowBuilder builder(NsiConfigDict dict, DictRow data) {
-        DictRowBuilder result = builder(dict);
-        result.setPrototype(data);
-        return result;
     }
 
     public DictRowBuilder ownerAttr(Long value) {
@@ -222,37 +214,23 @@ public class DictRowBuilder {
         return attr(name,1).value(ConvertUtils.boolToString(value)).add();
     }
 
-    private NsiQueryAttr queryGetAttr(String name) {
-        NsiQueryAttr result = query.getAttr(name);
+    private NsiConfigAttr getDictAttr(String name) {
+        NsiConfigAttr result = dict.getAttr(name);
         if(result == null) {
-            throw new NsiServiceException("attr %s not found in query from dict %s", name, query.getDict().getName());
+            throw new NsiServiceException("attr %s not found in query from dict %s", name, dict.getName());
         }
         return result;
     }
 
-    public DictRowBuilder attr(String name, DictRow data) {
-        NsiConfigAttr attr = queryGetAttr(name).getAttr();
-        if(attr.getType() != MetaAttrType.REF) {
-            throw new NsiServiceException("attr %s dict %s is not ref", name, query.getDict().getName());
-        }
-        NsiConfigDict refDict = attr.getRefDict();
-        if(data != null) {
-            return attr(name,builder(refDict, data));
-        } else {
-            return attrNull(name);
-        }
-    }
-
     public DictRowBuilder attrNull(String name) {
-        return attr(name,1).value(createNullList(queryGetAttr(name).getAttr())).add();
+        return attr(name,1).value(createNullList(getDictAttr(name))).add();
     }
 
     public DictRowBuilder attr(String name, DictRowBuilder valueBuilder) {
         DictRowAttrBuilder builder = attr(name,1).value(valueBuilder.getIdAttr().getValues());
-        NsiConfigDict dict = query.getDict();
         NsiConfigAttr attr = dict.getAttr(name);
         if(dict.isAttrHasRefAttrs(attr)) {
-            List<NsiConfigAttr> refObjectAttrs = valueBuilder.getQuery().getDict().getRefObjectAttrs();
+            List<NsiConfigAttr> refObjectAttrs = valueBuilder.getDict().getRefObjectAttrs();
             if(refObjectAttrs.size() > 0) {
                 Map<String, DictRowAttr> refAttrMap = new HashMap<>(refObjectAttrs.size());
                 for (NsiConfigAttr refAttr : refObjectAttrs ) {
@@ -271,7 +249,6 @@ public class DictRowBuilder {
 
     public DictRowBuilder attr(String name, DictRowAttr value) {
         DictRowAttrBuilder builder = attr(name,1).value(value.getValues());
-        NsiConfigDict dict = query.getDict();
         NsiConfigAttr attr = dict.getAttr(name);
         if(value.getRefAttrs() != null && dict.isAttrHasRefAttrs(attr)) {
             builder.refAttrs(Maps.newHashMap(value.getRefAttrs()));
@@ -298,12 +275,12 @@ public class DictRowBuilder {
     }
 
     public DictRowAttr getAttr(String attrName) {
-        queryGetAttr(attrName);
+        getDictAttr(attrName);
         return getPrototype().getAttrs().get(attrName);
     }
 
     public DictRowAttr getIdAttr() {
-        return getAttr(query.getDict().getIdAttr().getName());
+        return getAttr(dict.getIdAttr().getName());
     }
 
     public String getString(String attrName) {
@@ -325,11 +302,11 @@ public class DictRowBuilder {
     }
 
     public Long getLongIdAttr() {
-        return getLong(query.getDict().getIdAttr().getName());
+        return getLong(dict.getIdAttr().getName());
     }
 
     public Boolean getDeleteMarkAttr() {
-        return getBool(query.getDict().getDeleteMarkAttr().getName());
+        return getBool(dict.getDeleteMarkAttr().getName());
     }
 
     public DateTime getDateTime(String attrName) {
@@ -348,6 +325,10 @@ public class DictRowBuilder {
         } else {
             return null;
         }
+    }
+
+    public NsiConfigDict getDict() {
+        return dict;
     }
 
 }
