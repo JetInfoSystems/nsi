@@ -93,6 +93,38 @@ public class ConvertUtils {
         }
     }
 
+    public static String integerToString(Integer value) {
+        if(value == null) {
+            return null;
+        } else {
+            return value.toString();
+        }
+    }
+
+    public static Integer stringToInteger(String value) {
+        if(value == null) {
+            return null;
+        } else {
+            return Integer.parseInt(value);
+        }
+    }
+
+    public static String doubleToString(Double value) {
+        if(value == null) {
+            return null;
+        } else {
+            return value.toString();
+        }
+    }
+
+    public static Double stringToDouble(String value) {
+        if(value == null) {
+            return null;
+        } else {
+            return Double.parseDouble(value);
+        }
+    }
+
     public static String bigDecimalToString(BigDecimal bigDecimalValue) {
         if(bigDecimalValue == null) {
             return null;

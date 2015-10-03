@@ -1,8 +1,10 @@
-package jet.isur.nsi.api.data.builder;
+package jet.isur.nsi.api.data;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
 
 import jet.isur.nsi.api.model.DictRowAttr;
 
@@ -52,12 +54,24 @@ public class DictRowAttrBuilder {
         return result;
     }
 
-    public static DictRowAttr from(long value) {
-        return from(Long.toString(value));
+    public static DictRowAttr from(Integer value) {
+        return from(ConvertUtils.integerToString(value));
     }
 
-    public static DictRowAttr from(boolean value) {
-        return from(Boolean.toString(value));
+    public static DictRowAttr from(Long value) {
+        return from(ConvertUtils.longToString(value));
+    }
+
+    public static DictRowAttr from(Double value) {
+        return from(ConvertUtils.doubleToString(value));
+    }
+
+    public static DictRowAttr from(DateTime value) {
+        return from(ConvertUtils.dateTimeToString(value));
+    }
+
+    public static DictRowAttr from(Boolean value) {
+        return from(ConvertUtils.boolToString(value));
     }
 
     public static DictRowAttr build(List<String> values) {

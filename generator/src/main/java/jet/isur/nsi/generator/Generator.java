@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.generator.dictdata.DictDataContent;
 import jet.isur.nsi.generator.helpers.GeneratorDictRowHelper;
@@ -43,14 +43,14 @@ public class Generator {
     private final GeneratorParams params;
 
     private final GeneratorHelper genHelper;
-    
+
     private final GeneratorDictRowHelper dictRowHelper = new GeneratorDictRowHelper();
 
     public Generator(NsiConfig config, DBAppender appender, GeneratorParams params) {
         this.config = config;
         this.appender = appender;
         this.params = params;
-        
+
         this.genHelper = new GeneratorHelper(config, params);
     }
 
@@ -63,7 +63,7 @@ public class Generator {
             log.error("appendData -> failed to load root dicts", e);
             return null;
         }
-        
+
         DictDependencyGraph dictGraph = genHelper.getGraph();
         List<NsiConfigDict> dictList = dictGraph.sort();
 
@@ -80,7 +80,7 @@ public class Generator {
         }
         return dictsIds;
     }
-    
+
     /**
      * Генерация и добавление данных в справочник
      * @param dict описание справочника
@@ -92,7 +92,7 @@ public class Generator {
 
         List<DictRow> curDataList = appender.getData(dict);
 
-        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        NsiQuery query = dict.query().addAttrs();
 
         if(curDataList.size() < count) {
             List<DictRow> newDataList = new ArrayList<>(count);
@@ -101,7 +101,7 @@ public class Generator {
             }
             newDataList = appender.addData(dict, newDataList);
             curDataList.addAll(newDataList);
-            genHelper.addIds(dict, genHelper.getIds(query, dict, curDataList), dictsIds);
+            genHelper.addIds(dict, genHelper.getIds(curDataList), dictsIds);
         }
     }
 

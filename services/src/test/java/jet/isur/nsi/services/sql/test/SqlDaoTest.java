@@ -7,18 +7,13 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.data.builder.DictRowAttrBuilder;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaFieldType;
-import jet.isur.nsi.api.model.OperationType;
-import jet.isur.nsi.api.model.builder.BoolExpBuilder;
-import jet.isur.nsi.api.model.builder.MetaParamsBuilder;
-import jet.isur.nsi.api.model.builder.SortListBuilder;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
@@ -55,14 +50,11 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
-                    DictRowBuilder outDataBuilder = query.builder(outData);
-                    Long idValue = outDataBuilder.getLongIdAttr();
-                    Assert.assertEquals(1L, (long) idValue);
+                    Assert.assertEquals(1L, (long) outData.getIdAttrLong());
 
-                    DictRow getData = sqlDao.get(connection, query,
-                            outDataBuilder.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
@@ -86,16 +78,16 @@ public class SqlDaoTest extends BaseSqlTest {
                 DaoUtils.recreateSeq(dict2, connection);
                 DaoUtils.recreateSeq(dict1, connection);
                 try {
-                    NsiQuery query1 = new NsiQuery(config, dict1).addAttrs();
+                    NsiQuery query1 = dict1.query().addAttrs();
                     DictRow dict1Data = insertDict1Row(connection, query1, "f1-value");
 
-                    NsiQuery query2 = new NsiQuery(config, dict2).addAttrs();
-                    long dict1Id = query1.builder(dict1Data).getLongIdAttr();
+                    NsiQuery query2 = dict2.query().addAttrs();
+                    long dict1Id = dict1Data.getIdAttrLong();
                     DictRow dict2Data = saveDict2Row(connection, query2, dict1Id, true);
 
-                    NsiQuery query = new NsiQuery(config, dict2).addAttrs();
+                    NsiQuery query = dict2.query().addAttrs();
 
-                    DictRow getData = sqlDao.get(connection, query, query2.builder(dict2Data).getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, dict2Data.getIdAttr());
                     DataUtils.assertEquals(query, dict2Data, getData);
 
 
@@ -119,10 +111,10 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
 
-                    DictRow inUpdatedData = query.builder(
+                    DictRow inUpdatedData = dict.builder(
                             DictRowBuilder.cloneRow(outData)).attr("f1","f1-value-changed").build();
 
                     DictRow controlData = DictRowBuilder.cloneRow(inUpdatedData);
@@ -148,9 +140,9 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
-                        DictRow outData = insertDict1Row(connection, query, "value" + i);
+                        insertDict1Row(connection, query, "value" + i);
                     }
 
                     List<DictRow> rows = sqlDao.list(connection, query, null, null, -1, -1);
@@ -175,18 +167,18 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
-                        DictRow outData = insertDict1Row(connection, query, "value" + i);
+                        insertDict1Row(connection, query, "value" + i);
                     }
 
 
                     List<DictRow> rows = sqlDao.list(connection, query,
                             null,
-                            new SortListBuilder().add("f1", false).build(), -1, -1);
+                            dict.sort().add("f1", false).build(), -1, -1);
 
                     Assert.assertEquals(10, rows.size());
-                    Assert.assertEquals("value9", query.builder(rows.get(0)).getString("f1"));
+                    Assert.assertEquals("value9", rows.get(0).getString("f1"));
 
                 } finally {
                     DaoUtils.dropSeq(dict, connection);
@@ -206,19 +198,20 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
                         insertDict1Row(connection, query, "value" + i);
                     }
 
 
                     List<DictRow> rows = sqlDao.list(connection, query,
-                            new BoolExpBuilder().key("f1").func(OperationType.EQUALS)
-                            .value(DictRowAttrBuilder.build("value5")).build(),
-                            new SortListBuilder().add("f1", false).build(), -1, -1);
+                            dict.filter()
+                                .key("f1").eq().value("value5")
+                                .build(),
+                            dict.sort().add("f1", false).build(), -1, -1);
 
                     Assert.assertEquals(1, rows.size());
-                    Assert.assertEquals("value5", query.builder(rows.get(0)).getString("f1"));
+                    Assert.assertEquals("value5", rows.get(0).getString("f1"));
 
                 } finally {
                     DaoUtils.dropSeq(dict, connection);
@@ -238,15 +231,14 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
                         insertDict1Row(connection, query, "value" + i);
                     }
 
 
                     long count = sqlDao.count(connection, query,
-                            new BoolExpBuilder().key("f1").func(OperationType.EQUALS)
-                            .value(DictRowAttrBuilder.build("value5")).build());
+                            dict.filter().key("f1").eq().value("value5").build());
 
                     Assert.assertEquals(1L, count);
 
@@ -262,31 +254,29 @@ public class SqlDaoTest extends BaseSqlTest {
 
     private DictRow insertDict1Row(Connection connection, NsiQuery query,
             String f1Value) {
-        DictRow inData = query.builder()
+        DictRow inData = query.getDict().builder()
                 .deleteMarkAttr(false)
-                .idAttr(null)
+                .idAttrNull()
                 .lastChangeAttr(new DateTime().withMillisOfSecond(0))
                 .lastUserAttr(null)
                 .attr("f1", f1Value)
                 .build();
 
-        DictRow outData = sqlDao.insert(connection, query, inData);
-        return outData;
+        return sqlDao.insert(connection, query, inData);
     }
 
     private DictRow saveDict2Row(Connection connection, NsiQuery query,
             long  dic1Id, boolean insert) {
-        DictRow inData = query.builder()
+        DictRow inData = query.getDict().builder()
                 .deleteMarkAttr(false)
-                .idAttr(null)
+                .idAttrNull()
                 .lastChangeAttr(new DateTime().withMillisOfSecond(0))
                 .lastUserAttr(null)
                 .attr("f1", "test")
                 .attr("dict1_id", dic1Id)
                 .build();
 
-        DictRow outData = sqlDao.save(connection, query, inData, insert);
-        return outData;
+        return sqlDao.save(connection, query, inData, insert);
     }
 
     @Test
@@ -297,10 +287,10 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
-                    DictRow inData = query.builder()
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow inData = dict.builder()
                         .deleteMarkAttr(false)
-                        .idAttr(null)
+                        .idAttrNull()
                         .lastChangeAttr(new DateTime().withMillisOfSecond(0))
                         .lastUserAttr(null)
                         .attr("f1", true)
@@ -308,14 +298,11 @@ public class SqlDaoTest extends BaseSqlTest {
                         .build();
 
                     DictRow outData = sqlDao.insert(connection, query, inData);
-                    DictRowBuilder outDataBuilder = query.builder(outData);
-                    Long idValue = outDataBuilder.getLongIdAttr();
-                    Assert.assertEquals(1L, (long) idValue);
-                    Assert.assertEquals(true, outDataBuilder.getBool("f1"));
-                    Assert.assertEquals("A", outDataBuilder.getString("f2"));
+                    Assert.assertEquals(1L, (long)outData.getIdAttrLong());
+                    Assert.assertEquals(true, outData.getBoolean("f1"));
+                    Assert.assertEquals("A", outData.getString("f2"));
 
-                    DictRow getData = sqlDao.get(connection, query,
-                            outDataBuilder.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
@@ -340,7 +327,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery query = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery query = dict.query().addAttrs();
                     // ID будем задавать явно, поэтому последовательность не
                     // используем
                     String sql = gen.getRowInsertSql(query, false);
@@ -350,7 +337,7 @@ public class SqlDaoTest extends BaseSqlTest {
                             PreparedStatement ps = connection
                                     .prepareStatement(sql)) {
 
-                        DictRowBuilder builder = query.builder();
+                        DictRowBuilder builder = dict.builder();
                         List<DictRow> dataList = new ArrayList<>();
                         for (Integer i = 0; i < 10; i++) {
                             ResultSet rs = psGetId.executeQuery();
@@ -392,20 +379,20 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery insertQuery = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery insertQuery = dict.query().addAttrs();
                     insertDict1Row(connection, insertQuery, "v1");
                     insertDict1Row(connection, insertQuery, "v2");
                     insertDict1Row(connection, insertQuery, "v3");
 
-                    NsiQuery query = new NsiQuery(config, dict).addAttr("f1");
+                    NsiQuery query = dict.query().addAttr("f1");
                     List<DictRow> dataList = sqlDao.list(connection, query, null,
-                            new SortListBuilder().add("f1", true).build() ,
+                            dict.sort().add("f1").build() ,
                             -1, -1,
                             "TEST2",
-                            new MetaParamsBuilder().add(MetaFieldType.VARCHAR, "v2").build() );
+                            dict.params().add(MetaFieldType.VARCHAR, "v2").build() );
                     Assert.assertEquals(2, dataList.size());
-                    DataUtils.assertEquals(query, query.builder().attr("f1", "v1").build(), dataList.get(0), true);
-                    DataUtils.assertEquals(query, query.builder().attr("f1", "v3").build(), dataList.get(1), true);
+                    DataUtils.assertEquals(query, dict.builder().attr("f1", "v1").build(), dataList.get(0), true);
+                    DataUtils.assertEquals(query, dict.builder().attr("f1", "v3").build(), dataList.get(1), true);
 
                 } finally {
                     DaoUtils.dropSeq(dict, connection);
@@ -425,15 +412,15 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery insertQuery = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery insertQuery = dict.query().addAttrs();
                     insertDict1Row(connection, insertQuery, "v1");
                     insertDict1Row(connection, insertQuery, "v2");
                     insertDict1Row(connection, insertQuery, "v3");
 
-                    NsiQuery query = new NsiQuery(config, dict).addAttr("f1");
+                    NsiQuery query = dict.query().addAttr("f1");
                     Assert.assertEquals(2, sqlDao.count(connection, query, null,
                             "TEST2",
-                            new MetaParamsBuilder().add(MetaFieldType.VARCHAR, "v2").build() ));
+                            dict.params().add(MetaFieldType.VARCHAR, "v2").build() ));
                 } finally {
                     DaoUtils.dropSeq(dict, connection);
                 }
@@ -453,26 +440,26 @@ public class SqlDaoTest extends BaseSqlTest {
             try {
                 DaoUtils.recreateSeq(dict, connection);
                 try {
-                    NsiQuery insertQuery = new NsiQuery(config, dict).addAttrs();
+                    NsiQuery insertQuery = dict.query().addAttrs();
                     insertDict1Row(connection, insertQuery, "v1");
                     insertDict1Row(connection, insertQuery, "v2");
                     insertDict1Row(connection, insertQuery, "v3");
 
                     NsiConfigDict viewDict = config.getDict("dict1_view");
 
-                    NsiQuery query = new NsiQuery(config, viewDict).addAttrs();
+                    NsiQuery query = viewDict.query().addAttrs();
 
                     List<DictRow> dataList = sqlDao.list(connection, query, null,
-                            new SortListBuilder().add("f1", true).build() ,
+                            viewDict.sort().add("f1").build() ,
                             -1, -1,
                             "QUERY1",
-                            new MetaParamsBuilder().add(MetaFieldType.VARCHAR, "v2").build() );
+                            viewDict.params().add(MetaFieldType.VARCHAR, "v2").build() );
                     Assert.assertEquals(2, dataList.size());
-                    DataUtils.assertEquals(query, query.builder()
+                    DataUtils.assertEquals(query, viewDict.builder()
                             .attr("f1", "v1")
                             .attr("cnt", 1L)
                             .build(), dataList.get(0), true);
-                    DataUtils.assertEquals(query, query.builder()
+                    DataUtils.assertEquals(query, viewDict.builder()
                             .attr("f1", "v3")
                             .attr("cnt", 1L)
                             .build(), dataList.get(1), true);

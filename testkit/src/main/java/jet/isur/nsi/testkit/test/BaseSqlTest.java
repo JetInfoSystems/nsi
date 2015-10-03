@@ -14,12 +14,12 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 
@@ -60,22 +60,22 @@ public class BaseSqlTest {
 
     protected void cleanTestDictRows() {
         try (Connection c = dataSource.getConnection()) {
-            DictDependencyGraph g = DictDependencyGraph.build(config,
-                    testDictRowMap.keySet());
-            List<NsiConfigDict> testDictList = g.sort();
-            Collections.reverse(testDictList);
+            if(testDictRowMap.size() > 0) {
+                DictDependencyGraph g = DictDependencyGraph.build(config,
+                        testDictRowMap.keySet());
+                List<NsiConfigDict> testDictList = g.sort();
+                Collections.reverse(testDictList);
 
-            for (NsiConfigDict dict : testDictList) {
-                DictRowBuilder builder = builder(dict);
-                // удаляем данные
-                try (PreparedStatement ps = c.prepareStatement("delete from "
-                        + dict.getTable() + " where "
-                        + dict.getIdAttr().getName() + "=?")) {
-                    if (testDictRowMap.containsKey(dict)) {
-                        for (DictRow data : testDictRowMap.get(dict)) {
-                            builder.setPrototype(data);
-                            ps.setLong(1, builder.getLongIdAttr());
-                            ps.execute();
+                for (NsiConfigDict dict : testDictList) {
+                    // удаляем данные
+                    try (PreparedStatement ps = c.prepareStatement("delete from "
+                            + dict.getTable() + " where "
+                            + dict.getIdAttr().getName() + "=?")) {
+                        if (testDictRowMap.containsKey(dict)) {
+                            for (DictRow data : testDictRowMap.get(dict)) {
+                                ps.setLong(1, data.getIdAttrLong());
+                                ps.execute();
+                            }
                         }
                     }
                 }
@@ -99,29 +99,15 @@ public class BaseSqlTest {
     }
 
     protected DictRowBuilder defaultBuilder(NsiQuery query) {
-        DictRowBuilder result = builder(query);
+        DictRowBuilder result = query.getDict().builder();
         for (NsiQueryAttr attr : query.getAttrs()) {
             result.attr(attr.getAttr().getName(), (String) null);
         }
         return result.deleteMarkAttr(false);
     }
 
-    protected DictRowBuilder builder(String dictName, DictRow data) {
-        DictRowBuilder builder = builder(dictName);
-        builder.setPrototype(data);
-        return builder;
-    }
-
-    protected DictRowBuilder builder(String dictName) {
-        return builder(config.getDict(dictName));
-    }
-
-    protected DictRowBuilder builder(NsiConfigDict dict) {
-        return builder(query(dict));
-    }
-
-    protected DictRowBuilder builder(NsiQuery query) {
-        return new DictRowBuilder(query);
+    protected NsiConfigDict dict(String dictName) {
+        return config.getDict(dictName);
     }
 
     protected NsiQuery query(String dictName) {
@@ -129,7 +115,8 @@ public class BaseSqlTest {
     }
 
     protected NsiQuery query(NsiConfigDict dict) {
-        return new NsiQuery(config, dict).addAttrs();
+        return dict.query().addAttrs();
     }
+
 
 }

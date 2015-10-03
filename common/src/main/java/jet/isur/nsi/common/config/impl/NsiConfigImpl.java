@@ -2,8 +2,6 @@ package jet.isur.nsi.common.config.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,7 @@ public class NsiConfigImpl implements NsiConfig {
     }
 
     public void addDict(MetaDict metaDict) {
-        NsiConfigDict dict = new NsiConfigDict(metaDict);
+        NsiConfigDict dict = new NsiConfigDict(this, metaDict);
         preCheckDict(dict);
         String dictName = metaDict.getName();
         if(dictMap.containsKey(dictName)) {

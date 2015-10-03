@@ -10,11 +10,11 @@ import javax.sql.DataSource;
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
@@ -132,8 +132,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id, SqlDao sqlDao) {
         final Timer.Context t = dictGetTimer.time();
         try {
-            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
-            query.addAttrs();
+            NsiQuery query = dict.query().addAttrs();
             DictRow data;
             try (Connection connection = dataSource.getConnection()) {
                 data = sqlDao.get(connection, query, id);
@@ -149,31 +148,31 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     @Override
-    public DictRow dictSave(String requestId, NsiConfigDict dict, DictRow data, SqlDao sqlDao) {
+    public DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
+        NsiConfigDict dict;
         try {
-            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
-            query.addAttrs();
-            DictRowBuilder builder = new DictRowBuilder(query, data);
+            dict = data.getDict();
+            NsiQuery query = dict.query().addAttrs();
             DictRow outData;
 
             boolean isInsert = false;
-            if (builder.getIdAttr() == null
-                    || builder.getIdAttr().getValues() == null
-                    || builder.getIdAttr().getValues().size() == 0
-                    || builder.getIdAttr().getValues().get(0) == null) {
+            if (data.getIdAttr() == null
+                    || data.getIdAttr().getValues() == null
+                    || data.getIdAttr().getValues().size() == 0
+                    || data.getIdAttr().getValues().get(0) == null) {
                 isInsert = true;
             }
             try (Connection connection = dataSource.getConnection()) {
                 if(dict.getLastChangeAttr() != null ) {
-                    builder.lastChangeAttr(DateTime.now(DateTimeZone.UTC));
+                    data.setLastChangeAttr(DateTime.now(DateTimeZone.UTC));
                 }
                 if (isInsert) {
-                    builder.idAttrNull();
+                    data.cleanIdAttr();
                     if(dict.getDeleteMarkAttr() != null) {
                         // если явно не задан то false
-                        if(builder.getDeleteMarkAttr() == null) {
-                            builder.deleteMarkAttr(false);
+                        if(data.getDeleteMarkAttr() == null) {
+                            data.setDeleteMarkAttr(false);
                         }
                     }
                     outData = sqlDao.save(connection, query, data, isInsert);
@@ -183,14 +182,14 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             }
             if (isInsert) {
                 log.info("dictSave [{},{}] -> inserted [{}]", requestId,
-                        dict.getName(), builder.getIdAttr());
+                        dict.getName(), data.getIdAttr());
             } else {
                 log.info("dictSave [{},{}] -> updated [{}]", requestId,
-                        dict.getName(), builder.getIdAttr());
+                        dict.getName(), data.getIdAttr());
             }
             return outData;
         } catch (Exception e) {
-            log.error("dictSave [{},{}] -> error", requestId, dict.getName(), e);
+            log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
@@ -202,14 +201,12 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             DictRowAttr id, Boolean value, SqlDao sqlDao) {
         final Timer.Context t = dictDeleteTimer.time();
         try {
-            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
-            query.addAttrs();
+            NsiQuery query = dict.query().addAttrs();
             DictRow outData;
             try (Connection connection = dataSource.getConnection()) {
                 DictRow data = sqlDao.get(connection, query, id);
-                DictRowBuilder builder = new DictRowBuilder(query, data);
-                builder.deleteMarkAttr(value);
-                outData = sqlDao.update(connection, query, builder.build());
+                data.setDeleteMarkAttr(value);
+                outData = sqlDao.update(connection, query, data);
             }
             log.info("dictDelete [{},{},{},{}] -> ok", requestId,
                     dict.getName(), id, value);
@@ -224,22 +221,22 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     @Override
-    public List<DictRow> dictBatchSave(String requestId, NsiConfigDict dict,
-            List<DictRow> dataList, SqlDao sqlDao) {
+    public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
         try {
-            NsiQuery query = new NsiQuery(configManager.getConfig(), dict);
-            query.addAttrs();
             List<DictRow> result = new ArrayList<>(dataList.size());
 
             for (DictRow data : dataList) {
-                DictRowBuilder builder = new DictRowBuilder(query, data);
+                NsiConfigDict dict = data.getDict();
+                NsiQuery query = dict.query().addAttrs();
+
+                DictRowBuilder builder = data.builder();
                 DictRow outData;
                 boolean isInsert = false;
-                if (builder.getIdAttr() == null
-                        || builder.getIdAttr().getValues() == null
-                        || builder.getIdAttr().getValues().size() == 0
-                        || builder.getIdAttr().getValues().get(0) == null) {
+                if (data.getIdAttr() == null
+                        || data.getIdAttr().getValues() == null
+                        || data.getIdAttr().getValues().size() == 0
+                        || data.getIdAttr().getValues().get(0) == null) {
                     isInsert = true;
                 }
 
@@ -253,17 +250,17 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 }
                 if (isInsert) {
                     log.info("dictBatchSave [{},{}] -> inserted [{}]",
-                            requestId, dict.getName(), builder.getIdAttr());
+                            requestId, dict.getName(), data.getIdAttr());
                 } else {
                     log.info("dictBatchSave [{},{}] -> updated [{}]",
-                            requestId, dict.getName(), builder.getIdAttr());
+                            requestId, dict.getName(), data.getIdAttr());
                 }
                 result.add(outData);
             }
             return result;
         } catch (Exception e) {
-            log.error("dictBatchSave [{},{},{}] -> error", requestId,
-                    dict.getName(), dataList.size(), e);
+            log.error("dictBatchSave [{},{}] -> error", requestId,
+                    dataList.size(), e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();

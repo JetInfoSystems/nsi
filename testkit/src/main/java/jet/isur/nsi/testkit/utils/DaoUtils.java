@@ -3,7 +3,6 @@ package jet.isur.nsi.testkit.utils;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,6 +11,11 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
+import jet.isur.nsi.api.model.MetaFieldType;
 
 import org.jooq.CreateTableAsStep;
 import org.jooq.CreateTableColumnStep;
@@ -25,11 +29,6 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 
 import com.jolbox.bonecp.BoneCPDataSource;
-
-import jet.isur.nsi.api.NsiServiceException;
-import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.api.data.NsiConfigField;
-import jet.isur.nsi.api.model.MetaFieldType;
 
 public class DaoUtils {
 

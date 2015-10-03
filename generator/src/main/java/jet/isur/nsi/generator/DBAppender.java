@@ -8,11 +8,10 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 
@@ -37,7 +36,7 @@ public class DBAppender {
     }
 
     public List<DictRow> getData(NsiConfigDict dict) {
-        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        NsiQuery query = dict.query().addAttrs();
         try (Connection connection = dataSource.getConnection()) {
             return sqlDao.list(connection, query, null, null, -1, -1);
         } catch (SQLException e) {
@@ -55,7 +54,7 @@ public class DBAppender {
      */
     public  List<DictRow> addData(NsiConfigDict dict, List<DictRow> dataList){
         log.info("DBAppender addData "+dict.getName()+ " rows count="+dataList.size());
-        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        NsiQuery query = dict.query().addAttrs();
 
         try (Connection connection = dataSource.getConnection()) {
             String sql = sqlGen.getRowInsertSql(query, false);
@@ -64,7 +63,6 @@ public class DBAppender {
                             + ".nextval from dual");
                     PreparedStatement ps = connection
                             .prepareStatement(sql)) {
-                DictRowBuilder builder = null;
                 for (DictRow data : dataList) {
                     ResultSet rs = psGetId.executeQuery();
                     rs.next();
@@ -75,8 +73,8 @@ public class DBAppender {
                         data.getAttrs().put("PARENT_ID", DictRowAttrBuilder.from(id));
                     }
                     */
-                    builder = new DictRowBuilder(query, data).idAttr(id);
-                    sqlDao.setParamsForInsert(query, builder.build(), ps);
+                    data.setIdAttr(id);
+                    sqlDao.setParamsForInsert(query, data, ps);
                     ps.addBatch();
                 }
                 ps.executeBatch();
@@ -105,8 +103,8 @@ public class DBAppender {
 
     public List<DictRow> updateData(NsiConfigDict dict, List<DictRow> dataList) {
         log.info ("appender update dictRow ['{}']", dict.getName());
-        
-        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+
+        NsiQuery query = dict.query().addAttrs();
         String sql = sqlGen.getRowUpdateSql(query);
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {

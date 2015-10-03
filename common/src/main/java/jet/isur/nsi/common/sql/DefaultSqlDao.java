@@ -15,14 +15,13 @@ import java.util.Map;
 
 import jet.isur.nsi.api.data.BoolExpVisitor;
 import jet.isur.nsi.api.data.ConvertUtils;
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaFieldType;
 import jet.isur.nsi.api.model.MetaParamValue;
@@ -67,7 +66,7 @@ public class DefaultSqlDao implements SqlDao {
 
                     List<String> dataValues = filter.getValue().getValues();
                     checkDataValues(fields, queryAttrName, dataValues);
-                    
+
                     int i = 0;
                     for (NsiConfigField field : fields) {
                         if (dataValues.get(i) != null){
@@ -96,13 +95,11 @@ public class DefaultSqlDao implements SqlDao {
 
     public void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result) throws SQLException {
         int index = 1;
-        Map<String, DictRowAttr> resultAttrs = new HashMap<String, DictRowAttr>(query.getAttrs().size());
-        result.setAttrs(resultAttrs);
         NsiConfigDict dict = query.getDict();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
             DictRowAttr attrValue = new DictRowAttr();
-            resultAttrs.put(attr.getName(), attrValue);
+            result.setAttr(attr.getName(), attrValue);
             ArrayList<String> fieldValues = new ArrayList<>(queryAttr.getAttr().getFields().size());
             attrValue.setValues(fieldValues);
             for (NsiConfigField field : attr.getFields()) {
@@ -318,8 +315,9 @@ public class DefaultSqlDao implements SqlDao {
 
     public DictRow get(Connection connection, NsiQuery query,
             DictRowAttr id) {
-        checkDictHasIdAttr(query);
-        DictRow result = new DictRow();
+        NsiConfigDict dict = query.getDict();
+        checkDictHasIdAttr(dict);
+        DictRow result = dict.newDictRow();
         String sql = sqlGen.getRowGetSql(query);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -339,8 +337,7 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
-    private void checkDictHasIdAttr(NsiQuery query) {
-        NsiConfigDict dict = query.getDict();
+    private void checkDictHasIdAttr(NsiConfigDict dict) {
         Preconditions.checkNotNull(dict.getIdAttr(), "dict %s have't id attr", (Object)dict.getName());
     }
 
@@ -428,7 +425,7 @@ public class DefaultSqlDao implements SqlDao {
             if(ps.execute()) {
                 try(ResultSet rs = ps.getResultSet()) {
                     while(rs.next()) {
-                        DictRow data = new DictRow();
+                        DictRow data = query.getDict().newDictRow();
                         rsToDictRow(query, rs, data);
                         result.add(data);
                     }
@@ -478,7 +475,7 @@ public class DefaultSqlDao implements SqlDao {
 
 
     public DictRow insert(Connection connection, NsiQuery query, DictRow data) {
-        checkDictHasIdAttr(query);
+        checkDictHasIdAttr(query.getDict());
 
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
         DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
@@ -500,23 +497,23 @@ public class DefaultSqlDao implements SqlDao {
                     throw new NsiDataException("not found");
                 }
             }
-            return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
+            return get(connection, query, data.getIdAttr());
         } catch (SQLException e) {
             throw new NsiDataException("insert:" + e.getMessage(),e);
         }
     }
 
     private void updateRowData(DictRow row, DictRow data) throws SQLException {
-        for (String field : row.getAttrs().keySet()){
-            if (!data.getAttrs().containsKey(field)){
-                data.getAttrs().put(field, row.getAttrs().get(field));
+        for (String attrName : row.getAttrs().keySet()){
+            if (!data.getAttrs().containsKey(attrName)){
+                data.setAttr(attrName, row.getAttr(attrName));
             }
         }
      }
 
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
-        checkDictHasIdAttr(query);
+        checkDictHasIdAttr(query.getDict());
 
         String sql = sqlGen.getRowUpdateSql(query);
         log.info(sql);
@@ -535,7 +532,7 @@ public class DefaultSqlDao implements SqlDao {
             } if(count > 1) {
                 throw new NsiDataException(Joiner.on(" ").join("too many row updated:",count));
             }
-            return get(connection, query, new DictRowBuilder(query, data).getIdAttr());
+            return get(connection, query, data.getIdAttr());
         } catch (SQLException e) {
             throw new NsiDataException("update:" + e.getMessage(),e);
         }
@@ -544,7 +541,7 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
             boolean insert) {
-        checkDictHasIdAttr(query);
+        checkDictHasIdAttr(query.getDict());
 
         DictRow result = null;
         if(insert) {

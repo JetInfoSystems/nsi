@@ -1,4 +1,4 @@
-package jet.isur.nsi.api.data.builder;
+package jet.isur.nsi.api.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,14 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import jet.isur.nsi.api.NsiServiceException;
-import jet.isur.nsi.api.data.ConvertUtils;
-import jet.isur.nsi.api.data.NsiConfigAttr;
-import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.api.data.NsiConfigField;
-import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.data.NsiQueryAttr;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaAttrType;
 
 import org.joda.time.DateTime;
 
@@ -25,31 +19,21 @@ public class DictRowBuilder {
     private DictRowAttrBuilder attrBuilder;
     private DictRow prototype;
 
-    public DictRowBuilder(NsiQuery query) {
-        this(query.getDict());
-    }
-
-    public DictRowBuilder(NsiConfigDict dict) {
+    DictRowBuilder(NsiConfigDict dict) {
         this(dict, null);
     }
 
-    public DictRowBuilder(NsiQuery query, DictRow data) {
-        this(query.getDict(), data);
-    }
-
-    public DictRowBuilder(NsiConfigDict dict, DictRow data) {
+    DictRowBuilder(NsiConfigDict dict, DictRow data) {
         this.dict = dict;
         this.attrBuilder = new DictRowAttrBuilder(this);
-        setPrototype(data);
+        prototype(data);
     }
 
     public static DictRow cloneRow(DictRow src) {
         if(src == null) {
             return null;
         }
-        DictRow dst = new DictRow();
-        dst.setAttrs(cloneAttrs(src.getAttrs()));
-        return dst;
+        return new DictRow(src.getDict(),cloneAttrs(src.getAttrs()));
     }
 
     private static Map<String,DictRowAttr> cloneAttrs(Map<String, DictRowAttr> srcAttrs) {
@@ -82,25 +66,25 @@ public class DictRowBuilder {
         return new ArrayList<>(srcValues);
     }
 
-    public void setPrototype(DictRow data) {
+    public DictRowBuilder prototype(DictRow data) {
+        if(data != null) {
+            if(dict != data.getDict()) {
+                throw new NsiServiceException("builder with type %s cannot use data type %s",dict.getName(),data.getDict().getName());
+            }
+        }
         this.prototype = data;
+        return this;
     }
 
     DictRow getPrototype() {
         if(prototype==null) {
-            prototype = new DictRow();
-            prototype.setAttrs(new HashMap<String, DictRowAttr>(dict.getAttrs().size()));
+            prototype = new DictRow(dict);
         }
         return prototype;
     }
 
     public DictRowAttrBuilder attr(String name) {
         return attr(name,1);
-    }
-
-    public DictRowAttrBuilder attr(NsiQueryAttr queryAttr) {
-        NsiConfigAttr attr = queryAttr.getAttr();
-        return attr(attr.getName(),attr.getFields().size());
     }
 
     private DictRowAttrBuilder attr(String name, int valuesSize) {
@@ -113,29 +97,33 @@ public class DictRowBuilder {
         return attrBuilder;
     }
 
-    public DictRowAttrBuilder idAttr() {
-        NsiConfigAttr a = dict.getIdAttr();
-        return attr(a);
+    public DictRowAttrBuilder attr(NsiConfigAttr dictAttr) {
+        return attr(getDictAttr(dictAttr.getName()).getName(), dictAttr.getFields().size());
     }
 
     private List<String> createNullList(NsiConfigAttr attr) {
         List<String> result = new ArrayList<>();
-        for ( NsiConfigField field : attr.getFields()) {
+        for(int i=0;i<attr.getFields().size();i++) {
             result.add(null);
         }
         return result;
+    }
+
+    public DictRowAttrBuilder idAttr() {
+        NsiConfigAttr a = dict.getIdAttr();
+        return attr(a);
     }
 
     public DictRowBuilder idAttrNull() {
         return attrNull(dict.getIdAttr().getName());
     }
 
-    public DictRowAttrBuilder attr(NsiConfigAttr dictAttr) {
-        return attr(getDictAttr(dictAttr.getName()));
-    }
-
     public DictRowBuilder idAttr(Long value) {
         return idAttr().value(ConvertUtils.longToString(value)).add();
+    }
+
+    public DictRowBuilder idAttr(String value) {
+        return idAttr().value(value).add();
     }
 
     public DictRowAttrBuilder deleteMarkAttr() {
@@ -227,7 +215,7 @@ public class DictRowBuilder {
     }
 
     public DictRowBuilder attr(String name, DictRowBuilder valueBuilder) {
-        DictRowAttrBuilder builder = attr(name,1).value(valueBuilder.getIdAttr().getValues());
+        DictRowAttrBuilder builder = attr(name,1).value(valueBuilder.getPrototype().getIdAttr().getValues());
         NsiConfigAttr attr = dict.getAttr(name);
         if(dict.isAttrHasRefAttrs(attr)) {
             List<NsiConfigAttr> refObjectAttrs = valueBuilder.getDict().getRefObjectAttrs();
@@ -235,7 +223,7 @@ public class DictRowBuilder {
                 Map<String, DictRowAttr> refAttrMap = new HashMap<>(refObjectAttrs.size());
                 for (NsiConfigAttr refAttr : refObjectAttrs ) {
                     // получаю значение атрибута, из него нужно взять только values
-                    DictRowAttr refAttrValue = valueBuilder.getAttr(refAttr.getName());
+                    DictRowAttr refAttrValue = valueBuilder.getPrototype().getAttr(refAttr.getName());
                     DictRowAttr tmp = new DictRowAttr();
                     tmp.setValues(refAttrValue.getValues());
                     refAttrMap.put(refAttr.getName(),tmp );
@@ -256,6 +244,19 @@ public class DictRowBuilder {
         return builder.add();
     }
 
+    public DictRowBuilder attr(String name, DictRow data) {
+        NsiConfigAttr attr = dict.getAttr(name);
+        if(attr.getType() != MetaAttrType.REF) {
+            throw new NsiServiceException("attr %s dict %s is not ref", name, dict.getName());
+        }
+        NsiConfigDict refDict = attr.getRefDict();
+        if(data != null) {
+            return attr(name, new DictRowBuilder(refDict, data));
+        } else {
+            return attrNull(name);
+        }
+    }
+
     public DictRowBuilder attr(String name, Long value) {
         return attr(name,1).value(ConvertUtils.longToString(value)).add();
     }
@@ -272,59 +273,6 @@ public class DictRowBuilder {
         DictRow result = getPrototype();
         prototype = null;
         return result;
-    }
-
-    public DictRowAttr getAttr(String attrName) {
-        getDictAttr(attrName);
-        return getPrototype().getAttrs().get(attrName);
-    }
-
-    public DictRowAttr getIdAttr() {
-        return getAttr(dict.getIdAttr().getName());
-    }
-
-    public String getString(String attrName) {
-        DictRowAttr attrValue = getAttr(attrName);
-        if(attrValue != null && attrValue.getValues() != null) {
-            return attrValue.getValues().get(0);
-        } else {
-            return null;
-        }
-    }
-
-    public Long getLong(String attrName) {
-        DictRowAttr attrValue = getAttr(attrName);
-        if(attrValue != null && attrValue.getValues() != null) {
-            return ConvertUtils.stringToLong(attrValue.getValues().get(0));
-        } else {
-            return null;
-        }
-    }
-
-    public Long getLongIdAttr() {
-        return getLong(dict.getIdAttr().getName());
-    }
-
-    public Boolean getDeleteMarkAttr() {
-        return getBool(dict.getDeleteMarkAttr().getName());
-    }
-
-    public DateTime getDateTime(String attrName) {
-        DictRowAttr attrValue = getAttr(attrName);
-        if(attrValue != null && attrValue.getValues() != null) {
-            return ConvertUtils.stringToDateTime(attrValue.getValues().get(0));
-        } else {
-            return null;
-        }
-    }
-
-    public Boolean getBool(String attrName) {
-        DictRowAttr attrValue = getAttr(attrName);
-        if(attrValue != null && attrValue.getValues() != null) {
-            return ConvertUtils.stringToBool(attrValue.getValues().get(0));
-        } else {
-            return null;
-        }
     }
 
     public NsiConfigDict getDict() {

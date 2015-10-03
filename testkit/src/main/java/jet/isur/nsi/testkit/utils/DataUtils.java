@@ -4,9 +4,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaDict;
@@ -79,8 +78,8 @@ public class DataUtils {
         Assert.assertEquals(o1.getValueType(), o2.getValueType());
         Assert.assertEquals(o1.getFields(), o2.getFields());
         Assert.assertEquals(o1.getHidden(), o2.getHidden());
-		Assert.assertEquals(o1.getCreateOnly(), o2.getCreateOnly());
-		Assert.assertEquals(o1.isRequired(), o2.isRequired());
+        Assert.assertEquals(o1.getCreateOnly(), o2.getCreateOnly());
+        Assert.assertEquals(o1.isRequired(), o2.isRequired());
     }
 
     public static void assertEquals(MetaField o1, MetaField o2) {
@@ -93,11 +92,11 @@ public class DataUtils {
         Assert.assertEquals(o1.getSize(), o2.getSize());
     }
 
-    public static void assertEquals(NsiQuery query,DictRow o1, DictRow o2) {
+    public static void assertEquals(NsiQuery query, DictRow o1, DictRow o2) {
         assertEquals(query, o1, o2, false);
     }
 
-    public static void assertEquals(NsiQuery query,DictRow o1, DictRow o2, boolean matchOnlyPresent) {
+    public static void assertEquals(NsiQuery query, DictRow o1, DictRow o2, boolean matchOnlyPresent) {
         if(o1 == o2) {
             return;
         }
@@ -106,10 +105,9 @@ public class DataUtils {
         if(!matchOnlyPresent) {
             Assert.assertEquals(o1.getAttrs().size(), o2.getAttrs().size());
         }
-        DictRowBuilder o2Reader = new DictRowBuilder(query, o2);
         for ( String attrName : o1.getAttrs().keySet()) {
-            DictRowAttr o1AttrValue = o1.getAttrs().get(attrName);
-            DictRowAttr o2AttrValue = o2Reader.getAttr(attrName);
+            DictRowAttr o1AttrValue = o1.getAttr(attrName);
+            DictRowAttr o2AttrValue = o2.getAttr(attrName);
             if(!matchOnlyPresent) {
                 Assert.assertNotNull("actual attr value not present:" + attrName, o2AttrValue);
             }
