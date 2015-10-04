@@ -6,11 +6,11 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
@@ -27,7 +27,7 @@ public class DictDataManager {
         NsiConfigDict dict = getDict(dictName);
 
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(config, dict).addAttrs();
+            NsiQuery query = dict.query().addAttrs();
             return sqlDao.get(connection, query, id);
         }
     }
@@ -43,7 +43,7 @@ public class DictDataManager {
     public DictRow save(String dictName, DictRow data, boolean insert) throws SQLException {
         NsiConfigDict dict = config.getDict(dictName);
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(config, dict).addAttrs();
+            NsiQuery query = dict.query().addAttrs();
             return sqlDao.save(connection, query, data, insert);
         }
     }
@@ -52,7 +52,7 @@ public class DictDataManager {
         NsiConfigDict dict = getDict(dictName);
 
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(config, dict).addTableObjectAttrs();
+            NsiQuery query = dict.query().addTableObjectAttrs();
             return sqlDao.list(connection, query, filter, sortList, offset, size);
         }
     }
@@ -60,7 +60,7 @@ public class DictDataManager {
     public long count(String dictName, BoolExp filter) throws SQLException {
         NsiConfigDict dict = getDict(dictName);
         try(Connection connection = dataSource.getConnection()) {
-            NsiQuery query = new NsiQuery(config, dict).addTableObjectAttrs();
+            NsiQuery query = dict.query().addTableObjectAttrs();
             return sqlDao.count(connection, query, filter);
         }
     }

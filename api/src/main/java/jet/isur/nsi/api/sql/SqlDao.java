@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;

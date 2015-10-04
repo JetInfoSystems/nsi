@@ -1,0 +1,14 @@
+attrs:
+- { caption: id, fields: [id],  hidden: false,  name: id,  type: value }
+- { caption: test, fields: [test],  hidden: false,  name: test,  type: value }
+caption: Тест
+captionAttrs: [test]
+fields:
+- {name: id, size: 19, type: number}
+- {name: test, size: 4, type: char}
+hidden: true
+idAttr: id
+name: test_size
+refObjectAttrs: [test]
+table: test_size
+tableObjectAttrs: [test]

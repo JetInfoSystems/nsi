@@ -3,10 +3,10 @@ package jet.isur.nsi.api;
 import java.util.Collection;
 import java.util.List;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
@@ -43,13 +43,13 @@ public interface NsiService {
     /**
      * Сохранить состояние записи справочника, если ид атрибут задан то обновление, если нет то создание
      */
-    DictRow dictSave(String requestId, NsiConfigDict dict, DictRow data);
+    DictRow dictSave(String requestId, DictRow data);
 
     /**
      * Сохранить состояние нескольких записей справочника, если ид атрибут задан то обновление, если нет то создание
      * Записи сохраняются в одной транзакции.
      */
-    List<DictRow> dictBatchSave(String requestId, NsiConfigDict dict, List<DictRow> dataList);
+    List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList);
 
     /**
      * Изменить отметку о удалении для заданной записи справочника

@@ -11,6 +11,7 @@ import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.model.MetaAttrType;
+import jet.isur.nsi.api.model.MetaFieldType;
 
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmBasicAttributeType;
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmColumnType;
@@ -79,7 +80,10 @@ public class NsiDictToHbmEntitySerializer {
     private JaxbHbmColumnType buildColumn(NsiConfigField field) {
         JaxbHbmColumnType result = new JaxbHbmColumnType();
         result.setName(field.getName());
-        if(field.getSize() > 0) {
+        // TODO:  это хардкод
+        if(field.getType() == MetaFieldType.DATE_TIME) {
+        	result.setLength(7);
+        } else if(field.getSize() > 0) {
             result.setLength(field.getSize());
         }
         if(field.getPrecision() > 0) {

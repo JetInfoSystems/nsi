@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.generator.DBAppender;
 import jet.isur.nsi.generator.GeneratorParams;
@@ -28,20 +28,20 @@ import org.slf4j.LoggerFactory;
 
 public class DictDataContent {
     private static final Logger log = LoggerFactory.getLogger(DictDataContent.class);
-    
+
     private final NsiConfig config;
     private final DBAppender appender;
     private final GeneratorParams params;
     private final GeneratorHelper genHelper;
     private final GeneratorDictRowHelper dictRowHelper;
-    
+
     private Map<String, DictDataObject> dictdataObjsMap = new HashMap<String, DictDataObject>();
-    
+
     public DictDataContent(NsiConfig config, DBAppender appender, GeneratorParams params) {
         this.config = config;
         this.appender = appender;
         this.params = params;
-        
+
         this.genHelper = new GeneratorHelper(config, params);
         this.dictRowHelper = new GeneratorDictRowHelper();
     }
@@ -49,9 +49,9 @@ public class DictDataContent {
     public Map<String, DictDataObject> getDictdataObjsMap() {
         return dictdataObjsMap;
     }
-    
+
     /**
-     * Реализует загрузку/обновление всех корневых справочников 
+     * Реализует загрузку/обновление всех корневых справочников
      * из файлов каталога с данными справочника в json формате
      * каталог указывается в конфигурации запуска (параметр dictdataPath)
      * @param dictsIds - отображение конфигурации Nsi-справочник -> идентификаторы строк данных справочника.
@@ -62,14 +62,14 @@ public class DictDataContent {
      */
     public Set<String> addAllRootDicts(Map <NsiConfigDict, List<Long>> dictsIds) throws FileNotFoundException, IOException{
         DictDataFiles dictdataFiles = new DictDataFiles(params.getDictdataPath());
-        
+
         loadDictData(dictdataFiles);
-        
+
         DictDependencyGraph dictGraph = genHelper.getGraph(dictdataObjsMap.keySet());
         List<NsiConfigDict> dictList = dictGraph.sort();
 
         log.info("Generated Graph ['{}']", genHelper.getDictListAsString(dictList));
-        
+
         Set<String> loadedDictList = new HashSet<>(dictList.size());
         for (NsiConfigDict dict : dictList) {
            List<Long> ids = addRootDictData(dict);
@@ -86,27 +86,27 @@ public class DictDataContent {
 
         List<DictRow> curDataList = appender.getData(dict);
 
-        NsiQuery query = new NsiQuery(config, dict).addAttrs();
+        NsiQuery query = dict.query().addAttrs();
 
         DictDataObject ddObj = dictdataObjsMap.get(dict.getName());
         if (ddObj == null) {
             log.warn("addRootDictData ['{}'] -> source data not found", dict.getName());
             return null;
         }
-        
+
         curDataList.addAll(reloadDictData(query, dict, ddObj, curDataList));
-        List<Long> ids = genHelper.getIds(query, dict, curDataList);
-        if (ids != null || ids.isEmpty()) {
+        List<Long> ids = genHelper.getIds(curDataList);
+        if (ids == null || ids.isEmpty()) {
              log.warn("addRootDictData ['{}'] -> no data loaded", dict.getName());
              return null;
         }
-        
+
         log.info("addRootDictData['{}'] -> ok, but without parents yet", dict.getName());
-        
+
         addParents(query, dict, ddObj, curDataList, ids);
         return ids;
     }
-    
+
     private List<DictRow> reloadDictData(NsiQuery query, NsiConfigDict dict, DictDataObject ddObj, List<DictRow> curDataList) {
         List<DictRow> updateDataList = new ArrayList<>();
         Set<Integer> mergedIdxs = updateEqualByRefAttrs(query, dict, ddObj, curDataList, updateDataList);
@@ -129,7 +129,8 @@ public class DictDataContent {
         return updateDataList;
     }
 
-    private Set<Integer> updateEqualByRefAttrs(NsiQuery query, NsiConfigDict dict, DictDataObject ddObj, List<DictRow> curDataList, List<DictRow> updateDataList) {
+    private Set<Integer> updateEqualByRefAttrs(NsiQuery query, NsiConfigDict dict, DictDataObject ddObj, List<DictRow> curDataList,
+            List<DictRow> updateDataList) {
         Map<String, Collection<String>> ddFields = ddObj.getFields();
 
         List<NsiConfigAttr> refDictAttrs = dict.getRefObjectAttrs();
@@ -166,7 +167,7 @@ public class DictDataContent {
         return mergedIndexes;
     }
 
-    
+
     private void loadDictData (DataFiles files) throws FileNotFoundException, IOException {
         JsonDictDataParser jddp = new JsonDictDataParser();
         for (File ddf : files.getFiles()) {

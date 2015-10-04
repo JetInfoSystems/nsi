@@ -7,16 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
-import jet.isur.nsi.api.data.builder.DictRowBuilder;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;
-import jet.isur.nsi.common.data.NsiDataException;
 import jet.isur.nsi.generator.DynamicContent;
 import jet.isur.nsi.generator.StaticContent;
 import jet.isur.nsi.generator.dictdata.DictDataObject;
@@ -31,7 +30,7 @@ import com.google.common.base.Joiner;
 public class GeneratorDictRowHelper {
 
     private static final Logger log = LoggerFactory.getLogger(GeneratorDictRowHelper.class);
-    
+
     /**
      * Создание заполненной строки для фиксированных справочных данных
      * Ссылка допускается только на этот же справочник (иерархия)
@@ -39,7 +38,7 @@ public class GeneratorDictRowHelper {
      * @return
      */
     public DictRow genDictdataContentRow(NsiQuery query, DictDataObject ddObj, int idx, DictRow old) {
-        DictRowBuilder drb = new DictRowBuilder(query);
+        DictRowBuilder drb = query.getDict().builder();
         Map<String, Collection<String>> ddFields = ddObj.getFields();
         Set<String> ddFieldNames = ddFields.keySet();
 
@@ -141,16 +140,16 @@ public class GeneratorDictRowHelper {
         if(query.getDict().getDeleteMarkAttr() != null) {
             drb.deleteMarkAttr(false);
         }
-        
+
         addCommonAttrIfExist(drb, query.getDict());
         return drb.build();
     }
-	
+
     /**
      * Создание заполненной строки
      */
     public DictRow genDictRow(NsiQuery query,  int number, Map<NsiConfigDict, List<Long>> dictsIds) {
-        DictRowBuilder drb = new DictRowBuilder(query);
+        DictRowBuilder drb = query.getDict().builder();
 
         for(NsiQueryAttr attr:query.getAttrs()) {
             NsiConfigAttr attrConfig = attr.getAttr();
@@ -233,16 +232,16 @@ public class GeneratorDictRowHelper {
     }
 
     public DictRow genDictRow(NsiQuery query, PluginDataObject obj, Map<String, Map<String, Long>> referencesData, int idx) {
-        DictRowBuilder drb = query.builder();
-        
+        DictRowBuilder drb = query.getDict().builder();
+
         Map<String, Collection<String>> ddFields = obj.getFields();
-        
+
         for (String fieldName : ddFields.keySet()) {
             String attrName = fieldName;
             if (fieldName.startsWith(PluginDataObject.REF_PREFIX)) {
                 attrName = obj.getRefMap().get(fieldName).getDictName() + "_ID";
             }
-            
+
             List<String> values = new ArrayList<>();
             String value = null;
             if (ddFields.get(fieldName) != null) {
@@ -292,13 +291,13 @@ public class GeneratorDictRowHelper {
                 }
             }
         }
-        
+
         addCommonAttrIfExist(drb, query.getDict());
-        
+
         return drb.build();
-        
+
     }
-    
+
     private void addCommonAttrIfExist(DictRowBuilder drb, NsiConfigDict dict) {
         if(dict.getDeleteMarkAttr() != null) {
             drb.deleteMarkAttr(false);

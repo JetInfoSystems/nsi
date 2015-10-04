@@ -1,13 +1,9 @@
 package jet.isur.nsi.api.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
+import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaSourceQuery;
@@ -33,8 +29,11 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
+    private List<String> constraints = new ArrayList<>();
+    private final NsiConfig config;
 
-    public NsiConfigDict(MetaDict metaDict) {
+    public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
+        this.config = config;
         name = metaDict.getName();
         caption = metaDict.getCaption();
         table = metaDict.getTable();
@@ -218,6 +217,14 @@ public class NsiConfigDict {
         this.tableObjectAttrs = tableObjectAttrs;
     }
 
+    public List<String> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(List<String> constraints) {
+        this.constraints = constraints;
+    }
+
     public NsiConfigSourceQuery getSourceQuery(String name) {
         NsiConfigSourceQuery result = sourceQueries.get(name);
         Preconditions.checkNotNull(result, "dict %s source query %s not exists", getName(), name);
@@ -234,5 +241,37 @@ public class NsiConfigDict {
 
     public String getMainDictName() {
         return mainDictName;
+    }
+
+    public DictRowBuilder builder() {
+        return new DictRowBuilder(this);
+    }
+
+    public DictRowBuilder builder(DictRow data) {
+        return new DictRowBuilder(this, data);
+    }
+
+    public DictRow newDictRow() {
+        return new DictRow(this);
+    }
+
+    public DictRow newDictRow(Map<String, DictRowAttr> attrs) {
+        return new DictRow(this, attrs);
+    }
+
+    public NsiQuery query() {
+        return new NsiQuery(config, this);
+    }
+
+    public BoolExpBuilder filter() {
+        return new BoolExpBuilder(this);
+    }
+
+    public SortListBuilder sort() {
+        return new SortListBuilder(this);
+    }
+
+    public MetaParamsBuilder params() {
+        return new MetaParamsBuilder(this);
     }
 }

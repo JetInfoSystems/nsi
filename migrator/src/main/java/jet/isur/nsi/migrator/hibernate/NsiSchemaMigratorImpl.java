@@ -1,10 +1,12 @@
 package jet.isur.nsi.migrator.hibernate;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.HibernateException;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.relational.Database;
@@ -17,12 +19,16 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.config.spi.ConfigurationService;
 import org.hibernate.engine.config.spi.StandardConverters;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
+import org.hibernate.engine.spi.Mapping;
+import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Constraint;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Index;
 import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UniqueKey;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.UniqueConstraintSchemaUpdateStrategy;
+import org.hibernate.tool.schema.extract.spi.ColumnInformation;
 import org.hibernate.tool.schema.extract.spi.DatabaseInformation;
 import org.hibernate.tool.schema.extract.spi.ForeignKeyInformation;
 import org.hibernate.tool.schema.extract.spi.IndexInformation;
@@ -32,6 +38,7 @@ import org.hibernate.tool.schema.spi.Exporter;
 import org.hibernate.tool.schema.spi.SchemaMigrator;
 import org.hibernate.tool.schema.spi.SchemaManagementException;
 import org.hibernate.tool.schema.spi.Target;
+import org.jboss.logging.Logger;
 
 import com.beust.jcommander.Strings;
 
@@ -41,7 +48,9 @@ import com.beust.jcommander.Strings;
  */
 public class NsiSchemaMigratorImpl implements SchemaMigrator {
 
-    @Override
+    private static final String MODIFY_OPERATION = "modify";
+
+	@Override
     public void doMigration(Metadata metadata,
             DatabaseInformation existingDatabase, boolean createNamespaces,
             List<Target> targets) throws SchemaManagementException {
@@ -183,11 +192,88 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
         final Dialect dialect = jdbcEnvironment.getDialect();
 
         // noinspection unchecked
-        applySqlStrings(table.sqlAlterStrings(dialect, metadata,
+        applySqlStrings(sqlAlterStrings(table, dialect, metadata,
                 tableInformation, getDefaultCatalogName(database),
                 getDefaultSchemaName(database)), targets, false);
     }
 
+    public String getColumnOperationString(ColumnInformation columnInformation, Dialect dialect) {
+    	return (columnInformation == null)? dialect.getAddColumnString() : MODIFY_OPERATION;
+    }
+    
+	public Iterator sqlAlterStrings(
+			Table table,
+			Dialect dialect,
+			Mapping p,
+			TableInformation tableInfo,
+			String defaultCatalog,
+			String defaultSchema) throws HibernateException {
+
+		Iterator iter = table.getColumnIterator();
+		List results = new ArrayList();
+		String tableName = table.getQualifiedName( dialect, defaultCatalog, defaultSchema );
+		
+		while ( iter.hasNext() ) {
+			final Column column = (Column) iter.next();
+			final ColumnInformation columnInfo = tableInfo.getColumn( Identifier.toIdentifier( column.getName(), column.isQuoted() ) );
+
+			if ( columnInfo == null || column.getLength() > columnInfo.getColumnSize()) {
+				// the column doesnt exist at all.
+				StringBuilder alter = new StringBuilder( "alter table " )
+						.append( tableName )
+						.append( ' ' )
+						.append( getColumnOperationString(columnInfo, dialect) )
+						.append( ' ' )
+						.append( column.getQuotedName( dialect ) )
+						.append( ' ' )
+						.append( column.getSqlType( dialect, p ) );
+
+				String defaultValue = column.getDefaultValue();
+				if ( defaultValue != null ) {
+					alter.append( " default " ).append( defaultValue );
+				}
+
+				if ( column.isNullable() ) {
+					alter.append( dialect.getNullColumnString() );
+				}
+				else {
+					alter.append( " not null" );
+				}
+
+				if ( column.isUnique() ) {
+					String keyName = Constraint.generateName( "UK_", table, column );
+					UniqueKey uk = table.getOrCreateUniqueKey( keyName );
+					uk.addColumn( column );
+					alter.append( dialect.getUniqueDelegate()
+							.getColumnDefinitionUniquenessFragment( column ) );
+				}
+
+				if ( column.hasCheckConstraint() && dialect.supportsColumnCheck() ) {
+					alter.append( " check(" )
+							.append( column.getCheckConstraint() )
+							.append( ")" );
+				}
+
+				String columnComment = column.getComment();
+				if ( columnComment != null ) {
+					alter.append( dialect.getColumnComment( columnComment ) );
+				}
+
+				alter.append( dialect.getAddColumnSuffixString() );
+
+				results.add( alter.toString() );
+			} 
+
+		}
+
+		if ( results.isEmpty() ) {
+			Logger.getLogger( SchemaUpdate.class ).debugf( "No alter strings for table : %s", table.getQuotedName() );
+		}
+
+		return results.iterator();
+	}
+
+    
     private void applyIndexes(Table table, TableInformation tableInformation,
             Metadata metadata, List<Target> targets) {
         final Exporter<Index> exporter = metadata.getDatabase()

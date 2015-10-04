@@ -7,10 +7,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
-import java.util.Random;
-
-import org.joda.time.DateTime;
-import org.junit.Test;
 
 import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.data.NsiConfig;
@@ -19,6 +15,9 @@ import jet.isur.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 import junit.framework.Assert;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
 
 public class MigratorTest extends BaseSqlTest{
 
@@ -30,13 +29,17 @@ public class MigratorTest extends BaseSqlTest{
     @Override
     public void setup() throws Exception {
         super.setup();
-
         getConfiguration();
+
+        params = new MigratorParams(properties);
+    }
+
+    public void setupMigrator(String metadataPath) throws Exception {
+        this.metadataPath = metadataPath;
 
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
-        params = new MigratorParams(properties);
     }
 
 
@@ -44,12 +47,13 @@ public class MigratorTest extends BaseSqlTest{
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project.properties");
         Properties props = new Properties();
         props.load(in);
-        metadataPath = "src/test/resources/metadata";
     }
 
 
     @Test
     public void migratorTest() throws Exception {
+        setupMigrator("src/test/resources/metadata/migrator");
+
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("table2", connection);
             DaoUtils.dropTable("table1", connection);
@@ -156,19 +160,48 @@ public class MigratorTest extends BaseSqlTest{
             }
         }
     }
-    
+
     @Test
     public void createUserProfileTest() throws SQLException {
-    	String login = String.valueOf(System.nanoTime()); 
-    	try (Connection con = dataSource.getConnection()) {
-    		Long id = null;
-    		try {
-    			id = DaoUtils.createUserProfile(con, login);
-    			Assert.assertNotNull(id);
-    			Assert.assertNull(DaoUtils.createUserProfile(con, login));
-    		} finally {
-    			DaoUtils.removeUserProfile(con, id);
-    		}
-    	}
+        String login = String.valueOf(System.nanoTime());
+        try (Connection con = dataSource.getConnection()) {
+            Long id = null;
+            try {
+                id = DaoUtils.createUserProfile(con, login);
+                Assert.assertNotNull(id);
+                Assert.assertNull(DaoUtils.createUserProfile(con, login));
+            } finally {
+                DaoUtils.removeUserProfile(con, id);
+            }
+        }
+    }
+
+    @Test
+    public void changeColumnSizeTest() throws Exception {
+
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("test_size", connection);
+        }
+
+        RecActionsTargetImpl rec = new RecActionsTargetImpl();
+
+        setupMigrator("src/test/resources/metadata/changeColumnSize/create");
+        Migrator migrator = new Migrator(config, dataSource, params, "TEST_NSI_" );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+
+        setupMigrator("src/test/resources/metadata/changeColumnSize/alter");
+        migrator = new Migrator(config, dataSource, params, "TEST_NSI_" );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+
+        List<String> actions = rec.getActions();
+        System.out.println(actions);
+        Assert.assertEquals(2, actions.size());
+        Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(1));
+
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("test_size", connection);
+        }
     }
 }

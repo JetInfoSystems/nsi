@@ -3,7 +3,7 @@
     <parent>
         <groupId>jet.isur.nsi</groupId>
         <artifactId>parent</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>nsi-testkit</artifactId>
     <packaging>jar</packaging>
@@ -17,13 +17,16 @@
             <groupId>jet.isur.nsi</groupId>
             <artifactId>nsi-api</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jet.isur.nsi</groupId>
+            <artifactId>nsi-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons.io.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>

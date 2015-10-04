@@ -3,10 +3,11 @@ package jet.isur.nsi.generator.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
+
+import jet.isur.nsi.generator.data.JsonDataParser;
+import jet.isur.nsi.generator.data.Reference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,27 +15,24 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import jet.isur.nsi.generator.data.JsonDataParser;
-import jet.isur.nsi.generator.data.Reference;
-
 public class JsonPluginDataParser extends JsonDataParser {
-    
+
     private static final Logger log = LoggerFactory.getLogger(JsonPluginDataParser.class);
-    
+
     private final String PARENT = "parent";
     private final String REF_ATRR_NAME = "ref.attr.name";
-    
+
     public PluginDataObject parse(File ddf) throws IOException {
         PluginDataObject dataObject = new PluginDataObject();
         super.parse(ddf, dataObject);
-        
+
         dataObject = parseReferencesInfo(dataObject);
         return dataObject;
     }
-    
+
     private PluginDataObject parseReferencesInfo(PluginDataObject dataObject){
         JsonObject obj = dataObject.getObj();
-        
+
         Collection<String> fieldNames = dataObject.getFields().keySet();
         for (String fieldName : fieldNames) {
             if (fieldName.startsWith(PluginDataObject.REF_PREFIX)) {
@@ -47,10 +45,10 @@ public class JsonPluginDataParser extends JsonDataParser {
                 }
             }
         }
-        
+
         return dataObject;
     }
-    
+
     private String getDefaultReferenceAttrName(String refDictName) {
         return refDictName + "_ID";
     }
@@ -71,10 +69,10 @@ public class JsonPluginDataParser extends JsonDataParser {
         refInfo.setRefAttrName(targetRefAttrName);
         return refInfo;
     }
-    
+
     private Reference parseCustomRefereceInfo(String fieldName, JsonObject obj) {
         Reference refInfo = new Reference();
-        
+
         for ( Iterator<Entry<String, JsonElement>> iterator = obj.entrySet().iterator(); iterator.hasNext();) {
             String key = iterator.next().getKey();
             if (key.equals(REF_ATRR_NAME)) {
@@ -105,7 +103,7 @@ public class JsonPluginDataParser extends JsonDataParser {
         log.debug("parse custom reference attr name: " + refInfo.getRefAttrName());
         log.debug("parse custom reference dict name: " + refInfo.getDictName());
         log.debug("parse custom reference target field name: " + refInfo.getFieldName());
-        
+
         return refInfo;
     }
 }

@@ -72,5 +72,7 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder addTableObjectAttr(String value);
 
+    MetaDictBuilder addConstraint(String value);
+
     MetaDict build();
 }

@@ -2,8 +2,6 @@ package jet.isur.nsi.common.config.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,7 @@ public class NsiConfigImpl implements NsiConfig {
     }
 
     public void addDict(MetaDict metaDict) {
-        NsiConfigDict dict = new NsiConfigDict(metaDict);
+        NsiConfigDict dict = new NsiConfigDict(this, metaDict);
         preCheckDict(dict);
         String dictName = metaDict.getName();
         if(dictMap.containsKey(dictName)) {
@@ -99,6 +97,7 @@ public class NsiConfigImpl implements NsiConfig {
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
         dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
+        dict.setConstraints(createConstraints(metaDict.getConstraints()));
         dictMap.put(dictName, dict);
     }
 
@@ -120,6 +119,14 @@ public class NsiConfigImpl implements NsiConfig {
             for (String attrName : attrNames) {
                 result.add(checkAttrExists(dict, attrName));
             }
+        }
+        return result;
+    }
+
+    private List<String> createConstraints(List<String> constraints) {
+        List<String> result = new ArrayList<>();
+        if(constraints != null) {
+            result.addAll(constraints);
         }
         return result;
     }

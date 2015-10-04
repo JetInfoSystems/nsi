@@ -5,10 +5,10 @@ import java.util.List;
 
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiService;
+import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
-import jet.isur.nsi.api.model.DictRow;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
@@ -90,10 +90,10 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public DictRow dictSave(String requestId, NsiConfigDict dict, DictRow data) {
+    public DictRow dictSave(String requestId, DictRow data) {
         final Timer.Context t = dictSaveTimer.time();
         try {
-            return nsiGenericService.dictSave(requestId, dict, data, sqlDao);
+            return nsiGenericService.dictSave(requestId, data, sqlDao);
         } finally {
             t.stop();
         }
@@ -111,11 +111,10 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public List<DictRow> dictBatchSave(String requestId, NsiConfigDict dict,
-            List<DictRow> dataList) {
+    public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList) {
         final Timer.Context t = dictBatchSaveTimer.time();
         try {
-            return nsiGenericService.dictBatchSave(requestId, dict, dataList, sqlDao);
+            return nsiGenericService.dictBatchSave(requestId, dataList, sqlDao);
         } finally {
             t.stop();
         }
