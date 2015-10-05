@@ -96,6 +96,7 @@ public class NsiConfigImpl implements NsiConfig {
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
+        dict.setLoadDataAttrs(createFieldList(dict, metaDict.getLoadDataAttrs()));
         dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
         dict.setConstraints(createConstraints(metaDict.getConstraints()));
         dictMap.put(dictName, dict);

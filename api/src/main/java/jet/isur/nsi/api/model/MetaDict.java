@@ -68,7 +68,13 @@ public class MetaDict extends MetaDictRef {
      */
     private List<String> refObjectAttrs;
     /**
-     * Список наименований атрибутов кторые используются для табличного представления записи.
+     * Список наименований атрибутов которые используются в задачах загрузки
+     * данных
+     */
+    private List<String> loadDataAttrs;
+    /**
+     * Список наименований атрибутов кторые используются для табличного
+     * представления записи.
      */
     private List<String> tableObjectAttrs;
     /**
@@ -159,6 +165,14 @@ public class MetaDict extends MetaDictRef {
     }
     public void setRefObjectAttrs(List<String> refObjectAttrs) {
         this.refObjectAttrs = refObjectAttrs;
+    }
+
+    public List<String> getLoadDataAttrs() {
+        return loadDataAttrs;
+    }
+
+    public void setLoadDataAttrs(List<String> loadDataAttrs) {
+        this.loadDataAttrs = loadDataAttrs;
     }
     public List<String> getTableObjectAttrs() {
         return tableObjectAttrs;

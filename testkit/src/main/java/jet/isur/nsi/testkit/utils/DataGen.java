@@ -78,6 +78,7 @@ public class DataGen {
         .lastUserAttr("last_user")
         .addCaptionAttr("f1")
         .addRefObjectAttr("f1")
+        .addLoadDataAttr("id")
         .addTableObjectAttr("f1");
     }
 }

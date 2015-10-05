@@ -147,6 +147,7 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             prototype.setAttrs(new ArrayList<MetaAttr>());
             prototype.setCaptionAttrs(new ArrayList<String>());
             prototype.setRefObjectAttrs(new ArrayList<String>());
+            prototype.setLoadDataAttrs(new ArrayList<String>());
             prototype.setTableObjectAttrs(new ArrayList<String>());
             prototype.setConstraints(new ArrayList<String>());
         }
@@ -227,6 +228,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
     @Override
     public MetaDictBuilder addRefObjectAttr(String value) {
         getPrototype().getRefObjectAttrs().add(value);
+        return this;
+    }
+
+    @Override
+    public MetaDictBuilder addLoadDataAttr(String value) {
+        getPrototype().getLoadDataAttrs().add(value);
         return this;
     }
 

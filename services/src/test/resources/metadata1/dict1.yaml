@@ -42,6 +42,7 @@ lastChangeAttr: last_change
 lastUserAttr: last_user
 name: dict1
 refObjectAttrs: [f1]
+loadDataAttrs: [id]
 sourceQueries:
   TEST1:
     sql: select f1 from table1

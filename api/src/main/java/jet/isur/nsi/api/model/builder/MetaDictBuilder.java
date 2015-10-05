@@ -75,4 +75,6 @@ public interface MetaDictBuilder {
     MetaDictBuilder addConstraint(String value);
 
     MetaDict build();
+
+    MetaDictBuilder addLoadDataAttr(String value);
 }

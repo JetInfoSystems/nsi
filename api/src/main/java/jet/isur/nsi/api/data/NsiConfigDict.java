@@ -1,7 +1,12 @@
 package jet.isur.nsi.api.data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
@@ -26,6 +31,7 @@ public class NsiConfigDict {
     private NsiConfigAttr lastUserAttr;
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
+    private List<NsiConfigAttr> loadDataAttrs = new ArrayList<>();
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
@@ -273,5 +279,13 @@ public class NsiConfigDict {
 
     public MetaParamsBuilder params() {
         return new MetaParamsBuilder(this);
+    }
+
+    public List<NsiConfigAttr> getLoadDataAttrs() {
+        return loadDataAttrs;
+    }
+
+    public void setLoadDataAttrs(List<NsiConfigAttr> loadDataAttrs) {
+        this.loadDataAttrs = loadDataAttrs;
     }
 }
