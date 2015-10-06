@@ -25,7 +25,7 @@ public class BoolExpBuilder {
         this.owner = owner;
     }
 
-    public BoolExp getPrototype() {
+    private BoolExp getPrototype() {
         if(prototype == null) {
             prototype = new BoolExp();
         }

@@ -5,6 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
+
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.ConvertUtils;
+
+import com.google.common.base.Strings;
+
 /**
  * Значение атрибута справочника
  */
@@ -41,6 +48,54 @@ public class DictRowAttr implements Serializable {
 
     public void setRefAttrs(Map<String, DictRowAttr> refAttrs) {
         this.refAttrs = refAttrs;
+    }
+
+    public boolean isEmpty() {
+        if(values == null || values.isEmpty()) {
+            return false;
+        } else {
+            for ( String v : values) {
+                if(!Strings.isNullOrEmpty(v)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    private String getOneValue() {
+        if(isEmpty()) {
+            return null;
+        }
+        if(values.size() == 1) {
+            return values.get(0);
+        } else {
+            throw new NsiServiceException("attr has no one value: %s",values);
+        }
+    }
+
+    public String getString() {
+        return getOneValue();
+    }
+
+    public Boolean getBoolean() {
+        return ConvertUtils.stringToBool(getOneValue());
+    }
+
+    public Integer getInteger() {
+        return ConvertUtils.stringToInteger(getOneValue());
+    }
+
+    public Long getLong() {
+        return ConvertUtils.stringToLong(getOneValue());
+    }
+
+    public DateTime getDateTime() {
+        return ConvertUtils.stringToDateTime(getOneValue());
+    }
+
+    public Double getDouble() {
+        return ConvertUtils.stringToDouble(getOneValue());
     }
 
     @Override
