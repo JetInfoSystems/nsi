@@ -157,10 +157,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             DictRow outData;
 
             boolean isInsert = false;
-            if (data.getIdAttr() == null
-                    || data.getIdAttr().getValues() == null
-                    || data.getIdAttr().getValues().size() == 0
-                    || data.getIdAttr().getValues().get(0) == null) {
+            if (data.getIdAttr() == null || data.getIdAttr().isEmpty()) {
                 isInsert = true;
             }
             try (Connection connection = dataSource.getConnection()) {
@@ -233,10 +230,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 DictRowBuilder builder = data.builder();
                 DictRow outData;
                 boolean isInsert = false;
-                if (data.getIdAttr() == null
-                        || data.getIdAttr().getValues() == null
-                        || data.getIdAttr().getValues().size() == 0
-                        || data.getIdAttr().getValues().get(0) == null) {
+                if (data.getIdAttr() == null || data.getIdAttr().isEmpty()) {
                     isInsert = true;
                 }
 

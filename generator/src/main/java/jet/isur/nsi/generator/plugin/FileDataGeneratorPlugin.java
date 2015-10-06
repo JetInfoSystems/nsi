@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import jet.isur.nsi.api.data.DictRow;
-import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
@@ -109,7 +108,7 @@ public abstract class FileDataGeneratorPlugin implements GeneratorPlugin {
         Map<String, Long> nameToId = new HashMap<>();
         for (DictRow row : refDictDataList) {
             Long id = row.getIdAttrLong();
-            String name = row.getAttr(refInfo.getFieldName()).getValues().get(0);
+            String name = row.getString(refInfo.getFieldName());
             Long existId = nameToId.get(name);
             if (existId == null || existId < id) {
                 nameToId.put(name, id);
