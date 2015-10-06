@@ -1,5 +1,6 @@
 package jet.isur.nsi.api.model;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +51,7 @@ public class DictRowAttr implements Serializable {
         this.refAttrs = refAttrs;
     }
 
+    @Transient
     public boolean isEmpty() {
         if(values == null || values.isEmpty()) {
             return false;
@@ -63,6 +65,7 @@ public class DictRowAttr implements Serializable {
         }
     }
 
+    @Transient
     private String getOneValue() {
         if(isEmpty()) {
             return null;
@@ -74,26 +77,32 @@ public class DictRowAttr implements Serializable {
         }
     }
 
+    @Transient
     public String getString() {
         return getOneValue();
     }
 
+    @Transient
     public Boolean getBoolean() {
         return ConvertUtils.stringToBool(getOneValue());
     }
 
+    @Transient
     public Integer getInteger() {
         return ConvertUtils.stringToInteger(getOneValue());
     }
 
+    @Transient
     public Long getLong() {
         return ConvertUtils.stringToLong(getOneValue());
     }
 
+    @Transient
     public DateTime getDateTime() {
         return ConvertUtils.stringToDateTime(getOneValue());
     }
 
+    @Transient
     public Double getDouble() {
         return ConvertUtils.stringToDouble(getOneValue());
     }
