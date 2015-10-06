@@ -509,4 +509,12 @@ public class DictRow {
         return attrs;
     }
 
+    public boolean isAttrEmpty(NsiConfigAttr a) {
+        DictRowAttr v = getAttr(a);
+        return v == null || v.isEmpty();
+    }
+
+    public boolean isAttrEmpty(String name) {
+        return isAttrEmpty(getDictAttr(name));
+    }
 }
