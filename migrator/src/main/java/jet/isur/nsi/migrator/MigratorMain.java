@@ -143,7 +143,7 @@ public class MigratorMain {
             break;
         }
 
-        System.out.println("SUCCESS");
+        log.info("SUCCESS");
     }
 
     private static void doRunGeneratorCmd(RunGeneratorCmd runGeneratorCmd, Properties properties) throws Exception {
