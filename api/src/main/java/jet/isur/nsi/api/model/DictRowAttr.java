@@ -54,14 +54,14 @@ public class DictRowAttr implements Serializable {
     @Transient
     public boolean isEmpty() {
         if(values == null || values.isEmpty()) {
-            return false;
+            return true;
         } else {
             for ( String v : values) {
                 if(!Strings.isNullOrEmpty(v)) {
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
     }
 
