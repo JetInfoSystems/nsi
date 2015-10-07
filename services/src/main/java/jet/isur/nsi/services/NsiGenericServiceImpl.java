@@ -156,10 +156,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             NsiQuery query = dict.query().addAttrs();
             DictRow outData;
 
-            boolean isInsert = false;
-            if (data.isAttrEmpty(dict.getIdAttr())) {
-                isInsert = true;
-            }
+            boolean isInsert = data.isIdAttrEmpty();
             try (Connection connection = dataSource.getConnection()) {
                 if(dict.getLastChangeAttr() != null ) {
                     data.setLastChangeAttr(DateTime.now(DateTimeZone.UTC));
@@ -229,10 +226,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
 
                 DictRowBuilder builder = data.builder();
                 DictRow outData;
-                boolean isInsert = false;
-                if (data.isAttrEmpty(dict.getIdAttr())) {
-                    isInsert = true;
-                }
+                boolean isInsert = data.isIdAttrEmpty();
 
                 try (Connection connection = dataSource.getConnection()) {
                     if (isInsert) {
