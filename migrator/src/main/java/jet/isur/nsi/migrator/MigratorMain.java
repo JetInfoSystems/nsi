@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.beust.jcommander.JCommander;
 
 import jet.isur.nsi.api.data.NsiConfig;
@@ -41,6 +44,8 @@ public class MigratorMain {
     private static final String CMD_RUN_GENERATOR = "runGenerator";
     private static final String CMD_RUN_GENERATOR_PLUGIN = "runGeneratorPlugin";
     private static final String CMD_CREATE_USER_PROFILE = "createUserProfile";
+    
+    private static final Logger log = LoggerFactory.getLogger(MigratorMain.class);
     
     public static void main(String[] args) throws Exception {
         JCommander jc = new JCommander();
@@ -116,7 +121,8 @@ public class MigratorMain {
             default:
                 break;
             }
-
+            break;
+            
         case CMD_CREATE_TABLESPACE:
             doCreateTablespaceCmd(params, properties);
             break;
@@ -137,6 +143,7 @@ public class MigratorMain {
             break;
         }
 
+        log.info("SUCCESS");
     }
 
     private static void doRunGeneratorCmd(RunGeneratorCmd runGeneratorCmd, Properties properties) throws Exception {
