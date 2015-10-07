@@ -47,6 +47,10 @@ public class MetaAttr implements Serializable {
 	 * Атрибут можно задать при создании но в дальнейшем менять его нельзя
 	 */
 	private Boolean createOnly;
+    /**
+     * Значение по умолчанию, которое проставляется при создании записи справочника, если значение атрибута не было задано
+     */
+    private String defaultValue;
 
     /**
      * Атрибут является требуемым.
@@ -118,4 +122,12 @@ public class MetaAttr implements Serializable {
 	public void setCreateOnly(Boolean createOnly) {
 		this.createOnly = createOnly;
 	}
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
 }

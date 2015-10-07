@@ -135,6 +135,11 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
 			return this;
 		}
 
+        @Override
+        public MetaAttrBuilder defaultValue(String defaultValue) {
+            getPrototype().setDefaultValue(defaultValue);
+            return this;
+        }
 	}
 
     private MetaDict prototype;

@@ -16,7 +16,8 @@ public class NsiConfigAttr {
     private final String refDictName;
     private boolean required;
     private boolean readonly;
-	private Boolean createOnly;
+    private Boolean createOnly;
+    private String defaultValue;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
@@ -30,7 +31,8 @@ public class NsiConfigAttr {
         refDictName = metaAttr.getRefDict();
         required = metaAttr.isRequired();
         readonly = metaAttr.getReadonly() == Boolean.TRUE;
-		createOnly = metaAttr.getCreateOnly() == Boolean.TRUE;
+        createOnly = metaAttr.getCreateOnly() == Boolean.TRUE;
+        defaultValue = metaAttr.getDefaultValue();
     }
     public MetaAttrType getType() {
         return type;
@@ -71,7 +73,7 @@ public class NsiConfigAttr {
     @Override
     public String toString() {
         return "NsiConfigAttr [type=" + type.toString() + ", valueType=" + valueType
-                + ", name=" + name + ", caption=" + caption + ", hidden="
+                + ", name=" + name + ", default=" + defaultValue + ", caption=" + caption + ", hidden="
                 + hidden + ", refDictName=" + refDictName + ", required="
                 + required + ", fields=" + fields + ", refDict=" + refDict
                 + "]";
@@ -100,4 +102,11 @@ public class NsiConfigAttr {
 		this.createOnly = createOnly;
 	}
 
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
 }

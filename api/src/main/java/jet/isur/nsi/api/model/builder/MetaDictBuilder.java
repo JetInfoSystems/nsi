@@ -39,6 +39,8 @@ public interface MetaDictBuilder {
 
 		MetaAttrBuilder required(Boolean value);
 
+        MetaAttrBuilder defaultValue(String defaultValue);
+
         MetaDictBuilder add();
     }
 
