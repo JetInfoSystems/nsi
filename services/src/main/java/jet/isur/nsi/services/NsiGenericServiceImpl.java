@@ -163,16 +163,17 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 }
                 if (isInsert) {
                     data.cleanIdAttr();
-                    if(dict.getDeleteMarkAttr() != null) {
-                        // если явно не задан то false
-                        if(data.getDeleteMarkAttr() == null) {
-                            data.setDeleteMarkAttr(false);
-                        }
+                    if(dict.getDeleteMarkAttr() != null && DictRowAttr.isEmpty(data.getDeleteMarkAttr())) {
+                        data.setDeleteMarkAttr(false);
                     }
-                    outData = sqlDao.save(connection, query, data, isInsert);
-                } else {
-                    outData = sqlDao.save(connection, query, data, isInsert);
+                    if(dict.getLastChangeAttr() != null && DictRowAttr.isEmpty(data.getLastChangeAttr())) {
+                        data.setLastChangeAttr((DateTime) null);
+                    }
+                    if(dict.getLastUserAttr() != null && DictRowAttr.isEmpty(data.getLastUserAttr())) {
+                        data.setLastUserAttr((String) null);
+                    }
                 }
+                outData = sqlDao.save(connection, query, data, isInsert);
             }
             if (isInsert) {
                 log.info("dictSave [{},{}] -> inserted [{}]", requestId,
