@@ -1,5 +1,6 @@
 package jet.isur.nsi.api.data;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ public class DictRow {
         return new DictRowBuilder(dict, this);
     }
 
+    @Transient
     private NsiConfigAttr getDictAttr(String name) {
         NsiConfigAttr result = dict.getAttr(name);
         if(result == null) {
@@ -41,14 +43,17 @@ public class DictRow {
         return result;
     }
 
+    @Transient
     DictRowAttr getAttr(NsiConfigAttr a) {
         return getAttrs().get(a.getName());
     }
 
+    @Transient
     public DictRowAttr getAttr(String name) {
         return getAttr(getDictAttr(name));
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, DictRowAttr value) {
         if(value == null) {
             value = createNullValue(a);
@@ -64,6 +69,7 @@ public class DictRow {
         cleanAttr(getDictAttr(name));
     }
 
+    @Transient
     public void setAttr(String name, DictRowAttr value) {
         setAttr(getDictAttr(name), value);
     }
@@ -78,6 +84,7 @@ public class DictRow {
         return result;
     }
 
+    @Transient
     public void setAttr(String name, DictRow value) {
        NsiConfigAttr a = getDictAttr(name);
        if(value == null) {
@@ -113,6 +120,7 @@ public class DictRow {
        }
     }
 
+    @Transient
     public NsiConfigDict getDict() {
         return dict;
     }
@@ -137,90 +145,112 @@ public class DictRow {
         }
     }
 
+    @Transient
     NsiConfigAttr getDictDeleteMarkAttr() {
         return checkDictAttrNotNull(dict.getDeleteMarkAttr(),"deleteMarkAttr");
     }
 
+    @Transient
     public DictRowAttr getDeleteMarkAttr() {
         return getAttr(getDictDeleteMarkAttr().getName());
     }
 
+    @Transient
     public void setDeleteMarkAttr(DictRowAttr value) {
         setAttr(getDictDeleteMarkAttr(), value);
     }
 
+    @Transient
     NsiConfigAttr getDictIdAttr() {
         return checkDictAttrNotNull(dict.getIdAttr(),"idAttr");
     }
 
+    @Transient
     public DictRowAttr getIdAttr() {
         return getAttr(getDictIdAttr().getName());
     }
 
+    @Transient
     public void setIdAttr(DictRowAttr value) {
         setAttr(getDictIdAttr(), value);
     }
 
+    @Transient
     NsiConfigAttr getDictIsGroupAttr() {
         return checkDictAttrNotNull(dict.getIsGroupAttr(),"isGroupAttr");
     }
 
+    @Transient
     public DictRowAttr getIsGroupAttr() {
         return getAttr(getDictIsGroupAttr().getName());
     }
 
+    @Transient
     public void setIsGroupAttr(DictRowAttr value) {
         setAttr(getDictIsGroupAttr(), value);
     }
 
+    @Transient
     NsiConfigAttr getDictLastChangeAttr() {
         return checkDictAttrNotNull(dict.getLastChangeAttr(),"lastChangeAttr");
     }
 
+    @Transient
     public DictRowAttr getLastChangeAttr() {
         return getAttr(getDictLastChangeAttr().getName());
     }
 
+    @Transient
     public void setLastChangeAttr(DictRowAttr value) {
         setAttr(getDictLastChangeAttr(), value);
     }
 
+    @Transient
     NsiConfigAttr getDictLastUserAttr() {
         return checkDictAttrNotNull(dict.getLastUserAttr(),"lastUserAttr");
     }
 
+    @Transient
     public DictRowAttr getLastUserAttr() {
         return getAttr(getDictLastUserAttr().getName());
     }
 
+    @Transient
     public void setLastUserAttr(DictRowAttr value) {
         setAttr(getDictLastUserAttr(), value);
     }
 
+    @Transient
     NsiConfigAttr getDictOwnerAttr() {
         return checkDictAttrNotNull(dict.getOwnerAttr(),"ownerAttr");
     }
 
+    @Transient
     public DictRowAttr getOwnerAttr() {
         return getAttr(getDictOwnerAttr().getName());
     }
 
+    @Transient
     public void setOwnerAttr(DictRowAttr value) {
         setAttr(getDictOwnerAttr(), value);
     }
 
+    @Transient
     NsiConfigAttr getDictParentAttr() {
         return checkDictAttrNotNull(dict.getParentAttr(),"parentAttr");
     }
 
+    @Transient
     public DictRowAttr getParentAttr() {
         return getAttr(getDictParentAttr().getName());
     }
 
+    @Transient
     public void setParentAttr(DictRowAttr value) {
         setAttr(getDictParentAttr(), value);
     }
 
+    @Transient
     String getOneValue(DictRowAttr value) {
         if(value == null) {
             return null;
@@ -236,6 +266,7 @@ public class DictRow {
         return new NsiServiceException("dict %s attr %s type incapatible with %s", dict.getName(), a.getName(), fieldType);
     }
 
+    @Transient
     Boolean getBoolean(NsiConfigAttr a) {
         switch (a.getFields().get(0).getType()) {
         case BOOLEAN:
@@ -245,18 +276,22 @@ public class DictRow {
         }
     }
 
+    @Transient
     public Boolean getBoolean(String name) {
         return getBoolean(checkDictAttrOneField(getDictAttr(name)));
     }
 
+    @Transient
     String getString(NsiConfigAttr a) {
         return getOneValue(getAttr(a));
     }
 
+    @Transient
     public String getString(String name) {
         return getString(checkDictAttrOneField(getDictAttr(name)));
     }
 
+    @Transient
     DateTime getDateTime(NsiConfigAttr a) {
         switch (a.getFields().get(0).getType()) {
         case DATE_TIME:
@@ -266,10 +301,12 @@ public class DictRow {
         }
     }
 
+    @Transient
     public DateTime getDateTime(String name) {
         return getDateTime(checkDictAttrOneField(getDictAttr(name)));
     }
 
+    @Transient
     Long getLong(NsiConfigAttr a) {
         switch (a.getFields().get(0).getType()) {
         case NUMBER:
@@ -282,10 +319,12 @@ public class DictRow {
         }
     }
 
+    @Transient
     public Long getLong(String name) {
         return getLong(checkDictAttrOneField(getDictAttr(name)));
     }
 
+    @Transient
     Integer getInteger(NsiConfigAttr a) {
         switch (a.getFields().get(0).getType()) {
         case NUMBER:
@@ -298,10 +337,12 @@ public class DictRow {
         }
     }
 
+    @Transient
     public Integer getInteger(String name) {
         return getInteger(checkDictAttrOneField(getDictAttr(name)));
     }
 
+    @Transient
     Double getDouble(NsiConfigAttr a) {
         switch (a.getFields().get(0).getType()) {
         case NUMBER:
@@ -311,19 +352,23 @@ public class DictRow {
         }
     }
 
+    @Transient
     public Double getDouble(String name) {
         return getDouble(checkDictAttrOneField(getDictAttr(name)));
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, String value) {
         setAttr(a, DictRowAttrBuilder.from(value));
     }
 
+    @Transient
     public void setAttr(String name, Boolean value) {
         NsiConfigAttr a = checkDictAttrOneField(getDictAttr(name));
         setAttr(a, DictRowAttrBuilder.from(value));
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, Boolean value) {
         switch (a.getFields().get(0).getType()) {
         case BOOLEAN:
@@ -334,11 +379,13 @@ public class DictRow {
         }
     }
 
+    @Transient
     public void setAttr(String name, String value) {
         NsiConfigAttr a = checkDictAttrOneField(getDictAttr(name));
         setAttr(a, DictRowAttrBuilder.from(value));
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, DateTime value) {
         switch (a.getFields().get(0).getType()) {
         case DATE_TIME:
@@ -349,10 +396,12 @@ public class DictRow {
         }
     }
 
+    @Transient
     public void setAttr(String name, DateTime value) {
         setAttr(checkDictAttrOneField(getDictAttr(name)), value);
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, Long value) {
         switch (a.getFields().get(0).getType()) {
         case NUMBER:
@@ -366,10 +415,12 @@ public class DictRow {
         }
     }
 
+    @Transient
     public void setAttr(String name, Long value) {
         setAttr(checkDictAttrOneField(getDictAttr(name)), value);
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, Integer value) {
         switch (a.getFields().get(0).getType()) {
         case NUMBER:
@@ -383,10 +434,12 @@ public class DictRow {
         }
     }
 
+    @Transient
     public void setAttr(String name, Integer value) {
         setAttr(checkDictAttrOneField(getDictAttr(name)), value);
     }
 
+    @Transient
     void setAttr(NsiConfigAttr a, Double value) {
         switch (a.getFields().get(0).getType()) {
         case NUMBER:
@@ -397,14 +450,17 @@ public class DictRow {
         }
     }
 
+    @Transient
     public void setAttr(String name, Double value) {
         setAttr(checkDictAttrOneField(getDictAttr(name)), value);
     }
 
+    @Transient
     public String getIdAttrString() {
         return getString(getDictIdAttr());
     }
 
+    @Transient
     public Long getIdAttrLong() {
         return getLong(getDictIdAttr());
     }
@@ -413,38 +469,47 @@ public class DictRow {
         cleanAttr(getDictIdAttr());
     }
 
+    @Transient
     public void setIdAttr(String value) {
         setAttr(getDictIdAttr(), value);
     }
 
+    @Transient
     public void setIdAttr(Long value) {
         setAttr(getDictIdAttr(), value);
     }
 
+    @Transient
     public Boolean getDeleteMarkAttrBoolean() {
         return getBoolean(getDictDeleteMarkAttr());
     }
 
+    @Transient
     public void setDeleteMarkAttr(Boolean value) {
         setAttr(getDictDeleteMarkAttr(), value);
     }
 
+    @Transient
     public Boolean getIsGroupAttrBoolean() {
         return getBoolean(getDictIsGroupAttr());
     }
 
+    @Transient
     public void setIsGroupMarkAttr(Boolean value) {
         setAttr(getDictIsGroupAttr(), value);
     }
 
+    @Transient
     public DateTime getLastChangeDateTime() {
         return getDateTime(getDictLastChangeAttr());
     }
 
+    @Transient
     public void setLastChangeAttr(DateTime value) {
         setAttr(getDictLastChangeAttr(), value);
     }
 
+    @Transient
     public Long getOwnerLong() {
         return getLong(getDictOwnerAttr());
     }
@@ -453,18 +518,22 @@ public class DictRow {
         cleanAttr(getDictOwnerAttr());
     }
 
+    @Transient
     public void setOwnerAttr(Long value) {
         setAttr(getDictOwnerAttr(), value);
     }
 
+    @Transient
     public String getOwnerString() {
         return getString(getDictOwnerAttr());
     }
 
+    @Transient
     public void setOwnerAttr(String value) {
         setAttr(getDictOwnerAttr(), value);
     }
 
+    @Transient
     public Long getParentLong() {
         return getLong(getDictParentAttr());
     }
@@ -473,18 +542,22 @@ public class DictRow {
         cleanAttr(getDictParentAttr());
     }
 
+    @Transient
     public void setParentAttr(Long value) {
         setAttr(getDictParentAttr(), value);
     }
 
+    @Transient
     public String getParentString() {
         return getString(getDictParentAttr());
     }
 
+    @Transient
     public void setParentAttr(String value) {
         setAttr(getDictParentAttr(), value);
     }
 
+    @Transient
     public Long getLastUserLong() {
         return getLong(getDictLastUserAttr());
     }
@@ -493,20 +566,39 @@ public class DictRow {
         cleanAttr(getDictLastUserAttr());
     }
 
+    @Transient
     public void setLastUserAttr(Long value) {
         setAttr(getDictLastUserAttr(), value);
     }
 
+    @Transient
     public String getLastUserString() {
         return getString(getDictLastUserAttr());
     }
 
+    @Transient
     public void setLastUserAttr(String value) {
         setAttr(getDictLastUserAttr(), value);
     }
 
     public Map<String, DictRowAttr> getAttrs() {
         return attrs;
+    }
+
+    @Transient
+    public boolean isAttrEmpty(NsiConfigAttr a) {
+        DictRowAttr v = getAttr(a);
+        return v == null || v.isEmpty();
+    }
+
+    @Transient
+    public boolean isAttrEmpty(String name) {
+        return isAttrEmpty(getDictAttr(name));
+    }
+
+    @Transient
+    public boolean isIdAttrEmpty() {
+        return isAttrEmpty(dict.getIdAttr());
     }
 
 }

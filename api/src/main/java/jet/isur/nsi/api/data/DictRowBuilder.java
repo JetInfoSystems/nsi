@@ -205,7 +205,7 @@ public class DictRowBuilder {
     private NsiConfigAttr getDictAttr(String name) {
         NsiConfigAttr result = dict.getAttr(name);
         if(result == null) {
-            throw new NsiServiceException("attr %s not found in query from dict %s", name, dict.getName());
+            throw new NsiServiceException("attr %s not found in dict %s", name, dict.getName());
         }
         return result;
     }

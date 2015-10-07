@@ -1,9 +1,17 @@
 package jet.isur.nsi.api.model;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
+
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.ConvertUtils;
+
+import com.google.common.base.Strings;
 
 /**
  * Значение атрибута справочника
@@ -41,6 +49,62 @@ public class DictRowAttr implements Serializable {
 
     public void setRefAttrs(Map<String, DictRowAttr> refAttrs) {
         this.refAttrs = refAttrs;
+    }
+
+    @Transient
+    public boolean isEmpty() {
+        if(values == null || values.isEmpty()) {
+            return true;
+        } else {
+            for ( String v : values) {
+                if(!Strings.isNullOrEmpty(v)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    @Transient
+    private String getOneValue() {
+        if(isEmpty()) {
+            return null;
+        }
+        if(values.size() == 1) {
+            return values.get(0);
+        } else {
+            throw new NsiServiceException("attr has no one value: %s",values);
+        }
+    }
+
+    @Transient
+    public String getString() {
+        return getOneValue();
+    }
+
+    @Transient
+    public Boolean getBoolean() {
+        return ConvertUtils.stringToBool(getOneValue());
+    }
+
+    @Transient
+    public Integer getInteger() {
+        return ConvertUtils.stringToInteger(getOneValue());
+    }
+
+    @Transient
+    public Long getLong() {
+        return ConvertUtils.stringToLong(getOneValue());
+    }
+
+    @Transient
+    public DateTime getDateTime() {
+        return ConvertUtils.stringToDateTime(getOneValue());
+    }
+
+    @Transient
+    public Double getDouble() {
+        return ConvertUtils.stringToDouble(getOneValue());
     }
 
     @Override
