@@ -65,6 +65,10 @@ public class DictRowAttr implements Serializable {
         }
     }
 
+    public static boolean isEmpty(DictRowAttr attr) {
+        return attr == null || attr.isEmpty();
+    }
+
     @Transient
     private String getOneValue() {
         if(isEmpty()) {
