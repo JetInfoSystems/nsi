@@ -81,6 +81,6 @@ public class DataGen {
         .addRefObjectAttr("f1")
         .addLoadDataAttr("id")
         .addTableObjectAttr("f1")
-        .addConstraint("constraint");
+        .addInterceptor("interceptor");
     }
 }

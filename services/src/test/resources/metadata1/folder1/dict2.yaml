@@ -49,4 +49,4 @@ name: dict2
 refObjectAttrs: [f1]
 table: table2
 tableObjectAttrs: [f1]
-constraints: [constraint]
+interceptors: [interceptor]

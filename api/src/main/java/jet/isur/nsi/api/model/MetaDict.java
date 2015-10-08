@@ -78,9 +78,9 @@ public class MetaDict extends MetaDictRef {
      */
     private List<String> tableObjectAttrs;
     /**
-     * Список констрейнтов, которые должны проверяться при создании, сохранении или удалении записи
+     * Список интерсепторов, которые должны выполняться при создании, сохранении или удалении записи
      */
-    private List<String> constraints;
+    private List<String> interceptors;
 
     /**
      * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.
@@ -180,11 +180,11 @@ public class MetaDict extends MetaDictRef {
     public void setTableObjectAttrs(List<String> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
     }
-    public List<String> getConstraints() {
-        return constraints;
+    public List<String> getInterceptors() {
+        return interceptors;
     }
-    public void setConstraints(List<String> constraints) {
-        this.constraints = constraints;
+    public void setInterceptors(List<String> interceptors) {
+        this.interceptors = interceptors;
     }
     public String getName() {
         return name;

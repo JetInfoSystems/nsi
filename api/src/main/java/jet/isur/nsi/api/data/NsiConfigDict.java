@@ -35,7 +35,7 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
-    private List<String> constraints = new ArrayList<>();
+    private List<String> interceptors = new ArrayList<>();
     private final NsiConfig config;
 
     public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
@@ -223,12 +223,12 @@ public class NsiConfigDict {
         this.tableObjectAttrs = tableObjectAttrs;
     }
 
-    public List<String> getConstraints() {
-        return constraints;
+    public List<String> getInterceptors() {
+        return interceptors;
     }
 
-    public void setConstraints(List<String> constraints) {
-        this.constraints = constraints;
+    public void setInterceptors(List<String> interceptors) {
+        this.interceptors = interceptors;
     }
 
     public NsiConfigSourceQuery getSourceQuery(String name) {

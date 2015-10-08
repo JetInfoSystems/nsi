@@ -98,7 +98,7 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
         dict.setLoadDataAttrs(createFieldList(dict, metaDict.getLoadDataAttrs()));
         dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
-        dict.setConstraints(createConstraints(metaDict.getConstraints()));
+        dict.setInterceptors(createInterceptors(metaDict.getInterceptors()));
         dictMap.put(dictName, dict);
     }
 
@@ -124,10 +124,10 @@ public class NsiConfigImpl implements NsiConfig {
         return result;
     }
 
-    private List<String> createConstraints(List<String> constraints) {
+    private List<String> createInterceptors(List<String> interceptors) {
         List<String> result = new ArrayList<>();
-        if(constraints != null) {
-            result.addAll(constraints);
+        if(interceptors != null) {
+            result.addAll(interceptors);
         }
         return result;
     }
