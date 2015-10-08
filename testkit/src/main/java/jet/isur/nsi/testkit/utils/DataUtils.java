@@ -1,8 +1,10 @@
+
 package jet.isur.nsi.testkit.utils;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
 
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiQuery;
@@ -32,6 +34,7 @@ public class DataUtils {
         Assert.assertEquals(o1.getLoadDataAttrs(), o2.getLoadDataAttrs());
         Assert.assertEquals(o1.getTableObjectAttrs(), o2.getTableObjectAttrs());
         Assert.assertEquals(o1.getInterceptors(), o2.getInterceptors());
+        assertEquals("owns", o1.getOwns(), o2.getOwns());
         assertEquals("fields", o1.getFields(), o2.getFields(), new Comparator<MetaField>() {
 
             @Override
@@ -50,6 +53,21 @@ public class DataUtils {
             }
 
         });
+    }
+
+    public static <K, V> void assertEquals(final String message,
+            final Map<K, V> expected, final Map<K, V> actual) {
+        if (expected == actual) {
+            return;
+        }
+        Assert.assertNotNull(message + ": expected is null", expected);
+        Assert.assertNotNull(message + "actual is null", actual);
+        Assert.assertEquals(message + ": size not match", expected.size(),
+                actual.size());
+        for (K cur : expected.keySet()) {
+            Assert.assertTrue(actual.containsKey(cur));
+            Assert.assertTrue(actual.containsValue(expected.get(cur)));
+        }
     }
 
     public static <T> void assertEquals(final String message, final Collection<T> expected, final Collection<T> actual, final Comparator<T> c) {

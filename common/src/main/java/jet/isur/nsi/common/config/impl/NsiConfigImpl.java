@@ -1,10 +1,13 @@
+
 package jet.isur.nsi.common.config.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -20,6 +23,7 @@ import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaField;
 import jet.isur.nsi.api.model.MetaFieldType;
+import jet.isur.nsi.api.model.MetaOwn;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
@@ -99,6 +103,15 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setLoadDataAttrs(createFieldList(dict, metaDict.getLoadDataAttrs()));
         dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
         dict.setInterceptors(createInterceptors(metaDict.getInterceptors()));
+
+        Map<String, NsiConfigAttr> result = new HashMap<String, NsiConfigAttr>();
+        if (null != metaDict.getOwns())
+            for (Entry<String, MetaOwn> q : metaDict.getOwns().entrySet()) {
+                result.put(q.getKey(),
+                        checkAttrExists(dict, q.getValue().getAttr()));
+            }
+        dict.setOwns(result);
+
         dictMap.put(dictName, dict);
     }
 

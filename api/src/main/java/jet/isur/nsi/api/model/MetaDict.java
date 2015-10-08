@@ -1,3 +1,4 @@
+
 package jet.isur.nsi.api.model;
 
 import java.util.Collection;
@@ -92,6 +93,11 @@ public class MetaDict extends MetaDictRef {
      */
     private Map<String, MetaSourceQuery> sourceQueries;
 
+    /**
+     * Принадлежности
+     */
+    private Map<String, MetaOwn> owns;
+
     private String mainDict;
 
     public String getTable() {
@@ -180,12 +186,15 @@ public class MetaDict extends MetaDictRef {
     public void setTableObjectAttrs(List<String> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
     }
+
     public List<String> getInterceptors() {
         return interceptors;
     }
+
     public void setInterceptors(List<String> interceptors) {
         this.interceptors = interceptors;
     }
+
     public String getName() {
         return name;
     }
@@ -217,4 +226,11 @@ public class MetaDict extends MetaDictRef {
         this.mainDict = mainDict;
     }
 
+    public Map<String, MetaOwn> getOwns() {
+        return owns;
+    }
+
+    public void setOwns(Map<String, MetaOwn> owns) {
+        this.owns = owns;
+    }
 }
