@@ -587,8 +587,7 @@ public class DictRow {
 
     @Transient
     public boolean isAttrEmpty(NsiConfigAttr a) {
-        DictRowAttr v = getAttr(a);
-        return v == null || v.isEmpty();
+        return DictRowAttr.isEmpty(getAttr(a));
     }
 
     @Transient
@@ -598,7 +597,7 @@ public class DictRow {
 
     @Transient
     public boolean isIdAttrEmpty() {
-        return isAttrEmpty(dict.getIdAttr());
+        return DictRowAttr.isEmpty(getIdAttr());
     }
 
 }
