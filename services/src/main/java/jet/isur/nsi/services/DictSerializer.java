@@ -22,22 +22,22 @@ public class DictSerializer {
             result.setDeleteMarkAttr(dict.getDeleteMarkAttr().getName());
         }
         if(dict.getIsGroupAttr()!=null) {
-            result.setDeleteMarkAttr(dict.getIsGroupAttr().getName());
+            result.setIsGroupAttr(dict.getIsGroupAttr().getName());
         }
         if(dict.getIdAttr()!=null) {
-            result.setDeleteMarkAttr(dict.getIdAttr().getName());
+            result.setIdAttr(dict.getIdAttr().getName());
         }
         if(dict.getLastChangeAttr()!=null) {
-            result.setDeleteMarkAttr(dict.getLastChangeAttr().getName());
+            result.setLastChangeAttr(dict.getLastChangeAttr().getName());
         }
         if(dict.getLastUserAttr()!=null) {
-            result.setDeleteMarkAttr(dict.getLastUserAttr().getName());
+            result.setLastUserAttr(dict.getLastUserAttr().getName());
         }
         if(dict.getParentAttr()!=null) {
-            result.setDeleteMarkAttr(dict.getParentAttr().getName());
+            result.setParentAttr(dict.getParentAttr().getName());
         }
         if(dict.getOwnerAttr()!=null) {
-            result.setDeleteMarkAttr(dict.getOwnerAttr().getName());
+            result.setOwnerAttr(dict.getOwnerAttr().getName());
         }
         result.setFields(serializeFields(dict.getFields()));
         result.setTable(dict.getTable());

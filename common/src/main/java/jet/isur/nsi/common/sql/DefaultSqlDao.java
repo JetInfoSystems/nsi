@@ -519,8 +519,7 @@ public class DefaultSqlDao implements SqlDao {
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
             if (query.getAttrs().size() != data.getAttrs().size()){
-                DictRow row = get(connection, query, data.getAttrs()
-                        .get(query.getDict().getIdAttr().getName()));
+                DictRow row = get(connection, query, data.getIdAttr());
                 updateRowData(row, data);
             }
             int paramCount = setParamsForUpdate(query, data, ps) - 1;
