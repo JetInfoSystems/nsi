@@ -17,9 +17,11 @@ import javax.sql.DataSource;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
+import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 
@@ -67,17 +69,32 @@ public class BaseSqlTest {
                 Collections.reverse(testDictList);
 
                 for (NsiConfigDict dict : testDictList) {
-                    // удаляем данные
-                    try (PreparedStatement ps = c.prepareStatement("delete from "
-                            + dict.getTable() + " where "
-                            + dict.getIdAttr().getName() + "=?")) {
-                        if (testDictRowMap.containsKey(dict)) {
-                            for (DictRow data : testDictRowMap.get(dict)) {
-                                ps.setLong(1, data.getIdAttrLong());
-                                ps.execute();
+                    if (testDictRowMap.containsKey(dict)) {
+                        for (DictRow data : testDictRowMap.get(dict)) {
+                            // попробуем удалить дочерние (неучтенные данные -
+                            // их могли добавить во время выполнения save, например
+                            for (NsiConfigDict childDict : testDictList) {
+                                for (NsiConfigAttr ref : childDict.getAttrs()) {
+                                    if (MetaAttrType.REF.equals(ref.getType())) {
+                                        if (ref.getRefDictName().equals(dict.getTable())) {
+                                            try (PreparedStatement ps1 = c.prepareStatement("delete from "
+                                                    + childDict.getTable() + " where " + ref.getName() + "=?")) {
+                                                ps1.setLong(1, data.getIdAttrLong());
+                                                ps1.execute();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            // удаляем данные
+                            try (PreparedStatement ps = c.prepareStatement("delete from "
+                                    + dict.getTable() + " where "
+                                    + dict.getIdAttr().getName() + "=?")) {
+                                        ps.setLong(1, data.getIdAttrLong());
+                                        ps.execute();
+                                }
                             }
                         }
-                    }
                 }
             }
 
