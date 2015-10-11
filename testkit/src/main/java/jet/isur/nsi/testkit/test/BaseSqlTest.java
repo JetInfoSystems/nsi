@@ -23,6 +23,8 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.common.data.DictDependencyGraph;
+import jet.isur.nsi.common.sql.DefaultSqlDao;
+import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 
 import org.junit.After;
@@ -33,6 +35,8 @@ public class BaseSqlTest {
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
     protected NsiConfig config;
+    protected DefaultSqlDao sqlDao;
+    protected DefaultSqlGen sqlGen;
 
     @Before
     public void setupInternal() throws Exception {
@@ -46,6 +50,9 @@ public class BaseSqlTest {
             properties.load(reader);
         }
         dataSource = DaoUtils.createDataSource("isur", properties);
+        sqlGen = new DefaultSqlGen();
+        sqlDao = new DefaultSqlDao();
+        sqlDao.setSqlGen(sqlGen);
     }
 
     @After
@@ -66,35 +73,59 @@ public class BaseSqlTest {
                 DictDependencyGraph g = DictDependencyGraph.build(config,
                         testDictRowMap.keySet());
                 List<NsiConfigDict> testDictList = g.sort();
-                Collections.reverse(testDictList);
-
-                for (NsiConfigDict dict : testDictList) {
-                    if (testDictRowMap.containsKey(dict)) {
-                        for (DictRow data : testDictRowMap.get(dict)) {
-                            // попробуем удалить дочерние (неучтенные данные -
-                            // их могли добавить во время выполнения save, например
-                            for (NsiConfigDict childDict : testDictList) {
-                                for (NsiConfigAttr ref : childDict.getAttrs()) {
-                                    if (MetaAttrType.REF.equals(ref.getType())) {
-                                        if (ref.getRefDictName().equals(dict.getTable())) {
-                                            try (PreparedStatement ps1 = c.prepareStatement("delete from "
-                                                    + childDict.getTable() + " where " + ref.getName() + "=?")) {
-                                                ps1.setLong(1, data.getIdAttrLong());
-                                                ps1.execute();
-                                                }
+                // нужно пройтись по всем справочникам, найти подчиненные и
+                // если есть "неучтенные" подчиненные записи - их нужно добавить
+                // по всем справочникам как родителям
+                for (NsiConfigDict parent : testDictList) {
+                    // если для справочника будем удалять данные
+                    if (null != testDictRowMap.get(parent)) {
+                        // среди всех справочников ищем подчиненные
+                        // для этого берем каждый справочник
+                        for (NsiConfigDict child : config.getDicts()) {
+                            // если это таблица
+                            if (null != child.getTable()){
+                                // и среди его атрибутов
+                                for (NsiConfigAttr ref : child.getAttrs()) {
+                                    // ищем атрибуты - ссылки на текущего родителя
+                                    if (MetaAttrType.REF.equals(ref.getType())
+                                            && ref.getRefDictName().equals(parent.getTable())) {
+                                        // теперь для всех сохраненных значений  парента
+                                        for (DictRow curParentValue : testDictRowMap.get(parent)) {
+                                            // ищем подчиненные записи
+                                            if (null != curParentValue.getIdAttr()) {
+                                                List<DictRow> data = sqlDao.list(
+                                                        c,
+                                                        child.query().addAttr(child.getIdAttr().getName()),// нас интересует только ид-шник
+                                                        child.filter().key(ref.getName()).eq().value(curParentValue.getIdAttr()).build(), 
+                                                        null, -1, -1);
+                                                // и добавляем их в список на удаление
+                                                for (DictRow row : data)
+                                                    addTestDictRow(child.query(), row);
                                             }
                                         }
                                     }
                                 }
-                            // удаляем данные
-                            try (PreparedStatement ps = c.prepareStatement("delete from "
-                                    + dict.getTable() + " where "
-                                    + dict.getIdAttr().getName() + "=?")) {
-                                        ps.setLong(1, data.getIdAttrLong());
-                                        ps.execute();
+                            }
+                        }
+                    }
+                }
+                
+                Collections.reverse(testDictList);
+
+                for (NsiConfigDict dict : testDictList) {
+                    // удаляем данные
+                    try (PreparedStatement ps = c.prepareStatement("delete from "
+                            + dict.getTable() + " where "
+                            + dict.getIdAttr().getName() + "=?")) {
+                        if (testDictRowMap.containsKey(dict)) {
+                            for (DictRow data : testDictRowMap.get(dict)) {
+                                if (null != data.getIdAttrLong()) {
+                                    ps.setLong(1, data.getIdAttrLong());
+                                    ps.execute();
                                 }
                             }
                         }
+                    }
                 }
             }
 
