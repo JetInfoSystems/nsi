@@ -290,7 +290,7 @@ public class NsiConfigImpl implements NsiConfig {
         checkOneFieldAttr(dict, "deleteMarkAttr", dict.getDeleteMarkAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "isGroupAttr", dict.getIsGroupAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastChangeAttr", dict.getLastChangeAttr(), MetaFieldType.DATE_TIME, MetaAttrType.VALUE);
-        checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.NUMBER, MetaAttrType.VALUE);
+        checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.NUMBER, null);
         for (NsiConfigAttr attr : dict.getAttrs()) {
             if(attr.getType() == MetaAttrType.REF) {
                 attr.setRefDict(getDict(attr.getRefDictName()));
@@ -353,7 +353,7 @@ public class NsiConfigImpl implements NsiConfig {
         if(attr == null) {
             return;
         }
-        if(attrType != attr.getType()) {
+        if(attrType != null && attrType != attr.getType()) {
             throwDictException(dict, "attr type not match", dictAttr, attr.getName(), attrType);
         }
         if(attr.getFields().size() > 1) {
