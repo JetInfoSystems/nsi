@@ -165,20 +165,19 @@ public class DefaultSqlDao implements SqlDao {
             String queryAttrName = attr.getName();
             DictRowAttr dataAttr = data.getAttrs().get(queryAttrName);
 
+            if(idAttr != null
+                    && attr.getName().equals(idAttr.getName())
+                    && idAttr.getFields().size() == 1
+                    && DictRowAttr.isEmpty(dataAttr)) {
+                // если у нас вставка и ид атрибут состоит из одного поля и он пуст, пропускаем его,
+                // потому что он получается из последовательности
+                continue;
+            }
             if(dataAttr == null) {
-                throw new NsiDataException(
-                        "can't find data attr for query attr: " + queryAttrName);
+                throw new NsiDataException("can't find data attr for query attr: " + queryAttrName);
             }
             List<String> dataValues = dataAttr.getValues();
             checkDataValues(fields, queryAttrName, dataValues);
-
-            // если у нас вставка и ид атрибут состоит из одного поля и имеет null значение
-            // пропускаем его, потому что он получается из последовательности
-            if (attr == idAttr
-                    && idAttr.getFields().size() == 1
-                    && dataValues.get(0) == null) {
-                continue;
-            }
 
             int i = 0;
             for (NsiConfigField field : fields) {
@@ -478,10 +477,8 @@ public class DefaultSqlDao implements SqlDao {
         checkDictHasIdAttr(query.getDict());
 
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
-        DictRowAttr idAttrValue = data.getAttrs().get(idAttr.getName());
-        String sql = sqlGen.getRowInsertSql(query, idAttrValue != null
-                && idAttrValue.getValues().size() == 1
-                && idAttrValue.getValues().get(0) == null);
+        boolean useSeq = (idAttr != null && idAttr.getFields().size() == 1 && DictRowAttr.isEmpty(data.getIdAttr()));
+        String sql = sqlGen.getRowInsertSql(query, useSeq);
 
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql,
@@ -519,8 +516,7 @@ public class DefaultSqlDao implements SqlDao {
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql )) {
             if (query.getAttrs().size() != data.getAttrs().size()){
-                DictRow row = get(connection, query, data.getAttrs()
-                        .get(query.getDict().getIdAttr().getName()));
+                DictRow row = get(connection, query, data.getIdAttr());
                 updateRowData(row, data);
             }
             int paramCount = setParamsForUpdate(query, data, ps) - 1;
