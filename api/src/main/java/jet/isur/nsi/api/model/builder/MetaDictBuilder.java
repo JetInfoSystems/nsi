@@ -1,3 +1,4 @@
+
 package jet.isur.nsi.api.model.builder;
 
 import jet.isur.nsi.api.model.MetaAttrType;
@@ -35,9 +36,9 @@ public interface MetaDictBuilder {
 
         MetaAttrBuilder hidden(Boolean value);
 
-		MetaAttrBuilder createOnly(Boolean value);
+        MetaAttrBuilder createOnly(Boolean value);
 
-		MetaAttrBuilder required(Boolean value);
+        MetaAttrBuilder required(Boolean value);
 
         MetaDictBuilder add();
     }
@@ -74,7 +75,10 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder addInterceptor(String value);
 
+    MetaDictBuilder addOwn(String key, String value);
+
     MetaDict build();
 
     MetaDictBuilder addLoadDataAttr(String value);
+
 }

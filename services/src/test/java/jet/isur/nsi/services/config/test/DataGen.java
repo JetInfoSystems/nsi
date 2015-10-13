@@ -1,3 +1,4 @@
+
 package jet.isur.nsi.services.config.test;
 
 import jet.isur.nsi.api.model.MetaAttrType;
@@ -30,11 +31,14 @@ public class DataGen {
             .name("last_user")
             .size(19)
             .type(MetaFieldType.NUMBER)
-        .add()
+                .add()
         .field()
             .name("f1")
             .size(100)
             .type(MetaFieldType.VARCHAR)
+                .add().field().name("ORG_ID").size(19)
+                .type(MetaFieldType.NUMBER).add().field().name("ORG_ROLE_ID")
+                .size(19).type(MetaFieldType.NUMBER)
         .add()
         .attr()
             .addField("f1")
@@ -50,7 +54,7 @@ public class DataGen {
             .hidden(false)
             .createOnly(true)
             .name("id")
-.required(true)
+            .required(true)
         .add()
         .attr()
             .addField("is_deleted")
@@ -73,6 +77,10 @@ public class DataGen {
             .hidden(false)
             .name("last_user")
         .add()
+                .attr().addField("ORG_ID").type(MetaAttrType.VALUE)
+                .caption("org").name("ORG_ID").add().attr()
+                .addField("ORG_ROLE_ID").type(MetaAttrType.VALUE)
+                .caption("org_role").name("ORG_ROLE_ID").add()
         .idAttr("id")
         .deleteMarkAttr("is_deleted")
         .lastChangeAttr("last_change")
@@ -81,6 +89,8 @@ public class DataGen {
         .addRefObjectAttr("f1")
         .addLoadDataAttr("id")
         .addTableObjectAttr("f1")
+        .addOwn("ORG", "ORG_ID")
+        .addOwn("ORG_ROLE", "ORG_ROLE_ID")
         .addInterceptor("interceptor");
     }
 }

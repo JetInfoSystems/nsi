@@ -49,12 +49,14 @@ public class NsiConfigDict {
                 sourceQueries.put(q.getKey(), new NsiConfigSourceQuery(q.getValue()));
             }
         }
+
         mainDictName = metaDict.getMainDict();
     }
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
     private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
     private Map<String, NsiConfigSourceQuery> sourceQueries = new TreeMap<>();
+    private Map<String, NsiConfigAttr> owns = new TreeMap<>();
 
     public Map<String, NsiConfigAttr> getAttrNameMap() {
         return attrNameMap;
@@ -235,6 +237,15 @@ public class NsiConfigDict {
         NsiConfigSourceQuery result = sourceQueries.get(name);
         Preconditions.checkNotNull(result, "dict %s source query %s not exists", getName(), name);
         return result;
+    }
+
+    public void setOwns(Map<String, NsiConfigAttr> owns) {
+        this.owns = owns;
+    }
+
+    public NsiConfigAttr getOwnAttr(String name) {
+
+        return owns.get(name);
     }
 
     public NsiConfigDict getMainDict() {

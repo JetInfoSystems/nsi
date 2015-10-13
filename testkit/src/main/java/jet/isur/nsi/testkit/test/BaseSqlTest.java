@@ -17,10 +17,14 @@ import javax.sql.DataSource;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
+import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.common.data.DictDependencyGraph;
+import jet.isur.nsi.common.sql.DefaultSqlDao;
+import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 
 import org.junit.After;
@@ -31,6 +35,8 @@ public class BaseSqlTest {
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
     protected NsiConfig config;
+    protected DefaultSqlDao sqlDao;
+    protected DefaultSqlGen sqlGen;
 
     @Before
     public void setupInternal() throws Exception {
@@ -44,6 +50,9 @@ public class BaseSqlTest {
             properties.load(reader);
         }
         dataSource = DaoUtils.createDataSource("isur", properties);
+        sqlGen = new DefaultSqlGen();
+        sqlDao = new DefaultSqlDao();
+        sqlDao.setSqlGen(sqlGen);
     }
 
     @After
@@ -64,6 +73,43 @@ public class BaseSqlTest {
                 DictDependencyGraph g = DictDependencyGraph.build(config,
                         testDictRowMap.keySet());
                 List<NsiConfigDict> testDictList = g.sort();
+                // нужно пройтись по всем справочникам, найти подчиненные и
+                // если есть "неучтенные" подчиненные записи - их нужно добавить
+                // по всем справочникам как родителям
+                for (NsiConfigDict parent : testDictList) {
+                    // если для справочника будем удалять данные
+                    if (null != testDictRowMap.get(parent)) {
+                        // среди всех справочников ищем подчиненные
+                        // для этого берем каждый справочник
+                        for (NsiConfigDict child : config.getDicts()) {
+                            // если это таблица
+                            if (null != child.getTable()){
+                                // и среди его атрибутов
+                                for (NsiConfigAttr ref : child.getAttrs()) {
+                                    // ищем атрибуты - ссылки на текущего родителя
+                                    if (MetaAttrType.REF.equals(ref.getType())
+                                            && ref.getRefDictName().equals(parent.getTable())) {
+                                        // теперь для всех сохраненных значений  парента
+                                        for (DictRow curParentValue : testDictRowMap.get(parent)) {
+                                            // ищем подчиненные записи
+                                            if (null != curParentValue.getIdAttr()) {
+                                                List<DictRow> data = sqlDao.list(
+                                                        c,
+                                                        child.query().addAttr(child.getIdAttr().getName()),// нас интересует только ид-шник
+                                                        child.filter().key(ref.getName()).eq().value(curParentValue.getIdAttr()).build(), 
+                                                        null, -1, -1);
+                                                // и добавляем их в список на удаление
+                                                for (DictRow row : data)
+                                                    addTestDictRow(child.query(), row);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 Collections.reverse(testDictList);
 
                 for (NsiConfigDict dict : testDictList) {
@@ -73,8 +119,10 @@ public class BaseSqlTest {
                             + dict.getIdAttr().getName() + "=?")) {
                         if (testDictRowMap.containsKey(dict)) {
                             for (DictRow data : testDictRowMap.get(dict)) {
-                                ps.setLong(1, data.getIdAttrLong());
-                                ps.execute();
+                                if (null != data.getIdAttrLong()) {
+                                    ps.setLong(1, data.getIdAttrLong());
+                                    ps.execute();
+                                }
                             }
                         }
                     }

@@ -1,3 +1,4 @@
+
 attrs:
 - caption: f 1
   fields: [f1]
@@ -27,6 +28,14 @@ attrs:
   name: last_user
   type: value
   readonly: true
+- caption: org
+  fields: [ORG_ID]
+  name: ORG_ID
+  type: value
+- caption: org_role
+  fields: [ORG_ROLE_ID]
+  name: ORG_ROLE_ID
+  type: value
 caption: Справочник1
 captionAttrs: [f1]
 deleteMarkAttr: is_deleted
@@ -36,6 +45,8 @@ fields:
 - {name: last_change, type: date-time}
 - {name: last_user, size: 19, type: number}
 - {name: f1, size: 100, type: varchar}
+- {name: ORG_ID, size: 19, type: number}
+- {name: ORG_ROLE_ID, size: 19, type: number}
 hidden: true
 idAttr: id
 lastChangeAttr: last_change
@@ -48,6 +59,11 @@ sourceQueries:
     sql: select f1 from table1
   TEST2:
     sql: select f1 from table1 where f1 <> ?
+owns:
+  ORG:
+    attr: ORG_ID
+  ORG_ROLE:
+    attr: ORG_ROLE_ID
 table: table1
 tableObjectAttrs: [f1]
 interceptors: [interceptor]
