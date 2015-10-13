@@ -260,6 +260,8 @@ public class SqlDaoTest extends BaseSqlTest {
                 .lastChangeAttr(new DateTime().withMillisOfSecond(0))
                 .lastUserAttr(null)
                 .attr("f1", f1Value)
+                .attr("ORG_ID", 1L)
+                .attr("ORG_ROLE_ID", 2L)
                 .build();
 
         return sqlDao.insert(connection, query, inData);
@@ -353,6 +355,8 @@ public class SqlDaoTest extends BaseSqlTest {
                                     .lastUserAttr(null)
                                     .attr("f1", true)
                                     .attr("f2", i.toString())
+                                    .attr("ORG_ID", i.toString())
+                                    .attr("ORG_ROLE_ID", i.toString())
                                     .build());
                         }
                         for (DictRow data : dataList) {

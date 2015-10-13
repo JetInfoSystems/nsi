@@ -32,7 +32,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = dict.query().addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID "
                         + "from table1 m " + "where m.id = ?", sql);
     }
 
@@ -77,7 +77,7 @@ public class SqlGenTest extends BaseSqlTest {
                     .build(), 1, 2);
         Assert.assertEquals(
                 "select * from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where m.f1 = ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
@@ -100,7 +100,7 @@ public class SqlGenTest extends BaseSqlTest {
                 .build(), 1, 2);
         Assert.assertEquals(
                 "select * from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where (m.f1 = ? and m.is_deleted = ?) order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
@@ -119,7 +119,7 @@ public class SqlGenTest extends BaseSqlTest {
                     .build(), 1, 2);
         Assert.assertEquals(
                 "select * from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where m.f1 like ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
@@ -131,7 +131,7 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getListSql(query, dict.filter()
             .key("f1").notNull().build(), null, -1, -1);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where m.f1 is not null", sql);
     }
 
@@ -175,8 +175,8 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
-                "insert into table1 (f1, id, is_deleted, last_change, last_user) "
-                        + "values (?, seq_table1.nextval, ?, ?, ?)", sql);
+                "insert into table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID) "
+                        + "values (?, seq_table1.nextval, ?, ?, ?, ?, ?)", sql);
 
     }
 
@@ -187,8 +187,8 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowInsertSql(query, false);
         Assert.assertEquals(
-                "insert into table1 (f1, id, is_deleted, last_change, last_user) "
-                        + "values (?, ?, ?, ?, ?)", sql);
+                "insert into table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID) "
+                        + "values (?, ?, ?, ?, ?, ?, ?)", sql);
 
     }
 
