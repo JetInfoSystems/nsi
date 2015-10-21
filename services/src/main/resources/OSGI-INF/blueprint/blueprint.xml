@@ -15,7 +15,7 @@
     <cm:property-placeholder persistent-id="jet.isur.nsi.services" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="configPath" value="/opt/isur/database/metadata"/>
-            <cm:property name="lastUserDict" value="USER_PROFILE"/>
+            <cm:property name="lastUserDict" value="USER_PROFILE_REF"/>
         </cm:default-properties>
     </cm:property-placeholder>
 

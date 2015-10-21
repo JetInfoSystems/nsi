@@ -253,7 +253,7 @@ public class NsiConfigImpl implements NsiConfig {
             postCheckDict(dict);
         }
         // TODO: RNSC-746 temporary disable
-        /*
+        
         if(params != null && params.getLastUserDict() != null) {
             NsiConfigDict lastUserDict = getDict(params.getLastUserDict());
             if(lastUserDict == null) {
@@ -267,7 +267,7 @@ public class NsiConfigImpl implements NsiConfig {
                 }
             }
         }
-        */
+        
         // TODO: RNSC-746 temporary disable
         for ( NsiConfigDict dict : dictMap.values()) {
             if(dict.getLastUserAttr() != null) {
