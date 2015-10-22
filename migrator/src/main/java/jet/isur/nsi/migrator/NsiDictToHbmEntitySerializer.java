@@ -82,7 +82,7 @@ public class NsiDictToHbmEntitySerializer {
         result.setName(field.getName());
         // TODO:  это хардкод
         if(field.getType() == MetaFieldType.DATE_TIME) {
-        	result.setLength(7);
+            result.setLength(7);
         } else if(field.getSize() > 0) {
             result.setLength(field.getSize());
         }
@@ -129,7 +129,11 @@ public class NsiDictToHbmEntitySerializer {
         case DATE_TIME:
             return Date.class;
         case NUMBER:
-            return Long.class;
+            if(field.getPrecision() != null && field.getPrecision() > 0) {
+                return Double.class;
+            } else {
+                return Long.class;
+            }
         case VARCHAR:
             return String.class;
         default:
