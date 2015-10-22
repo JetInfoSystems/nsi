@@ -1,6 +1,7 @@
 package jet.isur.nsi.migrator;
 
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.Date;
 
 import javax.xml.bind.JAXBContext;
@@ -80,16 +81,25 @@ public class NsiDictToHbmEntitySerializer {
     private JaxbHbmColumnType buildColumn(NsiConfigField field) {
         JaxbHbmColumnType result = new JaxbHbmColumnType();
         result.setName(field.getName());
+        if(field.getType() == MetaFieldType.NUMBER) {
+            result.setPrecision(getFieldLength(field));
+            if(field.getPrecision() > 0) {
+                result.setScale(field.getPrecision());
+            }
+        }
+        result.setLength(getFieldLength(field));
+        return result;
+    }
+
+    private Integer getFieldLength(NsiConfigField field) {
         // TODO:  это хардкод
         if(field.getType() == MetaFieldType.DATE_TIME) {
-            result.setLength(7);
+            return 7;
         } else if(field.getSize() > 0) {
-            result.setLength(field.getSize());
+            return field.getSize();
+        } else {
+            return null;
         }
-        if(field.getPrecision() > 0) {
-            result.setPrecision(field.getPrecision());
-        }
-        return result;
     }
 
     private JaxbHbmBasicAttributeType buildBasicAttribute(NsiConfigField field) {
@@ -129,10 +139,12 @@ public class NsiDictToHbmEntitySerializer {
         case DATE_TIME:
             return Date.class;
         case NUMBER:
-            if(field.getPrecision() != null && field.getPrecision() > 0) {
-                return Double.class;
-            } else {
+            if(field.getPrecision() > 0) {
+                return BigDecimal.class;
+            } else if(field.getSize() <= 19) {
                 return Long.class;
+            } else {
+                return BigDecimal.class;
             }
         case VARCHAR:
             return String.class;

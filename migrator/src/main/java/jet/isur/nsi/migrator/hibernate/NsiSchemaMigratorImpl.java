@@ -50,7 +50,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
 
     private static final String MODIFY_OPERATION = "modify";
 
-	@Override
+    @Override
     public void doMigration(Metadata metadata,
             DatabaseInformation existingDatabase, boolean createNamespaces,
             List<Target> targets) throws SchemaManagementException {
@@ -198,82 +198,86 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
     }
 
     public String getColumnOperationString(ColumnInformation columnInformation, Dialect dialect) {
-    	return (columnInformation == null)? dialect.getAddColumnString() : MODIFY_OPERATION;
+        return (columnInformation == null)? dialect.getAddColumnString() : MODIFY_OPERATION;
     }
-    
-	public Iterator sqlAlterStrings(
-			Table table,
-			Dialect dialect,
-			Mapping p,
-			TableInformation tableInfo,
-			String defaultCatalog,
-			String defaultSchema) throws HibernateException {
 
-		Iterator iter = table.getColumnIterator();
-		List results = new ArrayList();
-		String tableName = table.getQualifiedName( dialect, defaultCatalog, defaultSchema );
-		
-		while ( iter.hasNext() ) {
-			final Column column = (Column) iter.next();
-			final ColumnInformation columnInfo = tableInfo.getColumn( Identifier.toIdentifier( column.getName(), column.isQuoted() ) );
+    public Iterator sqlAlterStrings(
+            Table table,
+            Dialect dialect,
+            Mapping p,
+            TableInformation tableInfo,
+            String defaultCatalog,
+            String defaultSchema) throws HibernateException {
 
-			if ( columnInfo == null || column.getLength() > columnInfo.getColumnSize()) {
-				// the column doesnt exist at all.
-				StringBuilder alter = new StringBuilder( "alter table " )
-						.append( tableName )
-						.append( ' ' )
-						.append( getColumnOperationString(columnInfo, dialect) )
-						.append( ' ' )
-						.append( column.getQuotedName( dialect ) )
-						.append( ' ' )
-						.append( column.getSqlType( dialect, p ) );
+        Iterator iter = table.getColumnIterator();
+        List results = new ArrayList();
+        String tableName = table.getQualifiedName( dialect, defaultCatalog, defaultSchema );
 
-				String defaultValue = column.getDefaultValue();
-				if ( defaultValue != null ) {
-					alter.append( " default " ).append( defaultValue );
-				}
+        while ( iter.hasNext() ) {
+            final Column column = (Column) iter.next();
+            final ColumnInformation columnInfo = tableInfo.getColumn( Identifier.toIdentifier( column.getName(), column.isQuoted() ) );
 
-				if ( column.isNullable() ) {
-					alter.append( dialect.getNullColumnString() );
-				}
-				else {
-					alter.append( " not null" );
-				}
+            if ( columnInfo == null || column.getLength() > columnInfo.getColumnSize()) {
+                // the column doesnt exist at all.
+                StringBuilder alter = new StringBuilder( "alter table " )
+                        .append( tableName )
+                        .append( ' ' )
+                        .append( getColumnOperationString(columnInfo, dialect) )
+                        .append( ' ' )
+                        .append( column.getQuotedName( dialect ) )
+                        .append( ' ' )
+                        .append( column.getSqlType( dialect, p ) );
 
-				if ( column.isUnique() ) {
-					String keyName = Constraint.generateName( "UK_", table, column );
-					UniqueKey uk = table.getOrCreateUniqueKey( keyName );
-					uk.addColumn( column );
-					alter.append( dialect.getUniqueDelegate()
-							.getColumnDefinitionUniquenessFragment( column ) );
-				}
+                String defaultValue = column.getDefaultValue();
+                if ( defaultValue != null ) {
+                    alter.append( " default " ).append( defaultValue );
+                }
 
-				if ( column.hasCheckConstraint() && dialect.supportsColumnCheck() ) {
-					alter.append( " check(" )
-							.append( column.getCheckConstraint() )
-							.append( ")" );
-				}
+                if ( column.isNullable() ) {
+                    if(columnInfo == null || !columnInfo.getNullable().toBoolean(true)) {
+                        alter.append( dialect.getNullColumnString() );
+                    }
+                }
+                else {
+                    if(columnInfo == null || columnInfo.getNullable().toBoolean(true)) {
+                        alter.append( " not null" );
+                    }
+                }
 
-				String columnComment = column.getComment();
-				if ( columnComment != null ) {
-					alter.append( dialect.getColumnComment( columnComment ) );
-				}
+                if ( column.isUnique() ) {
+                    String keyName = Constraint.generateName( "UK_", table, column );
+                    UniqueKey uk = table.getOrCreateUniqueKey( keyName );
+                    uk.addColumn( column );
+                    alter.append( dialect.getUniqueDelegate()
+                            .getColumnDefinitionUniquenessFragment( column ) );
+                }
 
-				alter.append( dialect.getAddColumnSuffixString() );
+                if ( column.hasCheckConstraint() && dialect.supportsColumnCheck() ) {
+                    alter.append( " check(" )
+                            .append( column.getCheckConstraint() )
+                            .append( ")" );
+                }
 
-				results.add( alter.toString() );
-			} 
+                String columnComment = column.getComment();
+                if ( columnComment != null ) {
+                    alter.append( dialect.getColumnComment( columnComment ) );
+                }
 
-		}
+                alter.append( dialect.getAddColumnSuffixString() );
 
-		if ( results.isEmpty() ) {
-			Logger.getLogger( SchemaUpdate.class ).debugf( "No alter strings for table : %s", table.getQuotedName() );
-		}
+                results.add( alter.toString() );
+            }
 
-		return results.iterator();
-	}
+        }
 
-    
+        if ( results.isEmpty() ) {
+            Logger.getLogger( SchemaUpdate.class ).debugf( "No alter strings for table : %s", table.getQuotedName() );
+        }
+
+        return results.iterator();
+    }
+
+
     private void applyIndexes(Table table, TableInformation tableInformation,
             Metadata metadata, List<Target> targets) {
         final Exporter<Index> exporter = metadata.getDatabase()

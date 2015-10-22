@@ -204,4 +204,30 @@ public class MigratorTest extends BaseSqlTest{
             DaoUtils.dropTable("test_size", connection);
         }
     }
+
+
+    @Test
+    public void checkTypesTest() throws Exception {
+
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("dict1", connection);
+        }
+
+        RecActionsTargetImpl rec = new RecActionsTargetImpl();
+
+        setupMigrator("src/test/resources/metadata/check_types");
+        Migrator migrator = new Migrator(config, dataSource, params, "TEST_NSI_" );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+
+        List<String> actions = rec.getActions();
+        System.out.println(actions);
+        Assert.assertEquals(1, actions.size());
+        Assert.assertEquals("create table dict1 (id number(19,0) not null, f1 number(20,8), primary key (id))", actions.get(0));
+
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropTable("dict1", connection);
+        }
+    }
+
 }
