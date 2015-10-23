@@ -68,6 +68,40 @@ public class SqlDaoTest extends BaseSqlTest {
     }
 
     @Test
+    public void testInsertAndGetFloatNumber() throws Exception {
+        NsiConfigDict dict = config.getDict("dict5");
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.recreateTable(dict, connection);
+            try {
+                DaoUtils.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow inData = query.getDict().builder()
+                            .deleteMarkAttr(false)
+                            .idAttrNull()
+                            .lastChangeAttr(new DateTime().withMillisOfSecond(0))
+                            .lastUserAttr(null)
+                            .attr("f1", "63.21474351071076")
+                            .build();
+
+                    DictRow outData = sqlDao.insert(connection, query, inData);
+
+                    Assert.assertEquals(new Double(63.21474), outData.getDouble("f1"));
+
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
+                    DataUtils.assertEquals(query, outData, getData);
+
+                } finally {
+                    DaoUtils.dropSeq(dict, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict, connection);
+            }
+        }
+    }
+
+    @Test
     public void testInsertAndGetWithRefFields() throws Exception {
         NsiConfigDict dict1 = config.getDict("dict1");
         NsiConfigDict dict2 = config.getDict("dict2");

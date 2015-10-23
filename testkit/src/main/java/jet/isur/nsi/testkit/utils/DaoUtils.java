@@ -3,6 +3,7 @@ package jet.isur.nsi.testkit.utils;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -35,8 +36,8 @@ public class DaoUtils {
     // jooq hack
     private static DefaultDataType<String> VARCHAR2 = new DefaultDataType<String>(SQLDialect.DEFAULT,
             new DefaultDataType<String>(null, String.class, "varchar2"), "varchar2");
-    private static DefaultDataType<String> NUMBER = new DefaultDataType<String>(SQLDialect.DEFAULT,
-            new DefaultDataType<String>(null, String.class, "number"), "number");
+    private static DefaultDataType<BigDecimal> NUMBER = new DefaultDataType<BigDecimal>(SQLDialect.DEFAULT,
+            new DefaultDataType<BigDecimal>(null, BigDecimal.class, "number"), "number");
 
     public static void createTable(NsiConfigDict dict, Connection connection) {
 
@@ -44,7 +45,7 @@ public class DaoUtils {
         CreateTableColumnStep createTableColumnStep = null;
         for (NsiConfigField field : dict.getFields()) {
             createTableColumnStep = createTableAsStep.column(field.getName(), getDataType(field.getType())
-                    .length(field.getSize()).precision(field.getPrecision()));
+                    .length(field.getSize()).precision(field.getSize(),field.getPrecision()));
         }
         if(createTableColumnStep != null) {
             createTableColumnStep.execute();

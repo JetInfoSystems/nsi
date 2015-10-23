@@ -32,6 +32,7 @@ import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
 
 import org.joda.time.DateTime;
+import org.jooq.FieldLike;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,10 +359,15 @@ public class DefaultSqlDao implements SqlDao {
      */
     protected void setParam(PreparedStatement ps, int index, NsiConfigField field,
             String value) throws SQLException {
-        setParam(ps, index, field.getType(), field.getSize(), value);
+        setParam(ps, index, field.getType(), field.getSize(), field.getPrecision(), value);
     }
 
     protected void setParam(PreparedStatement ps, int index, MetaFieldType fieldType, int fieldSize,
+            String value) throws SQLException {
+        setParam(ps, index, fieldType, fieldSize, 0, value);
+    }
+
+    protected void setParam(PreparedStatement ps, int index, MetaFieldType fieldType, int fieldSize, int fieldPrecision,
             String value) throws SQLException {
         switch (fieldType) {
         case BOOLEAN:
@@ -375,7 +381,13 @@ public class DefaultSqlDao implements SqlDao {
             if(Strings.isNullOrEmpty(value)) {
                 ps.setNull(index, Types.BIGINT);
             } else {
-                ps.setLong(index, Long.parseLong(value));
+                if(fieldPrecision > 0) {
+                    ps.setBigDecimal(index, new BigDecimal(value));
+                } else if(fieldSize <= 19) {
+                    ps.setLong(index, Long.parseLong(value));
+                } else {
+                    ps.setBigDecimal(index, new BigDecimal(value));
+                }
             }
             break;
         case DATE_TIME:
