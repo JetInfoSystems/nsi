@@ -88,7 +88,7 @@ public class BaseSqlTest {
                                 for (NsiConfigAttr ref : child.getAttrs()) {
                                     // ищем атрибуты - ссылки на текущего родителя
                                     if (MetaAttrType.REF.equals(ref.getType())
-                                            && ref.getRefDictName().equals(parent.getTable())) {
+                                            && getMainDict(ref.getRefDict()).getTable().equals(parent.getTable())) {
                                         // теперь для всех сохраненных значений  парента
                                         for (DictRow curParentValue : testDictRowMap.get(parent)) {
                                             // ищем подчиненные записи
@@ -96,7 +96,7 @@ public class BaseSqlTest {
                                                 List<DictRow> data = sqlDao.list(
                                                         c,
                                                         child.query().addAttr(child.getIdAttr().getName()),// нас интересует только ид-шник
-                                                        child.filter().key(ref.getName()).eq().value(curParentValue.getIdAttr()).build(), 
+                                                        child.filter().key(ref.getName()).eq().value(curParentValue.getIdAttr()).build(),
                                                         null, -1, -1);
                                                 // и добавляем их в список на удаление
                                                 for (DictRow row : data)
@@ -109,7 +109,7 @@ public class BaseSqlTest {
                         }
                     }
                 }
-                
+
                 Collections.reverse(testDictList);
 
                 for (NsiConfigDict dict : testDictList) {
@@ -133,6 +133,11 @@ public class BaseSqlTest {
             throw new RuntimeException(e);
         }
     }
+
+    private NsiConfigDict getMainDict(NsiConfigDict dict) {
+        return dict.getMainDict() != null ? dict.getMainDict() : dict;
+    }
+
 
     protected void addTestDictRow(NsiQuery query, DictRow data) {
         NsiConfigDict dict = query.getDict();
