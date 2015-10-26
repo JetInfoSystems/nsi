@@ -54,7 +54,11 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowGetSql(NsiQuery query) {
-        SelectJoinStep<?> baseQuery = createBaseQuery(query, true);
+        SelectJoinStep<?> baseQuery = 
+                (query.getDict().getTable() != null) ?
+                    createBaseQuery(query, true) :
+                    createBaseQuery(query, true, NsiQuery.MAIN_QUERY);
+        
         Condition condition = getIdCondition(query, baseQuery);
         return baseQuery.where(condition).getSQL();
     }
