@@ -12,6 +12,7 @@ import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaDictRef;
 import jet.isur.nsi.api.model.MetaField;
 
+@Deprecated
 public class DictSerializer {
     public static MetaDict serialize(NsiConfigDict dict) {
         MetaDict result = new MetaDict();
@@ -79,8 +80,8 @@ public class DictSerializer {
         MetaAttr result = new MetaAttr();
         result.setCaption(attr.getCaption());
         result.setHidden(attr.getHidden());
-		result.setRequired(attr.isRequired());
-		result.setCreateOnly(attr.getCreateOnly());
+        result.setRequired(attr.isRequired());
+        result.setCreateOnly(attr.getCreateOnly());
         result.setName(attr.getName());
         if(attr.getRefDict()!=null) {
             result.setRefDict(attr.getRefDict().getName());

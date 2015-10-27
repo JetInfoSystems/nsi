@@ -180,7 +180,9 @@ public class NsiConfigDict {
     }
 
     public boolean isAttrHasRefAttrs(NsiConfigAttr attr) {
-        return attr.getType() == MetaAttrType.REF && attr != ownerAttr && attr != parentAttr;
+        // убрал оптимизацию, изз того что фронту требуются refAttrs, owner и parent могут редактироваться теоретически
+        // TODO: подумать как сделать ее правильно
+        return attr.getType() == MetaAttrType.REF ;//&& attr != ownerAttr && attr != parentAttr;
     }
 
     @Override
