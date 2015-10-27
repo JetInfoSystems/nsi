@@ -252,8 +252,7 @@ public class NsiConfigImpl implements NsiConfig {
         for (NsiConfigDict dict : dictMap.values()) {
             postCheckDict(dict);
         }
-        // TODO: RNSC-746 temporary disable
-        
+
         if(params != null && params.getLastUserDict() != null) {
             NsiConfigDict lastUserDict = getDict(params.getLastUserDict());
             if(lastUserDict == null) {
@@ -264,19 +263,11 @@ public class NsiConfigImpl implements NsiConfig {
                 if(lastUserAttr != null) {
                     lastUserAttr.setType(MetaAttrType.REF);
                     lastUserAttr.setRefDict(lastUserDict);
+                    lastUserAttr.setHidden(false);
                 }
             }
         }
-        
-        // TODO: RNSC-746 temporary disable
-        for ( NsiConfigDict dict : dictMap.values()) {
-            if(dict.getLastUserAttr() != null) {
-                List<NsiConfigAttr> tmp = new ArrayList<>(dict.getTableObjectAttrs());
-                tmp.remove(dict.getLastUserAttr());
-                dict.setTableObjectAttrs(tmp);
-                dict.getLastUserAttr().setHidden(true);
-            }
-        }
+
     }
 
     private void postSetMainDict() {
