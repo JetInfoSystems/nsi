@@ -29,6 +29,8 @@ import jet.isur.nsi.testkit.utils.DaoUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseSqlTest {
     protected DataSource dataSource;
@@ -37,6 +39,7 @@ public class BaseSqlTest {
     protected NsiConfig config;
     protected DefaultSqlDao sqlDao;
     protected DefaultSqlGen sqlGen;
+    protected static Logger log = LoggerFactory.getLogger(BaseSqlTest.class);
 
     @Before
     public void setupInternal() throws Exception {

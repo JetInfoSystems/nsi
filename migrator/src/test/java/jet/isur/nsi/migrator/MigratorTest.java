@@ -196,7 +196,7 @@ public class MigratorTest extends BaseSqlTest{
         migrator.update("v1");
 
         List<String> actions = rec.getActions();
-        System.out.println(actions);
+        log.info(actions.toString());
         Assert.assertEquals(2, actions.size());
         Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(1));
 
@@ -221,7 +221,7 @@ public class MigratorTest extends BaseSqlTest{
         migrator.update("v1");
 
         List<String> actions = rec.getActions();
-        System.out.println(actions);
+        log.info(actions.toString());
         Assert.assertEquals(1, actions.size());
         Assert.assertEquals("create table dict1 (id number(19,0) not null, f1 number(20,8), primary key (id))", actions.get(0));
 
