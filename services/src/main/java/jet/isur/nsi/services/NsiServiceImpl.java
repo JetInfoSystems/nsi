@@ -13,6 +13,7 @@ import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
+import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
@@ -42,6 +43,11 @@ public class NsiServiceImpl implements NsiService {
 
     public void setSqlDao(SqlDao sqlDao) {
         this.sqlDao = sqlDao;
+    }
+
+    @Override
+    public NsiTransaction beginTransaction() {
+        return nsiGenericService.beginTransaction();
     }
 
     @Override

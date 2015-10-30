@@ -11,8 +11,9 @@ import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
+import jet.isur.nsi.api.tx.TransactionalService;
 
-public interface NsiGenericService {
+public interface NsiGenericService extends TransactionalService {
 
     /**
      * Получить количество записей справочника соответствующих заданному условию

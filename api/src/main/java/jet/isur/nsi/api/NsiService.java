@@ -10,8 +10,9 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.tx.TransactionalService;
 
-public interface NsiService {
+public interface NsiService extends TransactionalService {
 
     /**
      * Получить количество записей справочника соответствующих заданному условию

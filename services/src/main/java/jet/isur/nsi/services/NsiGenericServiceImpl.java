@@ -1,6 +1,5 @@
 package jet.isur.nsi.services;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,11 +18,11 @@ import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
+import jet.isur.nsi.api.tx.NsiSession;
+import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +58,11 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     @Override
+    public NsiTransaction beginTransaction() {
+        return NsiTransaction.begin(dataSource);
+    }
+
+    @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter, SqlDao sqlDao) {
         return dictCount(requestId, query, filter, sqlDao, null, null);
     }
@@ -72,8 +76,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             long count;
             checkSourceQuery(query, sourceQueryName);
 
-            try (Connection connection = dataSource.getConnection()) {
-                count = sqlDao.count(connection, query, filter, sourceQueryName, sourceQueryParams);
+            try (NsiSession session = new NsiSession(dataSource)) {
+                count = sqlDao.count(session.getConnection(), query, filter, sourceQueryName, sourceQueryParams);
             }
             log.info("dictCount [{},{}] -> ok [{}]", requestId, query.getDict()
                     .getName(), count);
@@ -103,8 +107,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             List<DictRow> data;
             checkSourceQuery(query, sourceQueryName);
 
-            try (Connection connection = dataSource.getConnection()) {
-                data = sqlDao.list(connection, query, filter, sortList, offset,
+            try (NsiSession session = new NsiSession(dataSource)) {
+                data = sqlDao.list(session.getConnection(), query, filter, sortList, offset,
                         size, sourceQueryName, sourceQueryParams);
             }
             log.info("dictList [{},{}] -> ok [{}]", requestId, query.getDict()
@@ -134,8 +138,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         try {
             NsiQuery query = dict.query().addAttrs();
             DictRow data;
-            try (Connection connection = dataSource.getConnection()) {
-                data = sqlDao.get(connection, query, id);
+            try (NsiSession session = new NsiSession(dataSource)) {
+                data = sqlDao.get(session.getConnection(), query, id);
             }
             log.info("dictGet [{},{}] -> ok", requestId, dict.getName());
             return data;
@@ -157,8 +161,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             DictRow outData;
 
             boolean isInsert = data.isIdAttrEmpty();
-            try (Connection connection = dataSource.getConnection()) {
-                outData = sqlDao.save(connection, query, data, isInsert);
+            try (NsiSession session = new NsiSession(dataSource)) {
+                outData = sqlDao.save(session.getConnection(), query, data, isInsert);
             }
             if (isInsert) {
                 log.info("dictSave [{},{}] -> inserted [{}]", requestId,
@@ -183,10 +187,10 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         try {
             NsiQuery query = dict.query().addAttrs();
             DictRow outData;
-            try (Connection connection = dataSource.getConnection()) {
-                DictRow data = sqlDao.get(connection, query, id);
+            try (NsiSession session = new NsiSession(dataSource)) {
+                DictRow data = sqlDao.get(session.getConnection(), query, id);
                 data.setDeleteMarkAttr(value);
-                outData = sqlDao.update(connection, query, data);
+                outData = sqlDao.update(session.getConnection(), query, data);
             }
             log.info("dictDelete [{},{},{},{}] -> ok", requestId,
                     dict.getName(), id, value);
@@ -214,12 +218,12 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 DictRow outData;
                 boolean isInsert = data.isIdAttrEmpty();
 
-                try (Connection connection = dataSource.getConnection()) {
+                try (NsiSession session = new NsiSession(dataSource)) {
                     if (isInsert) {
                         builder.idAttrNull();
-                        outData = sqlDao.save(connection, query, data, isInsert);
+                        outData = sqlDao.save(session.getConnection(), query, data, isInsert);
                     } else {
-                        outData = sqlDao.save(connection, query, data, isInsert);
+                        outData = sqlDao.save(session.getConnection(), query, data, isInsert);
                     }
                 }
                 if (isInsert) {

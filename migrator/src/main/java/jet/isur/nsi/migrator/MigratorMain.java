@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import jet.isur.nsi.api.tx.NsiSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,8 +113,8 @@ public class MigratorMain {
                 migrator.update(updateCmd.getTag());
                 break;
             case CMD_CREATE_USER_PROFILE:
-            	try (Connection con = dataSource.getConnection()) {
-            		if(DaoUtils.createUserProfile(con, createUserProfileCmd.getLogin()) == null) {
+                try (NsiSession session = new NsiSession(dataSource)) {
+            		if(DaoUtils.createUserProfile(session.getConnection(), createUserProfileCmd.getLogin()) == null) {
             			System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
             		}
             	}

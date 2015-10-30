@@ -16,6 +16,7 @@ import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 
 import com.google.common.base.Joiner;
+import jet.isur.nsi.api.tx.NsiSession;
 
 public class DictDataManager {
 
@@ -26,9 +27,9 @@ public class DictDataManager {
     public DictRow get(String dictName, DictRowAttr id) throws SQLException {
         NsiConfigDict dict = getDict(dictName);
 
-        try(Connection connection = dataSource.getConnection()) {
+        try(NsiSession session = new NsiSession(dataSource)) {
             NsiQuery query = dict.query().addAttrs();
-            return sqlDao.get(connection, query, id);
+            return sqlDao.get(session.getConnection(), query, id);
         }
     }
 
@@ -42,26 +43,26 @@ public class DictDataManager {
 
     public DictRow save(String dictName, DictRow data, boolean insert) throws SQLException {
         NsiConfigDict dict = config.getDict(dictName);
-        try(Connection connection = dataSource.getConnection()) {
+        try(NsiSession session = new NsiSession(dataSource)) {
             NsiQuery query = dict.query().addAttrs();
-            return sqlDao.save(connection, query, data, insert);
+            return sqlDao.save(session.getConnection(), query, data, insert);
         }
     }
 
     public List<DictRow> list(String dictName, BoolExp filter, List<SortExp> sortList, int offset, int size) throws SQLException {
         NsiConfigDict dict = getDict(dictName);
 
-        try(Connection connection = dataSource.getConnection()) {
+        try(NsiSession session = new NsiSession(dataSource)) {
             NsiQuery query = dict.query().addTableObjectAttrs();
-            return sqlDao.list(connection, query, filter, sortList, offset, size);
+            return sqlDao.list(session.getConnection(), query, filter, sortList, offset, size);
         }
     }
 
     public long count(String dictName, BoolExp filter) throws SQLException {
         NsiConfigDict dict = getDict(dictName);
-        try(Connection connection = dataSource.getConnection()) {
+        try(NsiSession session = new NsiSession(dataSource)) {
             NsiQuery query = dict.query().addTableObjectAttrs();
-            return sqlDao.count(connection, query, filter);
+            return sqlDao.count(session.getConnection(), query, filter);
         }
     }
 

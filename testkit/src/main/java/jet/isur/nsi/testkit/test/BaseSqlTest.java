@@ -22,6 +22,7 @@ import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
+import jet.isur.nsi.api.tx.NsiSession;
 import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
@@ -71,7 +72,7 @@ public class BaseSqlTest {
     }
 
     protected void cleanTestDictRows() {
-        try (Connection c = dataSource.getConnection()) {
+        try (NsiSession session = new NsiSession(dataSource)) {
             if(testDictRowMap.size() > 0) {
                 DictDependencyGraph g = DictDependencyGraph.build(config,
                         testDictRowMap.keySet());
@@ -97,7 +98,7 @@ public class BaseSqlTest {
                                             // ищем подчиненные записи
                                             if (null != curParentValue.getIdAttr()) {
                                                 List<DictRow> data = sqlDao.list(
-                                                        c,
+                                                        session.getConnection(),
                                                         child.query().addAttr(child.getIdAttr().getName()),// нас интересует только ид-шник
                                                         child.filter().key(ref.getName()).eq().value(curParentValue.getIdAttr()).build(),
                                                         null, -1, -1);
@@ -117,7 +118,7 @@ public class BaseSqlTest {
 
                 for (NsiConfigDict dict : testDictList) {
                     // удаляем данные
-                    try (PreparedStatement ps = c.prepareStatement("delete from "
+                    try (PreparedStatement ps = session.getConnection().prepareStatement("delete from "
                             + dict.getTable() + " where "
                             + dict.getIdAttr().getName() + "=?")) {
                         if (testDictRowMap.containsKey(dict)) {
