@@ -12,7 +12,6 @@ import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
-import jet.isur.nsi.api.tx.NsiSession;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 
@@ -38,8 +37,8 @@ public class DBAppender {
 
     public List<DictRow> getData(NsiConfigDict dict) {
         NsiQuery query = dict.query().addAttrs();
-        try (NsiSession session = new NsiSession(dataSource)) {
-            return sqlDao.list(session.getConnection(), query, null, null, -1, -1);
+        try (Connection connection = dataSource.getConnection()) {
+            return sqlDao.list(connection, query, null, null, -1, -1);
         } catch (SQLException e) {
             log.error("Ошибка получения данных из "+dict.getName(), e);
         }
@@ -57,12 +56,12 @@ public class DBAppender {
         log.info("DBAppender addData "+dict.getName()+ " rows count="+dataList.size());
         NsiQuery query = dict.query().addAttrs();
 
-        try (NsiSession session = new NsiSession(dataSource)) {
+        try (Connection connection = dataSource.getConnection()) {
             String sql = sqlGen.getRowInsertSql(query, false);
-            try (PreparedStatement psGetId = session.getConnection()
+            try (PreparedStatement psGetId = connection
                     .prepareStatement("select " + dict.getSeq()
                             + ".nextval from dual");
-                    PreparedStatement ps = session.getConnection()
+                    PreparedStatement ps = connection
                             .prepareStatement(sql)) {
                 for (DictRow data : dataList) {
                     ResultSet rs = psGetId.executeQuery();
@@ -91,8 +90,8 @@ public class DBAppender {
 
         log.info("appender cleanData "+dict.getName());
 
-        try (NsiSession session = new NsiSession(dataSource)) {
-            try (PreparedStatement ps = session.getConnection().prepareStatement("DELETE FROM " + dict.getTable())) {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement("DELETE FROM " + dict.getTable())) {
                 ps.executeQuery();
             }
         } catch (SQLException e) {
@@ -107,8 +106,8 @@ public class DBAppender {
 
         NsiQuery query = dict.query().addAttrs();
         String sql = sqlGen.getRowUpdateSql(query);
-        try (NsiSession session = new NsiSession(dataSource);
-             PreparedStatement ps = session.getConnection().prepareStatement(sql)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (DictRow data : dataList) {
                 sqlDao.setParamsForUpdate(query, data, ps);
                 ps.addBatch();

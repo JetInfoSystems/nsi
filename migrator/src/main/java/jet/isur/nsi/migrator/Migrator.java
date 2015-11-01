@@ -11,7 +11,6 @@ import javax.sql.DataSource;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.api.tx.NsiSession;
 import jet.isur.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
 import jet.isur.nsi.migrator.hibernate.LogActionsTargetImpl;
 import jet.isur.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
@@ -138,8 +137,8 @@ public class Migrator {
 
     private void doLiquibaseUpdate(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(NsiSession session = new NsiSession(dataSource)) {
-            la.update(session.getConnection(), tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.update(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_UPDATE, e);
         }
@@ -147,8 +146,8 @@ public class Migrator {
 
     private void doLiquibaseRollback(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(NsiSession session = new NsiSession(dataSource)) {
-            la.rollback(session.getConnection(), tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.rollback(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
         }
@@ -156,8 +155,8 @@ public class Migrator {
 
     private void doLiquibaseTag(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(NsiSession session = new NsiSession(dataSource)) {
-            la.tag(session.getConnection(), tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.tag(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
         }

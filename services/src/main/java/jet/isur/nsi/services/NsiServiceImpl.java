@@ -46,13 +46,13 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public NsiTransaction beginTransaction() {
-        return nsiGenericService.beginTransaction();
+    public long dictCount(String requestId, NsiQuery query, BoolExp filter) {
+        return dictCount(requestId, query, filter, null, null);
     }
 
     @Override
-    public long dictCount(String requestId, NsiQuery query, BoolExp filter) {
-        return dictCount(requestId, query, filter, null, null);
+    public long dictCount(NsiTransaction tx, NsiQuery query, BoolExp filter) {
+        return dictCount(tx, query, filter, null, null);
     }
 
     @Override
@@ -67,9 +67,26 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
+    public long dictCount(NsiTransaction tx, NsiQuery query, BoolExp filter,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
+        final Timer.Context t = dictCountTimer.time();
+        try {
+            return nsiGenericService.dictCount(tx, query, filter, sqlDao, sourceQueryName, sourceQueryParams);
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
     public List<DictRow> dictList(String requestId, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size) {
         return dictList(requestId, query, filter, sortList, offset, size, null, null);
+    }
+
+    @Override
+    public List<DictRow> dictList(NsiTransaction tx, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size) {
+        return dictList(tx, query, filter, sortList, offset, size, null, null);
     }
 
     @Override
@@ -84,6 +101,17 @@ public class NsiServiceImpl implements NsiService {
         }
     }
 
+    @Override
+    public List<DictRow> dictList(NsiTransaction tx, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
+        final Timer.Context t = dictListTimer.time();
+        try {
+            return nsiGenericService.dictList(tx, query, filter, sortList, offset, size, sqlDao, sourceQueryName, sourceQueryParams);
+        } finally {
+            t.stop();
+        }
+    }
 
     @Override
     public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id) {
@@ -96,10 +124,30 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
+    public DictRow dictGet(NsiTransaction tx, NsiConfigDict dict, DictRowAttr id) {
+        final Timer.Context t = dictGetTimer.time();
+        try {
+            return nsiGenericService.dictGet(tx, dict, id, sqlDao);
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
     public DictRow dictSave(String requestId, DictRow data) {
         final Timer.Context t = dictSaveTimer.time();
         try {
             return nsiGenericService.dictSave(requestId, data, sqlDao);
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
+    public DictRow dictSave(NsiTransaction tx, DictRow data) {
+        final Timer.Context t = dictSaveTimer.time();
+        try {
+            return nsiGenericService.dictSave(tx, data, sqlDao);
         } finally {
             t.stop();
         }
@@ -117,10 +165,31 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
+    public DictRow dictDelete(NsiTransaction tx, NsiConfigDict dict,
+            DictRowAttr id, Boolean value) {
+        final Timer.Context t = dictDeleteTimer.time();
+        try {
+            return nsiGenericService.dictDelete(tx, dict, id, value, sqlDao);
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
     public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList) {
         final Timer.Context t = dictBatchSaveTimer.time();
         try {
             return nsiGenericService.dictBatchSave(requestId, dataList, sqlDao);
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
+    public List<DictRow> dictBatchSave(NsiTransaction tx, List<DictRow> dataList) {
+        final Timer.Context t = dictBatchSaveTimer.time();
+        try {
+            return nsiGenericService.dictBatchSave(tx, dataList, sqlDao);
         } finally {
             t.stop();
         }
