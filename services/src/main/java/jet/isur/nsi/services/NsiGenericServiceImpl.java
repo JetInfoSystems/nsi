@@ -90,13 +90,16 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             SqlDao sqlDao, String sourceQueryName,
             Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictCountTimer.time();
-        try {
-            try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
+            try {
                 return dictCountInternal(tx, query, filter, sqlDao, sourceQueryName, sourceQueryParams);
+            } catch (Exception e) {
+                log.error("dictCount [{},{}] -> error", requestId, query.getDict().getName(), e);
+                tx.rollback();
+                throw new NsiServiceException(e.getMessage());
             }
         } catch (Exception e) {
-            log.error("dictCount [{},{}] -> error", requestId, query.getDict()
-                    .getName(), e);
+            log.error("dictCount [{},{}] -> error", requestId, query.getDict().getName(), e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
@@ -151,14 +154,17 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             SqlDao sqlDao, String sourceQueryName,
             Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictListTimer.time();
-        try {
-            List<DictRow> data;
-            try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
-                data = dictListInternal(tx, query, filter, sortList, offset,
+        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+            try {
+                List<DictRow> data = dictListInternal(tx, query, filter, sortList, offset,
                         size, sqlDao, sourceQueryName, sourceQueryParams);
+                log.info("dictList [{},{}] -> ok [{}]", requestId, query.getDict().getName(), data.size());
+                return data;
+            } catch (Exception e) {
+                log.error("dictList [{},{}] -> error", requestId, query.getDict().getName(), e);
+                tx.rollback();
+                throw new NsiServiceException(e.getMessage());
             }
-            log.info("dictList [{},{}] -> ok [{}]", requestId, query.getDict().getName(), data.size());
-            return data;
         } catch (Exception e) {
             log.error("dictList [{},{}] -> error", requestId, query.getDict().getName(), e);
             throw new NsiServiceException(e.getMessage());
@@ -199,13 +205,16 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id, SqlDao sqlDao) {
         final Timer.Context t = dictGetTimer.time();
-        try {
-            DictRow data;
-            try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
-                data = dictGetInternal(tx, dict, id, sqlDao);
+        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+            try {
+                DictRow data = dictGetInternal(tx, dict, id, sqlDao);
+                log.info("dictGet [{},{}] -> ok", requestId, dict.getName());
+                return data;
+            } catch (Exception e) {
+                log.error("dictGet [{},{}] -> error", requestId, dict.getName(), e);
+                tx.rollback();
+                throw new NsiServiceException(e.getMessage());
             }
-            log.info("dictGet [{},{}] -> ok", requestId, dict.getName());
-            return data;
         } catch (Exception e) {
             log.error("dictGet [{},{}] -> error", requestId, dict.getName(), e);
             throw new NsiServiceException(e.getMessage());
@@ -247,9 +256,13 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
-        try {
-            try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+            try {
                 return dictSaveInternal(tx, data, sqlDao);
+            } catch (Exception e) {
+                log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
+                tx.rollback();
+                throw new NsiServiceException(e.getMessage());
             }
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
@@ -288,9 +301,13 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictDelete(String requestId, NsiConfigDict dict,
             DictRowAttr id, Boolean value, SqlDao sqlDao) {
         final Timer.Context t = dictDeleteTimer.time();
-        try {
-            try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+            try {
                 return dictDeleteInternal(tx, dict, id, value, sqlDao);
+            } catch (Exception e) {
+                log.error("dictDelete [{},{},{},{}] -> error", requestId, dict.getName(), id, value, e);
+                tx.rollback();
+                throw new NsiServiceException(e.getMessage());
             }
         } catch (Exception e) {
             log.error("dictDelete [{},{},{},{}] -> error", requestId, dict.getName(), id, value, e);
@@ -345,13 +362,16 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
-        try {
-            try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
+            try {
                 return dictBatchSaveInternal(tx, dataList, sqlDao);
+            } catch (Exception e) {
+                log.error("dictBatchSave [{},{}] -> error", requestId, dataList.size(), e);
+                tx.rollback();
+                throw new NsiServiceException(e.getMessage());
             }
         } catch (Exception e) {
-            log.error("dictBatchSave [{},{}] -> error", requestId,
-                    dataList.size(), e);
+            log.error("dictBatchSave [{},{}] -> error", requestId, dataList.size(), e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();

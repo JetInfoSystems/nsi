@@ -38,10 +38,13 @@ public class NsiTransactionImpl implements NsiTransaction {
     @Override
     public void close() {
         try {
-            if(!rolledBack) {
-                connection.commit();
+            try {
+                if(!rolledBack) {
+                    connection.commit();
+                }
+            } finally {
+                connection.setAutoCommit(autoCommit);
             }
-            connection.setAutoCommit(autoCommit);
         } catch (Exception e) {
             throw new NsiServiceException("Failed to restore transaction autoCommit", e);
         } finally {
