@@ -16,6 +16,8 @@ import org.hibernate.boot.model.naming.NamingHelper;
 public class NsiImplicitNamingStrategyImpl extends
         ImplicitNamingStrategyJpaCompliantImpl {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public Identifier determineForeignKeyName(
             ImplicitForeignKeyNameSource source) {

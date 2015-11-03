@@ -184,7 +184,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 .getSqlCreateStrings(table, metadata), targets, false);
     }
 
-    @SuppressWarnings("unchecked")
     private void migrateTable(Table table, TableInformation tableInformation,
             List<Target> targets, Metadata metadata) {
         final Database database = metadata.getDatabase();
@@ -201,7 +200,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
         return (columnInformation == null)? dialect.getAddColumnString() : MODIFY_OPERATION;
     }
 
-    public Iterator sqlAlterStrings(
+    public Iterator<String> sqlAlterStrings(
             Table table,
             Dialect dialect,
             Mapping p,
@@ -209,8 +208,9 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             String defaultCatalog,
             String defaultSchema) throws HibernateException {
 
+        @SuppressWarnings("rawtypes")
         Iterator iter = table.getColumnIterator();
-        List results = new ArrayList();
+        List<String> results = new ArrayList<>();
         String tableName = table.getQualifiedName( dialect, defaultCatalog, defaultSchema );
 
         while ( iter.hasNext() ) {
@@ -325,7 +325,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 .getDialect();
         final Exporter<Constraint> exporter = dialect.getUniqueKeyExporter();
 
-        final Iterator ukItr = table.getUniqueKeyIterator();
+        final Iterator<UniqueKey> ukItr = table.getUniqueKeyIterator();
         while (ukItr.hasNext()) {
             final UniqueKey uniqueKey = (UniqueKey) ukItr.next();
             // Skip if index already exists. Most of the time, this

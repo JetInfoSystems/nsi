@@ -34,8 +34,10 @@ import com.jolbox.bonecp.BoneCPDataSource;
 public class DaoUtils {
 
     // jooq hack
+    @SuppressWarnings("unused")
     private static DefaultDataType<String> VARCHAR2 = new DefaultDataType<String>(SQLDialect.DEFAULT,
             new DefaultDataType<String>(null, String.class, "varchar2"), "varchar2");
+    @SuppressWarnings("unused")
     private static DefaultDataType<BigDecimal> NUMBER = new DefaultDataType<BigDecimal>(SQLDialect.DEFAULT,
             new DefaultDataType<BigDecimal>(null, BigDecimal.class, "number"), "number");
 
