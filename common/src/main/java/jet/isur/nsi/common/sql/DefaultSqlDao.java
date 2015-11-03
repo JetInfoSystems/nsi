@@ -13,6 +13,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
 import jet.isur.nsi.api.data.BoolExpVisitor;
 import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.DictRow;
@@ -30,16 +39,6 @@ import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
-
-import org.joda.time.DateTime;
-import org.jooq.FieldLike;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 public class DefaultSqlDao implements SqlDao {
 
