@@ -222,8 +222,7 @@ public class MigratorTest extends BaseSqlTest{
 
         List<String> actions = rec.getActions();
         log.info("DUMP");
-        log.info(actions.toString());
-        Assert.assertTrue(actions.size() >= 1);
+        Assert.assertEquals(actions.toString(), 1, actions.size());
         Assert.assertEquals("create table dict1 (id number(19,0) not null, f1 number(20,8), primary key (id))", actions.get(0));
 
         try(Connection connection = dataSource.getConnection()) {
