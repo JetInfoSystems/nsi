@@ -79,7 +79,8 @@
                             jet.isur.nsi.common.data;version=${project.version},
                             jet.isur.nsi.common.sql;version=${project.version},
                             jet.isur.nsi.common.utils;version=${project.version},
-                            jet.isur.nsi.common.yaml;version=${project.version}
+                            jet.isur.nsi.common.yaml;version=${project.version},
+                            jet.isur.nsi.common.tx;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>
