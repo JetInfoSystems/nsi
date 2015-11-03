@@ -71,7 +71,7 @@ public class BaseSqlTest {
     }
 
     protected void cleanTestDictRows() {
-        try (Connection c = dataSource.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             if(testDictRowMap.size() > 0) {
                 DictDependencyGraph g = DictDependencyGraph.build(config,
                         testDictRowMap.keySet());
@@ -97,7 +97,7 @@ public class BaseSqlTest {
                                             // ищем подчиненные записи
                                             if (null != curParentValue.getIdAttr()) {
                                                 List<DictRow> data = sqlDao.list(
-                                                        c,
+                                                        connection,
                                                         child.query().addAttr(child.getIdAttr().getName()),// нас интересует только ид-шник
                                                         child.filter().key(ref.getName()).eq().value(curParentValue.getIdAttr()).build(),
                                                         null, -1, -1);
@@ -117,7 +117,7 @@ public class BaseSqlTest {
 
                 for (NsiConfigDict dict : testDictList) {
                     // удаляем данные
-                    try (PreparedStatement ps = c.prepareStatement("delete from "
+                    try (PreparedStatement ps = connection.prepareStatement("delete from "
                             + dict.getTable() + " where "
                             + dict.getIdAttr().getName() + "=?")) {
                         if (testDictRowMap.containsKey(dict)) {

@@ -44,9 +44,9 @@ public class MigratorMain {
     private static final String CMD_RUN_GENERATOR = "runGenerator";
     private static final String CMD_RUN_GENERATOR_PLUGIN = "runGeneratorPlugin";
     private static final String CMD_CREATE_USER_PROFILE = "createUserProfile";
-    
+
     private static final Logger log = LoggerFactory.getLogger(MigratorMain.class);
-    
+
     public static void main(String[] args) throws Exception {
         JCommander jc = new JCommander();
         CommonArgs commonArgs = new CommonArgs();
@@ -95,7 +95,7 @@ public class MigratorMain {
             doTagCmd(tagCmd, params, properties);
             break;
         case CMD_CREATE_USER_PROFILE:
-        	
+
             DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
 
             NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
@@ -112,17 +112,17 @@ public class MigratorMain {
                 migrator.update(updateCmd.getTag());
                 break;
             case CMD_CREATE_USER_PROFILE:
-            	try (Connection con = dataSource.getConnection()) {
-            		if(DaoUtils.createUserProfile(con, createUserProfileCmd.getLogin()) == null) {
-            			System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
-            		}
-            	}
-            	break;
+                try (Connection connection = dataSource.getConnection()) {
+                    if(DaoUtils.createUserProfile(connection, createUserProfileCmd.getLogin()) == null) {
+                        System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
+                    }
+                }
+                break;
             default:
                 break;
             }
             break;
-            
+
         case CMD_CREATE_TABLESPACE:
             doCreateTablespaceCmd(params, properties);
             break;

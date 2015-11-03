@@ -137,8 +137,8 @@ public class Migrator {
 
     private void doLiquibaseUpdate(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(Connection c = dataSource.getConnection()) {
-            la.update(c, tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.update(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_UPDATE, e);
         }
@@ -146,8 +146,8 @@ public class Migrator {
 
     private void doLiquibaseRollback(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(Connection c = dataSource.getConnection()) {
-            la.rollback(c, tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.rollback(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
         }
@@ -155,8 +155,8 @@ public class Migrator {
 
     private void doLiquibaseTag(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(Connection c = dataSource.getConnection()) {
-            la.tag(c, tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.tag(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
         }
