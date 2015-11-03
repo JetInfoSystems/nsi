@@ -72,4 +72,7 @@
     <service ref="nsiMetaService" interface="jet.isur.nsi.api.NsiMetaService">
     </service>
 
+    <service ref="nsiTransactionService" interface="jet.isur.nsi.api.tx.NsiTransactionService">
+    </service>
+
 </blueprint>
