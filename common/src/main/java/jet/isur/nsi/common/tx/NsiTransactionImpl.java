@@ -31,7 +31,7 @@ public class NsiTransactionImpl implements NsiTransaction {
             rolledBack = true;
             connection.rollback();
         } catch (Exception e) {
-            throw new NsiServiceException("Failed to close transaction", e);
+            throw new NsiServiceException("Failed to rollback transaction", e);
         }
     }
 
