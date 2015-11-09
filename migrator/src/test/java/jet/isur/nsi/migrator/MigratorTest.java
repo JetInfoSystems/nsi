@@ -182,6 +182,9 @@ public class MigratorTest extends BaseSqlTest{
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("test_size", connection);
         }
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropSeq("seq_dict1", connection);
+        }
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
 
@@ -203,6 +206,10 @@ public class MigratorTest extends BaseSqlTest{
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("test_size", connection);
         }
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropSeq("seq_dict1", connection);
+        }
+
     }
 
 
@@ -211,6 +218,9 @@ public class MigratorTest extends BaseSqlTest{
 
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("dict1", connection);
+        }
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropSeq("seq_dict1", connection);
         }
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
@@ -222,12 +232,16 @@ public class MigratorTest extends BaseSqlTest{
 
         List<String> actions = rec.getActions();
         log.info("DUMP");
-        Assert.assertEquals(actions.toString(), 1, actions.size());
+        Assert.assertEquals(actions.toString(), 2, actions.size());
         Assert.assertEquals("create table dict1 (id number(19,0) not null, f1 number(20,8), primary key (id))", actions.get(0));
 
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("dict1", connection);
         }
+        try(Connection connection = dataSource.getConnection()) {
+            DaoUtils.dropSeq("seq_dict1", connection);
+        }
+
     }
 
 }
