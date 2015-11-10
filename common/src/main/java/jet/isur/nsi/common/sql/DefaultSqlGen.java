@@ -54,10 +54,7 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowGetSql(NsiQuery query) {
-        SelectJoinStep<?> baseQuery = 
-                (query.getDict().getTable() != null) ?
-                    createBaseQuery(query, true) :
-                    createBaseQuery(query, true, NsiQuery.MAIN_QUERY);
+        SelectJoinStep<?> baseQuery = createBaseQuery(query, true, null);
         
         Condition condition = getIdCondition(query, baseQuery);
         return baseQuery.where(condition).getSQL();
@@ -73,6 +70,11 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields, String sourceQueryName) {
+        // если запрос не задан и нет таблицы, используем запрос по умолчанию
+        if( query.getDict().getTable() == null && sourceQueryName == null) {
+            sourceQueryName = NsiQuery.MAIN_QUERY;
+        }
+
         Collection<? extends SelectField<?>> selectFields = getSelectFields(query, true);
         Table<?> fromSource = createFromSource(query, sourceQueryName);
         SelectJoinStep<Record> selectJoinStep = getQueryBuilder().select(selectFields).from(fromSource);
@@ -230,11 +232,6 @@ public class DefaultSqlGen implements SqlGen {
             List<SortExp> sortList, long offset, int size, String sourceQuery) {
         checkPaginationExp(offset, size);
 
-        // если запрос не задан и нет таблицы, используем запрос по умолчанию
-        if( query.getDict().getTable() == null && sourceQuery == null) {
-            sourceQuery = NsiQuery.MAIN_QUERY;
-        }
-        
         SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true, sourceQuery);
         Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
         if(filterCondition != null) {
