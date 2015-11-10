@@ -296,7 +296,7 @@ public class NsiConfigImpl implements NsiConfig {
         checkOneFieldAttr(dict, "lastChangeAttr", dict.getLastChangeAttr(), MetaFieldType.DATE_TIME, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.NUMBER, null);
         // если задан ownerAttr, то обязательно должен быть задан idAttr
-        if (null != dict.getOwnerAttr() && null != dict.getIdAttr()){
+        if (null != dict.getOwnerAttr() && null == dict.getIdAttr()){
             throwDictException(dict, "ownerAttr set, but dict has not idAttr");
         }
         for (NsiConfigAttr attr : dict.getAttrs()) {
