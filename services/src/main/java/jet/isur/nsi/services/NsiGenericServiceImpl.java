@@ -177,8 +177,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         NsiConfigDict dict = query.getDict();
         if(sourceQueryName != null) {
             Preconditions.checkNotNull(dict.getSourceQuery(sourceQueryName),"dict %s source query %s not exists",dict.getName(), sourceQueryName);
-        } else {
-            Preconditions.checkNotNull(dict.getTable(),"dict %s has not table, source query must set",dict.getName());
+        } else if(dict.getTable() == null) {
+            Preconditions.checkNotNull(dict.getSourceQuery(NsiQuery.MAIN_QUERY),"dict %s has not table or default query, source query must set",dict.getName());
         }
     }
 
