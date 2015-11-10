@@ -70,11 +70,6 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields, String sourceQueryName) {
-        // если запрос не задан и нет таблицы, используем запрос по умолчанию
-        if( query.getDict().getTable() == null && sourceQueryName == null) {
-            sourceQueryName = NsiQuery.MAIN_QUERY;
-        }
-
         Collection<? extends SelectField<?>> selectFields = getSelectFields(query, true);
         Table<?> fromSource = createFromSource(query, sourceQueryName);
         SelectJoinStep<Record> selectJoinStep = getQueryBuilder().select(selectFields).from(fromSource);
@@ -83,6 +78,11 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     private Table<?> createFromSource(NsiQuery query, String sourceQueryName) {
+        // если запрос не задан и нет таблицы, используем запрос по умолчанию
+        if( query.getDict().getTable() == null && sourceQueryName == null) {
+            sourceQueryName = NsiQuery.MAIN_QUERY;
+        }
+
         Table<?> fromSource;
         NsiConfigDict dict = query.getDict();
         if(sourceQueryName == null) {
