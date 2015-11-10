@@ -276,4 +276,16 @@ public class SqlGenTest extends BaseSqlTest {
 
     }
 
+    
+    @Test
+    public void testListUseDefaultSourceQuery() {
+        NsiConfigDict dict = config.getDict("dict1_view");
+        NsiQuery query = dict.query().addAttr("f1");
+
+        String sql = sqlGen.getListSql(query, null, null, -1, -1);
+        Assert.assertEquals(
+                "select m.f1 from ( select f1, 1 as cnt from table1 where f1 <> ? )  m", sql);
+
+    }
+
 }

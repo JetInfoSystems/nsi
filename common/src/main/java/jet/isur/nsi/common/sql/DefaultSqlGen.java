@@ -230,6 +230,11 @@ public class DefaultSqlGen implements SqlGen {
             List<SortExp> sortList, long offset, int size, String sourceQuery) {
         checkPaginationExp(offset, size);
 
+        // если запрос не задан и нет таблицы, используем запрос по умолчанию
+        if( query.getDict().getTable() == null && sourceQuery == null) {
+            sourceQuery = NsiQuery.MAIN_QUERY;
+        }
+        
         SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true, sourceQuery);
         Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
         if(filterCondition != null) {
