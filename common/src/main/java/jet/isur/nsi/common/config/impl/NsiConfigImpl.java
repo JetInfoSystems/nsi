@@ -295,6 +295,10 @@ public class NsiConfigImpl implements NsiConfig {
         checkOneFieldAttr(dict, "isGroupAttr", dict.getIsGroupAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastChangeAttr", dict.getLastChangeAttr(), MetaFieldType.DATE_TIME, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.NUMBER, null);
+        // если задан ownerAttr, то обязательно должен быть задан idAttr
+        if (null != dict.getOwnerAttr() && null == dict.getIdAttr()){
+            throwDictException(dict, "ownerAttr set, but dict has not idAttr");
+        }
         for (NsiConfigAttr attr : dict.getAttrs()) {
             if(attr.getType() == MetaAttrType.REF) {
                 attr.setRefDict(getDict(attr.getRefDictName()));

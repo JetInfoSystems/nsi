@@ -95,7 +95,8 @@ public class BaseSqlTest {
                                         // теперь для всех сохраненных значений  парента
                                         for (DictRow curParentValue : testDictRowMap.get(parent)) {
                                             // ищем подчиненные записи
-                                            if (null != curParentValue.getIdAttr()) {
+                                            if (null != curParentValue.getIdAttr()
+                                                    && null != child.getIdAttr()) {
                                                 List<DictRow> data = sqlDao.list(
                                                         connection,
                                                         child.query().addAttr(child.getIdAttr().getName()),// нас интересует только ид-шник
