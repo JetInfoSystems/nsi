@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+import jet.isur.nsi.api.NsiError;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
@@ -69,7 +70,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                                 ), sqlDao);
                         Assert.fail("exception must be thrown");
                     }catch (NsiServiceException e){
-                        Assert.assertEquals("Превышено максимально допустимую длинну поля", e.getMessage());
+                        Assert.assertEquals(NsiError.MAX_FIELD_LENGTH_EXCEEDED, e.getError());
                     }catch (Exception e) {
                         e.printStackTrace();
                         Assert.fail("incorrect exception throwed");
@@ -102,7 +103,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                         service.dictBatchSave("", data, sqlDao);
                         Assert.fail("exception must be thrown");
                     }catch (NsiServiceException e){
-                        Assert.assertEquals("Превышено максимально допустимую длинну поля", e.getMessage());
+                        Assert.assertEquals(NsiError.MAX_FIELD_LENGTH_EXCEEDED, e.getError());
                     }catch (Exception e) {
                         e.printStackTrace();
                         Assert.fail("incorrect exception throwed");

@@ -27,6 +27,11 @@ public class NsiServiceException extends RuntimeException {
 		this.error = error;
 	}
 
+    public NsiServiceException(NsiError error, String message) {
+        super(message);
+        this.error = error;
+    }
+    
 	public String getRequestId() {
 		return requestId;
     }

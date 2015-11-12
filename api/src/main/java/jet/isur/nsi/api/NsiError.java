@@ -4,7 +4,9 @@ public enum NsiError {
 
     INTERNAL_ERROR(0, "Internal error"),
 
-	AUTHORIZATION_ERROR(5, "Ошибка авторизации");
+	AUTHORIZATION_ERROR(5, "Ошибка авторизации"),
+
+    MAX_FIELD_LENGTH_EXCEEDED(1, "Превышено максимально допустимую длинну поля");
 
     private final int code;
     private final String message;

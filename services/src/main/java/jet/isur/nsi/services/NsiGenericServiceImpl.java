@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import jet.isur.nsi.api.NsiError;
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.DictRow;
@@ -21,7 +22,6 @@ import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.isur.nsi.api.tx.NsiTransactionService;
-import jet.isur.nsi.common.data.NsiDataException;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
@@ -241,7 +241,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             for (NsiConfigField field : fields) {
                 if (MetaFieldType.VARCHAR.equals(field.getType())){
                     if (null != dataValues.get(i) && dataValues.get(i).length() > field.getSize()){
-                        throw new NsiDataException("Превышено максимально допустимую длинну поля");
+                        throw new NsiServiceException(NsiError.MAX_FIELD_LENGTH_EXCEEDED, "maximum field length exceeded");
                     }
                 }
             }
@@ -288,8 +288,13 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             } catch (Exception e) {
                 log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
                 tx.rollback();
+                if (e instanceof NsiServiceException) 
+                    throw e;
+
                 throw new NsiServiceException(e.getMessage());
             }
+        } catch (NsiServiceException e){
+            throw e;
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
             throw new NsiServiceException(e.getMessage());
@@ -394,8 +399,13 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             } catch (Exception e) {
                 log.error("dictBatchSave [{},{}] -> error", requestId, dataList.size(), e);
                 tx.rollback();
+                if (e instanceof NsiServiceException) {
+                    throw e;
+                };
                 throw new NsiServiceException(e.getMessage());
             }
+        } catch (NsiServiceException e) {
+            throw e;
         } catch (Exception e) {
             log.error("dictBatchSave [{},{}] -> error", requestId, dataList.size(), e);
             throw new NsiServiceException(e.getMessage());
