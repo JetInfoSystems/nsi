@@ -8,15 +8,20 @@ import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
+import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
+import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
+import jet.isur.nsi.api.model.MetaFieldType;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.isur.nsi.api.tx.NsiTransactionService;
+import jet.isur.nsi.common.data.NsiDataException;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
@@ -223,12 +228,33 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         }
     }
 
+    private void validateFields(NsiQuery query, DictRow data){
+        for (NsiQueryAttr queryAttr : query.getAttrs()) {
+            NsiConfigAttr attr = queryAttr.getAttr();
+
+            List<NsiConfigField> fields = attr.getFields();
+            String queryAttrName = attr.getName();
+            DictRowAttr dataAttr = data.getAttr(queryAttrName);
+            List<String> dataValues = dataAttr.getValues();
+
+            int i = 0;
+            for (NsiConfigField field : fields) {
+                if (MetaFieldType.VARCHAR.equals(field.getType())){
+                    if (null != dataValues.get(i) && dataValues.get(i).length() > field.getSize()){
+                        throw new NsiDataException("Превышено максимально допустимую длинну поля");
+                    }
+                }
+            }
+        }
+    }
+    
     private DictRow dictSaveInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
         NsiConfigDict dict = data.getDict();
         NsiQuery query = dict.query().addAttrs();
         DictRow outData;
-
+        validateFields(query, data);
         boolean isInsert = data.isIdAttrEmpty();
+        
         outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
         if (isInsert) {
             log.info("dictSave [{},{}] -> inserted [{}]", tx.getRequestId(),
@@ -323,7 +349,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         for (DictRow data : dataList) {
             NsiConfigDict dict = data.getDict();
             NsiQuery query = dict.query().addAttrs();
-
+            validateFields(query, data);
             DictRowBuilder builder = data.builder();
             DictRow outData;
             boolean isInsert = data.isIdAttrEmpty();
