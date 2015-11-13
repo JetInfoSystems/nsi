@@ -3,10 +3,12 @@ package jet.isur.nsi.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import jet.isur.nsi.api.NsiError;
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfigAttr;
@@ -16,7 +18,6 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
-import jet.isur.nsi.api.model.MetaFieldType;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
@@ -228,22 +229,75 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         }
     }
 
-    private void validateFields(NsiQuery query, DictRow data){
+    private void validateFields(String requestId, NsiQuery query, DictRow data){
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
 
             List<NsiConfigField> fields = attr.getFields();
             String queryAttrName = attr.getName();
             DictRowAttr dataAttr = data.getAttr(queryAttrName);
+            if (null == dataAttr)
+                continue;
+            
             List<String> dataValues = dataAttr.getValues();
 
             int i = 0;
             for (NsiConfigField field : fields) {
-                if (MetaFieldType.VARCHAR.equals(field.getType())){
-                    if (null != dataValues.get(i) && dataValues.get(i).length() > field.getSize()){
-                        throw new NsiServiceException(NsiError.MAX_FIELD_LENGTH_EXCEEDED, "maximum field length exceeded");
+                String value = dataValues.get(i);
+                if (null != value){
+                    switch (field.getType()) {
+                    case BOOLEAN:
+                        if (!ConvertUtils.TRUE_VALUE.equals(value)
+                                && !ConvertUtils.FALSE_VALUE.equals(value))
+                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                    "Атрибут '%s' не прошел валидацию - значение '%s' не является логическим", field.getName(), value);
+                        break;
+                    case NUMBER:
+                        // целое
+                        if (field.getPrecision() == null || field.getPrecision() == 0){
+                            if (!Pattern.matches(String.format("^[+|-]?\\d{0,%s}$", field.getSize()), value)){
+                                throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                        "Атрибут '%s' не прошел валидацию - значение [%s] не является целым числом с максимальной длинной [%s]", 
+                                        field.getName(), value, field.getSize());
+                            }
+                        }else{
+                            if (!Pattern.matches(String.format("^[+|-]?\\d{0,%s}[.|,]?\\d*$", field.getSize() - field.getPrecision()), value)){
+                                throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                        "Атрибут '%s' не прошел валидацию - значение [%s] не является числом с максимальной длинной целой части [%s]", 
+                                        field.getName(), value, field.getSize() - field.getPrecision());
+                            }
+                        }
+                        break;
+                    case VARCHAR:
+                    case CHAR:
+                        if (value.length() > field.getSize()){
+                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                    "Атрибут '%s' не прошел валидацию - длина строки [%s] больше максимальной [%s]", 
+                                    field.getName(), value.length(), field.getSize());
+                        }
+                        break;
+                    case DATE_TIME:
+                        try{
+                            ConvertUtils.stringToDateTime(value);
+                        }catch (Exception e) {
+                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                    "Атрибут '%s' не прошел валидацию - значение [%s] нельзя преобразовать в дату", 
+                                    field.getName(), value);
+                        }
+                    default:
+                        break;
+                    }
+                    
+                    if (null != field.getEnumValues() 
+                            && !field.getEnumValues().isEmpty()
+                            && !field.getEnumValues().keySet().contains(value)){
+                        throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                "Атрибут '%s' не прошел валидацию - значение [%s] не является допустимым значением перечисления",
+                                field.getName(), value);
                     }
                 }
+                
+                i++;
             }
         }
     }
@@ -252,7 +306,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         NsiConfigDict dict = data.getDict();
         NsiQuery query = dict.query().addAttrs();
         DictRow outData;
-        validateFields(query, data);
+        validateFields(tx.getRequestId(), query, data);
         boolean isInsert = data.isIdAttrEmpty();
         
         outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
@@ -354,7 +408,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         for (DictRow data : dataList) {
             NsiConfigDict dict = data.getDict();
             NsiQuery query = dict.query().addAttrs();
-            validateFields(query, data);
+            validateFields(tx.getRequestId(), query, data);
             DictRowBuilder builder = data.builder();
             DictRow outData;
             boolean isInsert = data.isIdAttrEmpty();

@@ -21,17 +21,12 @@ public class NsiServiceException extends RuntimeException {
 		setError(NsiError.INTERNAL_ERROR);
 	}
 
-	public NsiServiceException(String requestId, NsiError error, String message) {
-		super(message);
+	public NsiServiceException(String requestId, NsiError error, String message, Object... args) {
+	    super(String.format(message, args));
 		this.requestId = requestId;
 		this.error = error;
 	}
 
-    public NsiServiceException(NsiError error, String message) {
-        super(message);
-        this.error = error;
-    }
-    
 	public String getRequestId() {
 		return requestId;
     }
