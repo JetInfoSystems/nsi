@@ -49,7 +49,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
     @Test
     public void testInsertIncorrectVarcharValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -85,7 +85,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertIncorrectCharValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -122,7 +122,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertIncorrectBooleanValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -159,7 +159,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertIncorrectDateTimeValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -194,7 +194,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertIncorrectEnumValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -231,7 +231,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertIncorrectNumberIntValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -264,7 +264,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
     @Test
     public void testInsertIncorrectNumberDoubleValue() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -309,7 +309,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertDatetimeValueOnBatchSave() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -343,7 +343,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertVarcharValueOnBatchSave() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -377,7 +377,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
     @Test
     public void testInsertIncorrectCharValueOnBatchSave() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {
@@ -412,7 +412,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Test
     public void testInsertIncorrectBooleanValueOnBatchSave() throws Exception {
-        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
             DaoUtils.recreateTable(dict, connection);
             try {

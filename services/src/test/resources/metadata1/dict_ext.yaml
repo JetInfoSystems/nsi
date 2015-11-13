@@ -5,6 +5,34 @@ attrs:
   hidden: false
   name: f1
   type: value
+- caption: varchar_field
+  fields: [varchar_field]
+  name: varchar_field
+  type: value
+- caption: number_field_int
+  fields: [number_field_int]
+  name: number_field_int
+  type: value
+- caption: number_field_double
+  fields: [number_field_double]
+  name: number_field_double
+  type: value  
+- caption: boolean_field
+  fields: [boolean_field]
+  name: boolean_field
+  type: value
+- caption: char_field
+  fields: [char_field]
+  name: char_field
+  type: value
+- caption: datetime_field
+  fields: [datetime_field]
+  name: datetime_field
+  type: value  
+- caption: enum_field
+  fields: [enum_field]
+  name: enum_field
+  type: value    
 - caption: id
   fields: [id]
   hidden: false
@@ -45,13 +73,26 @@ fields:
 - {name: last_change, type: date-time}
 - {name: last_user, size: 19, type: number}
 - {name: f1, size: 100, type: varchar}
+- {name: varchar_field, size: 10, type: varchar}
+- {name: number_field_int, size: 5, type: number}
+- {name: number_field_double, size: 12, precision: 3, type: number}
+- {name: boolean_field, size: 1, type: boolean}
+- {name: datetime_field, type: date-time}
+- {name: char_field, size: 2, type: char}
+- name: enum_field 
+  size: 2
+  type: char
+  enumValues:
+     A: a_enum
+     B: b_enum
+     C: c_enum
 - {name: ORG_ID, size: 19, type: number}
 - {name: ORG_ROLE_ID, size: 19, type: number}
 hidden: true
 idAttr: id
 lastChangeAttr: last_change
 lastUserAttr: last_user
-name: dict1
+name: dict_ext
 refObjectAttrs: [f1]
 loadDataAttrs: [id]
 sourceQueries:
@@ -64,6 +105,6 @@ owns:
     attr: ORG_ID
   ORG_ROLE:
     attr: ORG_ROLE_ID
-table: table1
+table: table_ext
 tableObjectAttrs: [f1]
 interceptors: [interceptor]
