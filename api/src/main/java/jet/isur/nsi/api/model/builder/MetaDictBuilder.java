@@ -73,6 +73,8 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder addTableObjectAttr(String value);
 
+    MetaDictBuilder addMergeExternalAttr(String value);
+    
     MetaDictBuilder addInterceptor(String value);
 
     MetaDictBuilder addOwn(String key, String value);

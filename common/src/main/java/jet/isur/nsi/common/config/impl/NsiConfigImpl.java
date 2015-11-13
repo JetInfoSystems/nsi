@@ -103,7 +103,8 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setLoadDataAttrs(createFieldList(dict, metaDict.getLoadDataAttrs()));
         dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
         dict.setInterceptors(createInterceptors(metaDict.getInterceptors()));
-
+        dict.setMergeExternalAttrs(createFieldList(dict,metaDict.getMergeExternalAttrs()));
+        
         Map<String, NsiConfigAttr> result = new HashMap<String, NsiConfigAttr>();
         if (null != metaDict.getOwns())
             for (Entry<String, MetaOwn> q : metaDict.getOwns().entrySet()) {

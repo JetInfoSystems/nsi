@@ -33,6 +33,7 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
     private List<NsiConfigAttr> loadDataAttrs = new ArrayList<>();
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
+    private List<NsiConfigAttr> mergeExternalAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
     private List<String> interceptors = new ArrayList<>();
@@ -138,6 +139,10 @@ public class NsiConfigDict {
         return Collections.unmodifiableList(tableObjectAttrs);
     }
 
+    public List<NsiConfigAttr> getMergeExternalAttrs() {
+        return Collections.unmodifiableList(mergeExternalAttrs);
+    }
+    
     public Collection<NsiConfigField> getFields() {
         return Collections.unmodifiableCollection(fieldNameMap.values());
     }
@@ -227,6 +232,10 @@ public class NsiConfigDict {
         this.tableObjectAttrs = tableObjectAttrs;
     }
 
+    public void setMergeExternalAttrs(List<NsiConfigAttr> mergeExternalAttrs) {
+        this.mergeExternalAttrs = mergeExternalAttrs;
+    }
+    
     public List<String> getInterceptors() {
         return interceptors;
     }
