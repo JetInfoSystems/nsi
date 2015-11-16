@@ -15,6 +15,7 @@ public enum MetaFieldType {
     @XmlEnumValue(value = "date-time")
     DATE_TIME,
     @XmlEnumValue(value = "boolean")
-    BOOLEAN;
-
+    BOOLEAN,
+    @XmlEnumValue(value = "clob")
+    CLOB;
 }

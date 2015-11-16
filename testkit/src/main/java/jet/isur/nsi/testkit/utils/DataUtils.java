@@ -17,7 +17,7 @@ import org.junit.Assert;
 
 public class DataUtils {
 
-    public static void assertEqual(MetaDict o1, MetaDict o2) {
+    public static void assertEqualCommon(MetaDict o1, MetaDict o2) {
         Assert.assertEquals(o1.getCaption(), o2.getCaption());
         Assert.assertEquals(o1.getDeleteMarkAttr(), o2.getDeleteMarkAttr());
         Assert.assertEquals(o1.getIsGroupAttr(), o2.getIsGroupAttr());
@@ -29,12 +29,7 @@ public class DataUtils {
         Assert.assertEquals(o1.getOwnerDict(), o2.getOwnerDict());
         Assert.assertEquals(o1.getParentAttr(), o2.getParentAttr());
         Assert.assertEquals(o1.getTable(), o2.getTable());
-        Assert.assertEquals(o1.getCaptionAttrs(), o2.getCaptionAttrs());
-        Assert.assertEquals(o1.getRefObjectAttrs(), o2.getRefObjectAttrs());
-        Assert.assertEquals(o1.getLoadDataAttrs(), o2.getLoadDataAttrs());
-        Assert.assertEquals(o1.getTableObjectAttrs(), o2.getTableObjectAttrs());
-        Assert.assertEquals(o1.getInterceptors(), o2.getInterceptors());
-        assertEquals("owns", o1.getOwns(), o2.getOwns());
+        
         assertEquals("fields", o1.getFields(), o2.getFields(), new Comparator<MetaField>() {
 
             @Override
@@ -53,6 +48,41 @@ public class DataUtils {
             }
 
         });
+    }
+    
+    public static void assertEqualOwns(MetaDict o1, MetaDict o2) {
+        assertEquals("owns", o1.getOwns(), o2.getOwns());
+    }
+    
+    public static void assertEqualInterceptors(MetaDict o1, MetaDict o2) {
+        Assert.assertEquals(o1.getInterceptors(), o2.getInterceptors());
+    }
+    
+    public static void assertEqualLoadDataAttrs(MetaDict o1, MetaDict o2) {
+        Assert.assertEquals(o1.getLoadDataAttrs(), o2.getLoadDataAttrs());
+    }
+    
+    public static void assertEqualCaptionAttrs(MetaDict o1, MetaDict o2) {
+        Assert.assertEquals(o1.getCaptionAttrs(), o2.getCaptionAttrs());
+    }
+    
+    public static void assertEqualRefObjectAttrs(MetaDict o1, MetaDict o2) {
+        Assert.assertEquals(o1.getRefObjectAttrs(), o2.getRefObjectAttrs());
+    }
+    
+    public static void assertEqualTableObjectAttrs(MetaDict o1, MetaDict o2) {
+        Assert.assertEquals(o1.getTableObjectAttrs(), o2.getTableObjectAttrs());
+    }
+    
+    public static void assertEqualAllOptionals(MetaDict o1, MetaDict o2) {
+        assertEqualCommon(o1,o2);
+        assertEqualRefObjectAttrs(o1, o2);
+        assertEqualTableObjectAttrs(o1, o2);
+        assertEqualOwns(o1, o2);
+        assertEqualInterceptors(o1, o2);
+        assertEqualLoadDataAttrs(o1, o2);
+        assertEqualCaptionAttrs(o1, o2);
+        
     }
 
     public static <K, V> void assertEquals(final String message,

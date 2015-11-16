@@ -1,0 +1,47 @@
+
+attrs:
+- caption: id
+  fields: [id]
+  hidden: false
+  name: id
+  type: value
+  createOnly : true
+  required: true
+- caption: Clob field inside
+  fields: [clobField]
+  hidden: false
+  name: clobAttr
+  type: value
+- caption: is_deleted
+  fields: [is_deleted]
+  hidden: false
+  name: is_deleted
+  type: value
+- caption: last change
+  fields: [last_change]
+  hidden: true
+  name: last_change
+  type: value
+- caption: last_user
+  fields: [last_user]
+  hidden: false
+  name: last_user
+  type: value
+  readonly: true
+caption: Справочник c CLOB
+deleteMarkAttr: is_deleted
+fields:
+- {name: id, size: 19, type: number}
+- {name: clobField, size: 5000, type: clob}
+- {name: is_deleted, size: 1, type: boolean}
+- {name: last_change, type: date-time}
+- {name: last_user, size: 19, type: number}
+hidden: true
+idAttr: id
+lastChangeAttr: last_change
+lastUserAttr: last_user
+name: dictWithClob
+refObjectAttrs: [clobAttr]
+table: tableWithClob
+tableObjectAttrs: [clobAttr]
+

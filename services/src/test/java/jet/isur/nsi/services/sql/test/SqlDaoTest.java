@@ -100,6 +100,42 @@ public class SqlDaoTest extends BaseSqlTest {
             }
         }
     }
+    
+    @Test
+    public void testInsertAndGetClob() throws Exception {
+        NsiConfigDict dict = config.getDict("dictWithClob");
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.recreateTable(dict, connection);
+            try {
+                DaoUtils.recreateSeq(dict, connection);
+                try {
+                    String clobValue = "test insert clob";
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow inData = query.getDict().builder()
+                            .deleteMarkAttr(false)
+                            .idAttrNull()
+                            .lastChangeAttr(new DateTime().withMillisOfSecond(0))
+                            .lastUserAttr(null)
+                            .attr("clobAttr", clobValue)
+                            .build();
+
+                    DictRow outData = sqlDao.insert(connection, query, inData);
+
+                    Assert.assertEquals(clobValue, outData.getString("clobAttr"));
+
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
+                    DataUtils.assertEquals(query, outData, getData);
+
+                } finally {
+                    DaoUtils.dropSeq(dict, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict, connection);
+            }
+        }
+
+    }
 
     @Test
     public void testInsertAndGetWithRefFields() throws Exception {
