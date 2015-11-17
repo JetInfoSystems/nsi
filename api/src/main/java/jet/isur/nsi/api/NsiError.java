@@ -4,7 +4,9 @@ public enum NsiError {
 
     INTERNAL_ERROR(0, "Internal error"),
 
-	AUTHORIZATION_ERROR(5, "Ошибка авторизации");
+	AUTHORIZATION_ERROR(5, "Ошибка авторизации"),
+
+	CONSTRAINT_VIOLATION(1, "Нарушение ограничения");
 
     private final int code;
     private final String message;

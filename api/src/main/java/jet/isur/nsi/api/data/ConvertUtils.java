@@ -10,7 +10,7 @@ import org.joda.time.format.ISODateTimeFormat;
 public class ConvertUtils {
 
     private static final DateTimeFormatter dateFormatter = ISODateTimeFormat.dateTime();
-
+    
     public static Boolean dbStringToBool(String boolValue) {
         if(boolValue == null) {
             return null;
@@ -36,7 +36,7 @@ public class ConvertUtils {
         if(boolValue == null) {
             return null;
         }
-        if("true".equalsIgnoreCase(boolValue)) {
+        if(Boolean.TRUE.toString().equalsIgnoreCase(boolValue)) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -47,9 +47,9 @@ public class ConvertUtils {
         if(value == null) {
             return null;
         } else if(value) {
-            return "true";
+            return Boolean.TRUE.toString();
         } else {
-            return "false";
+            return Boolean.FALSE.toString();
         }
     }
 

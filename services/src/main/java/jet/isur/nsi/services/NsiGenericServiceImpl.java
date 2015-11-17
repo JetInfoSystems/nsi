@@ -3,13 +3,19 @@ package jet.isur.nsi.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import jet.isur.nsi.api.NsiError;
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
+import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
+import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
@@ -223,12 +229,87 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         }
     }
 
+    private void validateFields(String requestId, DictRow data){
+        NsiConfigDict dict = data.getDict();
+        NsiQuery query = dict.query().addAttrs();
+        for (NsiQueryAttr queryAttr : query.getAttrs()) {
+            NsiConfigAttr attr = queryAttr.getAttr();
+
+            List<NsiConfigField> fields = attr.getFields();
+            String queryAttrName = attr.getName();
+            DictRowAttr dataAttr = data.getAttr(queryAttrName);
+            if (null == dataAttr)
+                continue;
+            
+            List<String> dataValues = dataAttr.getValues();
+
+            int i = 0;
+            for (NsiConfigField field : fields) {
+                String value = dataValues.get(i);
+                if (null != value){
+                    switch (field.getType()) {
+                    case BOOLEAN:
+                        if (!Boolean.TRUE.toString().equals(value)
+                                && !Boolean.FALSE.toString().equals(value))
+                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                    "Атрибут '%s' не прошел валидацию - значение '%s' не является логическим", field.getName(), value);
+                        break;
+                    case NUMBER:
+                        // целое
+                        if (field.getPrecision() == null || field.getPrecision() == 0){
+                            if (!Pattern.matches(String.format("^[+|-]?\\d{0,%s}$", field.getSize()), value)){
+                                throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                        "Атрибут '%s' не прошел валидацию - значение [%s] не является целым числом с максимальной длинной [%s]", 
+                                        field.getName(), value, field.getSize());
+                            }
+                        }else{
+                            if (!Pattern.matches(String.format("^[+|-]?\\d{0,%s}[.|,]?\\d*$", field.getSize() - field.getPrecision()), value)){
+                                throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                        "Атрибут '%s' не прошел валидацию - значение [%s] не является числом с максимальной длинной целой части [%s]", 
+                                        field.getName(), value, field.getSize() - field.getPrecision());
+                            }
+                        }
+                        break;
+                    case VARCHAR:
+                    case CHAR:
+                        if (value.length() > field.getSize()){
+                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                    "Атрибут '%s' не прошел валидацию - длина строки [%s] больше максимальной [%s]", 
+                                    field.getName(), value.length(), field.getSize());
+                        }
+                        break;
+                    case DATE_TIME:
+                        try{
+                            ConvertUtils.stringToDateTime(value);
+                        }catch (Exception e) {
+                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                    "Атрибут '%s' не прошел валидацию - значение [%s] нельзя преобразовать в дату", 
+                                    field.getName(), value);
+                        }
+                    default:
+                        break;
+                    }
+                    
+                    if (null != field.getEnumValues() 
+                            && !field.getEnumValues().isEmpty()
+                            && !field.getEnumValues().keySet().contains(value)){
+                        throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
+                                "Атрибут '%s' не прошел валидацию - значение [%s] не является допустимым значением перечисления",
+                                field.getName(), value);
+                    }
+                }
+                
+                i++;
+            }
+        }
+    }
+    
     private DictRow dictSaveInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
         NsiConfigDict dict = data.getDict();
         NsiQuery query = dict.query().addAttrs();
         DictRow outData;
-
         boolean isInsert = data.isIdAttrEmpty();
+        
         outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
         if (isInsert) {
             log.info("dictSave [{},{}] -> inserted [{}]", tx.getRequestId(),
@@ -244,6 +325,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictSave(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
         try {
+            validateFields(tx.getRequestId(), data);
             return dictSaveInternal(tx, data, sqlDao);
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", tx.getRequestId(), data.getDict().getName(), e);
@@ -256,14 +338,20 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
+        validateFields(requestId, data);
         try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
             try {
                 return dictSaveInternal(tx, data, sqlDao);
             } catch (Exception e) {
                 log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
                 tx.rollback();
+                if (e instanceof NsiServiceException) 
+                    throw e;
+
                 throw new NsiServiceException(e.getMessage());
             }
+        } catch (NsiServiceException e){
+            throw e;
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
             throw new NsiServiceException(e.getMessage());
@@ -323,7 +411,6 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         for (DictRow data : dataList) {
             NsiConfigDict dict = data.getDict();
             NsiQuery query = dict.query().addAttrs();
-
             DictRowBuilder builder = data.builder();
             DictRow outData;
             boolean isInsert = data.isIdAttrEmpty();
@@ -350,6 +437,10 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public List<DictRow> dictBatchSave(NsiTransaction tx, List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
         try {
+            for (DictRow data : dataList) {
+                validateFields(tx.getRequestId(), data);
+            }
+
             return dictBatchSaveInternal(tx, dataList, sqlDao);
         } catch (Exception e) {
             log.error("dictBatchSave [{},{}] -> error", tx.getRequestId(), dataList.size(), e);
@@ -362,14 +453,22 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
+        for (DictRow data : dataList) {
+            validateFields(requestId, data);
+        }
         try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
             try {
                 return dictBatchSaveInternal(tx, dataList, sqlDao);
             } catch (Exception e) {
                 log.error("dictBatchSave [{},{}] -> error", requestId, dataList.size(), e);
                 tx.rollback();
+                if (e instanceof NsiServiceException) {
+                    throw e;
+                };
                 throw new NsiServiceException(e.getMessage());
             }
+        } catch (NsiServiceException e) {
+            throw e;
         } catch (Exception e) {
             log.error("dictBatchSave [{},{}] -> error", requestId, dataList.size(), e);
             throw new NsiServiceException(e.getMessage());
