@@ -193,12 +193,22 @@ public class NsiConfigImpl implements NsiConfig {
             break;
         case VALUE:
             break;
-
         default:
             throwDictException(dict, "invalid attr type", attr.getName(), attr.getType());
         }
+        preCheckClobField(dict, attr);
     }
 
+    private void preCheckClobField(NsiConfigDict dict, NsiConfigAttr attr) {
+        int fCount = attr.getFields().size();
+        if (fCount > 1) {
+            for (NsiConfigField field : attr.getFields()) {
+                if (field.getType().equals(MetaFieldType.CLOB)) {
+                    throwDictException(dict, "Field of Clob type must be one for attribute", attr.getName(), field.getName(), fCount);
+                }
+            }
+        }
+    }
     private void throwDictException(NsiConfigDict dict, String message ) {
         throw new NsiConfigException(Joiner.on(": ").join(message,dict.getName()));
     }
@@ -208,7 +218,7 @@ public class NsiConfigImpl implements NsiConfig {
                 .join(message,Joiner.on(", ").skipNulls().join(dict.getName(),null,args)));
     }
 
-    private void preCheckField(NsiConfigDict dict,MetaField field) {
+    private void preCheckField(NsiConfigDict dict, MetaField field) {
         if(!NAME_MATCHER.matchesAllOf(field.getName())) {
             throwDictException(dict, "invalid field name", field.getName());
         }
@@ -233,8 +243,16 @@ public class NsiConfigImpl implements NsiConfig {
             if(field.getSize() == null) {
                 throwDictException(dict, "empty field size", field.getName());
             }
-            if(field.getSize() > 4000) {
+            if(field.getSize() > 2000) {
                 throwDictException(dict, "field size too big", field.getName());
+            }
+            break;
+        case CLOB:
+            if(field.getSize() == null) {
+                throwDictException(dict, "empty field size", field.getName());
+            }
+            if (field.getSize() > Integer.MAX_VALUE) {
+                throwDictException(dict, "clob field size too big", field.getName());
             }
             break;
         default:

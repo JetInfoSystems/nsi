@@ -148,6 +148,8 @@ public class NsiDictToHbmEntitySerializer {
             }
         case VARCHAR:
             return String.class;
+        case CLOB:
+            return java.sql.Clob.class;
         default:
             throw new MigratorException("Invalid field type: " + field.getType());
         }

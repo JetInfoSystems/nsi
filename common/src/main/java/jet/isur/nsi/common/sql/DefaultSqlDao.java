@@ -1,6 +1,7 @@
 package jet.isur.nsi.common.sql;
 
 import java.math.BigDecimal;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -100,6 +101,7 @@ public class DefaultSqlDao implements SqlDao {
             NsiConfigAttr attr = queryAttr.getAttr();
             DictRowAttr attrValue = new DictRowAttr();
             result.setAttr(attr.getName(), attrValue);
+            
             ArrayList<String> fieldValues = new ArrayList<>(queryAttr.getAttr().getFields().size());
             attrValue.setValues(fieldValues);
             for (NsiConfigField field : attr.getFields()) {
@@ -140,10 +142,15 @@ public class DefaultSqlDao implements SqlDao {
             return rs.getString(index);
         case CHAR:
             return trimTrailing(rs.getString(index));
-
+        case CLOB:
+            return getClobStringValue(rs.getClob(index));
         default:
             throw new NsiDataException("unsupported field type: " + field.getType());
         }
+    }
+
+    protected String getClobStringValue(Clob clob) throws SQLException {
+        return clob.getSubString(1, (int) clob.length());
     }
 
     protected String trimTrailing(String value) {
@@ -176,6 +183,7 @@ public class DefaultSqlDao implements SqlDao {
             if(dataAttr == null) {
                 throw new NsiDataException("can't find data attr for query attr: " + queryAttrName);
             }
+            
             List<String> dataValues = dataAttr.getValues();
             checkDataValues(fields, queryAttrName, dataValues);
 
@@ -409,6 +417,15 @@ public class DefaultSqlDao implements SqlDao {
                 ps.setNull(index, Types.CHAR);
             } else {
                 ps.setString(index, Strings.padEnd(value, fieldSize, ' '));
+            }
+            break;
+        case CLOB:
+            if(Strings.isNullOrEmpty(value)) {
+                ps.setNull(index, Types.CLOB);
+            } else {
+                Clob clob = ps.getConnection().createClob();
+                clob.setString(1, value);
+                ps.setClob(index, clob);
             }
             break;
         default:

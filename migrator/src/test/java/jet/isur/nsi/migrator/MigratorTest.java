@@ -232,8 +232,9 @@ public class MigratorTest extends BaseSqlTest{
 
         List<String> actions = rec.getActions();
         log.info("DUMP");
+
         Assert.assertEquals(actions.toString(), 2, actions.size());
-        Assert.assertEquals("create table dict1 (id number(19,0) not null, f1 number(20,8), primary key (id))", actions.get(0));
+        Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), primary key (id))", actions.get(0));
 
         try(Connection connection = dataSource.getConnection()) {
             DaoUtils.dropTable("dict1", connection);

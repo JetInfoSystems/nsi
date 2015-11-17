@@ -160,6 +160,9 @@ public class DaoUtils {
         case CHAR:
             type = "char";
             break;
+        case CLOB:
+            type = "clob";
+            break;
         default:
             throw new NsiServiceException("unsupported field type: " + fieldType);
         }

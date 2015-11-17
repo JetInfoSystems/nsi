@@ -35,7 +35,7 @@ public class NsiYamlMetaDictReaderTest {
         try(InputStream stream = new ByteArrayInputStream(dump.getBytes(StandardCharsets.UTF_8))) {
             MetaDict o2 = reader.read(stream);
 
-            DataUtils.assertEqual(o1, o2);
+            DataUtils.assertEqualAllOptionals(o1, o2);
         }
     }
 
