@@ -229,7 +229,9 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         }
     }
 
-    private void validateFields(String requestId, NsiQuery query, DictRow data){
+    private void validateFields(String requestId, DictRow data){
+        NsiConfigDict dict = data.getDict();
+        NsiQuery query = dict.query().addAttrs();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
 
@@ -247,8 +249,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 if (null != value){
                     switch (field.getType()) {
                     case BOOLEAN:
-                        if (!ConvertUtils.TRUE_VALUE.equals(value)
-                                && !ConvertUtils.FALSE_VALUE.equals(value))
+                        if (!Boolean.TRUE.toString().equals(value)
+                                && !Boolean.FALSE.toString().equals(value))
                             throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
                                     "Атрибут '%s' не прошел валидацию - значение '%s' не является логическим", field.getName(), value);
                         break;
@@ -306,7 +308,6 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         NsiConfigDict dict = data.getDict();
         NsiQuery query = dict.query().addAttrs();
         DictRow outData;
-        validateFields(tx.getRequestId(), query, data);
         boolean isInsert = data.isIdAttrEmpty();
         
         outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
@@ -324,6 +325,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictSave(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
         try {
+            validateFields(tx.getRequestId(), data);
             return dictSaveInternal(tx, data, sqlDao);
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", tx.getRequestId(), data.getDict().getName(), e);
@@ -336,6 +338,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
+        validateFields(requestId, data);
         try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
             try {
                 return dictSaveInternal(tx, data, sqlDao);
@@ -408,7 +411,6 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         for (DictRow data : dataList) {
             NsiConfigDict dict = data.getDict();
             NsiQuery query = dict.query().addAttrs();
-            validateFields(tx.getRequestId(), query, data);
             DictRowBuilder builder = data.builder();
             DictRow outData;
             boolean isInsert = data.isIdAttrEmpty();
@@ -435,6 +437,10 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public List<DictRow> dictBatchSave(NsiTransaction tx, List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
         try {
+            for (DictRow data : dataList) {
+                validateFields(tx.getRequestId(), data);
+            }
+
             return dictBatchSaveInternal(tx, dataList, sqlDao);
         } catch (Exception e) {
             log.error("dictBatchSave [{},{}] -> error", tx.getRequestId(), dataList.size(), e);
@@ -447,6 +453,9 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList, SqlDao sqlDao) {
         final Timer.Context t = dictBatchSaveTimer.time();
+        for (DictRow data : dataList) {
+            validateFields(requestId, data);
+        }
         try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
             try {
                 return dictBatchSaveInternal(tx, dataList, sqlDao);

@@ -11,9 +11,6 @@ public class ConvertUtils {
 
     private static final DateTimeFormatter dateFormatter = ISODateTimeFormat.dateTime();
     
-    public static final String TRUE_VALUE = "true";
-    public static final String FALSE_VALUE = "false";
-    
     public static Boolean dbStringToBool(String boolValue) {
         if(boolValue == null) {
             return null;
@@ -39,7 +36,7 @@ public class ConvertUtils {
         if(boolValue == null) {
             return null;
         }
-        if(TRUE_VALUE.equalsIgnoreCase(boolValue)) {
+        if(Boolean.TRUE.toString().equalsIgnoreCase(boolValue)) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -50,9 +47,9 @@ public class ConvertUtils {
         if(value == null) {
             return null;
         } else if(value) {
-            return TRUE_VALUE;
+            return Boolean.TRUE.toString();
         } else {
-            return FALSE_VALUE;
+            return Boolean.FALSE.toString();
         }
     }
 
