@@ -22,9 +22,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.BoolExpBuilder;
 import jet.isur.nsi.api.data.BoolExpVisitor;
 import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
@@ -559,4 +562,81 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
+    protected DictRow getByExternalId(final Connection conn, final DictRow data) {
+		NsiConfigDict dict = data.getDict();
+		List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
+		Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "MergeExternalAttrs is not exist fot dict %s", dict.getName());
+		StringBuilder externalKeyStr = new StringBuilder();
+		
+		BoolExpBuilder fb = dict.filter().and().expList();
+		for(NsiConfigAttr configAttr : mAttrs) {
+			DictRowAttr rowAttr = data.getAttr(configAttr.getName());
+			Preconditions.checkNotNull(rowAttr, "Attributi %s is not exists", configAttr.getName()) ;
+			fb.key(configAttr.getName()).eq().value(rowAttr).add();
+			externalKeyStr.append(rowAttr.getString()).append(" ");
+		}
+		BoolExp filter = fb.end().build();        
+		List<DictRow> rows = list(conn, dict.query().addAttrs(), filter, null, -1, -1, null, null);
+	
+		if(rows == null || rows.size() == 0) {
+			return null;
+		} else if(rows.size() == 1) {
+			return rows.get(0);
+		} else {
+			throw new NsiServiceException("Select " +rows.size()+ " rows for external id " +externalKeyStr);
+		}
+    }
+    
+    @Override
+	public DictRowAttr mergeByExternalId(Connection connection, DictRow data) {
+    	NsiConfigDict dict = data.getDict();
+    	
+    	for(Map.Entry<String, DictRowAttr> entryAttr : data.getAttrs().entrySet()) {
+    		NsiConfigAttr configAttr = dict.getAttr(entryAttr.getKey());
+    		if(dict.isAttrHasRefAttrs(configAttr) && entryAttr.getValue().getValues() == null) {
+    			Preconditions.checkNotNull(entryAttr.getValue().getRefAttrs(), "Value for ref attribute %s is null",entryAttr.getKey());
+    			DictRowBuilder rowBuilder = configAttr.getRefDict().builder();
+    			StringBuilder externalKeyStr = new StringBuilder();
+    			
+    			for(Map.Entry<String, DictRowAttr> entryRefAttr : entryAttr.getValue().getRefAttrs().entrySet()) {
+    				DictRowAttr refAttr = entryRefAttr.getValue();
+    				Preconditions.checkNotNull(refAttr, "Value for attribute %s is null", entryRefAttr.getKey());
+    				rowBuilder.attr(entryRefAttr.getKey(), refAttr);
+    				externalKeyStr.append(refAttr.getValues());
+    			}
+
+    			DictRow refRow = getByExternalId(connection, rowBuilder.build());
+    			Preconditions.checkNotNull(refRow, "Can not get row by external id for dict %s value %s", configAttr.getRefDict().getName(), externalKeyStr.toString());
+    			entryAttr.getValue().setValues(refRow.getIdAttr().getValues());
+    			entryAttr.getValue().setRefAttrs(null);
+    		}
+		}
+    	
+    	DictRow oldRow = getByExternalId(connection, data);
+    	DictRow newRow;
+    	
+    	if(oldRow == null) {
+    		data.builder().idAttrNull();
+    		newRow = insert(connection, dict.query().addAttrs(data), data);
+    	} else {
+    		newRow = mergeDictRow(data, oldRow);
+    		newRow = update(connection, dict.query().addAttrs(newRow), newRow);
+    	}
+    	
+    	return newRow.getIdAttr();
+	}
+
+	private DictRow mergeDictRow(DictRow source, DictRow target) {
+		NsiConfigAttr idAttr = target.getDict().getIdAttr();
+		Preconditions.checkNotNull(idAttr, "id attribute is null");
+		
+		for(Map.Entry<String, DictRowAttr> entry : source.getAttrs().entrySet()) {
+			if(idAttr.getName().equals(entry.getKey())) {
+				continue;
+			}			
+			target.setAttr(entry.getKey(), entry.getValue());
+		}
+		
+		return target;
+	}
 }

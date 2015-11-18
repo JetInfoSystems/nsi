@@ -14,8 +14,8 @@ import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiService;
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.BoolExpBuilder;
-import jet.isur.nsi.api.data.DictMergeOperation;
 import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
@@ -25,7 +25,9 @@ import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
+import jet.isur.nsi.api.tx.NsiTransactionCallback;
 import jet.isur.nsi.api.tx.NsiTransactionService;
+import jet.isur.nsi.api.tx.NsiTransactionTemplate;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
@@ -38,7 +40,7 @@ public class NsiServiceImpl implements NsiService {
     private final Timer dictSaveTimer;
     private final Timer dictBatchSaveTimer;
     private final Timer dictDeleteTimer;
-    private final Timer dictMergeByExternalId;
+    private final Timer dictMergeByExternalAttr;
     
     public NsiServiceImpl(Metrics metrics) {
         dictCountTimer = metrics.timer(getClass(), "dictCount");
@@ -47,7 +49,7 @@ public class NsiServiceImpl implements NsiService {
         dictSaveTimer = metrics.timer(getClass(), "dictSave");
         dictBatchSaveTimer = metrics.timer(getClass(), "dictBatchSave");
         dictDeleteTimer = metrics.timer(getClass(), "dictDelete");
-        dictMergeByExternalId = metrics.timer(getClass(), "dictMergeByExternalId");
+        dictMergeByExternalAttr = metrics.timer(getClass(), "dictMergeByExternalAttr");
     }
 
     private static final Logger log = LoggerFactory.getLogger(NsiServiceImpl.class);
@@ -66,7 +68,7 @@ public class NsiServiceImpl implements NsiService {
         this.nsiGenericService = nsiGenericService;
     }
 
-    public void setNsiTransactionService(NsiTransactionService transactionService) {
+    public void setTransactionService(NsiTransactionService transactionService) {
     	this.transactionService = transactionService; 
     }
     
@@ -220,75 +222,37 @@ public class NsiServiceImpl implements NsiService {
         }
     }
 
-   
-    public DictMergeOperation dictMergeByExternalId(String requestId, DictRow data, boolean doInsert) {
-        final Timer.Context t = dictMergeByExternalId.time();
-        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
-            try {
-                return dictMergeByExternalId(tx, data, doInsert);
-            } catch (Exception e) {
-                log.error("dictMergeByExternalId [{},{},{}] -> error", requestId, data.getDict().getName(), doInsert , e);
-                tx.rollback();
-                throw new NsiServiceException(e.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("dictMergeByExternalId [{},{},{}] -> error", requestId, data.getDict().getName(), doInsert, e);
-            throw new NsiServiceException(e.getMessage());
+    
+
+    
+    public DictRowAttr dictMergeByExternalId(final String requestId, final DictRow data) {
+        final Timer.Context t = dictMergeByExternalAttr.time();
+        try {
+			return new NsiTransactionTemplate<DictRowAttr>(transactionService, requestId)
+					.execute(new NsiTransactionCallback<DictRowAttr>() {
+				
+				@Override
+				public DictRowAttr doInTransaction(NsiTransaction tx) {
+					return dictMergeByExternalId(tx, data);
+				}
+			});
+
         } finally {
             t.stop();
         }
     }
 
     
-    public DictMergeOperation dictMergeByExternalId(NsiTransaction tx, DictRow data, boolean doInsert) {
-        final Timer.Context t = dictMergeByExternalId.time();
+    public DictRowAttr dictMergeByExternalId(final NsiTransaction tx, final DictRow data) {
+        final Timer.Context t = dictMergeByExternalAttr.time();
         try {
-        	NsiConfigDict dict = data.getDict();
-        	List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
-        	Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "MergeExternalAttrs is not exist fot dict %s", dict.getName());
-        	StringBuilder externalKeyStr = new StringBuilder();
-        	
-        	BoolExpBuilder fb = dict.filter().and().expList();
-        	for(NsiConfigAttr configAttr : mAttrs) {
-        		DictRowAttr rowAttr = data.getAttr(configAttr.getName());
-        		Preconditions.checkNotNull(rowAttr, "Attributi %s is not exists", configAttr.getName()) ;
-        		fb.key(configAttr.getName()).eq().value(rowAttr).add();
-        		externalKeyStr.append(rowAttr.getString()).append(" ");
-        	}
-        	BoolExp filter = fb.end().build();          
-        	List<DictRow> rows = dictList(tx, dict.query().addTableObjectAttrs(), filter, null, -1, -1);
-        	
-        	if(rows == null || rows.size() == 0) {
-        		if(doInsert) {
-        			data.builder().idAttrNull();
-        			dictSave(tx, data);
-        			return DictMergeOperation.INSERT;
-        		}
-        		return DictMergeOperation.NOTHING;
-        	} else if(rows.size() == 1) {
-        		DictRow mRow = mergeDictRow(data, rows.get(0), dict.getIdAttr().getName());
-        		this.dictSave(tx, mRow);
-        		return DictMergeOperation.UPDATE;
-        	} else {
-        		throw new NsiServiceException("Select " +rows.size()+ " rows for external key " +externalKeyStr);
-        	}
+        	return nsiGenericService.dictMergeByExternalId(tx, data, sqlDao);
         } finally {
             t.stop();
         }
     }
 
-	private DictRow mergeDictRow(DictRow source, DictRow target, String idAttrName) {
-		Preconditions.checkNotNull(idAttrName, "id attr is null");
-		
-		for(Map.Entry<String, DictRowAttr> entry : source.getAttrs().entrySet()) {
-			if(idAttrName.equals(entry.getKey())) {
-				continue;
-			}			
-			target.setAttr(entry.getKey(), entry.getValue());
-		}
-		
-		return target;
-	}
+
     
 
 }
