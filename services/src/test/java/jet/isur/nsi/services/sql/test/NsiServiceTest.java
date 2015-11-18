@@ -5,7 +5,6 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
-import jet.isur.nsi.api.data.DictMergeOperation;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
@@ -34,7 +33,7 @@ public class NsiServiceTest extends BaseSqlTest {
         transactionService.setDataSource(dataSource);
         nsiGenericService.setTransactionService(transactionService);
         nsiService.setSqlDao(sqlDao);
-        nsiService.setNsiTransactionService(transactionService);
+        nsiService.setTransactionService(transactionService);
         nsiService.setNsiGenericService(nsiGenericService);
     }
     
@@ -50,8 +49,8 @@ public class NsiServiceTest extends BaseSqlTest {
     					.attr("ID", "4")
     					.build();
     	
-    	DictMergeOperation res = nsiService.dictMergeByExternalId("1111", emp, false);
-    	System.out.println(res);
+  //  	DictMergeOperation res = nsiService.dictMergeByExternalId("1111", emp, false);
+   // 	System.out.println(res);
  
     }
 }
