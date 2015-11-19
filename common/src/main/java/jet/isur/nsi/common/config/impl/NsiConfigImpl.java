@@ -99,11 +99,11 @@ public class NsiConfigImpl implements NsiConfig {
 
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
-        dict.setRefObjectAttrs(createFieldList(dict,metaDict.getRefObjectAttrs()));
-        dict.setLoadDataAttrs(createFieldList(dict, metaDict.getLoadDataAttrs()));
-        dict.setTableObjectAttrs(createFieldList(dict,metaDict.getTableObjectAttrs()));
+        dict.setRefObjectAttrs(createAttrList(dict,metaDict.getRefObjectAttrs()));
+        dict.setLoadDataAttrs(createAttrList(dict, metaDict.getLoadDataAttrs()));
+        dict.setTableObjectAttrs(createAttrList(dict,metaDict.getTableObjectAttrs()));
         dict.setInterceptors(createInterceptors(metaDict.getInterceptors()));
-        dict.setMergeExternalAttrs(createFieldList(dict,metaDict.getMergeExternalAttrs()));
+        dict.setMergeExternalAttrs(createAttrList(dict,metaDict.getMergeExternalAttrs()));
         
         Map<String, NsiConfigAttr> result = new HashMap<String, NsiConfigAttr>();
         if (null != metaDict.getOwns())
@@ -124,7 +124,7 @@ public class NsiConfigImpl implements NsiConfig {
         return attr;
     }
 
-    private List<NsiConfigAttr> createFieldList(NsiConfigDict dict, List<String> attrNames) {
+    private List<NsiConfigAttr> createAttrList(NsiConfigDict dict, List<String> attrNames) {
         List<NsiConfigAttr> result = new ArrayList<>();
         if(attrNames != null) {
             Set<String> attrNameSet = new TreeSet<>(attrNames);
