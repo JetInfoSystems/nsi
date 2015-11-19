@@ -70,5 +70,6 @@ public interface NsiGenericService {
     /**
      * Обьединение записи по значению атрибута внешнего ключа
      */
-    DictRowAttr dictMergeByExternalId(final NsiTransaction tx, final DictRow data, SqlDao sqlDao);
+    DictRow dictMergeByExternalAttrs(String requestId, final DictRow data, final SqlDao sqlDao);
+    DictRow dictMergeByExternalAttrs(final NsiTransaction tx, final DictRow data, final SqlDao sqlDao);
 }

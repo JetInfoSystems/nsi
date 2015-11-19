@@ -12,10 +12,8 @@ import com.google.common.base.Preconditions;
 
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiServiceException;
-import jet.isur.nsi.api.data.BoolExpBuilder;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
-import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
@@ -24,7 +22,6 @@ import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
-import jet.isur.nsi.api.tx.NsiTransactionCallback;
 import jet.isur.nsi.api.tx.NsiTransactionService;
 import jet.isur.nsi.api.tx.NsiTransactionTemplate;
 import jet.scdp.metrics.api.Metrics;
@@ -41,7 +38,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     private final Timer dictSaveTimer;
     private final Timer dictBatchSaveTimer;
     private final Timer dictDeleteTimer;
-    private final Timer dictMergeByExternalId;
+    private final Timer dictMergeByExternalAttrs;
     
     public NsiGenericServiceImpl(Metrics metrics) {
         dictCountTimer = metrics.timer(getClass(), "dictCount");
@@ -50,7 +47,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         dictSaveTimer = metrics.timer(getClass(), "dictSave");
         dictBatchSaveTimer = metrics.timer(getClass(), "dictBatchSave");
         dictDeleteTimer = metrics.timer(getClass(), "dictDelete");
-        dictMergeByExternalId = metrics.timer(getClass(), "dictMergeByExternalId");
+        dictMergeByExternalAttrs = metrics.timer(getClass(), "dictMergeByExternalAttrs");
     }
 
     private NsiTransactionService transactionService;
@@ -389,8 +386,25 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         this.transactionService = transactionService;
     }
     
-    public DictRowAttr dictMergeByExternalId(NsiTransaction tx, final DictRow data, SqlDao sqlDao) {
-        final Timer.Context t = dictMergeByExternalId.time();
+    public DictRow dictMergeByExternalAttrs(final String requestId, final DictRow data, final SqlDao sqlDao) {
+        final Timer.Context t = dictMergeByExternalAttrs.time();
+        try {
+			return new NsiTransactionTemplate<DictRow>(transactionService, requestId, log) {
+				
+				@Override
+				public DictRow doInTransaction(NsiTransaction tx) {
+					return dictMergeByExternalIdInternal(tx, data, sqlDao);
+				}
+				
+			}.start();
+
+        } finally {
+            t.stop();
+        }
+    }
+    
+    public DictRow dictMergeByExternalAttrs(NsiTransaction tx, final DictRow data, SqlDao sqlDao) {
+        final Timer.Context t = dictMergeByExternalAttrs.time();
         try {
 			return dictMergeByExternalIdInternal(tx, data, sqlDao);
         } catch (Exception e) {
@@ -401,7 +415,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         }
     }
     
-	private DictRowAttr dictMergeByExternalIdInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
-		return sqlDao.mergeByExternalId(tx.getConnection(), data);
+	private DictRow dictMergeByExternalIdInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
+		return sqlDao.mergeByExternalAttrs(tx.getConnection(), data);
 	}
 }

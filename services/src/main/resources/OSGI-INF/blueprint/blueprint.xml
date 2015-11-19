@@ -46,7 +46,6 @@
         <argument ref="metrics"/>
         <property name="sqlDao" ref="sqlDao"/>
         <property name="nsiGenericService" ref="nsiGenericService"/>
-        <property name="transactionService" ref="nsiTransactionService"/>
     </bean>
 
     <bean id="nsiTransactionService" class="jet.isur.nsi.services.NsiTransactionServiceImpl">

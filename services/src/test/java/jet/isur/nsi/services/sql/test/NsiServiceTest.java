@@ -16,7 +16,7 @@ import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.scdp.metrics.mock.MockMetrics;
 
 public class NsiServiceTest extends BaseSqlTest {
-
+  
     private NsiServiceImpl nsiService;
     private NsiGenericServiceImpl nsiGenericService;
     private NsiTransactionServiceImpl transactionService;
@@ -33,7 +33,6 @@ public class NsiServiceTest extends BaseSqlTest {
         transactionService.setDataSource(dataSource);
         nsiGenericService.setTransactionService(transactionService);
         nsiService.setSqlDao(sqlDao);
-        nsiService.setTransactionService(transactionService);
         nsiService.setNsiGenericService(nsiGenericService);
     }
     

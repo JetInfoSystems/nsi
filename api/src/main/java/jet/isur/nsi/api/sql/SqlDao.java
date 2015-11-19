@@ -84,6 +84,6 @@ public interface SqlDao {
     /**
      * Обьединение записей
      */
-	public DictRowAttr mergeByExternalId(Connection connection, DictRow data);
+	public DictRow mergeByExternalAttrs(Connection connection, DictRow data);
 
 }

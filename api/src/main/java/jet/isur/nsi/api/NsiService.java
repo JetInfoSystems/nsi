@@ -70,7 +70,7 @@ public interface NsiService {
     /**
      * Обьединение записи по значению атрибута внешнего ключа
      */
-    DictRowAttr dictMergeByExternalId(final NsiTransaction tx, final DictRow data);
-    DictRowAttr dictMergeByExternalId(final String requestId, final DictRow data);
+    DictRow dictMergeByExternalAttrs(final NsiTransaction tx, final DictRow data);
+    DictRow dictMergeByExternalAttrs(final String requestId, final DictRow data);
 
 }

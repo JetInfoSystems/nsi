@@ -600,4 +600,17 @@ public class DictRow {
         return DictRowAttr.isEmpty(getIdAttr());
     }
 
+    public String getAttrsValueAsString(List<NsiConfigAttr> attrs) {
+    	StringBuilder sb = new StringBuilder();
+    	for(NsiConfigAttr attr : attrs) {
+			DictRowAttr rowAttr = this.getAttr(attr.getName());
+			sb.append(attr.getName()).append("=");
+			for(String value : rowAttr.getValues()) {
+				sb.append(value).append(",");
+			}
+			sb.append(" ");
+		}
+    	
+    	return sb.toString();
+    }
 }

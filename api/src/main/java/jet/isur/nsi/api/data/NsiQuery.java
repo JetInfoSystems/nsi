@@ -104,12 +104,10 @@ public class NsiQuery {
     }
 
     public NsiQuery addAttrs(DictRow row) {
-    	List<NsiConfigAttr> listAttr = new ArrayList<>();
     	for (String attrName : row.getAttrs().keySet()) {
-    		listAttr.add(dict.getAttr(attrName));
+    		addAttr(MAIN_ALIAS, dict.getAttr(attrName));
 		}
-    	
-    	addAttrs(listAttr);
+
         return this;
     }
     
