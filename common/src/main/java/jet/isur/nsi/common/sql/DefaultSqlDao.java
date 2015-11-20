@@ -564,6 +564,18 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
     
+    public DictRow getSingleRow(final Connection conn, NsiQuery query, final BoolExp filter) {
+		List<DictRow> rows = list(conn, query, filter, null, -1, -1, null, null);
+		
+		if(rows.size() == 0) {
+			return null;
+		} else if(rows.size() == 1) {
+			return rows.get(0);
+		} else {
+			throw new NsiServiceException("Найдено " +rows.size()+ " строк в " +query.getDict().getName()+ " соответствующих условию %s "  +filter.toString());
+		}
+    }
+    
     protected DictRow getByExternalId(final Connection conn, final DictRow data) {
 		NsiConfigDict dict = data.getDict();
 		List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
@@ -579,15 +591,8 @@ public class DefaultSqlDao implements SqlDao {
 			fb.key(configAttr.getName()).eq().value(rowAttr).add();
 		}
 		BoolExp filter = fb.end().build();
-		List<DictRow> rows = list(conn, dict.query().addAttrs(), filter, null, -1, -1, null, null);
-	
-		if(rows.size() == 0) {
-			return null;
-		} else if(rows.size() == 1) {
-			return rows.get(0);
-		} else {
-			throw new NsiServiceException("Найдено " +rows.size()+ " строк в " +dict.getName()+ " соответствующих условию %s "  +data.getAttrsValueAsString(mAttrs));
-		}
+
+		return getSingleRow(conn, dict.query().addAttrs(), filter);
     }
     
     @Override
@@ -598,16 +603,20 @@ public class DefaultSqlDao implements SqlDao {
     		NsiConfigAttr configAttr = dict.getAttr(entryAttr.getKey());
     		if(dict.isAttrHasRefAttrs(configAttr) && entryAttr.getValue().getValues() == null) {
     			Preconditions.checkNotNull(entryAttr.getValue().getRefAttrs(), "refAttrs не заданы для атрибута %s в %s", entryAttr.getKey(), dict.getName());
-    			DictRowBuilder rowBuilder = configAttr.getRefDict().builder();
     			
-    			for(Map.Entry<String, DictRowAttr> entryRefAttr : entryAttr.getValue().getRefAttrs().entrySet()) {
-    				DictRowAttr refAttr = entryRefAttr.getValue();
-    				Preconditions.checkNotNull(refAttr, "Значение для refAttr %s в %s не задано", entryRefAttr.getKey(), dict.getName());
-    				rowBuilder.attr(entryRefAttr.getKey(), refAttr);
+    			List<NsiConfigAttr> mAttrs = configAttr.getRefDict().getMergeExternalAttrs();
+    			Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "mergeExternalAttrs не заданы для %s", configAttr.getRefDict().getName());
+    			
+    			BoolExpBuilder fb = configAttr.getRefDict().filter().and().expList();
+    			for(NsiConfigAttr mConfigAttr : mAttrs) {
+    				DictRowAttr refAttr = entryAttr.getValue().getRefAttrs().get(mConfigAttr.getName());
+    				Preconditions.checkNotNull(refAttr, "Значение для refAttr %s в %s не задано", mConfigAttr.getName(), dict.getName()); 		
+    				fb.key(mConfigAttr.getName()).eq().value(refAttr).add();
     			}
-
-    			DictRow refRow = getByExternalId(connection, rowBuilder.build());
-    			Preconditions.checkNotNull(refRow, "Не найдена запись в % соответствующая условию %s", 
+    			BoolExp filter = fb.end().build();
+    			
+    			DictRow refRow = getSingleRow(connection, configAttr.getRefDict().query().addAttrs(), filter);
+    			Preconditions.checkNotNull(refRow, "Не найдена запись в %s соответствующая условию %s", 
     					configAttr.getRefDict().getName(), buildConditionString(entryAttr.getValue().getRefAttrs()));
     			entryAttr.getValue().setValues(refRow.getIdAttr().getValues());
     			entryAttr.getValue().setRefAttrs(null);
