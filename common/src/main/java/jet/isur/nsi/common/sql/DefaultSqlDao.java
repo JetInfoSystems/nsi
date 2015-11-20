@@ -576,7 +576,7 @@ public class DefaultSqlDao implements SqlDao {
 		}
     }
     
-    protected DictRow getByExternalId(final Connection conn, final DictRow data) {
+    public DictRow getByExternalAttrs(final Connection conn, final DictRow data) {
 		NsiConfigDict dict = data.getDict();
 		List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
 		Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "mergeExternalAttrs не заданы для %s", dict.getName());
@@ -623,7 +623,7 @@ public class DefaultSqlDao implements SqlDao {
     		}
 		}
     	
-    	DictRow oldRow = getByExternalId(connection, data);
+    	DictRow oldRow = getByExternalAttrs(connection, data);
     	DictRow newRow;
     	
     	if(oldRow == null) {
