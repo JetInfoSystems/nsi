@@ -54,6 +54,12 @@ public class MetaAttr implements Serializable {
      * Для нетребуемого атрибута будетформировать left join уcловие
      */
     private boolean required = false;
+    
+    /**
+     * Атрибут определяет, должно ли значение полей атрибута использоваться для формирования текстового представления.
+     * Фронтенд может использовать такие скрытые атрибуты, например для раскрашивания записей.
+     */
+    private boolean refAttrHidden = false;
 
     public boolean isRequired() {
         return required;
@@ -118,4 +124,10 @@ public class MetaAttr implements Serializable {
 	public void setCreateOnly(Boolean createOnly) {
 		this.createOnly = createOnly;
 	}
+    public boolean isRefAttrHidden() {
+        return refAttrHidden;
+    }
+    public void setRefAttrHidden(boolean refAttrHidden) {
+        this.refAttrHidden = refAttrHidden;
+    }
 }

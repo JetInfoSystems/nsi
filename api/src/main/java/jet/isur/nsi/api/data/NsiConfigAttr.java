@@ -17,6 +17,7 @@ public class NsiConfigAttr {
     private boolean required;
     private boolean readonly;
 	private Boolean createOnly;
+	private boolean refAttrHidden;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
@@ -31,6 +32,7 @@ public class NsiConfigAttr {
         required = metaAttr.isRequired();
         readonly = metaAttr.getReadonly() == Boolean.TRUE;
 		createOnly = metaAttr.getCreateOnly() == Boolean.TRUE;
+		refAttrHidden = metaAttr.isRefAttrHidden();
     }
     public MetaAttrType getType() {
         return type;
@@ -99,5 +101,11 @@ public class NsiConfigAttr {
 	public void setCreateOnly(Boolean createOnly) {
 		this.createOnly = createOnly;
 	}
+    public boolean isRefAttrHidden() {
+        return refAttrHidden;
+    }
+    public void setRefAttrHidden(boolean refAttrHidden) {
+        this.refAttrHidden = refAttrHidden;
+    }
 
 }

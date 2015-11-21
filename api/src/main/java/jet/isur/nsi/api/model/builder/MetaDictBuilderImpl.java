@@ -138,6 +138,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             return this;
         }
 
+        @Override
+        public MetaAttrBuilder refAttrHidden(boolean value) {
+            getPrototype().setRefAttrHidden(value);
+            return null;
+        }
+
     }
 
     private MetaDict prototype;
