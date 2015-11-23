@@ -564,7 +564,7 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
     
-    public DictRow getSingleRow(final Connection conn, NsiQuery query, final BoolExp filter) {
+    protected DictRow getSingleRow(final Connection conn, NsiQuery query, final BoolExp filter) {
 		List<DictRow> rows = list(conn, query, filter, null, -1, -1, null, null);
 		
 		if(rows.size() == 0) {
@@ -576,7 +576,7 @@ public class DefaultSqlDao implements SqlDao {
 		}
     }
     
-    public DictRow getByExternalAttrs(final Connection conn, final DictRow data) {
+    protected DictRow getByExternalAttrs(final Connection conn, final DictRow data) {
 		NsiConfigDict dict = data.getDict();
 		List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
 		Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "mergeExternalAttrs не заданы для %s", dict.getName());
