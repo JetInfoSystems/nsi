@@ -3,6 +3,11 @@ package jet.isur.nsi.services;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.codahale.metrics.Timer;
+
 import jet.isur.nsi.api.NsiGenericService;
 import jet.isur.nsi.api.NsiService;
 import jet.isur.nsi.api.data.DictRow;
@@ -17,8 +22,6 @@ import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
-import com.codahale.metrics.Timer;
-
 @MetricsDomain(name = "nsiService")
 public class NsiServiceImpl implements NsiService {
 
@@ -28,7 +31,8 @@ public class NsiServiceImpl implements NsiService {
     private final Timer dictSaveTimer;
     private final Timer dictBatchSaveTimer;
     private final Timer dictDeleteTimer;
-
+    private final Timer dictMergeByExternalAttrs;
+    
     public NsiServiceImpl(Metrics metrics) {
         dictCountTimer = metrics.timer(getClass(), "dictCount");
         dictListTimer = metrics.timer(getClass(), "dictList");
@@ -36,15 +40,24 @@ public class NsiServiceImpl implements NsiService {
         dictSaveTimer = metrics.timer(getClass(), "dictSave");
         dictBatchSaveTimer = metrics.timer(getClass(), "dictBatchSave");
         dictDeleteTimer = metrics.timer(getClass(), "dictDelete");
+        dictMergeByExternalAttrs = metrics.timer(getClass(), "dictMergeByExternalAttrs");
     }
 
+    private static final Logger log = LoggerFactory.getLogger(NsiServiceImpl.class);
+    
     private SqlDao sqlDao;
     private NsiGenericService nsiGenericService;
-
+    
     public void setSqlDao(SqlDao sqlDao) {
         this.sqlDao = sqlDao;
     }
 
+    
+    
+    public void setNsiGenericService(NsiGenericService nsiGenericService) {
+        this.nsiGenericService = nsiGenericService;
+    }
+    
     @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter) {
         return dictCount(requestId, query, filter, null, null);
@@ -195,8 +208,29 @@ public class NsiServiceImpl implements NsiService {
         }
     }
 
-    public void setNsiGenericService(NsiGenericService nsiGenericService) {
-        this.nsiGenericService = nsiGenericService;
+    
+
+    
+    public DictRow dictMergeByExternalAttrs(String requestId, final DictRow data) {
+        final Timer.Context t = dictMergeByExternalAttrs.time();
+        try {
+        	return nsiGenericService.dictMergeByExternalAttrs(requestId, data, sqlDao);
+        } finally {
+            t.stop();
+        }
     }
+
+    
+    public DictRow dictMergeByExternalAttrs(final NsiTransaction tx, final DictRow data) {
+        final Timer.Context t = dictMergeByExternalAttrs.time();
+        try {
+        	return nsiGenericService.dictMergeByExternalAttrs(tx, data, sqlDao);
+        } finally {
+            t.stop();
+        }
+    }
+
+
+    
 
 }

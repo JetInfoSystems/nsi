@@ -81,4 +81,9 @@ public interface SqlDao {
      */
     public DictRow save(Connection connection, NsiQuery query, DictRow data, boolean insert);
 
+    /**
+     * Обьединение записей
+     */
+	public DictRow mergeByExternalAttrs(Connection connection, DictRow data);
+
 }

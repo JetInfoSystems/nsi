@@ -89,6 +89,12 @@ public class MetaDict extends MetaDictRef {
     private Boolean hidden;
 
     /**
+     * Список наименований атрибутов кторые используются для мерджа данных, поступивших из внешней системы
+     * 
+     */
+    private List<String> mergeExternalAttrs;
+    
+    /**
      * Именованные запросы
      */
     private Map<String, MetaSourceQuery> sourceQueries;
@@ -100,6 +106,7 @@ public class MetaDict extends MetaDictRef {
 
     private String mainDict;
 
+    
     public String getTable() {
         return table;
     }
@@ -233,4 +240,11 @@ public class MetaDict extends MetaDictRef {
     public void setOwns(Map<String, MetaOwn> owns) {
         this.owns = owns;
     }
+	public List<String> getMergeExternalAttrs() {
+		return mergeExternalAttrs;
+	}
+	public void setMergeExternalAttrs(List<String> mergeExternalAttrs) {
+		this.mergeExternalAttrs = mergeExternalAttrs;
+	}
+    
 }

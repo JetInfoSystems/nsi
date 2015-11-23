@@ -158,7 +158,7 @@ public class BaseSqlTest {
     protected DictRowBuilder defaultBuilder(NsiQuery query) {
         DictRowBuilder result = query.getDict().builder();
         for (NsiQueryAttr attr : query.getAttrs()) {
-            result.attr(attr.getAttr().getName(), (String) null);
+           result.attr(attr.getAttr().getName(), (String) null);
         }
         return result.deleteMarkAttr(false);
     }

@@ -4,15 +4,27 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.base.Preconditions;
+
+import jet.isur.nsi.api.data.BoolExpBuilder;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
-import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
+import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaFieldType;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
@@ -21,17 +33,12 @@ import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 import jet.isur.nsi.testkit.utils.DataUtils;
 
-import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Test;
-
 public class SqlDaoTest extends BaseSqlTest {
 
     private DefaultSqlDao sqlDao;
     private DefaultSqlGen sqlGen;
-    private NsiConfig config;
 
-
+    
     @Override
     public void setup() throws Exception {
         super.setup();
@@ -547,4 +554,71 @@ public class SqlDaoTest extends BaseSqlTest {
         }
     }
 
+    @Test
+    public void testMerge() throws SQLException {
+    	NsiConfigDict dictEmp = config.getDict("EMP_MERGE_TEST");
+    	NsiConfigDict dictOrg = config.getDict("ORG_MERGE_TEST");
+    	
+    	try (Connection connection = dataSource.getConnection()) {
+    		try {
+	    		DaoUtils.recreateTable(dictOrg, connection);
+	    		DaoUtils.recreateTable(dictEmp, connection);    		
+	    		DaoUtils.recreateSeq(dictEmp, connection);
+	    		DaoUtils.recreateSeq(dictOrg, connection);
+	    		
+	    		DictRow org1 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
+	    		DictRow org2 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "2").build();
+	    		
+	    		sqlDao.mergeByExternalAttrs(connection, org1);
+	    		List<DictRow> rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
+	    		Assert.assertEquals(rows.size(), 1);
+	    		DictRowAttr org1Id = rows.get(0).getIdAttr();
+	    		long count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
+	    		Assert.assertEquals(count, 1);
+	    		
+	    		sqlDao.mergeByExternalAttrs(connection, org1);
+	    		count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
+	    		Assert.assertEquals(count, 1);
+	    		
+	    		sqlDao.mergeByExternalAttrs(connection, org2);
+	    		rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
+	    		Assert.assertEquals(rows.size(), 1);
+	    		DictRowAttr org2Id = rows.get(0).getIdAttr();
+	    		count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
+	    		Assert.assertEquals(count, 2);
+	    		
+	    		
+	    		DictRow emp1 = defaultBuilder("EMP_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
+	    		Map<String, DictRowAttr> ref = new HashMap<>();
+	    		ref.put("EXTERNAL_ID", org1.getAttr("EXTERNAL_ID"));
+	    		emp1.getAttr("ORG_ID").setRefAttrs(ref);
+	    		emp1.getAttr("ORG_ID").setValues(null);
+	    		sqlDao.mergeByExternalAttrs(connection, emp1);
+	    		rows = sqlDao.list(connection, dictEmp.query().addAttrs(), getFilterByExternalAttrs(emp1), null, -1, -1);
+	    		Assert.assertEquals(rows.size(), 1);
+	    		Assert.assertEquals(rows.get(0).getAttr("ORG_ID").getLong(), org1Id.getLong());
+	    		
+	    	} finally {
+	    		DaoUtils.dropSegSafe(dictEmp, connection);
+	    		DaoUtils.dropSegSafe(dictOrg, connection);
+	    		DaoUtils.dropTableSafe(dictEmp, connection);   
+	    		DaoUtils.dropTableSafe(dictOrg, connection);		
+	    	}
+    	}
+    }
+    
+    private BoolExp getFilterByExternalAttrs(DictRow row) {
+    	NsiConfigDict dict = row.getDict();
+    	List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
+		BoolExpBuilder fb = row.getDict().filter().and().expList();
+		if(dict.getOwnerAttr() != null && row.getOwnerAttr() != null) {
+			fb.key(dict.getOwnerAttr().getName()).eq().value(row.getOwnerAttr()).add();
+		}
+		for(NsiConfigAttr configAttr : mAttrs) {
+			DictRowAttr rowAttr = row.getAttr(configAttr.getName());
+			Preconditions.checkNotNull(rowAttr, "Атрибут %s не существует в %s", configAttr.getName(), dict.getName()) ;
+			fb.key(configAttr.getName()).eq().value(rowAttr).add();
+		}
+		return fb.end().build();
+    }
 }

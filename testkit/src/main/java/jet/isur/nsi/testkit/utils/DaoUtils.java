@@ -13,11 +13,6 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import jet.isur.nsi.api.NsiServiceException;
-import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.api.data.NsiConfigField;
-import jet.isur.nsi.api.model.MetaFieldType;
-
 import org.jooq.CreateTableAsStep;
 import org.jooq.CreateTableColumnStep;
 import org.jooq.DSLContext;
@@ -28,11 +23,20 @@ import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
+import jet.isur.nsi.api.model.MetaFieldType;
+
 public class DaoUtils {
 
+	 private static final Logger log = LoggerFactory.getLogger(DaoUtils.class);
+	 
     // jooq hack
     @SuppressWarnings("unused")
     private static DefaultDataType<String> VARCHAR2 = new DefaultDataType<String>(SQLDialect.DEFAULT,
@@ -77,6 +81,22 @@ public class DaoUtils {
         dropTable(dict.getTable(), connection);
     }
 
+    public static void dropTableSafe(NsiConfigDict dict, Connection connection) {
+        try {
+        	dropTable(dict.getTable(), connection);
+        } catch (Exception e) {
+        	log.error(e.getMessage(), e);
+        }
+    }
+    
+    public static void dropSegSafe(NsiConfigDict dict, Connection connection) {
+        try {
+        	dropSeq(dict.getSeq(), connection);
+        } catch (Exception e) {
+        	log.error(e.getMessage(), e);
+        }
+    }
+    
     public static void dropTable(String name, Connection connection) {
         try {
             getQueryBuilder(connection).dropTable(name).execute();

@@ -66,5 +66,10 @@ public interface NsiGenericService {
      */
     DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value, SqlDao sqlDao);
     DictRow dictDelete(NsiTransaction tx, NsiConfigDict dict, DictRowAttr id, Boolean value, SqlDao sqlDao);
-
+    
+    /**
+     * Обьединение записи по значению атрибута внешнего ключа
+     */
+    DictRow dictMergeByExternalAttrs(String requestId, final DictRow data, final SqlDao sqlDao);
+    DictRow dictMergeByExternalAttrs(final NsiTransaction tx, final DictRow data, final SqlDao sqlDao);
 }

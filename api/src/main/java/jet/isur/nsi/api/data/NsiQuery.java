@@ -103,6 +103,14 @@ public class NsiQuery {
         return this;
     }
 
+    public NsiQuery addAttrs(DictRow row) {
+    	for (String attrName : row.getAttrs().keySet()) {
+    		addAttr(MAIN_ALIAS, dict.getAttr(attrName));
+		}
+
+        return this;
+    }
+    
     public NsiQuery addRefObjectAttrs() {
         addStdAttrs();
         addAttrs(dict.getRefObjectAttrs());

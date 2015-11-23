@@ -1,0 +1,70 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Имя
+   fields: [FIRST_NAME]
+   hidden: false
+   name: FIRST_NAME
+   required: true
+   type: value
+ - caption: Внешний идентификатор
+   fields: [EXTERNAL_ID]
+   hidden: false
+   name: EXTERNAL_ID
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Организация
+   fields: [ORG_ID]
+   hidden: true
+   name: ORG_ID
+   type: ref
+   refDict: ORG_MERGE_TEST
+ - caption: Автор последнего изменения
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата, время последнего изменения
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Сотрудники
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: FIRST_NAME
+   size: 255
+   type: varchar
+ - name: EXTERNAL_ID
+   size: 100
+   type: varchar
+ - name: ORG_ID
+   size: 19
+   type: number
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: EMP_MERGE_TEST
+mergeExternalAttrs: [EXTERNAL_ID]
+table: EMP_MERGE_TEST
+tableObjectAttrs: [ORG_ID,FIRST_NAME,EXTERNAL_ID,IS_DELETED,LAST_USER,LAST_CHANGE]

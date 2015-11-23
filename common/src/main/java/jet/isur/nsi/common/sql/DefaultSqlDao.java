@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -23,9 +25,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.BoolExpBuilder;
 import jet.isur.nsi.api.data.BoolExpVisitor;
 import jet.isur.nsi.api.data.ConvertUtils;
 import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
@@ -575,5 +580,104 @@ public class DefaultSqlDao implements SqlDao {
         }
         return result;
     }
+    
+    protected DictRow getSingleRow(final Connection conn, NsiQuery query, final BoolExp filter) {
+		List<DictRow> rows = list(conn, query, filter, null, -1, -1, null, null);
+		
+		if(rows.size() == 0) {
+			return null;
+		} else if(rows.size() == 1) {
+			return rows.get(0);
+		} else {
+			throw new NsiServiceException("Найдено " +rows.size()+ " строк в " +query.getDict().getName()+ " соответствующих условию %s "  +filter.toString());
+		}
+    }
+    
+    protected DictRow getByExternalAttrs(final Connection conn, final DictRow data) {
+		NsiConfigDict dict = data.getDict();
+		List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
+		Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "mergeExternalAttrs не заданы для %s", dict.getName());
+		
+		BoolExpBuilder fb = dict.filter().and().expList();
+		if(dict.getOwnerAttr() != null && data.getOwnerAttr() != null) {
+			fb.key(dict.getOwnerAttr().getName()).eq().value(data.getOwnerAttr()).add();
+		}
+		for(NsiConfigAttr configAttr : mAttrs) {
+			DictRowAttr rowAttr = data.getAttr(configAttr.getName());
+			Preconditions.checkNotNull(rowAttr, "Атрибут %s не существует в %s", configAttr.getName(), dict.getName()) ;
+			fb.key(configAttr.getName()).eq().value(rowAttr).add();
+		}
+		BoolExp filter = fb.end().build();
 
+		return getSingleRow(conn, dict.query().addAttrs(), filter);
+    }
+    
+    @Override
+	public DictRow mergeByExternalAttrs(Connection connection, DictRow data) {
+    	NsiConfigDict dict = data.getDict();
+    	
+    	for(Map.Entry<String, DictRowAttr> entryAttr : data.getAttrs().entrySet()) {
+    		NsiConfigAttr configAttr = dict.getAttr(entryAttr.getKey());
+    		if(dict.isAttrHasRefAttrs(configAttr) && entryAttr.getValue().getValues() == null) {
+    			Preconditions.checkNotNull(entryAttr.getValue().getRefAttrs(), "refAttrs не заданы для атрибута %s в %s", entryAttr.getKey(), dict.getName());
+    			
+    			List<NsiConfigAttr> mAttrs = configAttr.getRefDict().getMergeExternalAttrs();
+    			Preconditions.checkArgument(mAttrs != null && mAttrs.size() > 0, "mergeExternalAttrs не заданы для %s", configAttr.getRefDict().getName());
+    			
+    			BoolExpBuilder fb = configAttr.getRefDict().filter().and().expList();
+    			for(NsiConfigAttr mConfigAttr : mAttrs) {
+    				DictRowAttr refAttr = entryAttr.getValue().getRefAttrs().get(mConfigAttr.getName());
+    				Preconditions.checkNotNull(refAttr, "Значение для refAttr %s в %s не задано", mConfigAttr.getName(), dict.getName()); 		
+    				fb.key(mConfigAttr.getName()).eq().value(refAttr).add();
+    			}
+    			BoolExp filter = fb.end().build();
+    			
+    			DictRow refRow = getSingleRow(connection, configAttr.getRefDict().query().addAttrs(), filter);
+    			Preconditions.checkNotNull(refRow, "Не найдена запись в %s соответствующая условию %s", 
+    					configAttr.getRefDict().getName(), buildConditionString(entryAttr.getValue().getRefAttrs()));
+    			entryAttr.getValue().setValues(refRow.getIdAttr().getValues());
+    			entryAttr.getValue().setRefAttrs(null);
+    		}
+		}
+    	
+    	DictRow oldRow = getByExternalAttrs(connection, data);
+    	DictRow newRow;
+    	
+    	if(oldRow == null) {
+    		data.builder().idAttrNull();
+    		newRow = insert(connection, dict.query().addAttrs(data), data);
+    	} else {
+    		newRow = mergeDictRow(data, oldRow);
+    		newRow = update(connection, dict.query().addAttrs(newRow), newRow);
+    	}
+    	
+    	return newRow;
+	}
+
+	private String buildConditionString(Map<String, DictRowAttr> entry) {
+		StringBuilder sb = new StringBuilder();
+		for(Map.Entry<String, DictRowAttr> attr : entry.entrySet()) {
+			sb.append(attr.getKey()).append("=");
+			for(String value : attr.getValue().getValues()) {
+				sb.append(value).append(",");
+			}
+			sb.append(" ");
+		}
+		
+		return sb.toString();
+	}
+
+	private DictRow mergeDictRow(DictRow source, DictRow target) {
+		NsiConfigAttr idAttr = target.getDict().getIdAttr();
+		Preconditions.checkNotNull(idAttr, "Нет idAttr в %s", target.getDict().getName());
+		
+		for(Map.Entry<String, DictRowAttr> entry : source.getAttrs().entrySet()) {
+			if(idAttr.getName().equals(entry.getKey())) {
+				continue;
+			}
+			target.setAttr(entry.getKey(), entry.getValue());
+		}
+		
+		return target;
+	}
 }
