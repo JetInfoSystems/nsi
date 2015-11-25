@@ -599,10 +599,10 @@ public class SqlDaoTest extends BaseSqlTest {
 	    		Assert.assertEquals(rows.get(0).getAttr("ORG_ID").getLong(), org1Id.getLong());
 	    		
 	    	} finally {
-	    		DaoUtils.dropSegSafe(dictEmp, connection);
-	    		DaoUtils.dropSegSafe(dictOrg, connection);
-	    		DaoUtils.dropTableSafe(dictEmp, connection);   
-	    		DaoUtils.dropTableSafe(dictOrg, connection);		
+	    		DaoUtils.dropSeq(dictEmp, connection);
+	    		DaoUtils.dropSeq(dictOrg, connection);
+	    		DaoUtils.dropTable(dictEmp, connection);   
+	    		DaoUtils.dropTable(dictOrg, connection);		
 	    	}
     	}
     }

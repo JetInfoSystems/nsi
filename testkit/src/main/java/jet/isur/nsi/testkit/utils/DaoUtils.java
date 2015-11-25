@@ -80,22 +80,6 @@ public class DaoUtils {
     public static void dropTable(NsiConfigDict dict, Connection connection) {
         dropTable(dict.getTable(), connection);
     }
-
-    public static void dropTableSafe(NsiConfigDict dict, Connection connection) {
-        try {
-        	dropTable(dict.getTable(), connection);
-        } catch (Exception e) {
-        	log.error(e.getMessage(), e);
-        }
-    }
-    
-    public static void dropSegSafe(NsiConfigDict dict, Connection connection) {
-        try {
-        	dropSeq(dict.getSeq(), connection);
-        } catch (Exception e) {
-        	log.error(e.getMessage(), e);
-        }
-    }
     
     public static void dropTable(String name, Connection connection) {
         try {
