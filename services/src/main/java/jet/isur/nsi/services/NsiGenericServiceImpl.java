@@ -312,8 +312,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         NsiQuery query = dict.query().addAttrs(data);
         DictRow outData;
         boolean isInsert = data.isIdAttrEmpty();
-        
-        outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
+              
         if (isInsert) {
         	query.addStdAttrs();
             log.info("dictSave [{},{}] -> inserted [{}]", tx.getRequestId(),
@@ -321,7 +320,9 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         } else {
             log.info("dictSave [{},{}] -> updated [{}]", tx.getRequestId(),
                     dict.getName(), data.getIdAttr());
-        }
+        }     
+        outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
+        
         return outData;
     }
 
