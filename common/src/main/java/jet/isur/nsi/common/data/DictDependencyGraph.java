@@ -38,24 +38,26 @@ public class DictDependencyGraph {
     }
 
     private void add(NsiConfigDict dict) {
-        if(graph.addVertex(getMainDict(dict))) {
+        NsiConfigDict mainDict = getMainDict(dict);
+        if(graph.addVertex(mainDict)) {
             // рекурсивно добавляем все справочники для которых dict является владельцем
-            addAllOwnedDicts(dict);
+            addAllOwnedDicts(mainDict);
             // рекурсивно добавляем все справочники на которые dict ссылается
-            addAllRefDicts(dict);
+            addAllRefDicts(mainDict);
         }
     }
 
     private void addAllRefDicts(NsiConfigDict dict) {
         for (NsiConfigAttr attr : dict.getAttrs()) {
             if(attr.getType() == MetaAttrType.REF) {
-                NsiConfigDict refDict = attr.getRefDict();
                 // игнорируем parent атрибуты
                 if(attr == dict.getParentAttr()) continue;
+                NsiConfigDict refDict = attr.getRefDict();
+                NsiConfigDict mainRefDict = getMainDict(refDict);
                 // выключаем прямые циклы
-                add(refDict);
+                add(mainRefDict);
                 // refDict может оказаться прокси представлением
-                DefaultEdge e = graph.addEdge(dict, getMainDict(refDict));
+                DefaultEdge e = graph.addEdge(dict, mainRefDict);
                 if(hasCycles()) {
                     graph.removeEdge(e);
                 }
@@ -70,9 +72,13 @@ public class DictDependencyGraph {
     private void addAllOwnedDicts(NsiConfigDict ownerDict) {
         for ( NsiConfigDict dict : config.getDicts()) {
             NsiConfigAttr ownerAttr = dict.getOwnerAttr();
-            if(ownerAttr != null && ownerAttr.getRefDict() == ownerDict ) {
-                add(dict);
-                graph.addEdge(dict, ownerDict);
+            if(ownerAttr != null) {
+                NsiConfigDict mainRefDict = getMainDict(ownerAttr.getRefDict()); 
+                if(mainRefDict == ownerDict ) {
+                    NsiConfigDict mainDict = getMainDict(dict);
+                    add(mainDict);
+                    graph.addEdge(mainDict, ownerDict);
+                }
             }
         }
     }
