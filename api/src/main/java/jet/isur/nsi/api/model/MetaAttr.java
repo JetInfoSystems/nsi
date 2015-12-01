@@ -60,6 +60,12 @@ public class MetaAttr implements Serializable {
      * Фронтенд может использовать такие скрытые атрибуты, например для раскрашивания записей.
      */
     private boolean refAttrHidden = false;
+    
+    /**
+     * Атрибут показывает является ли данный атрибут сохраняемым, используется чтобы сказать фронту какие поля 
+     * не нужно сохранять
+     */
+    private boolean persist = true;
 
     public boolean isRequired() {
         return required;
@@ -129,5 +135,11 @@ public class MetaAttr implements Serializable {
     }
     public void setRefAttrHidden(boolean refAttrHidden) {
         this.refAttrHidden = refAttrHidden;
+    }
+    public boolean isPersist() {
+        return persist;
+    }
+    public void setPersist(boolean persist) {
+        this.persist = persist;
     }
 }
