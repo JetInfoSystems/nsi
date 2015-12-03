@@ -28,6 +28,7 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertSetStep;
+import org.jooq.QueryPart;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.SQLDialect;
@@ -233,11 +234,9 @@ public class DefaultSqlGen implements SqlGen {
         checkPaginationExp(offset, size);
 
         SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true, sourceQuery);
-        Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
-        if(filterCondition != null) {
-            baseQueryPart.where(filterCondition);
-        }
-
+        
+        addWhereClauseForSelect(query, filter, baseQueryPart);
+        
         Collection<? extends SortField<?>> sortFields = getSortFields(query, sortList);
         if(sortFields != null) {
             baseQueryPart.orderBy(sortFields);
@@ -259,7 +258,46 @@ public class DefaultSqlGen implements SqlGen {
 
         return baseQueryPart.getSQL();
     }
+    
+    protected void addWhereClauseForSelect(NsiQuery query, BoolExp filter, SelectJoinStep<?> baseQueryPart) {
+        FilterConditionWraper filterCondition = getWhereCondition(query, filter);
+        if(filterCondition != null) {
+            if (filterCondition.isNeedAddContains()) {
+                String sql = "";
+                if(filterCondition.getCondition() != null) {
+                    sql += filterCondition.getCondition().toString();
+                    sql += " and ";
+                }
+                sql += getContainsFiltersSql(query, filterCondition);
+                baseQueryPart.where(sql);
+            } else {
+                baseQueryPart.where(filterCondition.getCondition());
+            }
+            
+        }
+    }
 
+    protected String getContainsFiltersSql(NsiQuery query, FilterConditionWraper filters) {
+        String sql = "";
+        for (BoolExp filter : filters.getContainsBoolExps()) {
+            NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+            List<NsiConfigField> fields = configAttr.getFields();
+            int i = 0;
+            for (NsiConfigField field : fields) {
+                if (i > 0) {
+                    sql += " AND";
+                }
+                String f = NsiQuery.MAIN_ALIAS + "." + field.getName();
+                String value = filter.getValue().getValues().get(i);
+                if (value != null) {
+                    sql += " CONTAINS(" + f +", ?, 1) > 0";
+                }
+                i++;
+            }
+        }
+        return sql;
+    }
+    
     protected void checkPaginationExp(long offset, int size) {
         if ((offset == -1 && size == -1) || (offset != -1 && size != -1)) {
             return;
@@ -268,12 +306,13 @@ public class DefaultSqlGen implements SqlGen {
                 + offset + ", size : " + size + "]");
     }
 
-    protected Condition getWhereCondition(NsiQuery query, BoolExp filter,
-            SelectJoinStep<?> baseQueryPart) {
-        Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
+    protected FilterConditionWraper getWhereCondition(NsiQuery query, BoolExp filter) {
+        FilterConditionWraper filterCondition = getFilterCondition(query, filter);
         return filterCondition;
     }
-
+    
+    
+    
     protected Collection<? extends SortField<?>> getSortFields(NsiQuery query, List<SortExp> sortList) {
         if(sortList == null) {
             return null;
@@ -289,19 +328,19 @@ public class DefaultSqlGen implements SqlGen {
         return result;
     }
 
-    protected Condition getFilterCondition(NsiQuery query, BoolExp filter, SelectJoinStep<?> baseQuery) {
+    protected FilterConditionWraper getFilterCondition(NsiQuery query, BoolExp filter) {
         if(filter == null) {
             return null;
         }
         switch (filter.getFunc()) {
         case OperationType.AND:
-            return getAndCondition(query, filter.getExpList(), baseQuery);
+            return getAndCondition(query, filter.getExpList());
         case OperationType.OR:
-            return getOrCondition(query, filter.getExpList(), baseQuery);
+            return getOrCondition(query, filter.getExpList());
         case OperationType.NOTAND:
-            return getAndCondition(query, filter.getExpList(), baseQuery).not();
+            return getAndCondition(query, filter.getExpList()).not();
         case OperationType.NOTOR:
-            return getOrCondition(query, filter.getExpList(), baseQuery).not();
+            return getOrCondition(query, filter.getExpList()).not();
         case OperationType.EQUALS:
         case OperationType.LIKE:
         case OperationType.GT:
@@ -309,26 +348,46 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.LT:
         case OperationType.LE:
         case OperationType.NOTNULL:
-            return getFuncCondition(query, filter, baseQuery);
+        case OperationType.CONTAINS:
+            return getFuncCondition(query, filter);
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }
     }
-
-    protected Condition getFuncCondition(NsiQuery query, BoolExp filter,SelectJoinStep<?> baseQuery) {
+    
+    protected FilterConditionWraper getFuncCondition(NsiQuery query, BoolExp filter) {
         NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
         List<NsiConfigField> fields = configAttr.getFields();
-        Condition condition = getFieldFuncCondition(query, fields.get(0),filter);
-        for(int i=1;i<fields.size();i++) {
-            condition = condition.and(getFieldFuncCondition(query, fields.get(i),filter));
+        Condition condition = null;
+        boolean needAddContains = false;
+        for(int i=0;i<fields.size();i++) {
+            Condition c = getFieldFuncCondition(query, fields.get(i),filter);
+            if (c != null) {
+                if (condition != null) {
+                    condition = condition.and(c);
+                } else {
+                    condition = c;
+                }
+            } else {
+                needAddContains = true;
+            }
         }
-        return condition;
+        FilterConditionWraper fcw = new FilterConditionWraper(condition, needAddContains);
+        if (needAddContains) {
+            fcw.addContainsBoolExps(filter);
+        }
+        return fcw;
     }
 
     protected Condition getFieldFuncCondition(NsiQuery query,
             NsiConfigField field, BoolExp filter) {
         Field<Object> f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
         switch (filter.getFunc()) {
+        case OperationType.CONTAINS:
+            //skip CONTAINS here, due to we need custom Oracle DSL. 
+            // Contains will be added later to where for quick fix RNSC-2094,
+            // and maybe in future will be injected to SQLDialect.DEFAULT (or some other way)
+            return null;
         case OperationType.EQUALS:
             if (filter.getValue().getValues().get(0) != null){
                 return f.eq(val(null));
@@ -359,25 +418,33 @@ public class DefaultSqlGen implements SqlGen {
         }
     }
 
-    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList,SelectJoinStep<?> baseQuery) {
+    protected FilterConditionWraper getOrCondition(NsiQuery query, List<BoolExp> expList) {
         checkExpList(expList);
-        Condition condition = getFilterCondition(query, expList.get(0), baseQuery);
-        for(int i=1;i<expList.size();i++) {
-            Condition c = getFilterCondition(query, expList.get(i), baseQuery);
-            if(c != null) {
-                condition = condition.or(c);
+        FilterConditionWraper condition = null;
+        for(int i=0;i<expList.size();i++) {
+            FilterConditionWraper c = getFilterCondition(query, expList.get(i));
+            if (c != null) {
+                if (condition != null) {
+                    condition = condition.or(c);
+                } else {
+                    condition = c;
+                }
             }
         }
         return condition;
     }
 
-    protected Condition getAndCondition(NsiQuery query, List<BoolExp> expList, SelectJoinStep<?> baseQuery) {
+    protected FilterConditionWraper getAndCondition(NsiQuery query, List<BoolExp> expList) {
         checkExpList(expList);
-        Condition condition = getFilterCondition(query, expList.get(0), baseQuery);
-        for(int i=1;i<expList.size();i++) {
-            Condition c = getFilterCondition(query, expList.get(i), baseQuery);
-            if(c != null) {
-                condition = condition.and(c);
+        FilterConditionWraper condition = null;
+        for(int i=0;i<expList.size();i++) {
+            FilterConditionWraper c = getFilterCondition(query, expList.get(i));
+            if (c != null) {
+                if (condition != null) {
+                    condition = condition.and(c);
+                } else {
+                    condition = c;
+                }
             }
         }
         return condition;
@@ -405,14 +472,52 @@ public class DefaultSqlGen implements SqlGen {
 
         SelectJoinStep<?> baseQueryPart = addRefAttrJoins(query, selectQueryPart);
 
-        Condition filterCondition = getWhereCondition(query, filter, selectQueryPart);
-
-        if(filterCondition != null) {
-            baseQueryPart.where(filterCondition);
-        }
+        addWhereClauseForSelect(query, filter, baseQueryPart);
 
         return baseQueryPart.getSQL();
     }
 
-
+    class FilterConditionWraper {
+        private Condition condition;
+        private Collection<BoolExp> containsBoolExp;
+        private boolean needAddContains = false;
+        
+        public FilterConditionWraper(Condition condition, boolean needAddContains) {
+            this.condition = condition;
+            this.needAddContains = needAddContains;
+            this.containsBoolExp = new ArrayList<>();
+        }
+        
+        public Condition getCondition() {
+            return condition;
+        }
+        
+        public boolean isNeedAddContains() {
+            return needAddContains;
+        }
+        
+        public Collection<BoolExp> getContainsBoolExps() {
+            return containsBoolExp;
+        }
+        
+        public void addContainsBoolExps(BoolExp expr) {
+            containsBoolExp.add(expr);
+        }
+        
+        public FilterConditionWraper and(FilterConditionWraper fc) {
+            this.condition = condition.and(fc.getCondition());
+            this.needAddContains = fc.isNeedAddContains();
+            return this;
+        }
+        
+        public FilterConditionWraper or(FilterConditionWraper fc) {
+            this.condition = condition.or(fc.getCondition());
+            this.needAddContains = fc.isNeedAddContains();
+            return this;
+        }
+        public FilterConditionWraper not() {
+            this.condition = this.condition.not();
+            return this;
+        }
+    }
 }
