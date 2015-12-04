@@ -5,7 +5,7 @@ import org.jooq.Field;
 import org.jooq.RenderContext;
 import org.jooq.impl.CustomCondition;
 
-public class FullSearchCondition<T> extends CustomCondition implements Condition {
+public class TextSearchCondition<T> extends CustomCondition implements Condition {
     
     /**
      * 
@@ -14,7 +14,7 @@ public class FullSearchCondition<T> extends CustomCondition implements Condition
     
     private Field<T> field;
     
-    public FullSearchCondition(Field<T> field) {
+    public TextSearchCondition(Field<T> field) {
         this.field = field;
     }
     

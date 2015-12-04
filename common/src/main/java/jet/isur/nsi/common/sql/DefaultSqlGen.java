@@ -21,7 +21,7 @@ import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.sql.SqlGen;
-import jet.isur.nsi.common.custom.jooq.FullSearchCondition;
+import jet.isur.nsi.common.custom.jooq.TextSearchCondition;
 import jet.isur.nsi.common.data.NsiDataException;
 
 import org.jooq.Condition;
@@ -354,7 +354,7 @@ public class DefaultSqlGen implements SqlGen {
                 return f.isNull();
             }
         case OperationType.CONTAINS:
-            return new FullSearchCondition(f);
+            return new TextSearchCondition(f);
         case OperationType.NOTNULL:
             return f.isNotNull();
         default:
