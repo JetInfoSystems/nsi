@@ -352,7 +352,7 @@ public class SqlDaoTest extends BaseSqlTest {
                         NsiQuery query = dict.query().addAttrs();
                         for (int i = 0; i < 10; i++) {
                             if (i % 2 == 0) {
-                                insertDict1Row(connection, query, "alu" + i);
+                                insertDict1Row(connection, query, "value" + i);
                             } else {
                                 insertDict1Row(connection, query, "any" + i);
                             }
@@ -360,7 +360,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
                         List<DictRow> rows = sqlDao.list(connection, query,
                                 dict.filter().key(fullSearchFName).contains()
-                                        .value("value").build(), null, -1, -1);
+                                        .value("alu").build(), null, -1, -1);
 
                         Assert.assertEquals(5, rows.size());
                     } finally {
