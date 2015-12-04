@@ -337,6 +337,44 @@ public class SqlDaoTest extends BaseSqlTest {
             }
         }
     }
+    
+    @Test
+    public void testListContainsFilter() throws Exception {
+        NsiConfigDict dict = config.getDict("dict1");
+        String fullSearchFName = "f1";
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.recreateTable(dict, connection);
+            try {
+                DaoUtils.recreateSeq(dict, connection);
+                try {
+                    DaoUtils.recreateFullSearchIndex(dict, fullSearchFName, connection);
+                    try {
+                        NsiQuery query = dict.query().addAttrs();
+                        for (int i = 0; i < 10; i++) {
+                            if (i % 2 == 0) {
+                                insertDict1Row(connection, query, "value" + i);
+                            } else {
+                                insertDict1Row(connection, query, "any" + i);
+                            }
+                        }
+
+                        List<DictRow> rows = sqlDao.list(connection, query,
+                                dict.filter().key(fullSearchFName).contains()
+                                        .value("alu").build(), null, -1, -1);
+
+                        Assert.assertEquals(5, rows.size());
+                    } finally {
+                        DaoUtils.dropFullSearchIndex(dict, fullSearchFName, connection);
+                    }
+                } finally {
+                    DaoUtils.dropSeq(dict, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict, connection);
+            }
+        }
+    }
 
     @Test
     public void testCountFilter() throws Exception {

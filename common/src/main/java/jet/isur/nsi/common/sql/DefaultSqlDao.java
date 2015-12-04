@@ -81,6 +81,9 @@ public class DefaultSqlDao implements SqlDao {
                             {
                                 val = val+"%";
                             }
+                            if (filter.getFunc().equals(OperationType.CONTAINS)) {
+                                val = "%" + val + "%";
+                            }
                             setParam(ps, index, field, val);
                             index++;
                             i++;

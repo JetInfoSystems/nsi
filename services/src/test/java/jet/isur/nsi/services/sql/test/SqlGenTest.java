@@ -2,6 +2,7 @@ package jet.isur.nsi.services.sql.test;
 
 import java.io.File;
 
+import jet.isur.nsi.api.data.BoolExpBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
@@ -216,6 +217,21 @@ public class SqlGenTest extends BaseSqlTest {
                         + "where m.id = ?", sql);
     }
 
+    
+
+    @Test
+    public void testContainsOperationSql(){
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = dict.query().addAttrs();
+        BoolExp filter = dict.filter()
+                .key("f1").contains().value("abc")
+                .build();
+        String sql = sqlGen.getListSql(query, filter, null, -1, -1);
+        Assert.assertEquals(
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
+                        " where contains(m.f1, ?, 1) > 0", sql);
+    }
+    
     @Test
     public void testOperationsSql() {
         NsiConfigDict dict = config.getDict("dict1");
