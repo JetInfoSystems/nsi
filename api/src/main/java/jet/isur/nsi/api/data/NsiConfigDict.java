@@ -84,7 +84,7 @@ public class NsiConfigDict {
     }
 
     public void setIdAttr(NsiConfigAttr idAttr) {
-        Preconditions.checkNotNull(idAttr, "Идентификатор не может быть null [dictName=%s]", getName());
+        // Выставляем обязательность ID в false, чтобы при вставки новой записи фронт не требовал наличие идентификатора  
         idAttr.setRequired(false);
         this.idAttr = idAttr;
     }
