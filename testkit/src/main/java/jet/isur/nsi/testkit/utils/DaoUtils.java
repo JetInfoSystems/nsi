@@ -59,7 +59,7 @@ public class DaoUtils {
             throw new NsiServiceException("no fields found");
         }
     }
-
+    
     public static void recreateTable(NsiConfigDict dict, Connection connection) {
         try {
             createTable(dict, connection);
@@ -68,7 +68,45 @@ public class DaoUtils {
             dropTable(dict, connection);
             createTable(dict, connection);
         }
-
+    }
+    
+    public static void createFullSearchIndex(NsiConfigDict dict, String field, Connection connection) {
+        createFullSearchIndex(dict.getName(), field, connection);
+    }
+    
+    public static void createFullSearchIndex(String table, String field, Connection connection) {
+        executeSql(connection, new StringBuilder()
+            .append("CREATE INDEX ")
+            .append("fti_").append(table).append("_").append(field)
+            .append(" ON ")
+            .append(table)
+            .append("(").append(field).append(")")
+            .append(" INDEXTYPE IS CTXSYS.CONTEXT ")
+            .append("PARAMETERS ('filter ctxsys.null_filter lexer isur sync(on commit)')")
+            .toString());
+    }
+    
+    public static void dropFullSearchIndex(NsiConfigDict dict, String field, Connection connection) {
+        dropFullSearchIndex(dict.getName(), field, connection);
+    }
+    public static void dropFullSearchIndex(String table, String field, Connection connection) {
+        executeSql(connection, new StringBuilder()
+            .append("DROP INDEX ")
+            .append("fti_").append(table).append("_").append(field).toString());
+    }
+    
+    public static void recreateFullSearchIndex(NsiConfigDict dict, String field, Connection connection) {
+        recreateFullSearchIndex(dict.getName(), field, connection);
+    }
+    
+    public static void recreateFullSearchIndex(String table, String field, Connection connection) {
+        try {
+            createFullSearchIndex(table, field, connection);
+        }
+        catch(Exception e) {
+            dropFullSearchIndex(table, field, connection);
+            createFullSearchIndex(table, field, connection);
+        }
     }
 
     public static DSLContext getQueryBuilder(Connection connection) {

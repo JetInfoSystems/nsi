@@ -96,6 +96,11 @@ public class BoolExpBuilder {
         getPrototype().setFunc(OperationType.LIKE);
         return this;
     }
+    
+    public BoolExpBuilder contains() {
+        getPrototype().setFunc(OperationType.CONTAINS);
+        return this;
+    }
 
     public BoolExpBuilder lt() {
         getPrototype().setFunc(OperationType.LT);

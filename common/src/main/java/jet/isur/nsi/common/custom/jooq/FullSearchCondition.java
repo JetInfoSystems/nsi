@@ -21,6 +21,6 @@ public class FullSearchCondition<T> extends CustomCondition implements Condition
     @Override
     public void toSQL(RenderContext context) {
         
-        context.sql("CONTAINS(").visit(field).sql(", ?, 1) > 0");
+        context.sql("contains(").visit(field).sql(", ?, 1) > 0");
     }
 }
