@@ -77,10 +77,12 @@ public class DefaultSqlDao implements SqlDao {
                     for (NsiConfigField field : fields) {
                         if (dataValues.get(i) != null){
                             String val = dataValues.get(i);
-                            if (filter.getFunc().equals(OperationType.LIKE) ||
-                                    filter.getFunc().equals(OperationType.CONTAINS))
+                            if (filter.getFunc().equals(OperationType.LIKE))
                             {
                                 val = val+"%";
+                            }
+                            if (filter.getFunc().equals(OperationType.CONTAINS)) {
+                                val = "%" + val + "%";
                             }
                             setParam(ps, index, field, val);
                             index++;

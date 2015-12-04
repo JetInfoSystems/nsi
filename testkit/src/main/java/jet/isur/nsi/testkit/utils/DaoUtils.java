@@ -71,7 +71,7 @@ public class DaoUtils {
     }
     
     public static void createFullSearchIndex(NsiConfigDict dict, String field, Connection connection) {
-        createFullSearchIndex(dict.getName(), field, connection);
+        createFullSearchIndex(dict.getTable(), field, connection);
     }
     
     public static void createFullSearchIndex(String table, String field, Connection connection) {
@@ -87,7 +87,7 @@ public class DaoUtils {
     }
     
     public static void dropFullSearchIndex(NsiConfigDict dict, String field, Connection connection) {
-        dropFullSearchIndex(dict.getName(), field, connection);
+        dropFullSearchIndex(dict.getTable(), field, connection);
     }
     public static void dropFullSearchIndex(String table, String field, Connection connection) {
         executeSql(connection, new StringBuilder()
@@ -96,7 +96,7 @@ public class DaoUtils {
     }
     
     public static void recreateFullSearchIndex(NsiConfigDict dict, String field, Connection connection) {
-        recreateFullSearchIndex(dict.getName(), field, connection);
+        recreateFullSearchIndex(dict.getTable(), field, connection);
     }
     
     public static void recreateFullSearchIndex(String table, String field, Connection connection) {
