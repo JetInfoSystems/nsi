@@ -75,6 +75,44 @@ public class SqlDaoTest extends BaseSqlTest {
     }
 
     @Test
+    public void testInsertAndGetView() throws Exception {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiConfigDict dictV = config.getDict("dict1_v");
+        try (Connection connection = dataSource.getConnection()) {
+            DaoUtils.recreateTable(dict, connection);
+            try {
+                DaoUtils.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow inData = query.getDict().builder()
+                            .deleteMarkAttr(false)
+                            .idAttrNull()
+                            .lastChangeAttr(new DateTime().withMillisOfSecond(0))
+                            .lastUserAttr(null)
+                            .attr("V", 1L)
+                            .attr("f1", "test")
+                            .attr("ORG_ID", 1L)
+                            .attr("ORG_ROLE_ID", 2L)
+                            .build();
+
+                    DictRow outData = sqlDao.insert(connection, query, inData);
+
+                    DictRow outDataV = sqlDao.get(connection, dictV.query().addAttrs(), outData.getIdAttr());
+                    
+                    Assert.assertEquals(1L, (long) outDataV.getIdAttrLong());
+                    Assert.assertEquals(123L, (long) outDataV.getLong("V"));
+                    
+                } finally {
+                    DaoUtils.dropSeq(dict, connection);
+                }
+
+            } finally {
+                DaoUtils.dropTable(dict, connection);
+            }
+        }
+    }
+
+    @Test
     public void testInsertAndGetFloatNumber() throws Exception {
         NsiConfigDict dict = config.getDict("dict5");
         try (Connection connection = dataSource.getConnection()) {

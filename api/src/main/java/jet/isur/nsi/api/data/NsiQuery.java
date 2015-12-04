@@ -104,9 +104,13 @@ public class NsiQuery {
     }
 
     public NsiQuery addAttrs(DictRow row) {
-    	for (String attrName : row.getAttrs().keySet()) {
-    		addAttr(MAIN_ALIAS, dict.getAttr(attrName));
-		}
+        for (String attrName : row.getAttrs().keySet()) {
+            NsiConfigAttr attr = dict.getAttr(attrName);
+            // добавляем только те атрибуты, которые есть в модели
+            if(attr != null) {
+                addAttr(MAIN_ALIAS, attr);
+            }
+        }
 
         return this;
     }
