@@ -24,6 +24,7 @@ import jet.isur.nsi.migrator.args.CreateUserCmd;
 import jet.isur.nsi.migrator.args.CreateUserProfileCmd;
 import jet.isur.nsi.migrator.args.DropTablespaceCmd;
 import jet.isur.nsi.migrator.args.DropUserCmd;
+import jet.isur.nsi.migrator.args.GrantUserCmd;
 import jet.isur.nsi.migrator.args.RollbackCmd;
 import jet.isur.nsi.migrator.args.RunGeneratorCmd;
 import jet.isur.nsi.migrator.args.RunGeneratorPluginCmd;
@@ -40,6 +41,7 @@ public class MigratorMain {
     private static final String CMD_CREATE_TABLESPACE = "createTablespace";
     private static final String CMD_DROP_TABLESPACE = "dropTablespace";
     private static final String CMD_CREATE_USER = "createUser";
+    private static final String CMD_GRANT_USER = "grantUser";
     private static final String CMD_DROP_USER = "dropUser";
     private static final String CMD_RUN_GENERATOR = "runGenerator";
     private static final String CMD_RUN_GENERATOR_PLUGIN = "runGeneratorPlugin";
@@ -63,6 +65,8 @@ public class MigratorMain {
         jc.addCommand(CMD_DROP_TABLESPACE, dropTablespaceCmd);
         CreateUserCmd createUserCmd = new CreateUserCmd();
         jc.addCommand(CMD_CREATE_USER, createUserCmd);
+        GrantUserCmd grantUserCmd = new GrantUserCmd();
+        jc.addCommand(CMD_GRANT_USER, grantUserCmd);
         DropUserCmd dropUserCmd = new DropUserCmd();
         jc.addCommand(CMD_DROP_USER, dropUserCmd);
         RunGeneratorCmd runGeneratorCmd = new RunGeneratorCmd();
@@ -95,34 +99,8 @@ public class MigratorMain {
             doTagCmd(tagCmd, params, properties);
             break;
         case CMD_CREATE_USER_PROFILE:
-
-            DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
-
-            NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
-            Migrator migrator = new Migrator(config, dataSource, params);
-
-            switch (command) {
-            case CMD_UPDATE:
-                migrator.update(updateCmd.getTag());
-                break;
-            case CMD_ROLLBACK:
-                migrator.update(updateCmd.getTag());
-                break;
-            case CMD_TAG:
-                migrator.update(updateCmd.getTag());
-                break;
-            case CMD_CREATE_USER_PROFILE:
-                try (Connection connection = dataSource.getConnection()) {
-                    if(DaoUtils.createUserProfile(connection, createUserProfileCmd.getLogin()) == null) {
-                        System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
-                    }
-                }
-                break;
-            default:
-                break;
-            }
+            doCreateUserProfile(createUserProfileCmd, params, properties);
             break;
-
         case CMD_CREATE_TABLESPACE:
             doCreateTablespaceCmd(params, properties);
             break;
@@ -131,6 +109,9 @@ public class MigratorMain {
             break;
         case CMD_CREATE_USER:
             doCreateUserCmd(params, properties);
+            break;
+        case CMD_GRANT_USER:
+            doGrantUserCmd(params, properties);
             break;
         case CMD_DROP_USER:
             doDropUserCmd(params, properties);
@@ -191,6 +172,11 @@ public class MigratorMain {
                 params.getTablespace(IDENT_ISUR),
                 params.getTempTablespace(IDENT_ISUR));
     }
+    
+    private static void doGrantUserCmd(MigratorParams params, Properties properties) throws SQLException {
+        Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
+        DaoUtils.grantUser(connection, params.getUsername(IDENT_ISUR));
+    }
 
     private static void doDropTablespaceCmd(MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
@@ -229,5 +215,15 @@ public class MigratorMain {
         Migrator migrator = new Migrator(config, dataSource, params);
         migrator.update(updateCmd.getTag());
     }
+    
+    private static void doCreateUserProfile(CreateUserProfileCmd createUserProfileCmd, MigratorParams params, Properties properties) throws SQLException {
+        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
+        try (Connection connection = dataSource.getConnection()) {
+            if(DaoUtils.createUserProfile(connection, createUserProfileCmd.getLogin()) == null) {
+                System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
+            }
+        }
+    }
+    
 
 }

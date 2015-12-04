@@ -218,9 +218,24 @@ public class DaoUtils {
         executeSql(connection, new StringBuilder()
             .append(" ALTER USER ").append(name)
             .append(" QUOTA UNLIMITED ON ").append(defaultTablespace).toString());
+        
+        grantUser(connection, name);
+    }
+    
+    public static void grantUser(Connection connection, String name) throws SQLException {
         executeSql(connection, new StringBuilder().append(" GRANT RESOURCE TO ").append(name).toString());
         executeSql(connection, new StringBuilder().append(" GRANT CONNECT TO ").append(name).toString());
         executeSql(connection, new StringBuilder().append(" GRANT CREATE ANY VIEW TO ").append(name).toString());
+        
+        executeSql(connection, new StringBuilder().append(" GRANT CTXAPP TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_CLS TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_DDL TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_DOC TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_OUTPUT TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_QUERY TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_REPORT TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_THES TO ").append(name).toString());
+        executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_ULEXER TO ").append(name).toString());
     }
 
     public static void dropUser(Connection connection, String name) throws SQLException {
