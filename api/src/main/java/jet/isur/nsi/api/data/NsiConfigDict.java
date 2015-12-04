@@ -84,6 +84,8 @@ public class NsiConfigDict {
     }
 
     public void setIdAttr(NsiConfigAttr idAttr) {
+        Preconditions.checkNotNull(idAttr, "Идентификатор не может быть null [dictName=%s]", getName());
+        idAttr.setRequired(false);
         this.idAttr = idAttr;
     }
 
