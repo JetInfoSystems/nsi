@@ -11,7 +11,7 @@ public class MigratorParams {
     public static final String NAME = "name";
     public static final String TABLESPACE = "tablespace";
     public static final String DB = "db";
-
+    private static final String IDENT_ISUR = "isur";
 
     public static final String METADATA_PATH = "metadataPath";
 
@@ -56,7 +56,7 @@ public class MigratorParams {
 
     public String getDataFilePath(String ident) {
         return getProperty(key(DB,ident,TABLESPACE,"dataFile","path"),
-                "+DATA/" + getGlobalName(ident) + "/datafile/");
+                "+DATA/" + getGlobalName(IDENT_ISUR) + "/datafile/");
     }
 
     public String getDataFileName(String ident) {

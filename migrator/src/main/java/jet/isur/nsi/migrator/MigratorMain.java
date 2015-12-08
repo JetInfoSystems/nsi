@@ -102,13 +102,13 @@ public class MigratorMain {
             doCreateUserProfile(createUserProfileCmd, params, properties);
             break;
         case CMD_CREATE_TABLESPACE:
-            doCreateTablespaceCmd(params, properties);
+            doCreateTablespaceCmd(createTablespaceCmd, params, properties);
             break;
         case CMD_DROP_TABLESPACE:
-            doDropTablespaceCmd(params, properties);
+            doDropTablespaceCmd(dropTablespaceCmd, params, properties);
             break;
         case CMD_CREATE_USER:
-            doCreateUserCmd(params, properties);
+            doCreateUserCmd(createUserCmd, params, properties);
             break;
         case CMD_GRANT_USER:
             doGrantUserCmd(params, properties);
@@ -164,12 +164,12 @@ public class MigratorMain {
                 params.getUsername(IDENT_ISUR));
     }
 
-    private static void doCreateUserCmd(MigratorParams params, Properties properties) throws SQLException {
+    private static void doCreateUserCmd(CreateUserCmd createUserCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
         DaoUtils.createUser(connection,
                 params.getUsername(IDENT_ISUR),
                 params.getPassword(IDENT_ISUR),
-                params.getTablespace(IDENT_ISUR),
+                params.getTablespace(createUserCmd.getTablespaceIdent()),
                 params.getTempTablespace(IDENT_ISUR));
     }
     
@@ -178,20 +178,20 @@ public class MigratorMain {
         DaoUtils.grantUser(connection, params.getUsername(IDENT_ISUR));
     }
 
-    private static void doDropTablespaceCmd(MigratorParams params, Properties properties) throws SQLException {
+    private static void doDropTablespaceCmd(DropTablespaceCmd dropTablespaceCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
         DaoUtils.dropTablespace(connection,
-                params.getTablespace(IDENT_ISUR));
+                params.getTablespace(dropTablespaceCmd.getIdent()));
     }
 
-    private static void doCreateTablespaceCmd(MigratorParams params, Properties properties) throws SQLException {
+    private static void doCreateTablespaceCmd(CreateTablespaceCmd createTablespaceCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
         DaoUtils.createTablespace(connection,
-                params.getTablespace(IDENT_ISUR),
-                params.getDataFilePath(IDENT_ISUR) + params.getDataFileName(IDENT_ISUR),
-                params.getDataFileSize(IDENT_ISUR),
-                params.getDataFileAutoSize(IDENT_ISUR),
-                params.getDataFileMaxSize(IDENT_ISUR));
+                params.getTablespace(createTablespaceCmd.getIdent()),
+                params.getDataFilePath(createTablespaceCmd.getIdent()) + params.getDataFileName(createTablespaceCmd.getIdent()),
+                params.getDataFileSize(createTablespaceCmd.getIdent()),
+                params.getDataFileAutoSize(createTablespaceCmd.getIdent()),
+                params.getDataFileMaxSize(createTablespaceCmd.getIdent()));
     }
 
     private static void doTagCmd(TagCmd tagCmd, MigratorParams params, Properties properties) {
