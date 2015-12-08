@@ -5,10 +5,10 @@ import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription="Создать пользователя")
 public class CreateUserCmd {
-    @Parameter(names = "-tablespaceIdent", description="ident табличного пространства по умолчания", required = true)
-    private String tablespaceIdent;
+    @Parameter(names = "-tablespace", description="ident табличного пространства по умолчания", required = true)
+    private String tablespace;
     
-    public String getTablespaceIdent() {
-        return tablespaceIdent;
+    public String getTablespace() {
+        return tablespace;
     }
 }

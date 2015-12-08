@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
+import com.google.common.base.Preconditions;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
@@ -31,6 +32,7 @@ import jet.isur.nsi.migrator.args.RunGeneratorPluginCmd;
 import jet.isur.nsi.migrator.args.TagCmd;
 import jet.isur.nsi.migrator.args.UpdateCmd;
 import jet.isur.nsi.testkit.utils.DaoUtils;
+import liquibase.precondition.Precondition;
 
 public class MigratorMain {
 
@@ -166,10 +168,12 @@ public class MigratorMain {
 
     private static void doCreateUserCmd(CreateUserCmd createUserCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
+        String tsName =  params.getTablespace(createUserCmd.getTablespace());
+        Preconditions.checkNotNull(tsName, "Не задано название табличного пространства для ident=%s", createUserCmd.getTablespace());
         DaoUtils.createUser(connection,
                 params.getUsername(IDENT_ISUR),
                 params.getPassword(IDENT_ISUR),
-                params.getTablespace(createUserCmd.getTablespaceIdent()),
+                tsName,
                 params.getTempTablespace(IDENT_ISUR));
     }
     
@@ -180,14 +184,17 @@ public class MigratorMain {
 
     private static void doDropTablespaceCmd(DropTablespaceCmd dropTablespaceCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
-        DaoUtils.dropTablespace(connection,
-                params.getTablespace(dropTablespaceCmd.getIdent()));
+        String tsName =  params.getTablespace(dropTablespaceCmd.getIdent());
+        Preconditions.checkNotNull(tsName, "Не задано название табличного пространства для ident=%s", dropTablespaceCmd.getIdent());
+        DaoUtils.dropTablespace(connection, tsName);
     }
 
     private static void doCreateTablespaceCmd(CreateTablespaceCmd createTablespaceCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
+        String tsName =  params.getTablespace(createTablespaceCmd.getIdent());
+        Preconditions.checkNotNull(tsName, "Не задано название табличного пространства для ident=%s", createTablespaceCmd.getIdent());
         DaoUtils.createTablespace(connection,
-                params.getTablespace(createTablespaceCmd.getIdent()),
+                tsName,
                 params.getDataFilePath(createTablespaceCmd.getIdent()) + params.getDataFileName(createTablespaceCmd.getIdent()),
                 params.getDataFileSize(createTablespaceCmd.getIdent()),
                 params.getDataFileAutoSize(createTablespaceCmd.getIdent()),
