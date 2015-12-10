@@ -47,7 +47,8 @@ public class MigratorParams {
     }
 
     public String getTablespace(String ident) {
-        return getProperty(key(DB,ident,TABLESPACE,NAME), getUsername(ident));
+        String name = getProperty(key(DB,ident,TABLESPACE,NAME), null);
+        return (name == null)? null : getUsername(IDENT_ISUR) + "_" + name;
     }
 
     public String getTempTablespace(String ident) {
