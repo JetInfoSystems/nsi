@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Properties;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 
 public class MigratorParams {
 
@@ -48,7 +49,8 @@ public class MigratorParams {
 
     public String getTablespace(String ident) {
         String name = getProperty(key(DB,ident,TABLESPACE,NAME), null);
-        return (name == null)? null : getUsername(IDENT_ISUR) + "_" + name;
+        Preconditions.checkNotNull(name, "Не задано название табличного пространства для ident=%s", ident);
+        return getUsername(IDENT_ISUR) + "_" + name;
     }
 
     public String getTempTablespace(String ident) {

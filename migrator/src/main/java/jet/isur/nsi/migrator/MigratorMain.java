@@ -168,12 +168,10 @@ public class MigratorMain {
 
     private static void doCreateUserCmd(CreateUserCmd createUserCmd, MigratorParams params, Properties properties) throws SQLException {
         Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
-        String tsName =  params.getTablespace(createUserCmd.getTablespace());
-        Preconditions.checkNotNull(tsName, "Не задано название табличного пространства для ident=%s", createUserCmd.getTablespace());
         DaoUtils.createUser(connection,
                 params.getUsername(IDENT_ISUR),
                 params.getPassword(IDENT_ISUR),
-                tsName,
+                params.getTablespace(createUserCmd.getTablespace()),
                 params.getTempTablespace(IDENT_ISUR));
     }
     
