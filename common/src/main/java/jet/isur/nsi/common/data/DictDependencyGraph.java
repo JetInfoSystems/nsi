@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
@@ -24,6 +28,7 @@ public class DictDependencyGraph {
 
     private final NsiConfig config;
     private final DirectedGraph<NsiConfigDict, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    private final Map<NsiConfigDict, Set<String>> cycleRefs = new HashMap<>();
 
     public DictDependencyGraph(NsiConfig config) {
         this.config = config;
@@ -60,6 +65,10 @@ public class DictDependencyGraph {
                 DefaultEdge e = graph.addEdge(dict, mainRefDict);
                 if(hasCycles()) {
                     graph.removeEdge(e);
+                    if(!cycleRefs.containsKey(dict)) {
+                        cycleRefs.put(dict, new HashSet<String>());
+                    }
+                    cycleRefs.get(dict).add(attr.getName());
                 }
             }
         }
@@ -105,5 +114,9 @@ public class DictDependencyGraph {
         }
         Collections.reverse(items);
         return items;
+    }
+
+    public Map<NsiConfigDict, Set<String>> getCycleRefs() {
+        return cycleRefs;
     }
 }

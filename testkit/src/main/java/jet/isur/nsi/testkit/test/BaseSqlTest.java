@@ -5,12 +5,14 @@ import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -19,20 +21,33 @@ import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
+import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.utils.DaoUtils;
 
+import org.jooq.DeleteWhereStep;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.SQLDialect;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
+import org.jooq.conf.RenderNameStyle;
+import org.jooq.conf.Settings;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BaseSqlTest {
+
     protected DataSource dataSource;
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
@@ -114,19 +129,61 @@ public class BaseSqlTest {
                     }
                 }
 
+                // очищаем циклические ссылки в тестовых данных 
+                Map<NsiConfigDict, Set<String>> cycleRefs = g.getCycleRefs();
+                for(NsiConfigDict dict : testDictList) {
+                    if(cycleRefs.containsKey(dict) && testDictRowMap.containsKey(dict)) {
+                        UpdateSetFirstStep<Record> updateSetFirstStep = DSL.using(SQLDialect.DEFAULT).update(DSL.table(dict.getTable()));
+                        UpdateSetMoreStep<Record> updateSetMoreStep = null;
+                        for (String attrName : cycleRefs.get(dict)) {
+                            NsiConfigAttr attr = dict.getAttr(attrName);
+                            for ( NsiConfigField field : attr.getFields()) {
+                                updateSetMoreStep = updateSetFirstStep.set(DSL.field(field.getName()), (String)null);
+                            }
+                        }
+                        
+                        NsiConfigAttr idAttr = dict.getIdAttr();
+                        for ( NsiConfigField field : idAttr.getFields()) {
+                            updateSetMoreStep.where(DSL.field(field.getName()).eq(DSL.val(null)));
+                        }
+                        
+                        try (PreparedStatement ps = connection.prepareStatement(updateSetMoreStep.getSQL())) {
+                            for (DictRow data : testDictRowMap.get(dict)) {
+                                int i = 1;
+                                for (String attrName : cycleRefs.get(dict)) {
+                                    NsiConfigAttr attr = dict.getAttr(attrName);
+                                    for ( NsiConfigField field : attr.getFields()) {
+                                        ps.setNull(i, Types.VARCHAR);
+                                        i++;
+                                    }
+                                }
+                                for (String value : data.getIdAttr().getValues()) {
+                                    ps.setString(i, value);
+                                    i++;
+                                }
+                                ps.execute();
+                            }
+                        }
+                    }
+                }
+                
                 Collections.reverse(testDictList);
 
                 for (NsiConfigDict dict : testDictList) {
                     // удаляем данные
-                    try (PreparedStatement ps = connection.prepareStatement("delete from "
-                            + dict.getTable() + " where "
-                            + dict.getIdAttr().getName() + "=?")) {
-                        if (testDictRowMap.containsKey(dict)) {
+                    if (testDictRowMap.containsKey(dict)) {
+                        DeleteWhereStep<Record> deleteWhereStep = DSL.using(SQLDialect.DEFAULT).delete(DSL.table(dict.getTable()));
+                        for ( NsiConfigField field : dict.getIdAttr().getFields()) {
+                            deleteWhereStep.where(DSL.field(field.getName()).eq(DSL.val(null)));
+                        }
+                        try (PreparedStatement ps = connection.prepareStatement(deleteWhereStep.getSQL())) {
                             for (DictRow data : testDictRowMap.get(dict)) {
-                                if (null != data.getIdAttrLong()) {
-                                    ps.setLong(1, data.getIdAttrLong());
-                                    ps.execute();
+                                int i = 1;
+                                for ( String value : data.getIdAttr().getValues()) {
+                                    ps.setString(i, value);
+                                    i++;
                                 }
+                                ps.execute();
                             }
                         }
                     }
