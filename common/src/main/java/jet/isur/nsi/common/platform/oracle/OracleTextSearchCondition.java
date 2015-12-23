@@ -1,11 +1,11 @@
-package jet.isur.nsi.common.custom.jooq;
+package jet.isur.nsi.common.platform.oracle;
 
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.RenderContext;
 import org.jooq.impl.CustomCondition;
 
-public class TextSearchCondition<T> extends CustomCondition implements Condition {
+public class OracleTextSearchCondition<T> extends CustomCondition implements Condition {
     
     /**
      * 
@@ -14,7 +14,7 @@ public class TextSearchCondition<T> extends CustomCondition implements Condition
     
     private Field<T> field;
     
-    public TextSearchCondition(Field<T> field) {
+    public OracleTextSearchCondition(Field<T> field) {
         this.field = field;
     }
     

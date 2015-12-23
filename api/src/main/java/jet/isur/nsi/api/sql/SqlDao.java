@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;

@@ -2,29 +2,26 @@ package jet.isur.nsi.services.sql.test;
 
 import java.io.File;
 
-import jet.isur.nsi.api.data.BoolExpBuilder;
+import org.junit.Test;
+
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
-import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
-
-import org.junit.Test;
 
 public class SqlGenTest extends BaseSqlTest {
 
     private NsiConfig config;
-    private DefaultSqlGen sqlGen;
 
     @Override
     public void setup() throws Exception {
+        super.setup();
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
-        sqlGen = new DefaultSqlGen();
     }
 
     @Test
@@ -77,7 +74,7 @@ public class SqlGenTest extends BaseSqlTest {
                     .add(dict.getLastUserAttr())
                     .build(), 1, 2);
         Assert.assertEquals(
-                "select * from (select a.*, ROWNUM rnum from (" +
+                "select b.* from (select a.*, ROWNUM rnum from (" +
                         "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where m.f1 = ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
@@ -100,7 +97,7 @@ public class SqlGenTest extends BaseSqlTest {
                 .add(dict.getLastUserAttr())
                 .build(), 1, 2);
         Assert.assertEquals(
-                "select * from (select a.*, ROWNUM rnum from (" +
+                "select b.* from (select a.*, ROWNUM rnum from (" +
                         "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where (m.f1 = ? and m.is_deleted = ?) order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
@@ -119,7 +116,7 @@ public class SqlGenTest extends BaseSqlTest {
                     .add(dict.getLastUserAttr())
                     .build(), 1, 2);
         Assert.assertEquals(
-                "select * from (select a.*, ROWNUM rnum from (" +
+                "select b.* from (select a.*, ROWNUM rnum from (" +
                         "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
                         " where m.f1 like ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);

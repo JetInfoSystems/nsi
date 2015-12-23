@@ -10,11 +10,14 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.platform.NsiPlatform;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
 
 public interface NsiGenericService {
 
+    NsiPlatform getNsiPlatform();
+    
     /**
      * Получить количество записей справочника соответствующих заданному условию
      */

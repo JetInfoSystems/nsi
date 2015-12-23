@@ -26,6 +26,7 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.platform.NsiPlatform;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.isur.nsi.api.tx.NsiTransactionService;
@@ -57,6 +58,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     private NsiTransactionService transactionService;
+    private NsiPlatform nsiPlatform;
 
     @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter, SqlDao sqlDao) {
@@ -518,4 +520,13 @@ public class NsiGenericServiceImpl implements NsiGenericService {
 	private DictRow dictMergeByExternalIdInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
 		return sqlDao.mergeByExternalAttrs(tx.getConnection(), data);
 	}
+
+	@Override
+    public NsiPlatform getNsiPlatform() {
+        return nsiPlatform;
+    }
+
+    public void setNsiPlatform(NsiPlatform nsiPlatform) {
+        this.nsiPlatform = nsiPlatform;
+    }
 }

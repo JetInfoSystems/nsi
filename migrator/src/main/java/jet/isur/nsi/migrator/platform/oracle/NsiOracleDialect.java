@@ -1,4 +1,4 @@
-package jet.isur.nsi.migrator.hibernate;
+package jet.isur.nsi.migrator.platform.oracle;
 
 import java.sql.Types;
 

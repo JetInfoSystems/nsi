@@ -29,6 +29,11 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
 
 
         <dependency>
@@ -64,6 +69,7 @@
                             jet.isur.nsi.api.data.builder;version=${project.version},
                             jet.isur.nsi.api.model;version=${project.version},
                             jet.isur.nsi.api.model.builder;version=${project.version},
+                            jet.isur.nsi.api.platform;version=${project.version},
                             jet.isur.nsi.api.sql;version=${project.version},
                             jet.isur.nsi.api.tx;version=${project.version}
                         </Export-Package>

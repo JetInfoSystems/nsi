@@ -23,7 +23,7 @@ public class MigratorParams {
         this.properties = properties;
     }
 
-    private String getProperty(String key, String defaultValue) {
+    public String getProperty(String key, String defaultValue) {
         return properties.getProperty(key, defaultValue);
     }
 
@@ -35,6 +35,10 @@ public class MigratorParams {
         return new File(getProperty(METADATA_PATH, "/opt/isur/database/metadata"));
     }
 
+    public String getPlatformMigrator(String ident) {
+        return getProperty(key(DB,ident,"platformMigrator"), "jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator");
+    }
+    
     public String getUsername(String ident) {
         return getProperty(key(DB,ident,"username"), null);
     }
@@ -76,5 +80,13 @@ public class MigratorParams {
 
     public String getDataFileMaxSize(String ident) {
         return getProperty(key(DB,ident,TABLESPACE,DATA_FILE,"maxSize"), "15360M");
+    }
+
+    public String getLogPrefix() {
+        return getProperty(key(DB,"liqubase","logPrefix"), "NSI_");
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

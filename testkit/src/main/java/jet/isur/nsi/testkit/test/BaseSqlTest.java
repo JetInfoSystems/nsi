@@ -16,6 +16,17 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.jooq.DeleteWhereStep;
+import org.jooq.Record;
+import org.jooq.SQLDialect;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
+import org.jooq.impl.DSL;
+import org.junit.After;
+import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
@@ -24,27 +35,15 @@ import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
-import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
+import jet.isur.nsi.api.platform.NsiPlatform;
+import jet.isur.nsi.api.platform.PlatformSqlDao;
+import jet.isur.nsi.api.platform.PlatformSqlGen;
 import jet.isur.nsi.common.data.DictDependencyGraph;
+import jet.isur.nsi.common.platform.oracle.OracleNsiPlatform;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.utils.DaoUtils;
-
-import org.jooq.DeleteWhereStep;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.UpdateSetFirstStep;
-import org.jooq.UpdateSetMoreStep;
-import org.jooq.conf.RenderNameStyle;
-import org.jooq.conf.Settings;
-import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
-import org.junit.After;
-import org.junit.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BaseSqlTest {
 
@@ -52,8 +51,11 @@ public class BaseSqlTest {
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
     protected NsiConfig config;
-    protected DefaultSqlDao sqlDao;
+    protected NsiPlatform platformClient;
+    protected PlatformSqlGen platformSqlGen;
+    protected PlatformSqlDao platformSqlDao;
     protected DefaultSqlGen sqlGen;
+    protected DefaultSqlDao sqlDao;
     protected static Logger log = LoggerFactory.getLogger(BaseSqlTest.class);
 
     @Before
@@ -68,9 +70,14 @@ public class BaseSqlTest {
             properties.load(reader);
         }
         dataSource = DaoUtils.createDataSource("isur", properties);
+        platformClient = new OracleNsiPlatform();
         sqlGen = new DefaultSqlGen();
+        platformSqlGen = platformClient.getPlatformSqlGen();
+        sqlGen.setPlatformSqlGen(platformSqlGen);
         sqlDao = new DefaultSqlDao();
         sqlDao.setSqlGen(sqlGen);
+        platformSqlDao = platformClient.getPlatformSqlDao();
+        sqlDao.setPlatformSqlDao(platformSqlDao);
     }
 
     @After
@@ -152,7 +159,7 @@ public class BaseSqlTest {
                                 int i = 1;
                                 for (String attrName : cycleRefs.get(dict)) {
                                     NsiConfigAttr attr = dict.getAttr(attrName);
-                                    for ( NsiConfigField field : attr.getFields()) {
+                                    for ( @SuppressWarnings("unused") NsiConfigField field : attr.getFields()) {
                                         ps.setNull(i, Types.VARCHAR);
                                         i++;
                                     }

@@ -2,7 +2,6 @@ package jet.isur.nsi.migrator;
 
 import java.io.FileReader;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -31,8 +30,7 @@ import jet.isur.nsi.migrator.args.RunGeneratorCmd;
 import jet.isur.nsi.migrator.args.RunGeneratorPluginCmd;
 import jet.isur.nsi.migrator.args.TagCmd;
 import jet.isur.nsi.migrator.args.UpdateCmd;
-import jet.isur.nsi.testkit.utils.DaoUtils;
-import liquibase.precondition.Precondition;
+import jet.isur.nsi.migrator.platform.PlatformMigrator;
 
 public class MigratorMain {
 
@@ -92,51 +90,53 @@ public class MigratorMain {
 
         switch (command) {
         case CMD_UPDATE:
-            doUpdateCmd(updateCmd, params, properties);
+            doUpdateCmd(updateCmd, params);
             break;
         case CMD_ROLLBACK:
-            doRollbackCmd(rollbackCmd, params, properties);
+            doRollbackCmd(rollbackCmd, params);
             break;
         case CMD_TAG:
-            doTagCmd(tagCmd, params, properties);
+            doTagCmd(tagCmd, params);
             break;
         case CMD_CREATE_USER_PROFILE:
-            doCreateUserProfile(createUserProfileCmd, params, properties);
+            doCreateUserProfile(createUserProfileCmd, params);
             break;
         case CMD_CREATE_TABLESPACE:
-            doCreateTablespaceCmd(createTablespaceCmd, params, properties);
+            doCreateTablespaceCmd(createTablespaceCmd, params);
             break;
         case CMD_DROP_TABLESPACE:
-            doDropTablespaceCmd(dropTablespaceCmd, params, properties);
+            doDropTablespaceCmd(dropTablespaceCmd, params);
             break;
         case CMD_CREATE_USER:
-            doCreateUserCmd(createUserCmd, params, properties);
+            doCreateUserCmd(createUserCmd, params);
             break;
         case CMD_GRANT_USER:
-            doGrantUserCmd(params, properties);
+            doGrantUserCmd(params);
             break;
         case CMD_DROP_USER:
-            doDropUserCmd(params, properties);
+            doDropUserCmd(params);
             break;
         case CMD_RUN_GENERATOR:
-            doRunGeneratorCmd(runGeneratorCmd, properties);
+            doRunGeneratorCmd(runGeneratorCmd, params);
             break;
         case CMD_RUN_GENERATOR_PLUGIN:
-            doRunGeneratorPluginCmd(runGeneratorPluginCmd, properties);
+            doRunGeneratorPluginCmd(runGeneratorPluginCmd, params);
             break;
         }
 
         log.info("SUCCESS");
     }
 
-    private static void doRunGeneratorCmd(RunGeneratorCmd runGeneratorCmd, Properties properties) throws Exception {
-        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
-        GeneratorParams params = new GeneratorParams(properties);
+    private static void doRunGeneratorCmd(RunGeneratorCmd runGeneratorCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+
+        DataSource dataSource = platformMigrator.createDataSource(IDENT_ISUR, params.getProperties());
+        GeneratorParams generatorParams = new GeneratorParams(params.getProperties());
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
 
         DBAppender appender = new DBAppender(dataSource, config);
 
-        Generator generator = new Generator(config, appender, params);
+        Generator generator = new Generator(config, appender, generatorParams);
 
         switch (runGeneratorCmd.getCmd()) {
         case Generator.CMD_APPEND_DATA:
@@ -150,48 +150,59 @@ public class MigratorMain {
     }
 
     private static void doRunGeneratorPluginCmd(RunGeneratorPluginCmd runGeneratorPluginCmd,
-            Properties properties) throws Exception {
-        GeneratorParams params = new GeneratorParams(properties);
-        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
+            MigratorParams params) throws Exception {
+        GeneratorParams generatorParams = new GeneratorParams(params.getProperties());
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        
+        DataSource dataSource = platformMigrator.createDataSource(IDENT_ISUR, params.getProperties());
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
 
         Class<?> pluginClass = Thread.currentThread().getContextClassLoader().loadClass(runGeneratorPluginCmd.getPluginClass());
         GeneratorPlugin plugin = (GeneratorPlugin)pluginClass.newInstance();
-        plugin.execute(config, dataSource, params);
+        plugin.execute(config, dataSource, generatorParams);
     }
 
-    private static void doDropUserCmd(MigratorParams params, Properties properties) throws SQLException {
-        Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
-        DaoUtils.dropUser(connection,
-                params.getUsername(IDENT_ISUR));
+    private static void doDropUserCmd(MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        Connection connection = platformMigrator.createAdminConnection(IDENT_ISUR, params.getProperties());
+        platformMigrator.dropUser(connection, params.getUsername(IDENT_ISUR));
     }
 
-    private static void doCreateUserCmd(CreateUserCmd createUserCmd, MigratorParams params, Properties properties) throws SQLException {
-        Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
-        DaoUtils.createUser(connection,
+    private static PlatformMigrator createPlatformMigrator(MigratorParams params) throws Exception {
+        Class<?> clasz = Thread.currentThread().getContextClassLoader().loadClass(params.getPlatformMigrator(IDENT_ISUR));
+        return (PlatformMigrator)clasz.newInstance();
+    }
+
+    private static void doCreateUserCmd(CreateUserCmd createUserCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        Connection connection = platformMigrator.createAdminConnection(IDENT_ISUR, params.getProperties());
+        platformMigrator.createUser(connection,
                 params.getUsername(IDENT_ISUR),
                 params.getPassword(IDENT_ISUR),
                 params.getTablespace(createUserCmd.getTablespace()),
                 params.getTempTablespace(IDENT_ISUR));
     }
     
-    private static void doGrantUserCmd(MigratorParams params, Properties properties) throws SQLException {
-        Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
-        DaoUtils.grantUser(connection, params.getUsername(IDENT_ISUR));
+    private static void doGrantUserCmd(MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        Connection connection = platformMigrator.createAdminConnection(IDENT_ISUR, params.getProperties());
+        platformMigrator.grantUser(connection, params.getUsername(IDENT_ISUR));
     }
 
-    private static void doDropTablespaceCmd(DropTablespaceCmd dropTablespaceCmd, MigratorParams params, Properties properties) throws SQLException {
-        Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
+    private static void doDropTablespaceCmd(DropTablespaceCmd dropTablespaceCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        Connection connection = platformMigrator.createAdminConnection(IDENT_ISUR, params.getProperties());
         String tsName =  params.getTablespace(dropTablespaceCmd.getIdent());
         Preconditions.checkNotNull(tsName, "Не задано название табличного пространства для ident=%s", dropTablespaceCmd.getIdent());
-        DaoUtils.dropTablespace(connection, tsName);
+        platformMigrator.dropTablespace(connection, tsName);
     }
 
-    private static void doCreateTablespaceCmd(CreateTablespaceCmd createTablespaceCmd, MigratorParams params, Properties properties) throws SQLException {
-        Connection connection = DaoUtils.createAdminConnection(IDENT_ISUR, properties);
+    private static void doCreateTablespaceCmd(CreateTablespaceCmd createTablespaceCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        Connection connection = platformMigrator.createAdminConnection(IDENT_ISUR, params.getProperties());
         String tsName =  params.getTablespace(createTablespaceCmd.getIdent());
         Preconditions.checkNotNull(tsName, "Не задано название табличного пространства для ident=%s", createTablespaceCmd.getIdent());
-        DaoUtils.createTablespace(connection,
+        platformMigrator.createTablespace(connection,
                 tsName,
                 params.getDataFilePath(createTablespaceCmd.getIdent()) + params.getDataFileName(createTablespaceCmd.getIdent()),
                 params.getDataFileSize(createTablespaceCmd.getIdent()),
@@ -199,32 +210,36 @@ public class MigratorMain {
                 params.getDataFileMaxSize(createTablespaceCmd.getIdent()));
     }
 
-    private static void doTagCmd(TagCmd tagCmd, MigratorParams params, Properties properties) {
-        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
+    private static void doTagCmd(TagCmd tagCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        DataSource dataSource = platformMigrator.createDataSource(IDENT_ISUR, params.getProperties());
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
-        Migrator migrator = new Migrator(config, dataSource, params);
+        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
         migrator.tag(tagCmd.getTag());
     }
 
     private static void doRollbackCmd(RollbackCmd rollbackCmd,
-            MigratorParams params, Properties properties) {
-        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
+            MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        DataSource dataSource = platformMigrator.createDataSource(IDENT_ISUR, params.getProperties());
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
-        Migrator migrator = new Migrator(config, dataSource, params);
+        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
         migrator.rollback(rollbackCmd.getTag());
     }
 
-    private static void doUpdateCmd(UpdateCmd updateCmd, MigratorParams params, Properties properties) {
-        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
+    private static void doUpdateCmd(UpdateCmd updateCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        DataSource dataSource = platformMigrator.createDataSource(IDENT_ISUR, params.getProperties());
         NsiConfig config = new NsiConfigManagerFactoryImpl().create(params.getMetadataPath()).getConfig();
-        Migrator migrator = new Migrator(config, dataSource, params);
+        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
         migrator.update(updateCmd.getTag());
     }
     
-    private static void doCreateUserProfile(CreateUserProfileCmd createUserProfileCmd, MigratorParams params, Properties properties) throws SQLException {
-        DataSource dataSource = DaoUtils.createDataSource(IDENT_ISUR, properties);
+    private static void doCreateUserProfile(CreateUserProfileCmd createUserProfileCmd, MigratorParams params) throws Exception {
+        PlatformMigrator platformMigrator = createPlatformMigrator(params);
+        DataSource dataSource = platformMigrator.createDataSource(IDENT_ISUR, params.getProperties());
         try (Connection connection = dataSource.getConnection()) {
-            if(DaoUtils.createUserProfile(connection, createUserProfileCmd.getLogin()) == null) {
+            if(platformMigrator.createUserProfile(connection, createUserProfileCmd.getLogin()) == null) {
                 System.out.println("User with dn " +createUserProfileCmd.getLogin()+ " already exists");
             }
         }
