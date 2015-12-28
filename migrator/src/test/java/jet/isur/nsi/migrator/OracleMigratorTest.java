@@ -8,19 +8,17 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import org.joda.time.DateTime;
+import org.junit.Test;
+
 import jet.isur.nsi.api.NsiConfigManager;
-import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.isur.nsi.migrator.platform.PlatformMigrator;
 import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
-import jet.isur.nsi.testkit.utils.DaoUtils;
 import junit.framework.Assert;
-
-import org.joda.time.DateTime;
-import org.junit.Test;
 
 public class OracleMigratorTest extends BaseSqlTest{
 
@@ -30,12 +28,13 @@ public class OracleMigratorTest extends BaseSqlTest{
 
     @Override
     public void setup() throws Exception {
+        platformMigrator = new OraclePlatformMigrator();
+        platform = platformMigrator.getPlatform();
         super.setup();
         getConfiguration();
         properties.setProperty("db.liqubase.logPrefix", "TEST_NSI_");
         params = new MigratorParams(properties);
         Assert.assertEquals("TEST_NSI_", params.getLogPrefix());
-        platformMigrator = new OraclePlatformMigrator();
     }
 
     public void setupMigrator(String metadataPath) throws Exception {
@@ -59,15 +58,15 @@ public class OracleMigratorTest extends BaseSqlTest{
         NsiConfigDict dict2 = config.getDict("dict2");
         
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropTable(dict2, connection);
-            platformSqlDao.dropTable(dict1, connection);
-            platformSqlDao.dropSeq(dict2, connection);
-            platformSqlDao.dropSeq(dict1, connection);
+            platformMigrator.dropTable(dict2, connection);
+            platformMigrator.dropTable(dict1, connection);
+            platformMigrator.dropSeq(dict2, connection);
+            platformMigrator.dropSeq(dict1, connection);
 
-            platformSqlDao.dropSeq("SEQ_POSTPROC1", connection);
+            platformMigrator.dropSeq("SEQ_POSTPROC1", connection);
 
-            platformSqlDao.dropTable("TEST_NSI_PREPARE_LOG", connection);
-            platformSqlDao.dropTable("TEST_NSI_POSTPROC_LOG", connection);
+            platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
+            platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
 
         {
@@ -119,15 +118,15 @@ public class OracleMigratorTest extends BaseSqlTest{
         }
 
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropTable(dict2, connection);
-            platformSqlDao.dropTable(dict1, connection);
-            platformSqlDao.dropSeq(dict2, connection);
-            platformSqlDao.dropSeq(dict1, connection);
+            platformMigrator.dropTable(dict2, connection);
+            platformMigrator.dropTable(dict1, connection);
+            platformMigrator.dropSeq(dict2, connection);
+            platformMigrator.dropSeq(dict1, connection);
 
-            platformSqlDao.dropSeq("SEQ_POSTPROC1", connection);
+            platformMigrator.dropSeq("SEQ_POSTPROC1", connection);
 
-            platformSqlDao.dropTable("TEST_NSI_PREPARE_LOG", connection);
-            platformSqlDao.dropTable("TEST_NSI_POSTPROC_LOG", connection);
+            platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
+            platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
 
     }
@@ -186,7 +185,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         NsiConfigDict testSize = config.getDict("test_size");
         
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropTable(testSize, connection);
+            platformMigrator.dropTable(testSize, connection);
         }
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
@@ -206,7 +205,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(1));
 
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropTable(testSize, connection);
+            platformMigrator.dropTable(testSize, connection);
         }
     }
 
@@ -218,10 +217,10 @@ public class OracleMigratorTest extends BaseSqlTest{
         NsiConfigDict dict1 = config.getDict("dict1");
         
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropTable(dict1, connection);
+            platformMigrator.dropTable(dict1, connection);
         }
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropSeq(dict1, connection);
+            platformMigrator.dropSeq(dict1, connection);
         }
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
@@ -238,10 +237,10 @@ public class OracleMigratorTest extends BaseSqlTest{
         Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), primary key (id))", actions.get(0));
 
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropTable(dict1, connection);
+            platformMigrator.dropTable(dict1, connection);
         }
         try(Connection connection = dataSource.getConnection()) {
-            platformSqlDao.dropSeq(dict1, connection);
+            platformMigrator.dropSeq(dict1, connection);
         }
 
     }

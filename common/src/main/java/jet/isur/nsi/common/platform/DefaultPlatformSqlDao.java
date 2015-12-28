@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
 import java.sql.Timestamp;
 import java.sql.Types;
 
@@ -21,7 +20,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 import jet.isur.nsi.api.data.ConvertUtils;
-import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
@@ -144,35 +142,6 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
             throws SQLException {
         return rs.getBigDecimal(1).longValue();
     }
-
-    @Override
-    public void recreateTable(NsiConfigDict dict, Connection connection) {
-        try {
-            createTable(dict, connection);
-        }
-        catch(Exception e) {
-            dropTable(dict, connection);
-            createTable(dict, connection);
-        }
-    } 
-
-    @Override
-    public void recreateSeq(NsiConfigDict dict, Connection connection) {
-        try {
-            createSeq(dict, connection);
-        }
-        catch (Exception e) {
-            dropSeq(dict,connection);
-            createSeq(dict, connection);
-        }
-    }
-
-    protected static void throwIfNot(SQLSyntaxErrorException e, int errorCode) {
-        if(e.getErrorCode() != errorCode) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     @Override
     public void executeSql(Connection connection, String sql) {

@@ -64,7 +64,15 @@ public class Migrator {
 
         try {
 
+            platformMigrator.onUpdateBeforePrepare(config);
+            for (NsiConfigDict model : config.getDicts()) {
+                platformMigrator.onUpdateBeforePrepare(model);
+            }
             doLiquibaseUpdate(MIGRATIONS_PREPARE,LIQUIBASE_PREPARE_CHANGELOG_XML, tag);
+            for (NsiConfigDict model : config.getDicts()) {
+                platformMigrator.onUpdateAfterPrepare(model);
+            }
+            platformMigrator.onUpdateAfterPrepare(config);
 
             StandardServiceRegistry serviceRegistry = platformMigrator.buildStandardServiceRegistry(dataSource);
 
@@ -101,7 +109,15 @@ public class Migrator {
             finally {
                 StandardServiceRegistryBuilder.destroy( serviceRegistry );
             }
+            platformMigrator.onUpdateBeforePostproc(config);
+            for (NsiConfigDict model : config.getDicts()) {
+                platformMigrator.onUpdateBeforePostproc(model);
+            }
             doLiquibaseUpdate(MIGRATIONS_POSTPROC,LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
+            for (NsiConfigDict model : config.getDicts()) {
+                platformMigrator.onUpdateAfterPostproc(model);
+            }
+            platformMigrator.onUpdateAfterPostproc(config);
         }
         catch (Exception e) {
             throw new MigratorException(ACTION_UPDATE, e);
@@ -178,8 +194,10 @@ public class Migrator {
                 serializer.marshalTo(dict, os);
                 ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
                 metadataSources.addInputStream(is);
+                platformMigrator.updateMetadataSources(metadataSources, dict);
             }
         }
+        platformMigrator.updateMetadataSources(metadataSources, config);
 
         MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
 

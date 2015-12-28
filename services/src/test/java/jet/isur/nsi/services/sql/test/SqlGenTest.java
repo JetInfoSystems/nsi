@@ -10,15 +10,20 @@ import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.isur.nsi.migrator.platform.PlatformMigrator;
+import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
 
 public class SqlGenTest extends BaseSqlTest {
 
     private NsiConfig config;
+    private PlatformMigrator platformMigrator;
 
     @Override
     public void setup() throws Exception {
+        platformMigrator = new OraclePlatformMigrator();
+        platform = platformMigrator.getPlatform();
         super.setup();
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();

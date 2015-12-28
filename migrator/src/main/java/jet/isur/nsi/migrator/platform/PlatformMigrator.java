@@ -6,12 +6,17 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 
+import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.platform.NsiPlatform;
+
 public interface PlatformMigrator {
-    StandardServiceRegistry buildStandardServiceRegistry(DataSource dataSource);
+    NsiPlatform getPlatform();
     
-    DictToHbmSerializer getDictToHbmSerializer();
+    StandardServiceRegistry buildStandardServiceRegistry(DataSource dataSource);
     
     DataSource createDataSource(String name, Properties properties);
     
@@ -29,8 +34,52 @@ public interface PlatformMigrator {
 
     void dropUser(Connection connection, String name) throws SQLException;
 
+    void createTable(NsiConfigDict dict, Connection connection);
+    
+    void recreateTable(NsiConfigDict dict, Connection connection);
+    
+    void dropTable(NsiConfigDict dict, Connection connection);
+    
+    void dropTable(String name, Connection connection);
+
+    void createSeq(NsiConfigDict dict, Connection connection);
+
+    void recreateSeq(NsiConfigDict dict, Connection connection);
+
+    void dropSeq(NsiConfigDict dict, Connection connection);
+    
+    void dropSeq(String name, Connection connection);
+
+    void createFullSearchIndex(NsiConfigDict dict, String field, Connection connection);
+    
+    void dropFullSearchIndex(NsiConfigDict dict, String field, Connection connection);
+
+    void recreateFullSearchIndex(NsiConfigDict dict, String field, Connection connection);
+
     Long createUserProfile(Connection con, String login) throws SQLException;
 
     void removeUserProfile(Connection con, Long id) throws SQLException;
+
+    void onUpdateBeforePrepare(NsiConfig config);
+    
+    void onUpdateBeforePrepare(NsiConfigDict model);
+    
+    void onUpdateAfterPrepare(NsiConfigDict model);
+    
+    void onUpdateAfterPrepare(NsiConfig config);
+
+    DictToHbmSerializer getDictToHbmSerializer();
+    
+    void updateMetadataSources(MetadataSources metadataSources, NsiConfig config);
+    
+    void updateMetadataSources(MetadataSources metadataSources, NsiConfigDict model);
+    
+    void onUpdateBeforePostproc(NsiConfig config);
+    
+    void onUpdateBeforePostproc(NsiConfigDict model);
+    
+    void onUpdateAfterPostproc(NsiConfigDict model);
+    
+    void onUpdateAfterPostproc(NsiConfig config);
 
 }

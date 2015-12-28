@@ -51,7 +51,7 @@ public class BaseSqlTest {
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
     protected NsiConfig config;
-    protected NsiPlatform platformClient;
+    protected NsiPlatform platform;
     protected PlatformSqlGen platformSqlGen;
     protected PlatformSqlDao platformSqlDao;
     protected DefaultSqlGen sqlGen;
@@ -70,13 +70,12 @@ public class BaseSqlTest {
             properties.load(reader);
         }
         dataSource = DaoUtils.createDataSource("isur", properties);
-        platformClient = new OracleNsiPlatform();
         sqlGen = new DefaultSqlGen();
-        platformSqlGen = platformClient.getPlatformSqlGen();
+        platformSqlGen = platform.getPlatformSqlGen();
         sqlGen.setPlatformSqlGen(platformSqlGen);
         sqlDao = new DefaultSqlDao();
         sqlDao.setSqlGen(sqlGen);
-        platformSqlDao = platformClient.getPlatformSqlDao();
+        platformSqlDao = platform.getPlatformSqlDao();
         sqlDao.setPlatformSqlDao(platformSqlDao);
     }
 

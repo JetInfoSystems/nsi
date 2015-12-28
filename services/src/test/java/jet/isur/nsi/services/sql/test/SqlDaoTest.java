@@ -27,13 +27,19 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaFieldType;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.isur.nsi.migrator.platform.PlatformMigrator;
+import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DataUtils;
 
 public class SqlDaoTest extends BaseSqlTest {
 
+    protected PlatformMigrator platformMigrator;
+    
     @Override
     public void setup() throws Exception {
+        platformMigrator = new OraclePlatformMigrator();
+        platform = platformMigrator.getPlatform();
         super.setup();
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
@@ -43,9 +49,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndGet() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
@@ -55,11 +61,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -69,9 +75,9 @@ public class SqlDaoTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict1");
         NsiConfigDict dictV = config.getDict("dict1_v");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     DictRow inData = query.getDict().builder()
@@ -93,11 +99,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     Assert.assertEquals(123L, (long) outDataV.getLong("V"));
                     
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -106,9 +112,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndGetFloatNumber() throws Exception {
         NsiConfigDict dict = config.getDict("dict5");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     DictRow inData = query.getDict().builder()
@@ -127,11 +133,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -140,9 +146,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndGetClob() throws Exception {
         NsiConfigDict dict = config.getDict("dictWithClob");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     String clobValue = "test insert clob";
                     NsiQuery query = dict.query().addAttrs();
@@ -162,11 +168,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
 
@@ -177,11 +183,11 @@ public class SqlDaoTest extends BaseSqlTest {
         NsiConfigDict dict1 = config.getDict("dict1");
         NsiConfigDict dict2 = config.getDict("dict2");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict2, connection);
-            platformSqlDao.recreateTable(dict1, connection);
+            platformMigrator.recreateTable(dict2, connection);
+            platformMigrator.recreateTable(dict1, connection);
             try {
-                platformSqlDao.recreateSeq(dict2, connection);
-                platformSqlDao.recreateSeq(dict1, connection);
+                platformMigrator.recreateSeq(dict2, connection);
+                platformMigrator.recreateSeq(dict1, connection);
                 try {
                     NsiQuery query1 = dict1.query().addAttrs();
                     DictRow dict1Data = insertDict1Row(connection, query1, "f1-value");
@@ -197,13 +203,13 @@ public class SqlDaoTest extends BaseSqlTest {
 
 
                 } finally {
-                    platformSqlDao.dropSeq(dict2, connection);
-                    platformSqlDao.dropSeq(dict1, connection);
+                    platformMigrator.dropSeq(dict2, connection);
+                    platformMigrator.dropSeq(dict1, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict2, connection);
-                platformSqlDao.dropTable(dict1, connection);
+                platformMigrator.dropTable(dict2, connection);
+                platformMigrator.dropTable(dict1, connection);
             }
         }
     }
@@ -212,9 +218,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndUpdate() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
@@ -228,11 +234,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     DataUtils.assertEquals(query, controlData, outUpdatedData);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -241,9 +247,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testList() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -255,11 +261,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     Assert.assertEquals(10, rows.size());
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -268,9 +274,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testListReverseSort() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -286,11 +292,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     Assert.assertEquals("value9", rows.get(0).getString("f1"));
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -299,9 +305,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testListFilterSort() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -319,11 +325,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     Assert.assertEquals("value5", rows.get(0).getString("f1"));
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -333,11 +339,11 @@ public class SqlDaoTest extends BaseSqlTest {
         NsiConfigDict dict = config.getDict("dict1");
         String fullSearchFName = "f1";
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
-                    platformSqlDao.recreateFullSearchIndex(dict, fullSearchFName, connection);
+                    platformMigrator.recreateFullSearchIndex(dict, fullSearchFName, connection);
                     try {
                         NsiQuery query = dict.query().addAttrs();
                         for (int i = 0; i < 10; i++) {
@@ -354,14 +360,14 @@ public class SqlDaoTest extends BaseSqlTest {
 
                         Assert.assertEquals(5, rows.size());
                     } finally {
-                        platformSqlDao.dropFullSearchIndex(dict, fullSearchFName, connection);
+                        platformMigrator.dropFullSearchIndex(dict, fullSearchFName, connection);
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -370,9 +376,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testCountFilter() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     for (int i = 0; i < 10; i++) {
@@ -386,11 +392,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     Assert.assertEquals(1L, count);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -428,9 +434,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testInsertAndGetChar1Char2() throws Exception {
         NsiConfigDict dict = config.getDict("dict4");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     DictRow inData = dict.builder()
@@ -451,11 +457,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -465,10 +471,10 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testBatchInsert() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
 
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     // ID будем задавать явно, поэтому последовательность не
@@ -507,11 +513,11 @@ public class SqlDaoTest extends BaseSqlTest {
                         ps.executeBatch();
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -520,9 +526,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testListDict1SourceQueryWithParams() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery insertQuery = dict.query().addAttrs();
                     insertDict1Row(connection, insertQuery, "v1");
@@ -540,11 +546,11 @@ public class SqlDaoTest extends BaseSqlTest {
                     DataUtils.assertEquals(query, dict.builder().attr("f1", "v3").build(), dataList.get(1), true);
 
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -553,9 +559,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testCountDict1SourceQueryWithParams() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery insertQuery = dict.query().addAttrs();
                     insertDict1Row(connection, insertQuery, "v1");
@@ -567,11 +573,11 @@ public class SqlDaoTest extends BaseSqlTest {
                             "TEST2",
                             dict.params().add(MetaFieldType.VARCHAR, "v2").build() ));
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -581,9 +587,9 @@ public class SqlDaoTest extends BaseSqlTest {
     public void testViewQueryWithParams() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery insertQuery = dict.query().addAttrs();
                     insertDict1Row(connection, insertQuery, "v1");
@@ -609,80 +615,80 @@ public class SqlDaoTest extends BaseSqlTest {
                             .attr("cnt", 1L)
                             .build(), dataList.get(1), true);
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
 
     @Test
     public void testMerge() throws SQLException {
-    	NsiConfigDict dictEmp = config.getDict("EMP_MERGE_TEST");
-    	NsiConfigDict dictOrg = config.getDict("ORG_MERGE_TEST");
-    	
-    	try (Connection connection = dataSource.getConnection()) {
-    		try {
-	    		platformSqlDao.recreateTable(dictOrg, connection);
-	    		platformSqlDao.recreateTable(dictEmp, connection);    		
-	    		platformSqlDao.recreateSeq(dictEmp, connection);
-	    		platformSqlDao.recreateSeq(dictOrg, connection);
-	    		
-	    		DictRow org1 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
-	    		DictRow org2 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "2").build();
-	    		
-	    		sqlDao.mergeByExternalAttrs(connection, org1);
-	    		List<DictRow> rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
-	    		Assert.assertEquals(rows.size(), 1);
-	    		DictRowAttr org1Id = rows.get(0).getIdAttr();
-	    		long count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
-	    		Assert.assertEquals(count, 1);
-	    		
-	    		sqlDao.mergeByExternalAttrs(connection, org1);
-	    		count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
-	    		Assert.assertEquals(count, 1);
-	    		
-	    		sqlDao.mergeByExternalAttrs(connection, org2);
-	    		rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
-	    		Assert.assertEquals(rows.size(), 1);
-	    		DictRowAttr org2Id = rows.get(0).getIdAttr();
-	    		count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
-	    		Assert.assertEquals(count, 2);
-	    		
-	    		
-	    		DictRow emp1 = defaultBuilder("EMP_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
-	    		Map<String, DictRowAttr> ref = new HashMap<>();
-	    		ref.put("EXTERNAL_ID", org1.getAttr("EXTERNAL_ID"));
-	    		emp1.getAttr("ORG_ID").setRefAttrs(ref);
-	    		emp1.getAttr("ORG_ID").setValues(null);
-	    		sqlDao.mergeByExternalAttrs(connection, emp1);
-	    		rows = sqlDao.list(connection, dictEmp.query().addAttrs(), getFilterByExternalAttrs(emp1), null, -1, -1);
-	    		Assert.assertEquals(rows.size(), 1);
-	    		Assert.assertEquals(rows.get(0).getAttr("ORG_ID").getLong(), org1Id.getLong());
-	    		
-	    	} finally {
-	    		platformSqlDao.dropSeq(dictEmp, connection);
-	    		platformSqlDao.dropSeq(dictOrg, connection);
-	    		platformSqlDao.dropTable(dictEmp, connection);   
-	    		platformSqlDao.dropTable(dictOrg, connection);		
-	    	}
-    	}
+        NsiConfigDict dictEmp = config.getDict("EMP_MERGE_TEST");
+        NsiConfigDict dictOrg = config.getDict("ORG_MERGE_TEST");
+        
+        try (Connection connection = dataSource.getConnection()) {
+            try {
+                platformMigrator.recreateTable(dictOrg, connection);
+                platformMigrator.recreateTable(dictEmp, connection);            
+                platformMigrator.recreateSeq(dictEmp, connection);
+                platformMigrator.recreateSeq(dictOrg, connection);
+                
+                DictRow org1 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
+                DictRow org2 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "2").build();
+                
+                sqlDao.mergeByExternalAttrs(connection, org1);
+                List<DictRow> rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
+                Assert.assertEquals(rows.size(), 1);
+                DictRowAttr org1Id = rows.get(0).getIdAttr();
+                long count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
+                Assert.assertEquals(count, 1);
+                
+                sqlDao.mergeByExternalAttrs(connection, org1);
+                count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
+                Assert.assertEquals(count, 1);
+                
+                sqlDao.mergeByExternalAttrs(connection, org2);
+                rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
+                Assert.assertEquals(rows.size(), 1);
+                DictRowAttr org2Id = rows.get(0).getIdAttr();
+                count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
+                Assert.assertEquals(count, 2);
+                
+                
+                DictRow emp1 = defaultBuilder("EMP_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
+                Map<String, DictRowAttr> ref = new HashMap<>();
+                ref.put("EXTERNAL_ID", org1.getAttr("EXTERNAL_ID"));
+                emp1.getAttr("ORG_ID").setRefAttrs(ref);
+                emp1.getAttr("ORG_ID").setValues(null);
+                sqlDao.mergeByExternalAttrs(connection, emp1);
+                rows = sqlDao.list(connection, dictEmp.query().addAttrs(), getFilterByExternalAttrs(emp1), null, -1, -1);
+                Assert.assertEquals(rows.size(), 1);
+                Assert.assertEquals(rows.get(0).getAttr("ORG_ID").getLong(), org1Id.getLong());
+                
+            } finally {
+                platformMigrator.dropSeq(dictEmp, connection);
+                platformMigrator.dropSeq(dictOrg, connection);
+                platformMigrator.dropTable(dictEmp, connection);   
+                platformMigrator.dropTable(dictOrg, connection);        
+            }
+        }
     }
     
     private BoolExp getFilterByExternalAttrs(DictRow row) {
-    	NsiConfigDict dict = row.getDict();
-    	List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
-		BoolExpBuilder fb = row.getDict().filter().and().expList();
-		if(dict.getOwnerAttr() != null && row.getOwnerAttr() != null) {
-			fb.key(dict.getOwnerAttr().getName()).eq().value(row.getOwnerAttr()).add();
-		}
-		for(NsiConfigAttr configAttr : mAttrs) {
-			DictRowAttr rowAttr = row.getAttr(configAttr.getName());
-			Preconditions.checkNotNull(rowAttr, "Атрибут %s не существует в %s", configAttr.getName(), dict.getName()) ;
-			fb.key(configAttr.getName()).eq().value(rowAttr).add();
-		}
-		return fb.end().build();
+        NsiConfigDict dict = row.getDict();
+        List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
+        BoolExpBuilder fb = row.getDict().filter().and().expList();
+        if(dict.getOwnerAttr() != null && row.getOwnerAttr() != null) {
+            fb.key(dict.getOwnerAttr().getName()).eq().value(row.getOwnerAttr()).add();
+        }
+        for(NsiConfigAttr configAttr : mAttrs) {
+            DictRowAttr rowAttr = row.getAttr(configAttr.getName());
+            Preconditions.checkNotNull(rowAttr, "Атрибут %s не существует в %s", configAttr.getName(), dict.getName()) ;
+            fb.key(configAttr.getName()).eq().value(rowAttr).add();
+        }
+        return fb.end().build();
     }
 }

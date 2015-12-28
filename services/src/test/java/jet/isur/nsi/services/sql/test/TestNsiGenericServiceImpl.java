@@ -17,6 +17,8 @@ import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.isur.nsi.migrator.platform.PlatformMigrator;
+import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.isur.nsi.services.NsiGenericServiceImpl;
 import jet.isur.nsi.services.NsiTransactionServiceImpl;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
@@ -27,9 +29,13 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     private NsiConfig config;
     private NsiGenericServiceImpl service;
     private NsiTransactionServiceImpl transactionService;
+    private PlatformMigrator platformMigrator;
 
     @Override
     public void setup() throws Exception {
+        platformMigrator = new OraclePlatformMigrator();
+        platform = platformMigrator.getPlatform();
+
         super.setup();
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
@@ -43,9 +49,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectVarcharValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
 
@@ -66,11 +72,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                         Assert.fail("incorrect exception throwed");
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -79,9 +85,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectCharValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
 
@@ -103,11 +109,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                         Assert.fail("incorrect exception throwed");
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -116,9 +122,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectBooleanValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
 
@@ -140,11 +146,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                         Assert.fail("incorrect exception throwed");
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -153,9 +159,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectDateTimeValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     try{
@@ -175,11 +181,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                         Assert.fail("incorrect exception throwed");
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -188,9 +194,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectEnumValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     try{
@@ -212,11 +218,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                         Assert.fail("incorrect exception throwed");
                     }
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -225,9 +231,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectNumberIntValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     try{
@@ -245,11 +251,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                     checkNumber(query, "number_field_int", "4125489", msgPtrn);
                     checkNumber(query, "number_field_int", "-412514", msgPtrn);
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -258,9 +264,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectNumberDoubleValue() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     try{
@@ -277,11 +283,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                     checkNumber(query, "number_field_double", "-1254214745.12", msgPtrn);
                     checkNumber(query, "number_field_double", "1d4v5f4", msgPtrn);
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -303,9 +309,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertDatetimeValueOnBatchSave() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     List<DictRow> data = new ArrayList<>();
@@ -324,11 +330,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                     }
                     
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -337,9 +343,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertVarcharValueOnBatchSave() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     List<DictRow> data = new ArrayList<>();
@@ -358,11 +364,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                     }
                     
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -371,9 +377,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectCharValueOnBatchSave() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     List<DictRow> data = new ArrayList<>();
@@ -393,11 +399,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                     }
                     
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }
@@ -406,9 +412,9 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     public void testInsertIncorrectBooleanValueOnBatchSave() throws Exception {
         NsiConfigDict dict = config.getDict("dict_ext");
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.recreateTable(dict, connection);
+            platformMigrator.recreateTable(dict, connection);
             try {
-                platformSqlDao.recreateSeq(dict, connection);
+                platformMigrator.recreateSeq(dict, connection);
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     List<DictRow> data = new ArrayList<>();
@@ -428,11 +434,11 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
                     }
                     
                 } finally {
-                    platformSqlDao.dropSeq(dict, connection);
+                    platformMigrator.dropSeq(dict, connection);
                 }
 
             } finally {
-                platformSqlDao.dropTable(dict, connection);
+                platformMigrator.dropTable(dict, connection);
             }
         }
     }

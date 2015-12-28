@@ -3,30 +3,35 @@ package jet.isur.nsi.migrator.platform.oracle;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
+import org.jooq.CreateTableAsStep;
+import org.jooq.CreateTableColumnStep;
+import org.jooq.exception.DataAccessException;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import jet.isur.nsi.api.platform.NsiPlatform;
+import jet.isur.nsi.api.NsiServiceException;
+import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.common.platform.oracle.OracleNsiPlatform;
 import jet.isur.nsi.migrator.platform.DefaultPlatformMigrator;
 import jet.isur.nsi.migrator.platform.DictToHbmSerializer;
 
 public class OraclePlatformMigrator extends DefaultPlatformMigrator {
 
-    private final NsiPlatform platform;
-    
     public OraclePlatformMigrator() {
-        platform = new OracleNsiPlatform();
-        setPlatformSqlDao(platform.getPlatformSqlDao());
+        super(new OracleNsiPlatform());
     }
 
     @Override
@@ -93,6 +98,101 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
+    public void createTable(NsiConfigDict dict, Connection connection) {
+        CreateTableAsStep<?> createTableAsStep = platformSqlDao.getQueryBuilder(connection).createTable(dict.getTable());
+        CreateTableColumnStep createTableColumnStep = null;
+        for (NsiConfigField field : dict.getFields()) {
+            createTableColumnStep = createTableAsStep.column(field.getName(), platformSqlDao.getDataType(field.getType())
+                    .length(field.getSize()).precision(field.getSize(),field.getPrecision()));
+        }
+        if(createTableColumnStep != null) {
+            createTableColumnStep.execute();
+        } else {
+            throw new NsiServiceException("no fields found");
+        }
+    }
+
+    @Override
+    public void dropTable(NsiConfigDict dict, Connection connection) {
+        dropTable(dict.getTable(), connection);
+    }
+
+    @Override
+    public void dropTable(String name, Connection connection) {
+        try {
+            platformSqlDao.getQueryBuilder(connection).dropTable(name).execute();
+        }
+        catch(DataAccessException e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLSyntaxErrorException) {
+                throwIfNot((SQLSyntaxErrorException)cause, 942);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    @Override
+    public void createSeq(NsiConfigDict dict, Connection connection) {
+        platformSqlDao.getQueryBuilder(connection).createSequence(dict.getSeq()).execute();
+    }
+
+    @Override
+    public void dropSeq(NsiConfigDict dict, Connection connection) {
+        dropSeq(dict.getSeq(), connection);
+    }
+
+    @Override
+    public void dropSeq(String name, Connection connection) {
+        try {
+            platformSqlDao.getQueryBuilder(connection).dropSequence(name).execute();
+        }
+        catch(DataAccessException e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLSyntaxErrorException) {
+                throwIfNot((SQLSyntaxErrorException)cause, 2289);
+            } else {
+                throw e;
+            }
+        }
+    }
+    
+    @Override
+    public void createFullSearchIndex(NsiConfigDict dict, String field,
+            Connection connection) {
+        String table = dict.getTable();
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("CREATE INDEX ")
+                .append("fti_").append(table).append("_").append(field)
+                .append(" ON ")
+                .append(table)
+                .append("(").append(field).append(")")
+                .append(" INDEXTYPE IS CTXSYS.CONTEXT ")
+                .append("PARAMETERS ('filter ctxsys.null_filter lexer isur sync(on commit)')")
+                .toString());
+    }
+
+    @Override
+    public void dropFullSearchIndex(NsiConfigDict dict, String field,
+            Connection connection) {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("DROP INDEX ")
+                .append("fti_").append(dict.getTable()).append("_").append(field).toString());
+    }
+
+    @Override
+    public void recreateFullSearchIndex(NsiConfigDict dict, String field,
+            Connection connection) {
+        try {
+            createFullSearchIndex(dict, field, connection);
+        }
+        catch(Exception e) {
+            dropFullSearchIndex(dict, field, connection);
+            createFullSearchIndex(dict, field, connection);
+        }
+    }
+
+    @Override
     public void grantUser(Connection connection, String name)
             throws SQLException {
         platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT RESOURCE TO ").append(name).toString());
@@ -131,5 +231,56 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
         return dataSource;
     }
 
+    @Override
+    public void onUpdateBeforePrepare(NsiConfig config) {
+    }
+
+    @Override
+    public void onUpdateBeforePrepare(NsiConfigDict model) {
+    }
+
+    @Override
+    public void onUpdateAfterPrepare(NsiConfigDict model) {
+    }
+
+    @Override
+    public void onUpdateAfterPrepare(NsiConfig config) {
+    }
+
+    @Override
+    public void updateMetadataSources(MetadataSources metadataSources,
+            NsiConfig config) {
+    }
+
+    @Override
+    public void updateMetadataSources(MetadataSources metadataSources,
+            NsiConfigDict model) {
+    }
+
+    @Override
+    public void onUpdateBeforePostproc(NsiConfig config) {
+    }
+
+    @Override
+    public void onUpdateBeforePostproc(NsiConfigDict model) {
+    }
+
+    @Override
+    public void onUpdateAfterPostproc(NsiConfigDict model) {
+        updateFtsIndexesAfterPostproc(model);
+    }
+
+    private void updateFtsIndexesAfterPostproc(NsiConfigDict model) {
+        // получаем сведения о полнотекстовых индексах 
+        // формируем список требуемых полнотекстовых индексов 
+        // проходим по списку имеющихсяв базеданных полнотекстовых индексов на таблице 
+        // удаляем отсутствующие в метаданных 
+        // проходим по списку полей отмеченных для полнотекстового поиска
+        // создаем индексы отсутствующие в бд 
+    }
+
+    @Override
+    public void onUpdateAfterPostproc(NsiConfig config) {
+    }
 
 }
