@@ -283,4 +283,10 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
         getPrototype().getOwns().put(key, new MetaOwn(value));
         return this;
     }
+
+    @Override
+    public MetaDictBuilder uniqueAttr(String val) {
+        getPrototype().setUniqueAttr(val);
+        return this;
+    }
 }

@@ -77,6 +77,11 @@ public class BoolExpBuilder {
         return this;
     }
 
+    public BoolExpBuilder notEq() {
+        getPrototype().setFunc(OperationType.NOT_EQUALS);
+        return this;
+    }
+    
     public BoolExpBuilder ge() {
         getPrototype().setFunc(OperationType.GE);
         return this;

@@ -69,6 +69,8 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder lastUserAttr(String name);
 
+    MetaDictBuilder uniqueAttr(String name);
+    
     MetaDictBuilder addCaptionAttr(String value);
 
     MetaDictBuilder addRefObjectAttr(String value);

@@ -303,6 +303,7 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.NOTOR:
             return getOrCondition(query, filter.getExpList(), baseQuery).not();
         case OperationType.EQUALS:
+        case OperationType.NOT_EQUALS:
         case OperationType.LIKE:
         case OperationType.CONTAINS:
         case OperationType.GT:
@@ -336,6 +337,13 @@ public class DefaultSqlGen implements SqlGen {
             }
             else{
                 return f.isNull();
+            }
+        case OperationType.NOT_EQUALS:
+            if (filter.getValue().getValues().get(0) != null){
+                return f.notEqual(val(null));
+            }
+            else{
+                return f.isNotNull();
             }
         case OperationType.GT:
             return f.gt(val(null));

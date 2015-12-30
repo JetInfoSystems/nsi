@@ -29,6 +29,7 @@ public class NsiConfigDict {
     private NsiConfigAttr deleteMarkAttr;
     private NsiConfigAttr lastChangeAttr;
     private NsiConfigAttr lastUserAttr;
+    private NsiConfigAttr uniqueAttr;
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
     private List<NsiConfigAttr> loadDataAttrs = new ArrayList<>();
@@ -87,6 +88,16 @@ public class NsiConfigDict {
         // Выставляем обязательность ID в false, чтобы при вставки новой записи фронт не требовал наличие идентификатора  
         idAttr.setRequired(false);
         this.idAttr = idAttr;
+    }
+
+    
+    public NsiConfigAttr getUniqueAttr() {
+        return uniqueAttr;
+    }
+
+    public void setUniqueAttr(NsiConfigAttr uniqueAttr) {
+        this.uniqueAttr = uniqueAttr;
+        uniqueAttr.setRequired(true);
     }
 
     public NsiConfigAttr getParentAttr() {

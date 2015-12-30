@@ -574,7 +574,8 @@ public class DefaultSqlDao implements SqlDao {
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
             boolean insert) {
         checkDictHasIdAttr(query.getDict());
-
+        checkUniqueAttr(connection, data, insert);
+        
         DictRow result = null;
         if(insert) {
             result = insert(connection, query, data);
@@ -584,6 +585,32 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
     
+    private void checkUniqueAttr(Connection connection, DictRow data, boolean insert) {
+        NsiConfigAttr configAttr = data.getDict().getUniqueAttr();
+        
+        if(configAttr == null || data.getDeleteMarkAttrBoolean()) {
+            return;
+        }
+        
+        DictRowAttr rowAttr = data.getAttr(configAttr.getName());
+        if(rowAttr == null || rowAttr.isEmpty()) {
+            throw new NsiServiceException("Атрибут " + data.getDict().getName() + "." +configAttr.getName()+ " обязательный");
+        }
+        
+        BoolExpBuilder fb = data.getDict().filter().and().expList();
+        fb.key(configAttr.getName()).eq().value(rowAttr).add();
+        fb.deleteMark(false).add();
+        if(!insert) {
+            fb.key(data.getDict().getIdAttr().getName()).notEq().value(data.getIdAttr()).add();
+        }
+        
+        long count = count(connection, data.getDict().query().addAttrs(), fb.end().build());
+        
+        if(count > 0) {
+            throw new NsiServiceException("Атрибут  " + data.getDict().getName() + "." +configAttr.getName()+ " должен быть уникальным");
+        }
+    }
+
     protected DictRow getSingleRow(final Connection conn, NsiQuery query, final BoolExp filter) {
 		List<DictRow> rows = list(conn, query, filter, null, -1, -1, null, null);
 		
