@@ -14,6 +14,8 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
@@ -30,6 +32,8 @@ import jet.isur.nsi.api.platform.PlatformSqlDao;
 import jet.isur.nsi.common.data.NsiDataException;
 
 public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
+    private static final Logger log = LoggerFactory.getLogger(DefaultPlatformSqlDao.class);
+    
 
     protected final NsiPlatform nsiPlatform;
     protected final Settings settings;
@@ -145,6 +149,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
 
     @Override
     public void executeSql(Connection connection, String sql) {
+        log.info(sql);
         try( PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.execute();
         } catch (SQLException e) {

@@ -1,0 +1,12 @@
+attrs:
+- { caption: id, fields: [id],  name: id,  type: value }
+- { caption: description, fields: [description],  name: description, type: value }
+- { caption: name, fields: [name],  name: name, type: value }
+caption: Тест
+fields:
+- {name: id, size: 19, type: number}
+- {name: description, size: 2000, type: varchar, enableFts: true}
+- {name: name, size: 500, type: varchar, enableFts: false}
+idAttr: id
+name: dict1
+table: dict1

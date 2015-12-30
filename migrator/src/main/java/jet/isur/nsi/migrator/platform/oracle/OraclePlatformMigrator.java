@@ -25,13 +25,18 @@ import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.common.platform.oracle.OracleNsiPlatform;
+import jet.isur.nsi.migrator.MigratorException;
+import jet.isur.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
 import jet.isur.nsi.migrator.platform.DefaultPlatformMigrator;
 import jet.isur.nsi.migrator.platform.DictToHbmSerializer;
 
 public class OraclePlatformMigrator extends DefaultPlatformMigrator {
 
+    private final OracleFtsModule ftsModule;
+
     public OraclePlatformMigrator() {
         super(new OracleNsiPlatform());
+        ftsModule = new OracleFtsModule(platformSqlDao);
     }
 
     @Override
@@ -157,27 +162,18 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
         }
     }
     
+   
+    
     @Override
     public void createFullSearchIndex(NsiConfigDict dict, String field,
             Connection connection) {
-        String table = dict.getTable();
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("CREATE INDEX ")
-                .append("fti_").append(table).append("_").append(field)
-                .append(" ON ")
-                .append(table)
-                .append("(").append(field).append(")")
-                .append(" INDEXTYPE IS CTXSYS.CONTEXT ")
-                .append("PARAMETERS ('filter ctxsys.null_filter lexer isur sync(on commit)')")
-                .toString());
+        ftsModule.createFullSearchIndex(dict, field, connection);
     }
 
     @Override
     public void dropFullSearchIndex(NsiConfigDict dict, String field,
             Connection connection) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("DROP INDEX ")
-                .append("fti_").append(dict.getTable()).append("_").append(field).toString());
+        ftsModule.dropFullSearchIndex(dict, field, connection);
     }
 
     @Override
@@ -232,19 +228,19 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public void onUpdateBeforePrepare(NsiConfig config) {
+    public void onUpdateBeforePrepare(Connection connection, NsiConfig config) {
     }
 
     @Override
-    public void onUpdateBeforePrepare(NsiConfigDict model) {
+    public void onUpdateBeforePrepare(Connection connection, NsiConfigDict model) {
     }
 
     @Override
-    public void onUpdateAfterPrepare(NsiConfigDict model) {
+    public void onUpdateAfterPrepare(Connection connection, NsiConfigDict model) {
     }
 
     @Override
-    public void onUpdateAfterPrepare(NsiConfig config) {
+    public void onUpdateAfterPrepare(Connection connection, NsiConfig config) {
     }
 
     @Override
@@ -258,29 +254,54 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public void onUpdateBeforePostproc(NsiConfig config) {
+    public void onUpdateBeforePostproc(Connection connection, NsiConfig config) {
     }
 
     @Override
-    public void onUpdateBeforePostproc(NsiConfigDict model) {
+    public void onUpdateBeforePostproc(Connection connection, NsiConfigDict model) {
     }
 
     @Override
-    public void onUpdateAfterPostproc(NsiConfigDict model) {
-        updateFtsIndexesAfterPostproc(model);
+    public void onUpdateAfterPostproc(Connection connection, NsiConfigDict model) {
+        try {
+            ftsModule.updateFtsIndexesAfterPostproc(connection, model);
+        } catch (Exception e) {
+            throw new MigratorException("onUpdateAfterPostproc", e);
+        }
     }
 
-    private void updateFtsIndexesAfterPostproc(NsiConfigDict model) {
-        // получаем сведения о полнотекстовых индексах 
-        // формируем список требуемых полнотекстовых индексов 
-        // проходим по списку имеющихсяв базеданных полнотекстовых индексов на таблице 
-        // удаляем отсутствующие в метаданных 
-        // проходим по списку полей отмеченных для полнотекстового поиска
-        // создаем индексы отсутствующие в бд 
+
+    @Override
+    public void onUpdateAfterPostproc(Connection connection, NsiConfig config) {
+    }
+    
+    private String genIndexName(NsiConfigDict dict, String field) {
+        return NsiImplicitNamingStrategyImpl.compose("IDX_", dict.getTable(), field, 30);
     }
 
     @Override
-    public void onUpdateAfterPostproc(NsiConfig config) {
+    public void createIndex(NsiConfigDict dict, String field,
+            Connection connection) {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("CREATE INDEX ")
+                .append(genIndexName(dict, field))
+                .append(" ON ")
+                .append(dict.getTable())
+                .append("(").append(field).append(")")
+                .toString());
     }
 
+    @Override
+    public void dropIndex(NsiConfigDict dict, String field,
+            Connection connection) {
+        dropIndex(genIndexName(dict, field), connection);
+    }
+
+    @Override
+    public void dropIndex(String name, Connection connection) {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("DROP INDEX ").append(name).toString());
+    }
+
+    
 }

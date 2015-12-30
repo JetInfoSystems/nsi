@@ -63,16 +63,19 @@ public class Migrator {
     public void update(String tag) {
 
         try {
-
-            platformMigrator.onUpdateBeforePrepare(config);
-            for (NsiConfigDict model : config.getDicts()) {
-                platformMigrator.onUpdateBeforePrepare(model);
+            try(Connection connection = dataSource.getConnection()) {
+                platformMigrator.onUpdateBeforePrepare(connection, config);
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateBeforePrepare(connection, model);
+                }
             }
             doLiquibaseUpdate(MIGRATIONS_PREPARE,LIQUIBASE_PREPARE_CHANGELOG_XML, tag);
-            for (NsiConfigDict model : config.getDicts()) {
-                platformMigrator.onUpdateAfterPrepare(model);
+            try(Connection connection = dataSource.getConnection()) {
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateAfterPrepare(connection, model);
+                }
+                platformMigrator.onUpdateAfterPrepare(connection, config);
             }
-            platformMigrator.onUpdateAfterPrepare(config);
 
             StandardServiceRegistry serviceRegistry = platformMigrator.buildStandardServiceRegistry(dataSource);
 
@@ -109,15 +112,19 @@ public class Migrator {
             finally {
                 StandardServiceRegistryBuilder.destroy( serviceRegistry );
             }
-            platformMigrator.onUpdateBeforePostproc(config);
-            for (NsiConfigDict model : config.getDicts()) {
-                platformMigrator.onUpdateBeforePostproc(model);
+            try(Connection connection = dataSource.getConnection()) {
+                platformMigrator.onUpdateBeforePostproc(connection, config);
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateBeforePostproc(connection, model);
+                }
             }
             doLiquibaseUpdate(MIGRATIONS_POSTPROC,LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
-            for (NsiConfigDict model : config.getDicts()) {
-                platformMigrator.onUpdateAfterPostproc(model);
+            try(Connection connection = dataSource.getConnection()) {
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateAfterPostproc(connection, model);
+                }
+                platformMigrator.onUpdateAfterPostproc(connection, config);
             }
-            platformMigrator.onUpdateAfterPostproc(config);
         }
         catch (Exception e) {
             throw new MigratorException(ACTION_UPDATE, e);

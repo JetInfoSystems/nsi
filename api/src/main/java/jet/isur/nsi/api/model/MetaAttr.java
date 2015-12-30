@@ -66,7 +66,7 @@ public class MetaAttr implements Serializable {
      * не нужно сохранять
      */
     private boolean persist = true;
-
+    
     public boolean isRequired() {
         return required;
     }

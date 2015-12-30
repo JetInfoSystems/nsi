@@ -50,6 +50,12 @@ public interface PlatformMigrator {
     
     void dropSeq(String name, Connection connection);
 
+    void createIndex(NsiConfigDict dict, String field, Connection connection);
+    
+    void dropIndex(NsiConfigDict dict, String field, Connection connection);
+    
+    void dropIndex(String name, Connection connection);
+    
     void createFullSearchIndex(NsiConfigDict dict, String field, Connection connection);
     
     void dropFullSearchIndex(NsiConfigDict dict, String field, Connection connection);
@@ -60,13 +66,13 @@ public interface PlatformMigrator {
 
     void removeUserProfile(Connection con, Long id) throws SQLException;
 
-    void onUpdateBeforePrepare(NsiConfig config);
+    void onUpdateBeforePrepare(Connection connection, NsiConfig config);
     
-    void onUpdateBeforePrepare(NsiConfigDict model);
+    void onUpdateBeforePrepare(Connection connection, NsiConfigDict model);
     
-    void onUpdateAfterPrepare(NsiConfigDict model);
+    void onUpdateAfterPrepare(Connection connection, NsiConfigDict model);
     
-    void onUpdateAfterPrepare(NsiConfig config);
+    void onUpdateAfterPrepare(Connection connection, NsiConfig config);
 
     DictToHbmSerializer getDictToHbmSerializer();
     
@@ -74,12 +80,12 @@ public interface PlatformMigrator {
     
     void updateMetadataSources(MetadataSources metadataSources, NsiConfigDict model);
     
-    void onUpdateBeforePostproc(NsiConfig config);
+    void onUpdateBeforePostproc(Connection connection, NsiConfig config);
     
-    void onUpdateBeforePostproc(NsiConfigDict model);
+    void onUpdateBeforePostproc(Connection connection, NsiConfigDict model);
     
-    void onUpdateAfterPostproc(NsiConfigDict model);
+    void onUpdateAfterPostproc(Connection connection, NsiConfigDict model);
     
-    void onUpdateAfterPostproc(NsiConfig config);
+    void onUpdateAfterPostproc(Connection connection, NsiConfig config);
 
 }

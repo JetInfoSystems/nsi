@@ -31,7 +31,12 @@ public class MetaField implements Serializable {
      * Если данный map задан то поле является перечислением.
      */
     private Map<String, String> enumValues;
-
+    
+    /**
+     * Определяет возможность выполнения полнотекстового поиска по данному атрибуту
+     * Поддерживается только для строковых типов.
+     */
+    private boolean enableFts = false;
 
     public String getName() {
         return name;
@@ -63,6 +68,10 @@ public class MetaField implements Serializable {
     public void setEnumValues(Map<String, String> enumValues) {
         this.enumValues = enumValues;
     }
-
-
+    public boolean isEnableFts() {
+        return enableFts;
+    }
+    public void setEnableFts(boolean enableFts) {
+        this.enableFts = enableFts;
+    }
 }

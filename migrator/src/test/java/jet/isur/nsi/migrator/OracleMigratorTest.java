@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.joda.time.DateTime;
@@ -16,6 +17,7 @@ import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.isur.nsi.migrator.platform.PlatformMigrator;
+import jet.isur.nsi.migrator.platform.oracle.OracleFtsModule;
 import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
@@ -25,6 +27,7 @@ public class OracleMigratorTest extends BaseSqlTest{
     private static final String IDENT_ISUR = "isur";
     private MigratorParams params;
     private PlatformMigrator platformMigrator;
+    private OracleFtsModule ftsModule;
 
     @Override
     public void setup() throws Exception {
@@ -35,6 +38,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         properties.setProperty("db.liqubase.logPrefix", "TEST_NSI_");
         params = new MigratorParams(properties);
         Assert.assertEquals("TEST_NSI_", params.getLogPrefix());
+        ftsModule = new OracleFtsModule(platformSqlDao);
     }
 
     public void setupMigrator(String metadataPath) throws Exception {
@@ -235,6 +239,63 @@ public class OracleMigratorTest extends BaseSqlTest{
 
         Assert.assertEquals(actions.toString(), 2, actions.size());
         Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), primary key (id))", actions.get(0));
+
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropTable(dict1, connection);
+        }
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropSeq(dict1, connection);
+        }
+
+    }
+
+    @Test
+    public void checkFtsTest() throws Exception {
+        
+        setupMigrator("src/test/resources/metadata/fts");
+        NsiConfigDict dict1 = config.getDict("dict1");
+        
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropTable(dict1, connection);
+        }
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropSeq(dict1, connection);
+        }
+
+        RecActionsTargetImpl rec = new RecActionsTargetImpl();
+
+        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+
+        try(Connection connection = dataSource.getConnection()) {
+            Map<String, String> indexMap = ftsModule.getFtsDatabaseIndexes(connection, dict1);
+            Assert.assertEquals(1, indexMap.size());
+            Assert.assertTrue(indexMap.containsKey("DESCRIPTION"));
+        }
+        
+        // меняем метаданные 
+        dict1.getField("name").setEnableFts(true);
+        migrator = new Migrator(config, dataSource, params, platformMigrator );
+        migrator.update("v2");
+
+        try(Connection connection = dataSource.getConnection()) {
+            Map<String, String> indexMap = ftsModule.getFtsDatabaseIndexes(connection, dict1);
+            Assert.assertEquals(2, indexMap.size());
+            Assert.assertTrue(indexMap.containsKey("DESCRIPTION"));
+            Assert.assertTrue(indexMap.containsKey("NAME"));
+        }
+
+        // меняем метаданные 
+        dict1.getField("name").setEnableFts(false);
+        migrator = new Migrator(config, dataSource, params, platformMigrator );
+        migrator.update("v3");
+
+        try(Connection connection = dataSource.getConnection()) {
+            Map<String, String> indexMap = ftsModule.getFtsDatabaseIndexes(connection, dict1);
+            Assert.assertEquals(1, indexMap.size());
+            Assert.assertTrue(indexMap.containsKey("DESCRIPTION"));
+        }
 
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(dict1, connection);

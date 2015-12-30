@@ -19,6 +19,7 @@ public class NsiConfigAttr {
     private Boolean createOnly;
     private boolean refAttrHidden;
     private boolean persist;
+    private boolean enableFts;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
