@@ -54,6 +54,45 @@ public class DictRow {
     }
 
     @Transient
+    public DictRowAttr getUniqueAttr() {
+        NsiConfigAttr attr = dict.getUniqueAttr();
+        return (attr == null)? null : getAttr(attr.getName());
+    }
+    
+    @Transient
+    public void setUniquAttr(DictRowAttr value) {
+        NsiConfigAttr attr = dict.getUniqueAttr();
+        checkDictAttrNotNull(attr, "UniqueAttr");
+        setAttr(attr, value);
+    }
+    
+    @Transient
+    public String getUniqueAttrString() {
+        NsiConfigAttr attr = dict.getUniqueAttr();
+        return (attr == null)? null : getString(attr);
+    }
+
+    @Transient
+    public Long getUniqueAttrLong() {
+        NsiConfigAttr attr = dict.getUniqueAttr();
+        return (attr == null)? null : getLong(getDictIdAttr());
+    }
+
+    @Transient
+    public void setUniqueAttr(String value) {
+        NsiConfigAttr attr = dict.getUniqueAttr();
+        checkDictAttrNotNull(attr, "UniqueAttr");
+        setAttr(attr, value);
+    }
+
+    @Transient
+    public void setUniqueAttr(Long value) {
+        NsiConfigAttr attr = dict.getUniqueAttr();
+        checkDictAttrNotNull(attr, "UniqueAttr");
+        setAttr(attr, value);
+    }
+    
+    @Transient
     void setAttr(NsiConfigAttr a, DictRowAttr value) {
         if(value == null) {
             value = createNullValue(a);

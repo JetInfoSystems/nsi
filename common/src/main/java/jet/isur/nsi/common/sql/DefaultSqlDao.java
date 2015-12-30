@@ -586,28 +586,33 @@ public class DefaultSqlDao implements SqlDao {
     }
     
     private void checkUniqueAttr(Connection connection, DictRow data, boolean insert) {
+        // TODO - сделать проверку уникальности распеределенной
         NsiConfigAttr configAttr = data.getDict().getUniqueAttr();
         
         if(configAttr == null || data.getDeleteMarkAttrBoolean()) {
             return;
         }
         
-        DictRowAttr rowAttr = data.getAttr(configAttr.getName());
-        if(rowAttr == null || rowAttr.isEmpty()) {
+        DictRowAttr rowAttr = data.getUniqueAttr();
+        if((insert && (rowAttr == null || rowAttr.isEmpty())) || (!insert && rowAttr != null && rowAttr.isEmpty()) ) {
             throw new NsiServiceException("Атрибут " + data.getDict().getName() + "." +configAttr.getName()+ " обязательный");
         }
         
+        if(rowAttr == null) {
+            return;
+        }
+        
         BoolExpBuilder fb = data.getDict().filter().and().expList();
-        fb.key(configAttr.getName()).eq().value(rowAttr).add();
+        fb.uniqueAttr(rowAttr).add();
         fb.deleteMark(false).add();
         if(!insert) {
             fb.key(data.getDict().getIdAttr().getName()).notEq().value(data.getIdAttr()).add();
         }
         
-        long count = count(connection, data.getDict().query().addAttrs(), fb.end().build());
+        long count = count(connection, data.getDict().query().addAttr(configAttr.getName()), fb.end().build());
         
         if(count > 0) {
-            throw new NsiServiceException("Атрибут  " + data.getDict().getName() + "." +configAttr.getName()+ " должен быть уникальным");
+            throw new NsiServiceException("Значение атрибута  " + data.getDict().getName() + "." +configAttr.getName()+ " должен быть уникальным");
         }
     }
 

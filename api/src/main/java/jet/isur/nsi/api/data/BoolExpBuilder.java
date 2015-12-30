@@ -203,4 +203,11 @@ public class BoolExpBuilder {
         }
         return key(dict.getDeleteMarkAttr()).eq().value(value);
     }
+    
+    public BoolExpBuilder uniqueAttr(DictRowAttr value) {
+        if(dict.getUniqueAttr() == null) {
+            throw new NsiServiceException("dict %s have not uniqueAttr",dict.getName());
+        }
+        return key(dict.getUniqueAttr()).eq().value(value);
+    }
 }
