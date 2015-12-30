@@ -652,4 +652,8 @@ public class DictRow {
     	
     	return sb.toString();
     }
+    
+    public void removeAttr(String name) {
+        attrs.remove(name);
+    }
 }

@@ -700,12 +700,30 @@ public class SqlDaoTest extends BaseSqlTest {
                 config = getNsiConfig("/opt/isur/metadata");
                 String key = String.valueOf(System.nanoTime());
                 NsiConfigDict dictEventCat = config.getDict("EVENT_CATEGORY");
-                DictRow eventCat = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key).build();
-                
-                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat, true);
-                
+                DictRow eventCat1 = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key).build();
+                DictRow eventCat2 = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key + 2).build();
+                DictRow eventCatEmpty = defaultBuilder("EVENT_CATEGORY").build();
+
+                DictRow res1 = sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
+                DictRow res2 = sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat2, true);
+
+                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+                res1.removeAttr("EVENT_CATEGORY_KEY");
+                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+
                 try {
-                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat, true);
+                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
+                    Assert.assertTrue(false);
+                } catch (NsiServiceException e) {
+                }
+                try {
+                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCatEmpty, true);
+                    Assert.assertTrue(false);
+                } catch (NsiServiceException e) {
+                }
+                try {
+                    res1.setAttr("EVENT_CATEGORY_KEY", res2.getAttr("EVENT_CATEGORY_KEY"));
+                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
