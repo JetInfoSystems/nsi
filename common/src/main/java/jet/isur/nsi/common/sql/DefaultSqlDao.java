@@ -588,12 +588,13 @@ public class DefaultSqlDao implements SqlDao {
     private void checkUniqueAttr(Connection connection, DictRow data, boolean insert) {
         // TODO - сделать проверку уникальности распеределенной
         NsiConfigAttr configAttr = data.getDict().getUniqueAttr();
-        
+        log.debug("***********************");
         if(configAttr == null || data.getDeleteMarkAttrBoolean()) {
             return;
         }
         
         DictRowAttr rowAttr = data.getUniqueAttr();
+        log.debug(String.valueOf(rowAttr));
         if((insert && (rowAttr == null || rowAttr.isEmpty())) || (!insert && rowAttr != null && rowAttr.isEmpty()) ) {
             throw new NsiServiceException("Атрибут " + data.getDict().getName() + "." +configAttr.getName()+ " обязательный");
         }
