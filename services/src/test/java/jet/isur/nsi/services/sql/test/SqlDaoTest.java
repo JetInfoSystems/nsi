@@ -711,6 +711,7 @@ public class SqlDaoTest extends BaseSqlTest {
                 res1.removeAttr("EVENT_CATEGORY_KEY");
                 sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
 
+                eventCat1.removeAttr("ID");
                 try {
                     sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
                     Assert.assertTrue(false);
