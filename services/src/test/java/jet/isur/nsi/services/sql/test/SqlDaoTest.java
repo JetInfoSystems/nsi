@@ -13,9 +13,12 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
+import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.BoolExpBuilder;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
@@ -26,15 +29,21 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaFieldType;
+import jet.isur.nsi.api.tx.NsiTransaction;
+import jet.isur.nsi.api.tx.NsiTransactionService;
+import jet.isur.nsi.api.tx.NsiTransactionTemplate;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.migrator.platform.PlatformMigrator;
 import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
+import jet.isur.nsi.services.NsiTransactionServiceImpl;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import jet.isur.nsi.testkit.utils.DataUtils;
+import jet.scdp.metrics.mock.MockMetrics;
 
 public class SqlDaoTest extends BaseSqlTest {
 
     protected PlatformMigrator platformMigrator;
+    private static final Logger log = LoggerFactory.getLogger(SqlDaoTest.class);
     
     @Override
     public void setup() throws Exception {
@@ -675,6 +684,58 @@ public class SqlDaoTest extends BaseSqlTest {
                 platformMigrator.dropTable(dictOrg, connection);        
             }
         }
+    }
+    
+    @Test
+    public void testUniqueAttr() {
+        new NsiTransactionTemplate<Void>(getTransactionService(), "1", log) {
+
+            @Override
+            public Void doInTransaction(NsiTransaction tx) {
+                config = getNsiConfig("/opt/isur/metadata");
+                String key = String.valueOf(System.nanoTime());
+                NsiConfigDict dictEventCat = config.getDict("EVENT_CATEGORY");
+                DictRow eventCat1 = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key).build();
+                DictRow eventCat2 = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key + 2).build();
+                DictRow eventCatEmpty = defaultBuilder("EVENT_CATEGORY").build();
+
+                DictRow res1 = sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
+                DictRow res2 = sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat2, true);
+
+                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+                res1.removeAttr("EVENT_CATEGORY_KEY");
+                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+
+                eventCat1.removeAttr("ID");
+                try {
+                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
+                    Assert.assertTrue(false);
+                } catch (NsiServiceException e) {
+                }
+                try {
+                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCatEmpty, true);
+                    Assert.assertTrue(false);
+                } catch (NsiServiceException e) {
+                }
+                try {
+                    res1.setAttr("EVENT_CATEGORY_KEY", res2.getAttr("EVENT_CATEGORY_KEY"));
+                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+                    Assert.assertTrue(false);
+                } catch (NsiServiceException e) {
+                }
+                
+                tx.rollback();
+                return null;
+            }
+            
+        }.start();
+    }
+    
+    public NsiTransactionService getTransactionService() {
+        NsiTransactionServiceImpl transactionService = new NsiTransactionServiceImpl(new MockMetrics());       
+        transactionService.setDataSource(dataSource); 
+        
+        return transactionService;
     }
     
     private BoolExp getFilterByExternalAttrs(DictRow row) {

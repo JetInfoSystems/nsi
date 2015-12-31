@@ -77,6 +77,11 @@ public class BoolExpBuilder {
         return this;
     }
 
+    public BoolExpBuilder notEq() {
+        getPrototype().setFunc(OperationType.NOT_EQUALS);
+        return this;
+    }
+    
     public BoolExpBuilder ge() {
         getPrototype().setFunc(OperationType.GE);
         return this;
@@ -197,5 +202,12 @@ public class BoolExpBuilder {
             throw new NsiServiceException("dict %s have not deleteMarkAttr",dict.getName());
         }
         return key(dict.getDeleteMarkAttr()).eq().value(value);
+    }
+    
+    public BoolExpBuilder uniqueAttr(DictRowAttr value) {
+        if(dict.getUniqueAttr() == null) {
+            throw new NsiServiceException("dict %s have not uniqueAttr",dict.getName());
+        }
+        return key(dict.getUniqueAttr()).eq().value(value);
     }
 }

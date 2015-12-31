@@ -31,18 +31,4 @@ public abstract class NsiTransactionTemplate<T> {
             throw new NsiServiceException(e.getMessage());
 		}
 	}
-/*	public T execute(NsiTransactionCallback callback) {
-		try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
-			try {
-				return (T) callback.doInTransaction(tx);
-			} catch (Exception e) {
-				callback.onException(requestId, e);	            
-	            tx.rollback();
-	            throw new NsiServiceException(e.getMessage());
-			}
-		} catch (Exception e) {
-			callback.onException(requestId, e);
-            throw new NsiServiceException(e.getMessage());
-		}
-	}*/
 }

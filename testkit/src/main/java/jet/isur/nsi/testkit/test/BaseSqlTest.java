@@ -27,20 +27,22 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jet.isur.nsi.api.NsiConfigManager;
 import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.DictRowBuilder;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
+import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.platform.NsiPlatform;
 import jet.isur.nsi.api.platform.PlatformSqlDao;
 import jet.isur.nsi.api.platform.PlatformSqlGen;
+import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.common.data.DictDependencyGraph;
-import jet.isur.nsi.common.platform.oracle.OracleNsiPlatform;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.utils.DaoUtils;
@@ -57,7 +59,8 @@ public class BaseSqlTest {
     protected DefaultSqlGen sqlGen;
     protected DefaultSqlDao sqlDao;
     protected static Logger log = LoggerFactory.getLogger(BaseSqlTest.class);
-
+    protected String metadataPath;
+    
     @Before
     public void setupInternal() throws Exception {
         setup();
@@ -84,6 +87,18 @@ public class BaseSqlTest {
         cleanup();
     }
 
+    protected NsiConfig getNsiConfig(String metadataPath) {
+        if(metadataPath == null) {
+            metadataPath = this.metadataPath; 
+        }
+        
+        File configPath = new File(metadataPath);
+        NsiConfigParams configParams = new NsiConfigParams();
+        configParams.setLastUserDict("USER_PROFILE");
+        NsiConfigManager configManager = new NsiConfigManagerFactoryImpl().create(configPath, configParams );
+        return configManager.getConfig();
+    }
+    
     public void cleanup() {
     }
 

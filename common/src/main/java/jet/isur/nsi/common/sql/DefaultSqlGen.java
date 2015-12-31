@@ -285,6 +285,7 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.NOTOR:
             return getOrCondition(query, filter.getExpList(), baseQuery).not();
         case OperationType.EQUALS:
+        case OperationType.NOT_EQUALS:
         case OperationType.LIKE:
         case OperationType.CONTAINS:
         case OperationType.GT:

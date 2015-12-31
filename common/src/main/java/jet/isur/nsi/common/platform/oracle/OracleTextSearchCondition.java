@@ -21,6 +21,6 @@ public class OracleTextSearchCondition<T> extends CustomCondition implements Con
     @Override
     public void toSQL(RenderContext context) {
         
-        context.sql("contains(").visit(field).sql(", ?, 1) > 0");
+        context.sql("catsearch(").visit(field).sql(", ?, '') > 0");
     }
 }

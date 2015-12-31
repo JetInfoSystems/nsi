@@ -117,7 +117,7 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         NsiConfigField field = dict.getIdAttr().getFields().get(0);
         result.setType(buildTypeSpecification(field));
         result.getColumn().add(buildColumn(field));
-        result.setGenerator(buildSequince(dict));
+        result.setGenerator(buildSequence(dict));
         return result;
     }
 
@@ -156,7 +156,7 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         }
     }
 
-    protected JaxbHbmGeneratorSpecificationType buildSequince(NsiConfigDict dict) {
+    protected JaxbHbmGeneratorSpecificationType buildSequence(NsiConfigDict dict) {
         JaxbHbmGeneratorSpecificationType result = new JaxbHbmGeneratorSpecificationType();
         result.setClazz("enhanced-sequence");
         result.getConfigParameters().add(buildConfigParameter("sequence_name",dict.getSeq()));

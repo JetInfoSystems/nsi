@@ -493,7 +493,8 @@ public class DefaultSqlDao implements SqlDao {
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
             boolean insert) {
         checkDictHasIdAttr(query.getDict());
-
+        checkUniqueAttr(connection, data, insert);
+        
         DictRow result = null;
         if(insert) {
             result = insert(connection, query, data);
@@ -503,8 +504,39 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
     
-    protected DictRow getSingleRow(final Connection connection, NsiQuery query, final BoolExp filter) {
-        List<DictRow> rows = list(connection, query, filter, null, -1, -1, null, null);
+    private void checkUniqueAttr(Connection connection, DictRow data, boolean insert) {
+        // TODO - сделать проверку уникальности распеределенной
+        NsiConfigAttr configAttr = data.getDict().getUniqueAttr();
+        if(configAttr == null || data.getDeleteMarkAttrBoolean()) {
+            return;
+        }
+        
+        DictRowAttr rowAttr = data.getUniqueAttr();
+        log.debug(String.valueOf(rowAttr));
+        if((insert && (rowAttr == null || rowAttr.isEmpty())) || (!insert && rowAttr != null && rowAttr.isEmpty()) ) {
+            throw new NsiServiceException("Атрибут " + data.getDict().getName() + "." +configAttr.getName()+ " обязательный");
+        }
+        
+        if(rowAttr == null) {
+            return;
+        }
+        
+        BoolExpBuilder fb = data.getDict().filter().and().expList();
+        fb.uniqueAttr(rowAttr).add();
+        fb.deleteMark(false).add();
+        if(!insert) {
+            fb.key(data.getDict().getIdAttr().getName()).notEq().value(data.getIdAttr()).add();
+        }
+        
+        long count = count(connection, data.getDict().query().addAttr(configAttr.getName()), fb.end().build());
+        
+        if(count > 0) {
+            throw new NsiServiceException("Значение атрибута  " + data.getDict().getName() + "." +configAttr.getName()+ " должен быть уникальным");
+        }
+    }
+
+    protected DictRow getSingleRow(final Connection conn, NsiQuery query, final BoolExp filter) {
+        List<DictRow> rows = list(conn, query, filter, null, -1, -1, null, null);
         
         if(rows.size() == 0) {
             return null;

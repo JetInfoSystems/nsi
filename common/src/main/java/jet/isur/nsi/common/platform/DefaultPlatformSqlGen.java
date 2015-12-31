@@ -48,6 +48,13 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
             else{
                 return f.isNull();
             }
+        case OperationType.NOT_EQUALS:
+            if (filter.getValue().getValues().get(0) != null){
+                return f.notEqual(val(null));
+            }
+            else{
+                return f.isNotNull();
+            }
         case OperationType.GT:
             return f.gt(val(null));
         case OperationType.GE:

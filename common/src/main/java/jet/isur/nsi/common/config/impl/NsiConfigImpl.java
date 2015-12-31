@@ -96,7 +96,10 @@ public class NsiConfigImpl implements NsiConfig {
             dict.setDeleteMarkAttr(checkAttrExists(dict,metaDict.getDeleteMarkAttr()));
             dict.getDeleteMarkAttr().setReadonly(true);
         }
-
+        if(metaDict.getUniqueAttr() != null) {
+            dict.setUniqueAttr(checkAttrExists(dict, metaDict.getUniqueAttr()));
+            dict.getUniqueAttr().setRequired(true);
+        }
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.setRefObjectAttrs(createAttrList(dict,metaDict.getRefObjectAttrs()));

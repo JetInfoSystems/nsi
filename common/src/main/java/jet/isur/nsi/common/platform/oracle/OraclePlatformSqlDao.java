@@ -23,7 +23,9 @@ public class OraclePlatformSqlDao extends DefaultPlatformSqlDao {
     public String wrapFilterFieldValue(BoolExp filter, NsiConfigField field,
             String val) {
         if (filter.getFunc().equals(OperationType.CONTAINS)) {
-            return "%" + val + "%";
+            // ** нужно использовать для обхода ограничения oracle
+            // https://docs.oracle.com/cd/B28359_01/text.111/b28304/csql.htm#i997256
+            return "**" + val + "*";
         } else {
             return super.wrapFilterFieldValue(filter, field, val);
         }
