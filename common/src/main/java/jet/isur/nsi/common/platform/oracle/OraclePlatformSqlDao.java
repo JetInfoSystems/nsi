@@ -24,6 +24,7 @@ public class OraclePlatformSqlDao extends DefaultPlatformSqlDao {
             String val) {
         if (filter.getFunc().equals(OperationType.CONTAINS)) {
             // ** нужно использовать для обхода ограничения oracle
+            // oracle11 не поддерживает left wildcard
             // https://docs.oracle.com/cd/B28359_01/text.111/b28304/csql.htm#i997256
             return "**" + val + "*";
         } else {
