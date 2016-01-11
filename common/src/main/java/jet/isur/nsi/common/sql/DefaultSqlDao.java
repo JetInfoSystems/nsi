@@ -531,7 +531,7 @@ public class DefaultSqlDao implements SqlDao {
         long count = count(connection, data.getDict().query().addAttr(configAttr.getName()), fb.end().build());
         
         if(count > 0) {
-            throw new NsiServiceException("Значение атрибута  " + data.getDict().getName() + "." +configAttr.getName()+ " должен быть уникальным");
+            throw new NsiServiceException("Значение атрибута  " + data.getDict().getName() + "." +configAttr.getName()+ " должно быть уникальным. Нарушено ограничение для значения " + rowAttr.getValues() );
         }
     }
 
