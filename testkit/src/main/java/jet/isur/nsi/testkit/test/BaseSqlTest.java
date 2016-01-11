@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.sql.DataSource;
-
 import org.jooq.DeleteWhereStep;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -46,6 +44,7 @@ import jet.isur.nsi.common.data.DictDependencyGraph;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 import jet.isur.nsi.testkit.utils.DaoUtils;
+
 
 public class BaseSqlTest {
 
@@ -238,7 +237,11 @@ public class BaseSqlTest {
         for (NsiQueryAttr attr : query.getAttrs()) {
            result.attr(attr.getAttr().getName(), (String) null);
         }
-        return result.deleteMarkAttr(false);
+
+        if(result.getDict().getDeleteMarkAttr() != null) {
+            return result.deleteMarkAttr(false);
+        }
+        return result;
     }
 
     protected NsiConfigDict dict(String dictName) {
