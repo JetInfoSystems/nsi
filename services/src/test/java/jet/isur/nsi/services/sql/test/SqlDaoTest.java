@@ -29,9 +29,7 @@ import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaFieldType;
-import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.isur.nsi.api.tx.NsiTransactionService;
-import jet.isur.nsi.api.tx.NsiTransactionTemplate;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.isur.nsi.migrator.platform.PlatformMigrator;
 import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
@@ -692,8 +690,8 @@ public class SqlDaoTest extends BaseSqlTest {
         
         try (Connection connection = dataSource.getConnection()) {
             try {
-                DaoUtils.recreateTable(dictEventCat, connection);            
-                DaoUtils.recreateSeq(dictEventCat, connection);
+                platformMigrator.recreateTable(dictEventCat, connection);            
+                platformMigrator.recreateSeq(dictEventCat, connection);
                 
                 String key = String.valueOf(System.nanoTime());
                 DictRow eventCat1 = defaultBuilder("EVENT_CATEGORY_UA_TEST").attr("EVENT_CATEGORY_KEY", key).build();
@@ -725,8 +723,8 @@ public class SqlDaoTest extends BaseSqlTest {
                 } catch (NsiServiceException e) {
                 }
             } finally {
-                DaoUtils.dropSeq(dictEventCat, connection);
-                DaoUtils.dropTable(dictEventCat, connection);        
+                platformMigrator.dropSeq(dictEventCat, connection);
+                platformMigrator.dropTable(dictEventCat, connection);        
             }
         }
     }
