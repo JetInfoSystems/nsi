@@ -687,48 +687,48 @@ public class SqlDaoTest extends BaseSqlTest {
     }
     
     @Test
-    public void testUniqueAttr() {
-        new NsiTransactionTemplate<Void>(getTransactionService(), "1", log) {
-
-            @Override
-            public Void doInTransaction(NsiTransaction tx) {
-                config = getNsiConfig("/opt/isur/metadata");
+    public void testUniqueAttr() throws SQLException {
+        NsiConfigDict dictEventCat = config.getDict("EVENT_CATEGORY_UA_TEST");
+        
+        try (Connection connection = dataSource.getConnection()) {
+            try {
+                DaoUtils.recreateTable(dictEventCat, connection);            
+                DaoUtils.recreateSeq(dictEventCat, connection);
+                
                 String key = String.valueOf(System.nanoTime());
-                NsiConfigDict dictEventCat = config.getDict("EVENT_CATEGORY");
-                DictRow eventCat1 = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key).build();
-                DictRow eventCat2 = defaultBuilder("EVENT_CATEGORY").attr("EVENT_CATEGORY_KEY", key + 2).build();
-                DictRow eventCatEmpty = defaultBuilder("EVENT_CATEGORY").build();
+                DictRow eventCat1 = defaultBuilder("EVENT_CATEGORY_UA_TEST").attr("EVENT_CATEGORY_KEY", key).build();
+                DictRow eventCat2 = defaultBuilder("EVENT_CATEGORY_UA_TEST").attr("EVENT_CATEGORY_KEY", key + 2).build();
+                DictRow eventCatEmpty = defaultBuilder("EVENT_CATEGORY_UA_TEST").build();
 
-                DictRow res1 = sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
-                DictRow res2 = sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat2, true);
+                DictRow res1 = sqlDao.save(connection, dictEventCat.query().addAttrs(), eventCat1, true);
+                DictRow res2 = sqlDao.save(connection, dictEventCat.query().addAttrs(), eventCat2, true);
 
-                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+                sqlDao.save(connection, dictEventCat.query().addAttrs(), res1, false);
                 res1.removeAttr("EVENT_CATEGORY_KEY");
-                sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+                sqlDao.save(connection, dictEventCat.query().addAttrs(), res1, false);
 
                 eventCat1.removeAttr("ID");
                 try {
-                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCat1, true);
+                    sqlDao.save(connection, dictEventCat.query().addAttrs(), eventCat1, true);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
                 try {
-                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), eventCatEmpty, true);
+                    sqlDao.save(connection, dictEventCat.query().addAttrs(), eventCatEmpty, true);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
                 try {
                     res1.setAttr("EVENT_CATEGORY_KEY", res2.getAttr("EVENT_CATEGORY_KEY"));
-                    sqlDao.save(tx.getConnection(), dictEventCat.query().addAttrs(), res1, false);
+                    sqlDao.save(connection, dictEventCat.query().addAttrs(), res1, false);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
-                
-                tx.rollback();
-                return null;
+            } finally {
+                DaoUtils.dropSeq(dictEventCat, connection);
+                DaoUtils.dropTable(dictEventCat, connection);        
             }
-            
-        }.start();
+        }
     }
     
     public NsiTransactionService getTransactionService() {
