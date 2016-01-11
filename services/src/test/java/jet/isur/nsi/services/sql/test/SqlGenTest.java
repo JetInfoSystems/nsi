@@ -230,8 +230,7 @@ public class SqlGenTest extends BaseSqlTest {
                 .build();
         String sql = sqlGen.getListSql(query, filter, null, -1, -1);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m" +
-                        " where contains(m.f1, ?, 1) > 0", sql);
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID from table1 m where catsearch(m.f1, ?, '') > 0", sql);
     }
     
     @Test
