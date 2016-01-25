@@ -108,8 +108,22 @@ public class MetaDict extends MetaDictRef {
      */
     private Map<String, MetaOwn> owns;
 
+    /**
+     * Показывает что сущность не самостоятельна и отображается на заданную.
+     * Этот атрибут позволяет через view делать операции изменения данных.
+     * При этом учитываются только те атрибуты кторые есть в @mainDict
+     */
     private String mainDict;
 
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения версии
+     */
+    private boolean autoVersion = true;
+    
+    /**
+     * Атрибут для представления версии
+     */
+    private String versionAttr;
     
     public String getTable() {
         return table;
@@ -255,6 +269,18 @@ public class MetaDict extends MetaDictRef {
     }
     public void setUniqueAttr(String uniqueAttr) {
         this.uniqueAttr = uniqueAttr;
+    }
+    public boolean isAutoVersion() {
+        return autoVersion;
+    }
+    public void setAutoVersion(boolean autoVersion) {
+        this.autoVersion = autoVersion;
+    }
+    public String getVersionAttr() {
+        return versionAttr;
+    }
+    public void setVersionAttr(String versionAttr) {
+        this.versionAttr = versionAttr;
     }
     
 }

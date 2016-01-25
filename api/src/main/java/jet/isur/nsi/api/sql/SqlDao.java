@@ -24,6 +24,16 @@ public interface SqlDao {
     public DictRow get(Connection connection, NsiQuery query, DictRowAttr id);
 
     /**
+     * Получить запись справочника, если есть REF атрибуты то для низ возвращаютмя ref атрибуты
+     * @param connection
+     * @param query
+     * @param id
+     * @param lock взять эксклюзивную блокировку для записи
+     * @return
+     */
+    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock);
+
+    /**
      * Получить страницу записей справочника удовлетворяющих критерию,
      * если есть REF атрибуты то для низ возвращаютмя ref атрибуты
      * @param connection

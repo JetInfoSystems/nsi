@@ -1,0 +1,10 @@
+attrs:
+- { caption: id, fields: [id],  name: id,  type: value }
+- { caption: v, fields: [v],  name: v,  type: value }
+caption: Тест
+fields:
+- {name: id, size: 19, type: number}
+- {name: v, size: 4, type: number}
+idAttr: id
+name: dict1
+table: dict1

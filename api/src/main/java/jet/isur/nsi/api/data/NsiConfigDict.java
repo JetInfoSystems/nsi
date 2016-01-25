@@ -30,6 +30,7 @@ public class NsiConfigDict {
     private NsiConfigAttr lastChangeAttr;
     private NsiConfigAttr lastUserAttr;
     private NsiConfigAttr uniqueAttr;
+    private NsiConfigAttr versionAttr;
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
     private List<NsiConfigAttr> loadDataAttrs = new ArrayList<>();
@@ -37,6 +38,7 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> mergeExternalAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
+    private final boolean autoVersion;
     private List<String> interceptors = new ArrayList<>();
     private final NsiConfig config;
 
@@ -53,6 +55,7 @@ public class NsiConfigDict {
         }
 
         mainDictName = metaDict.getMainDict();
+        autoVersion = metaDict.isAutoVersion();
     }
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
@@ -322,5 +325,13 @@ public class NsiConfigDict {
 
     public void setLoadDataAttrs(List<NsiConfigAttr> loadDataAttrs) {
         this.loadDataAttrs = loadDataAttrs;
+    }
+
+    public NsiConfigAttr getVersionAttr() {
+        return versionAttr;
+    }
+
+    public void setVersionAttr(NsiConfigAttr versionAttr) {
+        this.versionAttr = versionAttr;
     }
 }

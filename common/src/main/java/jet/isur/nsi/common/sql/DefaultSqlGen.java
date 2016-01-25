@@ -17,6 +17,7 @@ import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertSetStep;
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.SelectConditionStep;
 import org.jooq.SelectField;
 import org.jooq.SelectJoinStep;
 import org.jooq.SelectOnStep;
@@ -47,10 +48,22 @@ public class DefaultSqlGen implements SqlGen {
     protected PlatformSqlGen platformSqlGen;
     
     public String getRowGetSql(NsiQuery query) {
-        SelectJoinStep<?> baseQuery = createBaseQuery(query, true, null);
-        
-        Condition condition = getIdCondition(query, baseQuery);
-        return baseQuery.where(condition).getSQL();
+        return getRowGetSql(query, false);
+    }
+
+    public String getRowGetSql(NsiQuery query, boolean lock) {
+        if(lock) {
+            Collection<? extends SelectField<?>> selectFields = getSelectFields(query, false);
+            Table<?> fromSource = createFromSource(query, null);
+            SelectJoinStep<Record> baseQuery = getQueryBuilder().select(selectFields).from(fromSource);
+            Condition condition = getIdCondition(query, baseQuery);
+            return baseQuery.where(condition).forUpdate().getSQL();
+        } else {
+            SelectJoinStep<?> baseQuery = createBaseQuery(query, true, null);
+            Condition condition = getIdCondition(query, baseQuery);
+            SelectConditionStep<?> resultQuery = baseQuery.where(condition);
+            return resultQuery.getSQL();
+        }
     }
 
     protected DSLContext getQueryBuilder() {
@@ -90,12 +103,14 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected Condition getIdCondition(NsiQuery query) {
-        NsiConfigAttr idAttr = query.getDict().getIdAttr();
+        NsiConfigDict dict = query.getDict();
 
-        Condition result = field(NsiQuery.MAIN_ALIAS + "." + idAttr.getFields().get(0).getName()).equal(val(null));
+        Condition result = field(NsiQuery.MAIN_ALIAS + "." + dict.getIdAttr().getFields().get(0).getName()).equal(val(null));
+        /*
         for ( NsiConfigField field : idAttr.getFields()) {
             result.and(field(NsiQuery.MAIN_ALIAS + "." + field.getName()).equal(val(null)));
         }
+        */
         return result;
     }
 
@@ -195,8 +210,9 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowUpdateSql(NsiQuery query) {
+        NsiConfigDict dict = query.getDict();
         UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
-                .update(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
+                .update(table(dict.getTable()).as(NsiQuery.MAIN_ALIAS));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
@@ -208,7 +224,8 @@ public class DefaultSqlGen implements SqlGen {
              }
         }
         if(updateSetMoreStep != null) {
-            return updateSetMoreStep.where(getIdCondition(query)).getSQL();
+            Condition condition = getIdCondition(query);
+            return updateSetMoreStep.where(condition).getSQL();
         } else {
             throw new NsiDataException("no attrs found");
         }

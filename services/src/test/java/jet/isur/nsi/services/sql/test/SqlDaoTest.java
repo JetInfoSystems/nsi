@@ -231,6 +231,39 @@ public class SqlDaoTest extends BaseSqlTest {
                 try {
                     NsiQuery query = dict.query().addAttrs();
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
+                    Assert.assertEquals((Long)1L, outData.getVersionAttrLong());
+
+                    DictRow inUpdatedData = dict.builder(
+                            DictRowBuilder.cloneRow(outData)).attr("f1","f1-value-changed").build();
+
+                    DictRow controlData = DictRowBuilder.cloneRow(inUpdatedData);
+
+                    DictRow outUpdatedData = sqlDao.update(connection, query, inUpdatedData);
+                    Assert.assertEquals((Long)2L, outUpdatedData.getVersionAttrLong());
+                    // возвращаем версию в старое состояние для дальнейшего сравнения
+                    outUpdatedData.setVersionAttr(outData.getVersionAttr());
+                    DataUtils.assertEquals(query, controlData, outUpdatedData);
+
+                } finally {
+                    platformMigrator.dropSeq(dict, connection);
+                }
+
+            } finally {
+                platformMigrator.dropTable(dict, connection);
+            }
+        }
+    }
+
+    @Test
+    public void testInsertAndUpdateWithoutVersion() throws Exception {
+        NsiConfigDict dict = config.getDict("dict1_without_version");
+        try (Connection connection = dataSource.getConnection()) {
+            platformMigrator.recreateTable(dict, connection);
+            try {
+                platformMigrator.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow outData = insertDict1Row(connection, query, "f1-value");
 
                     DictRow inUpdatedData = dict.builder(
                             DictRowBuilder.cloneRow(outData)).attr("f1","f1-value-changed").build();
@@ -511,6 +544,7 @@ public class SqlDaoTest extends BaseSqlTest {
                                     .attr("f2", i.toString())
                                     .attr("ORG_ID", i.toString())
                                     .attr("ORG_ROLE_ID", i.toString())
+                                    .versionAttr(1L)
                                     .build());
                         }
                         for (DictRow data : dataList) {

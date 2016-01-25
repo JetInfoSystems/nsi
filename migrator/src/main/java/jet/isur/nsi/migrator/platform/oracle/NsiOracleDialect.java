@@ -20,5 +20,6 @@ public class NsiOracleDialect extends Oracle10gDialect {
     protected void registerNumericTypeMappings() {
         super.registerNumericTypeMappings();
         registerColumnType( Types.BOOLEAN, "char(1 char)" );
+        registerColumnType( Types.BIGINT, "number($p,0)" );
     }
 }

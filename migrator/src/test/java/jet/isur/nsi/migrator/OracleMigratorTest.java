@@ -81,12 +81,8 @@ public class OracleMigratorTest extends BaseSqlTest{
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(4, actions.size());
-            Assert.assertEquals("create table table1 (id number(19,0) not null, f1 varchar2(100 char), "
-                    + "is_deleted char(1 char), last_change date, last_user number(19,0), "
-                    + "primary key (id))", actions.get(0));
-            Assert.assertEquals("create table table2 (id number(19,0) not null, dict1_id number(19,0), "
-                    + "is_deleted char(1 char), last_change date, last_user number(19,0), "
-                    + "name char(100 char), primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table1 (id number(19,0) not null, f1 varchar2(100 char), is_deleted char(1 char), last_change date, last_user number(19,0), VERSION number(6,0), primary key (id))", actions.get(0));
+            Assert.assertEquals("create table table2 (id number(19,0) not null, dict1_id number(19,0), is_deleted char(1 char), last_change date, last_user number(19,0), name char(100 char), VERSION number(6,0), primary key (id))", actions.get(1));
             Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(2));
             Assert.assertEquals("create sequence seq_table2 start with 1 increment by 1", actions.get(3));
         }
@@ -213,7 +209,37 @@ public class OracleMigratorTest extends BaseSqlTest{
         }
     }
 
+    @Test
+    public void versionColumnSizeTest() throws Exception {
+        setupMigrator("src/test/resources/metadata/number");
+        NsiConfigDict testSize = config.getDict("dict1");
+        
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropTable(testSize, connection);
+        }
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropSeq(testSize, connection);
+        }
 
+        RecActionsTargetImpl rec = new RecActionsTargetImpl();
+
+        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+        migrator.addTarget( rec );
+        migrator.update("v1");
+
+        List<String> actions = rec.getActions();
+        log.info(actions.toString());
+        Assert.assertEquals(2, actions.size());
+        Assert.assertEquals("create table dict1 (id number(19,0) not null, v number(4,0), VERSION number(6,0), primary key (id))", actions.get(0));
+
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropTable(testSize, connection);
+        }
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropSeq(testSize, connection);
+        }
+    }
+    
     @Test
     public void checkTypesTest() throws Exception {
         setupMigrator("src/test/resources/metadata/check_types");
@@ -238,7 +264,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         log.info("DUMP");
 
         Assert.assertEquals(actions.toString(), 2, actions.size());
-        Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), primary key (id))", actions.get(0));
+        Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), VERSION number(6,0), primary key (id))", actions.get(0));
 
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(dict1, connection);

@@ -31,6 +31,7 @@ import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.tx.NsiTransaction;
 import jet.isur.nsi.api.tx.NsiTransactionService;
 import jet.isur.nsi.api.tx.NsiTransactionTemplate;
+import jet.isur.nsi.common.data.WriteLockNsiDataException;
 import jet.scdp.metrics.api.Metrics;
 import jet.scdp.metrics.api.MetricsDomain;
 
@@ -256,40 +257,56 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                     case BOOLEAN:
                         if (!Boolean.TRUE.toString().equals(value)
                                 && !Boolean.FALSE.toString().equals(value))
-                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
-                                    "Атрибут '%s' не прошел валидацию - значение '%s' не является логическим", field.getName(), value);
+                            throw NsiExceptionBuilder.on()
+                            .requestId(requestId)
+                            .error(NsiError.CONSTRAINT_VIOLATION)
+                            .message("Атрибут '%s' не прошел валидацию - значение '%s' не является логическим", 
+                                    field.getName(), value)
+                            .build();
                         break;
                     case NUMBER:
                         // целое
                         if (field.getPrecision() == null || field.getPrecision() == 0){
                             if (!Pattern.matches(String.format("^[+|-]?\\d{0,%s}$", field.getSize()), value)){
-                                throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
-                                        "Атрибут '%s' не прошел валидацию - значение [%s] не является целым числом с максимальной длинной [%s]", 
-                                        field.getName(), value, field.getSize());
+                                throw NsiExceptionBuilder.on()
+                                .requestId(requestId)
+                                .error(NsiError.CONSTRAINT_VIOLATION) 
+                                .message("Атрибут '%s' не прошел валидацию - значение [%s] не является целым числом с максимальной длинной [%s]", 
+                                        field.getName(), value, field.getSize())
+                                .build();
                             }
                         }else{
                             if (!Pattern.matches(String.format("^[+|-]?\\d{0,%s}[.|,]?\\d*$", field.getSize() - field.getPrecision()), value)){
-                                throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
-                                        "Атрибут '%s' не прошел валидацию - значение [%s] не является числом с максимальной длинной целой части [%s]", 
-                                        field.getName(), value, field.getSize() - field.getPrecision());
+                                throw NsiExceptionBuilder.on()
+                                .requestId(requestId)
+                                .error(NsiError.CONSTRAINT_VIOLATION) 
+                                .message("Атрибут '%s' не прошел валидацию - значение [%s] не является числом с максимальной длинной целой части [%s]", 
+                                        field.getName(), value, field.getSize() - field.getPrecision())
+                                .build();
                             }
                         }
                         break;
                     case VARCHAR:
                     case CHAR:
                         if (value.length() > field.getSize()){
-                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
-                                    "Атрибут '%s' не прошел валидацию - длина строки [%s] больше максимальной [%s]", 
-                                    field.getName(), value.length(), field.getSize());
+                            throw NsiExceptionBuilder.on()
+                            .requestId(requestId)
+                            .error(NsiError.CONSTRAINT_VIOLATION) 
+                            .message("Атрибут '%s' не прошел валидацию - длина строки [%s] больше максимальной [%s]", 
+                                    field.getName(), value.length(), field.getSize())
+                            .build();
                         }
                         break;
                     case DATE_TIME:
                         try{
                             ConvertUtils.stringToDateTime(value);
                         }catch (Exception e) {
-                            throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
-                                    "Атрибут '%s' не прошел валидацию - значение [%s] нельзя преобразовать в дату", 
-                                    field.getName(), value);
+                            throw NsiExceptionBuilder.on()
+                            .requestId(requestId)
+                            .error(NsiError.CONSTRAINT_VIOLATION) 
+                            .message("Атрибут '%s' не прошел валидацию - значение [%s] нельзя преобразовать в дату", 
+                                    field.getName(), value)
+                            .build();
                         }
                     default:
                         break;
@@ -298,9 +315,12 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                     if (null != field.getEnumValues() 
                             && !field.getEnumValues().isEmpty()
                             && !field.getEnumValues().keySet().contains(value)){
-                        throw new NsiServiceException(requestId, NsiError.CONSTRAINT_VIOLATION, 
-                                "Атрибут '%s' не прошел валидацию - значение [%s] не является допустимым значением перечисления",
-                                field.getName(), value);
+                        throw NsiExceptionBuilder.on()
+                        .requestId(requestId)
+                        .error(NsiError.CONSTRAINT_VIOLATION) 
+                        .message("Атрибут '%s' не прошел валидацию - значение [%s] не является допустимым значением перечисления",
+                                field.getName(), value)
+                        .build();
                     }
                 }
                 
@@ -316,15 +336,26 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         boolean isInsert = data.isIdAttrEmpty();
               
         if (isInsert) {
-        	query.addStdAttrs();
-            log.info("dictSave [{},{}] -> inserted [{}]", tx.getRequestId(),
-                    dict.getName(), data.getIdAttr());
-        } else {
-            log.info("dictSave [{},{}] -> updated [{}]", tx.getRequestId(),
-                    dict.getName(), data.getIdAttr());
-        }     
-        outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
-        
+            query.addStdAttrs();
+        }
+        try {
+            outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
+            if (isInsert) {
+                log.info("dictSave [{},{}] -> inserted [{}]", tx.getRequestId(),
+                        dict.getName(), data.getIdAttr());
+            } else {
+                log.info("dictSave [{},{}] -> updated [{}]", tx.getRequestId(),
+                        dict.getName(), data.getIdAttr());
+            }
+        } catch (WriteLockNsiDataException e) {
+            log.error("dictSave [{},{}] -> error", tx.getRequestId(), data.getDict().getName(), e);
+            throw NsiExceptionBuilder.on()
+                .requestId(tx.getRequestId())
+                .error(NsiError.WRITE_LOCK_ERROR)
+                .message(e.getMessage())
+                .data(e.getData())
+                .build();
+        }
         return outData;
     }
 
@@ -334,9 +365,14 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         try {
             validateFields(tx.getRequestId(), data);
             return dictSaveInternal(tx, data, sqlDao);
+        } catch (NsiServiceException e) {
+            throw NsiExceptionBuilder.on().map(e).build();
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", tx.getRequestId(), data.getDict().getName(), e);
-            throw new NsiServiceException(e.getMessage());
+            throw NsiExceptionBuilder.on()
+                .requestId(tx.getRequestId())
+                .message(e.getMessage())
+                .build();
         } finally {
             t.stop();
         }
@@ -349,19 +385,25 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
             try {
                 return dictSaveInternal(tx, data, sqlDao);
+            } catch (NsiServiceException e){
+                tx.rollback();
+                throw NsiExceptionBuilder.on().map(e).build();
             } catch (Exception e) {
                 log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
                 tx.rollback();
-                if (e instanceof NsiServiceException) 
-                    throw e;
-
-                throw new NsiServiceException(e.getMessage());
+                throw NsiExceptionBuilder.on()
+                .requestId(requestId)
+                .message(e.getMessage())
+                .build();
             }
         } catch (NsiServiceException e){
-            throw e;
+            throw NsiExceptionBuilder.on().map(e).build();
         } catch (Exception e) {
             log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
-            throw new NsiServiceException(e.getMessage());
+            throw NsiExceptionBuilder.on()
+            .requestId(requestId)
+            .message(e.getMessage())
+            .build();
         } finally {
             t.stop();
         }
@@ -491,14 +533,14 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictMergeByExternalAttrs(final String requestId, final DictRow data, final SqlDao sqlDao) {
         final Timer.Context t = dictMergeByExternalAttrs.time();
         try {
-			return new NsiTransactionTemplate<DictRow>(transactionService, requestId, log) {
-				
-				@Override
-				public DictRow doInTransaction(NsiTransaction tx) {
-					return dictMergeByExternalIdInternal(tx, data, sqlDao);
-				}
-				
-			}.start();
+            return new NsiTransactionTemplate<DictRow>(transactionService, requestId, log) {
+                
+                @Override
+                public DictRow doInTransaction(NsiTransaction tx) {
+                    return dictMergeByExternalIdInternal(tx, data, sqlDao);
+                }
+                
+            }.start();
 
         } finally {
             t.stop();
@@ -508,20 +550,20 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictMergeByExternalAttrs(NsiTransaction tx, final DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictMergeByExternalAttrs.time();
         try {
-			return dictMergeByExternalIdInternal(tx, data, sqlDao);
+            return dictMergeByExternalIdInternal(tx, data, sqlDao);
         } catch (Exception e) {
-        	log.error("dictMergeByExternalId [{}] -> error", tx.getRequestId(), e);
-        	throw new NsiServiceException(e.getMessage());
+            log.error("dictMergeByExternalId [{}] -> error", tx.getRequestId(), e);
+            throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
         }
     }
     
-	private DictRow dictMergeByExternalIdInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
-		return sqlDao.mergeByExternalAttrs(tx.getConnection(), data);
-	}
+    private DictRow dictMergeByExternalIdInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao) {
+        return sqlDao.mergeByExternalAttrs(tx.getConnection(), data);
+    }
 
-	@Override
+    @Override
     public NsiPlatform getNsiPlatform() {
         return nsiPlatform;
     }

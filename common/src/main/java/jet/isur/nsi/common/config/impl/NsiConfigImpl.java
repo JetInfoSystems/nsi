@@ -2,6 +2,7 @@
 package jet.isur.nsi.common.config.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,21 +51,12 @@ public class NsiConfigImpl implements NsiConfig {
         }
         // обрабатываем поля
         for (MetaField metaField : metaDict.getFields()) {
-            preCheckField(dict, metaField);
-            String fieldName = metaField.getName();
-            if(dict.getFieldNameMap().containsKey(fieldName)) {
-                throwDictException(dict, "field already exists", fieldName);
-            }
-            dict.addField(new NsiConfigField(metaField));
+            addDictField(dict, metaField);
         }
 
         // обрабатываем атрибуты
         for (MetaAttr metaAttr : metaDict.getAttrs()) {
-            String attrName = metaAttr.getName();
-            if(dict.getAttrNameMap().containsKey(attrName)) {
-                throwDictException(dict, "attr already exists", attrName);
-            }
-            dict.addAttr(createAttr(dict, metaAttr));
+            addDictAttr(dict, metaAttr);
         }
 
         // обрабатываем служебные атрибуты
@@ -100,6 +92,17 @@ public class NsiConfigImpl implements NsiConfig {
             dict.setUniqueAttr(checkAttrExists(dict, metaDict.getUniqueAttr()));
             dict.getUniqueAttr().setRequired(true);
         }
+        if(metaDict.isAutoVersion() && dict.getTable() != null) {
+            MetaField metaField = createAutoVersionField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoVersionAttr(metaField);
+            dict.setVersionAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getVersionAttr() != null) {
+            dict.setVersionAttr(checkAttrExists(dict, metaDict.getVersionAttr()));
+            dict.getVersionAttr().setRequired(false);
+            dict.getVersionAttr().setReadonly(true);
+        }
+        
         // обрабатываем списки атрибутов
         //dict.getCaptionAttrs().addAll(createFieldList(dict,metaDict.getCaptionAttrs()));
         dict.setRefObjectAttrs(createAttrList(dict,metaDict.getRefObjectAttrs()));
@@ -117,6 +120,47 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setOwns(result);
 
         dictMap.put(dictName, dict);
+    }
+
+    private NsiConfigAttr addDictAttr(NsiConfigDict dict, MetaAttr metaAttr) {
+        String attrName = metaAttr.getName();
+        if(dict.getAttrNameMap().containsKey(attrName)) {
+            throwDictException(dict, "attr already exists", attrName);
+        }
+        NsiConfigAttr result = createAttr(dict, metaAttr);
+        dict.addAttr(result);
+        return result;
+    }
+
+    private MetaAttr createAutoVersionAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultVersionName());
+        result.setCaption("Версия");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        result.setReadonly(true);
+        return result;
+    }
+
+    private void addDictField(NsiConfigDict dict, MetaField metaField) {
+        preCheckField(dict, metaField);
+        checkFieldExists(dict, metaField);
+        dict.addField(new NsiConfigField(metaField));
+    }
+
+    private void checkFieldExists(NsiConfigDict dict, MetaField metaField) {
+        String fieldName = metaField.getName();
+        if(dict.getFieldNameMap().containsKey(fieldName)) {
+            throwDictException(dict, "field already exists", fieldName);
+        }
+    }
+
+    private MetaField createAutoVersionField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultVersionName());
+        result.setSize(params.getDefaultVersionSize());
+        result.setType(params.getDefaultVersionType());
+        return result;
     }
 
     private NsiConfigAttr checkAttrExists(NsiConfigDict dict, String name) {

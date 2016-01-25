@@ -36,6 +36,7 @@ import jet.isur.nsi.api.platform.PlatformSqlDao;
 import jet.isur.nsi.api.sql.SqlDao;
 import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
+import jet.isur.nsi.common.data.WriteLockNsiDataException;
 
 public class DefaultSqlDao implements SqlDao {
 
@@ -93,6 +94,10 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     protected void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result) throws SQLException {
+        rsToDictRow(query, rs, result, true);
+    }
+
+    protected void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result, boolean includeRefAttrs) throws SQLException {
         int index = 1;
         NsiConfigDict dict = query.getDict();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
@@ -106,7 +111,7 @@ public class DefaultSqlDao implements SqlDao {
                 fieldValues.add(getFieldValue(rs,index,field));
                 index++;
             }
-            if(dict.isAttrHasRefAttrs(attr)) {
+            if(includeRefAttrs && dict.isAttrHasRefAttrs(attr)) {
                 int refAttrCount = attr.getRefDict().getRefObjectAttrs().size();
                 Map<String, DictRowAttr> refAttrValues = new HashMap<>(refAttrCount);
                 attrValue.setRefAttrs(refAttrValues);
@@ -179,7 +184,8 @@ public class DefaultSqlDao implements SqlDao {
     public int setParamsForUpdate(NsiQuery query, DictRow data,
             PreparedStatement ps) throws SQLException {
         int index = 1;
-        NsiConfigAttr idAttr = query.getDict().getIdAttr();
+        NsiConfigDict dict = query.getDict();
+        NsiConfigAttr idAttr = dict.getIdAttr();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
 
@@ -217,6 +223,17 @@ public class DefaultSqlDao implements SqlDao {
             setParam(ps, index, field, dataValues.get(i));
             index++;
             i++;
+        }
+        return index;
+    }
+
+    public int setParamsForUpdate(NsiQuery query, DictRow data, DictRowAttr curVersion,
+            PreparedStatement ps) throws SQLException {
+        int index = setParamsForUpdate(query, data, ps);
+        NsiConfigDict dict = query.getDict();
+        if(dict.getVersionAttr() != null ) {
+            setParam(ps, index, dict.getVersionAttr().getFields().get(0), curVersion.getString());
+            index++;
         }
         return index;
     }
@@ -306,10 +323,16 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow get(Connection connection, NsiQuery query,
             DictRowAttr id) {
+        return get(connection, query, id, false);
+    }
+
+    @Override
+    public DictRow get(Connection connection, NsiQuery query,
+            DictRowAttr id, boolean lock) {
         NsiConfigDict dict = query.getDict();
         checkDictHasIdAttr(dict);
         DictRow result = dict.newDictRow();
-        String sql = sqlGen.getRowGetSql(query);
+        String sql = sqlGen.getRowGetSql(query, lock);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             int paramCount = setParamsForGetWhere(query, ps, id) - 1;
@@ -317,7 +340,7 @@ public class DefaultSqlDao implements SqlDao {
 
             try(ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
-                    rsToDictRow(query, rs, result);
+                    rsToDictRow(query, rs, result, !lock);
                 } else {
                     throw new NsiDataException(Joiner.on(" ").join("not foud", id));
                 }
@@ -429,7 +452,8 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow insert(Connection connection, NsiQuery query, DictRow data) {
         checkDictHasIdAttr(query.getDict());
-
+        setVersionDefault(query, data);
+        
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
         boolean useSeq = (idAttr != null && idAttr.getFields().size() == 1 && DictRowAttr.isEmpty(data.getIdAttr()));
         String sql = sqlGen.getRowInsertSql(query, useSeq);
@@ -454,6 +478,16 @@ public class DefaultSqlDao implements SqlDao {
         }
     }
 
+    private void setVersionDefault(NsiQuery query, DictRow data) {
+        NsiConfigDict dict = query.getDict();
+        if(dict.getVersionAttr() != null) {
+            query.addVersion();
+            if(data.isAttrEmpty(dict.getVersionAttr())) {
+                data.setAttr(dict.getVersionAttr().getName(), 1);
+            }
+        }
+    }
+
     private void updateRowData(DictRow row, DictRow data) throws SQLException {
         for (String attrName : row.getAttrs().keySet()){
             if (!data.getAttrs().containsKey(attrName)){
@@ -466,6 +500,7 @@ public class DefaultSqlDao implements SqlDao {
     public DictRow update(Connection connection, NsiQuery query,
             DictRow data) {
         checkDictHasIdAttr(query.getDict());
+        NsiConfigDict dict = query.getDict();
 
         String sql = sqlGen.getRowUpdateSql(query);
         log.info(sql);
@@ -474,7 +509,37 @@ public class DefaultSqlDao implements SqlDao {
                 DictRow row = get(connection, query, data.getIdAttr());
                 updateRowData(row, data);
             }
-            int paramCount = setParamsForUpdate(query, data, ps) - 1;
+            int paramCount;
+            // ставим эксклюзивную блокировку на запись 
+            DictRow curData = getCurDataLock(connection, dict, data);
+
+            if(dict.getVersionAttr() != null) {
+                // если версия в базе задана
+                if(!curData.isAttrEmpty(dict.getVersionAttr())) {
+                    if(data.isAttrEmpty(dict.getVersionAttr())) {
+                        throw new NsiDataException("versionAttr required for update: "+ dict.getName());
+                    }
+                    // проверяем что никто не изменил запись 
+                    if(!data.getVersionAttrString().equals(curData.getVersionAttrString())) {
+                        throw new WriteLockNsiDataException(
+                                // получаем полное текущее состояние
+                                get(connection, dict.query().addAttrs(), data.getIdAttr())
+                                ,"version not match expected: "+ dict.getName() + ", " + data.getVersionAttrString() + ", " + curData.getVersionAttrString());
+                    }
+                    // задаем новую версию 
+                    if(dict.getVersionAttr().getFields().get(0).getType() == MetaFieldType.NUMBER) {
+                        data.setVersionAttr(curData.getVersionAttrLong() + 1);
+                    } else {
+                        // TODO реализовать стратегию
+                        throw new NsiDataException("unsupported version type "+ dict.getName());
+                    }
+                } else {
+                    // для существующих записей с незаданным значением версии при первом изменении устанавливаем версию в начальное значение
+                    setVersionDefault(query, data);
+                }
+            }
+            paramCount = setParamsForUpdate(query, data, ps) - 1;
+            
             log.info("params: {}", paramCount);
 
             int count = ps.executeUpdate();
@@ -487,6 +552,20 @@ public class DefaultSqlDao implements SqlDao {
         } catch (SQLException e) {
             throw new NsiDataException("update:" + e.getMessage(),e);
         }
+    }
+
+    private DictRow getCurDataLock(Connection connection, NsiConfigDict dict, DictRow data) {
+        DictRow result = null;
+        if(dict.getVersionAttr() != null) {
+            NsiQuery query = dict.query()
+                .addLastChange()
+                .addLastUser();
+            if(dict.getVersionAttr()!=null) {
+                query.addVersion();
+            }
+            result = get(connection, query, data.getIdAttr(), true);
+        }
+        return result;
     }
 
     @Override
@@ -580,11 +659,17 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     private DictRow mergeDictRow(DictRow source, DictRow target) {
-        NsiConfigAttr idAttr = target.getDict().getIdAttr();
-        Preconditions.checkNotNull(idAttr, "Нет idAttr в %s", target.getDict().getName());
+        NsiConfigDict dict = target.getDict();
+        NsiConfigAttr idAttr = dict.getIdAttr();
+        Preconditions.checkNotNull(idAttr, "Нет idAttr в %s", dict.getName());
         
         for(Map.Entry<String, DictRowAttr> entry : source.getAttrs().entrySet()) {
             if(idAttr.getName().equals(entry.getKey())) {
+                continue;
+            }
+            // если есть versionAttr то его тоже пропускаем
+            if(dict.getVersionAttr()!=null 
+                    && dict.getVersionAttr().getName().equals(entry.getKey())) {
                 continue;
             }
             target.setAttr(entry.getKey(), entry.getValue());

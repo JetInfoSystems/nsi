@@ -62,7 +62,7 @@ public class DictRow {
     @Transient
     public void setUniquAttr(DictRowAttr value) {
         NsiConfigAttr attr = dict.getUniqueAttr();
-        checkDictAttrNotNull(attr, "UniqueAttr");
+        checkDictAttrNotNull(attr, "uniqueAttr");
         setAttr(attr, value);
     }
     
@@ -75,23 +75,62 @@ public class DictRow {
     @Transient
     public Long getUniqueAttrLong() {
         NsiConfigAttr attr = dict.getUniqueAttr();
-        return (attr == null)? null : getLong(getDictIdAttr());
+        return (attr == null)? null : getLong(attr);
     }
 
     @Transient
     public void setUniqueAttr(String value) {
         NsiConfigAttr attr = dict.getUniqueAttr();
-        checkDictAttrNotNull(attr, "UniqueAttr");
+        checkDictAttrNotNull(attr, "uniqueAttr");
         setAttr(attr, value);
     }
 
     @Transient
     public void setUniqueAttr(Long value) {
         NsiConfigAttr attr = dict.getUniqueAttr();
-        checkDictAttrNotNull(attr, "UniqueAttr");
+        checkDictAttrNotNull(attr, "uniqueAttr");
+        setAttr(attr, value);
+    }
+
+    @Transient
+    public DictRowAttr getVersionAttr() {
+        NsiConfigAttr attr = dict.getVersionAttr();
+        return (attr == null)? null : getAttr(attr.getName());
+    }
+    
+    @Transient
+    public void setVersionAttr(DictRowAttr value) {
+        NsiConfigAttr attr = dict.getVersionAttr();
+        checkDictAttrNotNull(attr, "versionAttr");
         setAttr(attr, value);
     }
     
+    @Transient
+    public String getVersionAttrString() {
+        NsiConfigAttr attr = dict.getVersionAttr();
+        return (attr == null)? null : getString(attr);
+    }
+
+    @Transient
+    public Long getVersionAttrLong() {
+        NsiConfigAttr attr = dict.getVersionAttr();
+        return (attr == null)? null : getLong(attr);
+    }
+
+    @Transient
+    public void setVersionAttr(String value) {
+        NsiConfigAttr attr = dict.getVersionAttr();
+        checkDictAttrNotNull(attr, "versionAttr");
+        setAttr(attr, value);
+    }
+
+    @Transient
+    public void setVersionAttr(Long value) {
+        NsiConfigAttr attr = dict.getVersionAttr();
+        checkDictAttrNotNull(attr, "versionAttr");
+        setAttr(attr, value);
+    }
+
     @Transient
     void setAttr(NsiConfigAttr a, DictRowAttr value) {
         if(value == null) {
@@ -640,17 +679,17 @@ public class DictRow {
     }
 
     public String getAttrsValueAsString(List<NsiConfigAttr> attrs) {
-    	StringBuilder sb = new StringBuilder();
-    	for(NsiConfigAttr attr : attrs) {
-			DictRowAttr rowAttr = this.getAttr(attr.getName());
-			sb.append(attr.getName()).append("=");
-			for(String value : rowAttr.getValues()) {
-				sb.append(value).append(",");
-			}
-			sb.append(" ");
-		}
-    	
-    	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        for(NsiConfigAttr attr : attrs) {
+            DictRowAttr rowAttr = this.getAttr(attr.getName());
+            sb.append(attr.getName()).append("=");
+            for(String value : rowAttr.getValues()) {
+                sb.append(value).append(",");
+            }
+            sb.append(" ");
+        }
+        
+        return sb.toString();
     }
     
     public void removeAttr(String name) {

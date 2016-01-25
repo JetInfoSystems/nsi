@@ -87,6 +87,10 @@ public class NsiQuery {
         return addAttr(MAIN_ALIAS, dict.getParentAttr());
     }
 
+    public NsiQuery addVersion() {
+        return addAttr(MAIN_ALIAS, dict.getVersionAttr());
+    }
+    
     public NsiQuery addStdAttrs() {
         if(dict.getIdAttr() != null) addId();
         if(dict.getDeleteMarkAttr() != null) addDeleteMark();
@@ -95,6 +99,7 @@ public class NsiQuery {
         if(dict.getLastUserAttr() != null) addLastUser();
         if(dict.getOwnerAttr() != null) addOwner();
         if(dict.getParentAttr() != null) addParent();
+        if(dict.getVersionAttr() != null) addVersion();
         return this;
     }
 
