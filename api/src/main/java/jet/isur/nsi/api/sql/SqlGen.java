@@ -4,6 +4,7 @@ import java.util.List;
 
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
+import jet.isur.nsi.api.model.RefAttrsType;
 import jet.isur.nsi.api.model.SortExp;
 
 public interface SqlGen {
@@ -12,6 +13,8 @@ public interface SqlGen {
     
     public String getRowGetSql(NsiQuery query, boolean lock);
     
+    public String getRowGetSql(NsiQuery query, boolean lock, RefAttrsType refAttrsType);
+    
     public String getRowInsertSql(NsiQuery query, boolean useSeq);
 
     public String getRowUpdateSql(NsiQuery query);
@@ -19,6 +22,8 @@ public interface SqlGen {
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size);
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQueryName);
+    
+    public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size, String sourceQueryName, RefAttrsType refAttrsType);
 
     public String getCountSql(NsiQuery query, BoolExp filter);
 

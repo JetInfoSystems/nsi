@@ -38,6 +38,7 @@ import jet.isur.nsi.api.data.NsiQueryAttr;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
+import jet.isur.nsi.api.model.RefAttrsType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.platform.PlatformSqlGen;
 import jet.isur.nsi.api.sql.SqlGen;
@@ -52,6 +53,10 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowGetSql(NsiQuery query, boolean lock) {
+        return getRowGetSql(query, lock, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    public String getRowGetSql(NsiQuery query, boolean lock, RefAttrsType refAttrsType) {
         if(lock) {
             Collection<? extends SelectField<?>> selectFields = getSelectFields(query, false);
             Table<?> fromSource = createFromSource(query, null);
@@ -59,7 +64,7 @@ public class DefaultSqlGen implements SqlGen {
             Condition condition = getIdCondition(query, baseQuery);
             return baseQuery.where(condition).forUpdate().getSQL();
         } else {
-            SelectJoinStep<?> baseQuery = createBaseQuery(query, true, null);
+            SelectJoinStep<?> baseQuery = createBaseQuery(query, true, null, refAttrsType);
             Condition condition = getIdCondition(query, baseQuery);
             SelectConditionStep<?> resultQuery = baseQuery.where(condition);
             return resultQuery.getSQL();
@@ -75,7 +80,11 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields, String sourceQueryName) {
-        Collection<? extends SelectField<?>> selectFields = getSelectFields(query, true);
+        return createBaseQuery(query, includeRefFields, sourceQueryName, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields, String sourceQueryName, RefAttrsType refAttrsType) {
+        Collection<? extends SelectField<?>> selectFields = getSelectFields(query, true, refAttrsType);
         Table<?> fromSource = createFromSource(query, sourceQueryName);
         SelectJoinStep<Record> selectJoinStep = getQueryBuilder().select(selectFields).from(fromSource);
 
@@ -151,6 +160,10 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected List<SelectField<?>> getSelectFields(NsiQuery query, boolean includeRefFields) {
+        return getSelectFields(query, includeRefFields, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    protected List<SelectField<?>> getSelectFields(NsiQuery query, boolean includeRefFields, RefAttrsType refAttrsType) {
         List<SelectField<?>> result = new ArrayList<>();
         NsiConfigDict dict = query.getDict();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
@@ -160,10 +173,13 @@ public class DefaultSqlGen implements SqlGen {
                 result.add(field(queryAttr.getAlias() + "." + field.getName()));
             }
             if(includeRefFields && dict.isAttrHasRefAttrs(attr)) {
-                for (NsiConfigAttr refAttr : attr.getRefDict().getRefObjectAttrs()) {
-                    for (NsiConfigField field : refAttr.getFields()) {
-                        String alias = queryAttr.getRefAlias() + "_" + field.getName();
-                        result.add(field(queryAttr.getRefAlias() + "." + field.getName()).as(alias));
+                List<NsiConfigAttr> refAttrs = attr.getRefDict().getRefAttrs(refAttrsType);
+                if(refAttrs != null) {
+                    for (NsiConfigAttr refAttr : refAttrs) {
+                        for (NsiConfigField field : refAttr.getFields()) {
+                            String alias = queryAttr.getRefAlias() + "_" + field.getName();
+                            result.add(field(queryAttr.getRefAlias() + "." + field.getName()).as(alias));
+                        }
                     }
                 }
             }
@@ -239,9 +255,15 @@ public class DefaultSqlGen implements SqlGen {
     @Override
     public String getListSql(NsiQuery query, BoolExp filter,
             List<SortExp> sortList, long offset, int size, String sourceQuery) {
+        return getListSql(query, filter, sortList, offset, size, sourceQuery, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    @Override
+    public String getListSql(NsiQuery query, BoolExp filter,
+            List<SortExp> sortList, long offset, int size, String sourceQuery, RefAttrsType refAttrsType) {
         checkPaginationExp(offset, size);
 
-        SelectJoinStep<?> baseQuery = createBaseQuery(query, true, sourceQuery);
+        SelectJoinStep<?> baseQuery = createBaseQuery(query, true, sourceQuery, refAttrsType);
         Condition filterCondition = getWhereCondition(query, filter, baseQuery);
         if(filterCondition != null) {
             baseQuery.where(filterCondition);

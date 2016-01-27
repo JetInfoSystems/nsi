@@ -8,6 +8,10 @@ import java.util.Map;
 /**
  * Описание справочника.
  */
+/**
+ * @author balmaster
+ *
+ */
 public class MetaDict extends MetaDictRef {
     private static final long serialVersionUID = 1L;
 
@@ -116,14 +120,44 @@ public class MetaDict extends MetaDictRef {
     private String mainDict;
 
     /**
+     * Атрибут для представления версии
+     */
+    private String versionAttr;
+    
+    /**
      * Автоматическое генерирование поля и атрибута для хранения версии
      */
     private boolean autoVersion = true;
     
     /**
-     * Атрибут для представления версии
+     * Автоматическое генерирование поля и атрибута для хранения отметки о удалении
      */
-    private String versionAttr;
+    private boolean autoDeleteMarkAttr = false;
+    
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения идентификатора
+     */
+    private boolean autoIdAttr = false;
+    
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения отметки о том что запись является группой
+     */
+    private boolean autoIsGroupAttr = false;
+    
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения ссылки на родителя
+     */
+    private boolean autoParentAttr = false;
+    
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения времени модификации
+     */
+    private boolean autoLastChangeAttr = false;
+    
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения ид пользователя сделавшего последнии изменения
+     */
+    private boolean autoLastUserAttr = false;
     
     public String getTable() {
         return table;
@@ -281,6 +315,42 @@ public class MetaDict extends MetaDictRef {
     }
     public void setVersionAttr(String versionAttr) {
         this.versionAttr = versionAttr;
+    }
+    public boolean isAutoDeleteMarkAttr() {
+        return autoDeleteMarkAttr;
+    }
+    public void setAutoDeleteMarkAttr(boolean autoDeleteMarkAttr) {
+        this.autoDeleteMarkAttr = autoDeleteMarkAttr;
+    }
+    public boolean isAutoIdAttr() {
+        return autoIdAttr;
+    }
+    public void setAutoIdAttr(boolean autoIdAttr) {
+        this.autoIdAttr = autoIdAttr;
+    }
+    public boolean isAutoIsGroupAttr() {
+        return autoIsGroupAttr;
+    }
+    public void setAutoIsGroupAttr(boolean autoIsGroupAttr) {
+        this.autoIsGroupAttr = autoIsGroupAttr;
+    }
+    public boolean isAutoParentAttr() {
+        return autoParentAttr;
+    }
+    public void setAutoParentAttr(boolean autoParentAttr) {
+        this.autoParentAttr = autoParentAttr;
+    }
+    public boolean isAutoLastChangeAttr() {
+        return autoLastChangeAttr;
+    }
+    public void setAutoLastChangeAttr(boolean autoLastChangeAttr) {
+        this.autoLastChangeAttr = autoLastChangeAttr;
+    }
+    public boolean isAutoLastUserAttr() {
+        return autoLastUserAttr;
+    }
+    public void setAutoLastUserAttr(boolean autoLastUserAttr) {
+        this.autoLastUserAttr = autoLastUserAttr;
     }
     
 }
