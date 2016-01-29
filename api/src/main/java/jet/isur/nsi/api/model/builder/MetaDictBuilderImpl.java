@@ -1,12 +1,15 @@
+
 package jet.isur.nsi.api.model.builder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaField;
 import jet.isur.nsi.api.model.MetaFieldType;
+import jet.isur.nsi.api.model.MetaOwn;
 
 public class MetaDictBuilderImpl implements MetaDictBuilder {
 
@@ -123,24 +126,30 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             return this;
         }
 
-		@Override
-		public MetaAttrBuilder createOnly(Boolean value) {
-			getPrototype().setCreateOnly(value);
-			return this;
-		}
+        @Override
+        public MetaAttrBuilder createOnly(Boolean value) {
+            getPrototype().setCreateOnly(value);
+            return this;
+        }
 
-		@Override
-		public MetaAttrBuilder required(Boolean value) {
-			getPrototype().setRequired(value);
-			return this;
-		}
+        @Override
+        public MetaAttrBuilder required(Boolean value) {
+            getPrototype().setRequired(value);
+            return this;
+        }
+
+        @Override
+        public MetaAttrBuilder refAttrHidden(boolean value) {
+            getPrototype().setRefAttrHidden(value);
+            return null;
+        }
 
         @Override
         public MetaAttrBuilder defaultValue(String defaultValue) {
             getPrototype().setDefaultValue(defaultValue);
             return this;
         }
-	}
+    }
 
     private MetaDict prototype;
 
@@ -154,7 +163,9 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             prototype.setRefObjectAttrs(new ArrayList<String>());
             prototype.setLoadDataAttrs(new ArrayList<String>());
             prototype.setTableObjectAttrs(new ArrayList<String>());
-            prototype.setConstraints(new ArrayList<String>());
+            prototype.setMergeExternalAttrs(new ArrayList<String>());
+            prototype.setInterceptors(new ArrayList<String>());
+            prototype.setOwns(new HashMap<String, MetaOwn>());
         }
         return prototype;
     }
@@ -249,8 +260,14 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
     }
 
     @Override
-    public MetaDictBuilder addConstraint(String value) {
-        getPrototype().getConstraints().add(value);
+    public MetaDictBuilder addMergeExternalAttr(String value) {
+        getPrototype().getMergeExternalAttrs().add(value);
+        return this;
+    }
+    
+    @Override
+    public MetaDictBuilder addInterceptor(String value) {
+        getPrototype().getInterceptors().add(value);
         return this;
     }
 
@@ -263,6 +280,18 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
     @Override
     public MetaDictBuilder caption(String value) {
         getPrototype().setCaption(value);
+        return this;
+    }
+
+    @Override
+    public MetaDictBuilder addOwn(String key, String value) {
+        getPrototype().getOwns().put(key, new MetaOwn(value));
+        return this;
+    }
+
+    @Override
+    public MetaDictBuilder uniqueAttr(String val) {
+        getPrototype().setUniqueAttr(val);
         return this;
     }
 }

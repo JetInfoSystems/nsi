@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import jet.isur.nsi.api.data.DictRow;
+import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
@@ -21,6 +22,16 @@ public interface SqlDao {
      * @return
      */
     public DictRow get(Connection connection, NsiQuery query, DictRowAttr id);
+
+    /**
+     * Получить запись справочника, если есть REF атрибуты то для низ возвращаютмя ref атрибуты
+     * @param connection
+     * @param query
+     * @param id
+     * @param lock взять эксклюзивную блокировку для записи
+     * @return
+     */
+    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock);
 
     /**
      * Получить страницу записей справочника удовлетворяющих критерию,
@@ -80,5 +91,10 @@ public interface SqlDao {
      * @return
      */
     public DictRow save(Connection connection, NsiQuery query, DictRow data, boolean insert);
+
+    /**
+     * Обьединение записей
+     */
+	public DictRow mergeByExternalAttrs(Connection connection, DictRow data);
 
 }

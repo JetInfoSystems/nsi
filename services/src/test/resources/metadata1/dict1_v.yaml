@@ -1,0 +1,65 @@
+
+attrs:
+- caption: f 1
+  fields: [f1]
+  hidden: false
+  name: f1
+  type: value
+- caption: id
+  fields: [id]
+  hidden: false
+  name: id
+  type: value
+  createOnly : true
+  required: true
+- caption: is_deleted
+  fields: [is_deleted]
+  hidden: false
+  name: is_deleted
+  type: value
+- caption: last change
+  fields: [last_change]
+  hidden: true
+  name: last_change
+  type: value
+- caption: last_user
+  fields: [last_user]
+  hidden: false
+  name: last_user
+  type: value
+  readonly: true
+- caption: org
+  fields: [ORG_ID]
+  name: ORG_ID
+  type: value
+- caption: org_role
+  fields: [ORG_ROLE_ID]
+  name: ORG_ROLE_ID
+  type: value
+- caption: V
+  fields: [V]
+  name: V
+  type: value
+caption: Справочник1
+captionAttrs: [f1]
+deleteMarkAttr: is_deleted
+fields:
+- {name: id, size: 19, type: number}
+- {name: is_deleted, size: 1, type: boolean}
+- {name: last_change, type: date-time}
+- {name: last_user, size: 19, type: number}
+- {name: f1, size: 100, type: varchar}
+- {name: ORG_ID, size: 19, type: number}
+- {name: ORG_ROLE_ID, size: 19, type: number}
+- {name: V, size: 19, type: number}
+hidden: true
+idAttr: id
+lastChangeAttr: last_change
+lastUserAttr: last_user
+mainDict: dict1
+name: dict1_v
+refObjectAttrs: [f1]
+sourceQueries:
+  MAIN:
+    sql: select table1.*, 123 v from table1
+tableObjectAttrs: [V]

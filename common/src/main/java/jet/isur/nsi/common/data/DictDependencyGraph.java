@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigAttr;
@@ -24,6 +28,7 @@ public class DictDependencyGraph {
 
     private final NsiConfig config;
     private final DirectedGraph<NsiConfigDict, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    private final Map<NsiConfigDict, Set<String>> cycleRefs = new HashMap<>();
 
     public DictDependencyGraph(NsiConfig config) {
         this.config = config;
@@ -38,26 +43,32 @@ public class DictDependencyGraph {
     }
 
     private void add(NsiConfigDict dict) {
-        if(graph.addVertex(getMainDict(dict))) {
+        NsiConfigDict mainDict = getMainDict(dict);
+        if(graph.addVertex(mainDict)) {
             // рекурсивно добавляем все справочники для которых dict является владельцем
-            addAllOwnedDicts(dict);
+            addAllOwnedDicts(mainDict);
             // рекурсивно добавляем все справочники на которые dict ссылается
-            addAllRefDicts(dict);
+            addAllRefDicts(mainDict);
         }
     }
 
     private void addAllRefDicts(NsiConfigDict dict) {
         for (NsiConfigAttr attr : dict.getAttrs()) {
             if(attr.getType() == MetaAttrType.REF) {
-                NsiConfigDict refDict = attr.getRefDict();
                 // игнорируем parent атрибуты
                 if(attr == dict.getParentAttr()) continue;
+                NsiConfigDict refDict = attr.getRefDict();
+                NsiConfigDict mainRefDict = getMainDict(refDict);
                 // выключаем прямые циклы
-                add(refDict);
+                add(mainRefDict);
                 // refDict может оказаться прокси представлением
-                DefaultEdge e = graph.addEdge(dict, getMainDict(refDict));
+                DefaultEdge e = graph.addEdge(dict, mainRefDict);
                 if(hasCycles()) {
                     graph.removeEdge(e);
+                    if(!cycleRefs.containsKey(dict)) {
+                        cycleRefs.put(dict, new HashSet<String>());
+                    }
+                    cycleRefs.get(dict).add(attr.getName());
                 }
             }
         }
@@ -70,9 +81,13 @@ public class DictDependencyGraph {
     private void addAllOwnedDicts(NsiConfigDict ownerDict) {
         for ( NsiConfigDict dict : config.getDicts()) {
             NsiConfigAttr ownerAttr = dict.getOwnerAttr();
-            if(ownerAttr != null && ownerAttr.getRefDict() == ownerDict ) {
-                add(dict);
-                graph.addEdge(dict, ownerDict);
+            if(ownerAttr != null) {
+                NsiConfigDict mainRefDict = getMainDict(ownerAttr.getRefDict()); 
+                if(mainRefDict == ownerDict ) {
+                    NsiConfigDict mainDict = getMainDict(dict);
+                    add(mainDict);
+                    graph.addEdge(mainDict, ownerDict);
+                }
             }
         }
     }
@@ -99,5 +114,9 @@ public class DictDependencyGraph {
         }
         Collections.reverse(items);
         return items;
+    }
+
+    public Map<NsiConfigDict, Set<String>> getCycleRefs() {
+        return cycleRefs;
     }
 }

@@ -1,6 +1,7 @@
-package jet.isur.nsi.migrator;
+package jet.isur.nsi.migrator.platform;
 
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.Date;
 
 import javax.xml.bind.JAXBContext;
@@ -12,6 +13,7 @@ import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaFieldType;
+import jet.isur.nsi.migrator.MigratorException;
 
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmBasicAttributeType;
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmColumnType;
@@ -27,10 +29,10 @@ import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmTypeSpecificationType;
 import org.hibernate.tuple.GenerationTiming;
 
 
-public class NsiDictToHbmEntitySerializer {
+public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
     private final JAXBContext context;
 
-    public NsiDictToHbmEntitySerializer() {
+    public DefaultDictToHbmSerializer() {
         try {
             this.context = JAXBContext.newInstance(JaxbHbmHibernateMapping.class);
         } catch (JAXBException e) {
@@ -38,7 +40,7 @@ public class NsiDictToHbmEntitySerializer {
         }
     }
 
-    private JaxbHbmRootEntityType buildRootEntity(NsiConfigDict dict) {
+    protected JaxbHbmRootEntityType buildRootEntity(NsiConfigDict dict) {
         JaxbHbmRootEntityType result = new JaxbHbmRootEntityType();
         result.setName(dict.getName());
         result.setTable(dict.getTable());
@@ -63,7 +65,7 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private JaxbHbmManyToOneType buildManyToOne(NsiConfigAttr attr) {
+    protected JaxbHbmManyToOneType buildManyToOne(NsiConfigAttr attr) {
         JaxbHbmManyToOneType result = new JaxbHbmManyToOneType();
         result.setName(attr.getName());
         result.setEntityName(getMainDict(attr.getRefDict()).getName());
@@ -73,26 +75,35 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private NsiConfigDict getMainDict(NsiConfigDict refDict) {
+    protected NsiConfigDict getMainDict(NsiConfigDict refDict) {
         return refDict.getMainDict() != null ? refDict.getMainDict() : refDict;
     }
 
-    private JaxbHbmColumnType buildColumn(NsiConfigField field) {
+    protected JaxbHbmColumnType buildColumn(NsiConfigField field) {
         JaxbHbmColumnType result = new JaxbHbmColumnType();
         result.setName(field.getName());
-        // TODO:  это хардкод
-        if(field.getType() == MetaFieldType.DATE_TIME) {
-        	result.setLength(7);
-        } else if(field.getSize() > 0) {
-            result.setLength(field.getSize());
+        if(field.getType() == MetaFieldType.NUMBER) {
+            result.setPrecision(getFieldLength(field));
+            if(field.getPrecision() > 0) {
+                result.setScale(field.getPrecision());
+            }
         }
-        if(field.getPrecision() > 0) {
-            result.setPrecision(field.getPrecision());
-        }
+        result.setLength(getFieldLength(field));
         return result;
     }
 
-    private JaxbHbmBasicAttributeType buildBasicAttribute(NsiConfigField field) {
+    protected Integer getFieldLength(NsiConfigField field) {
+        // TODO:  это хардкод
+        if(field.getType() == MetaFieldType.DATE_TIME) {
+            return 7;
+        } else if(field.getSize() > 0) {
+            return field.getSize();
+        } else {
+            return null;
+        }
+    }
+
+    protected JaxbHbmBasicAttributeType buildBasicAttribute(NsiConfigField field) {
         JaxbHbmBasicAttributeType result = new JaxbHbmBasicAttributeType();
         result.setName(field.getName());
         result.setType(buildTypeSpecification(field));
@@ -101,16 +112,16 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private JaxbHbmSimpleIdType buildSimpleId(NsiConfigDict dict) {
+    protected JaxbHbmSimpleIdType buildSimpleId(NsiConfigDict dict) {
         JaxbHbmSimpleIdType result = new JaxbHbmSimpleIdType();
         NsiConfigField field = dict.getIdAttr().getFields().get(0);
         result.setType(buildTypeSpecification(field));
         result.getColumn().add(buildColumn(field));
-        result.setGenerator(buildSequince(dict));
+        result.setGenerator(buildSequence(dict));
         return result;
     }
 
-    private JaxbHbmTypeSpecificationType buildTypeSpecification(
+    protected JaxbHbmTypeSpecificationType buildTypeSpecification(
             NsiConfigField field) {
         JaxbHbmTypeSpecificationType result = new JaxbHbmTypeSpecificationType();
         Class<?> fieldClass = metaFieldTypeToPOJOType(field);
@@ -119,7 +130,7 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private Class<?> metaFieldTypeToPOJOType(NsiConfigField field) {
+    protected Class<?> metaFieldTypeToPOJOType(NsiConfigField field) {
         // это отображение типов нужно только для однозначного отображения типов java на заданные типы sql
         switch (field.getType()) {
         case BOOLEAN:
@@ -129,22 +140,30 @@ public class NsiDictToHbmEntitySerializer {
         case DATE_TIME:
             return Date.class;
         case NUMBER:
-            return Long.class;
+            if(field.getPrecision() > 0) {
+                return BigDecimal.class;
+            } else if(field.getSize() <= 19) {
+                return Long.class;
+            } else {
+                return BigDecimal.class;
+            }
         case VARCHAR:
             return String.class;
+        case CLOB:
+            return java.sql.Clob.class;
         default:
             throw new MigratorException("Invalid field type: " + field.getType());
         }
     }
 
-    private JaxbHbmGeneratorSpecificationType buildSequince(NsiConfigDict dict) {
+    protected JaxbHbmGeneratorSpecificationType buildSequence(NsiConfigDict dict) {
         JaxbHbmGeneratorSpecificationType result = new JaxbHbmGeneratorSpecificationType();
         result.setClazz("enhanced-sequence");
         result.getConfigParameters().add(buildConfigParameter("sequence_name",dict.getSeq()));
         return result;
     }
 
-    private JaxbHbmConfigParameterType buildConfigParameter(String name,
+    protected JaxbHbmConfigParameterType buildConfigParameter(String name,
             String value) {
         JaxbHbmConfigParameterType result = new JaxbHbmConfigParameterType();
         result.setName(name);
@@ -152,7 +171,7 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private JaxbHbmCompositeIdType buildCompositeId(NsiConfigDict dict) {
+    protected JaxbHbmCompositeIdType buildCompositeId(NsiConfigDict dict) {
         JaxbHbmCompositeIdType result = new JaxbHbmCompositeIdType();
         for ( NsiConfigField field : dict.getIdAttr().getFields()) {
             result.getKeyPropertyOrKeyManyToOne().add(buildCompositeKeyBasicAttribute(field));
@@ -160,7 +179,7 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private JaxbHbmCompositeKeyBasicAttributeType buildCompositeKeyBasicAttribute(
+    protected JaxbHbmCompositeKeyBasicAttributeType buildCompositeKeyBasicAttribute(
             NsiConfigField field) {
         JaxbHbmCompositeKeyBasicAttributeType result = new JaxbHbmCompositeKeyBasicAttributeType();
         result.setName(field.getName());
@@ -168,12 +187,13 @@ public class NsiDictToHbmEntitySerializer {
         return result;
     }
 
-    private JaxbHbmHibernateMapping buildHibernateMapping(NsiConfigDict dict) {
+    protected JaxbHbmHibernateMapping buildHibernateMapping(NsiConfigDict dict) {
         JaxbHbmHibernateMapping result = new JaxbHbmHibernateMapping();
         result.getClazz().add(buildRootEntity(dict));
         return result;
     }
 
+    @Override
     public void marshalTo(NsiConfigDict dict, OutputStream os) {
         try {
             Marshaller marchaler = context.createMarshaller();

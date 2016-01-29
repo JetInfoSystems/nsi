@@ -87,6 +87,10 @@ public class NsiQuery {
         return addAttr(MAIN_ALIAS, dict.getParentAttr());
     }
 
+    public NsiQuery addVersion() {
+        return addAttr(MAIN_ALIAS, dict.getVersionAttr());
+    }
+    
     public NsiQuery addStdAttrs() {
         if(dict.getIdAttr() != null) addId();
         if(dict.getDeleteMarkAttr() != null) addDeleteMark();
@@ -95,6 +99,7 @@ public class NsiQuery {
         if(dict.getLastUserAttr() != null) addLastUser();
         if(dict.getOwnerAttr() != null) addOwner();
         if(dict.getParentAttr() != null) addParent();
+        if(dict.getVersionAttr() != null) addVersion();
         return this;
     }
 
@@ -103,6 +108,18 @@ public class NsiQuery {
         return this;
     }
 
+    public NsiQuery addAttrs(DictRow row) {
+        for (String attrName : row.getAttrs().keySet()) {
+            NsiConfigAttr attr = dict.getAttr(attrName);
+            // добавляем только те атрибуты, которые есть в модели
+            if(attr != null) {
+                addAttr(MAIN_ALIAS, attr);
+            }
+        }
+
+        return this;
+    }
+    
     public NsiQuery addRefObjectAttrs() {
         addStdAttrs();
         addAttrs(dict.getRefObjectAttrs());

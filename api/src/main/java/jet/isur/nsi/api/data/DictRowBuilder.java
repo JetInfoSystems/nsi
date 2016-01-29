@@ -198,6 +198,26 @@ public class DictRowBuilder {
         return ownerAttr().value(ConvertUtils.longToString(value)).add();
     }
 
+    public DictRowBuilder versionAttr(Long value) {
+        return versionAttr().value(ConvertUtils.longToString(value)).add();
+    }
+
+    public DictRowBuilder versionAttr(Integer value) {
+        return versionAttr().value(ConvertUtils.integerToString(value)).add();
+    }
+
+    public DictRowBuilder versionAttr(String value) {
+        return versionAttr().value(value).add();
+    }
+
+    public DictRowAttrBuilder versionAttr() {
+        NsiConfigAttr a = dict.getVersionAttr();
+        if(a == null) {
+            throw new NsiServiceException("versionAttr not exists in dict %s", dict.getName());
+        }
+        return attr(a);
+    }
+    
     public DictRowBuilder attr(String name, Boolean value) {
         return attr(name,1).value(ConvertUtils.boolToString(value)).add();
     }
@@ -259,6 +279,10 @@ public class DictRowBuilder {
 
     public DictRowBuilder attr(String name, Long value) {
         return attr(name,1).value(ConvertUtils.longToString(value)).add();
+    }
+    
+    public DictRowBuilder attr(String name, Double value) {
+        return attr(name,1).value(ConvertUtils.doubleToString(value)).add();
     }
 
     public DictRowBuilder attr(String name, String value) {

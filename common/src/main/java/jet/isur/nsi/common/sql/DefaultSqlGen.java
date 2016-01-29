@@ -10,6 +10,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.jooq.Condition;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.InsertSetMoreStep;
+import org.jooq.InsertSetStep;
+import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.SelectConditionStep;
+import org.jooq.SelectField;
+import org.jooq.SelectJoinStep;
+import org.jooq.SelectOnStep;
+import org.jooq.SortField;
+import org.jooq.SortOrder;
+import org.jooq.Table;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
+
+import com.google.common.base.Preconditions;
+
 import jet.isur.nsi.api.data.NsiConfigAttr;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigField;
@@ -20,48 +39,35 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.OperationType;
 import jet.isur.nsi.api.model.SortExp;
+import jet.isur.nsi.api.platform.PlatformSqlGen;
 import jet.isur.nsi.api.sql.SqlGen;
 import jet.isur.nsi.common.data.NsiDataException;
 
-import org.jooq.Condition;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.InsertSetMoreStep;
-import org.jooq.InsertSetStep;
-import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.SelectConditionStep;
-import org.jooq.SelectField;
-import org.jooq.SelectJoinStep;
-import org.jooq.SelectOnStep;
-import org.jooq.SortField;
-import org.jooq.SortOrder;
-import org.jooq.Table;
-import org.jooq.UpdateSetFirstStep;
-import org.jooq.UpdateSetMoreStep;
-import org.jooq.conf.RenderNameStyle;
-import org.jooq.conf.Settings;
-import org.jooq.impl.DSL;
-
-import com.google.common.base.Preconditions;
-
 public class DefaultSqlGen implements SqlGen {
 
-    private static Settings settings = new Settings();
-    static {
-        settings.setRenderNameStyle(RenderNameStyle.AS_IS);
+    protected PlatformSqlGen platformSqlGen;
+    
+    public String getRowGetSql(NsiQuery query) {
+        return getRowGetSql(query, false);
     }
 
-    public String getRowGetSql(NsiQuery query) {
-        SelectJoinStep<?> baseQuery = createBaseQuery(query, true);
-        Condition condition = getIdCondition(query, baseQuery);
-        return baseQuery.where(condition).getSQL();
+    public String getRowGetSql(NsiQuery query, boolean lock) {
+        if(lock) {
+            Collection<? extends SelectField<?>> selectFields = getSelectFields(query, false);
+            Table<?> fromSource = createFromSource(query, null);
+            SelectJoinStep<Record> baseQuery = getQueryBuilder().select(selectFields).from(fromSource);
+            Condition condition = getIdCondition(query, baseQuery);
+            return baseQuery.where(condition).forUpdate().getSQL();
+        } else {
+            SelectJoinStep<?> baseQuery = createBaseQuery(query, true, null);
+            Condition condition = getIdCondition(query, baseQuery);
+            SelectConditionStep<?> resultQuery = baseQuery.where(condition);
+            return resultQuery.getSQL();
+        }
     }
 
     protected DSLContext getQueryBuilder() {
-        DSLContext queryBuilder = DSL.using(SQLDialect.DEFAULT,settings );
-        return queryBuilder;
+        return platformSqlGen.getQueryBuilder();
     }
 
     protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields) {
@@ -77,6 +83,11 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     private Table<?> createFromSource(NsiQuery query, String sourceQueryName) {
+        // если запрос не задан и нет таблицы, используем запрос по умолчанию
+        if( query.getDict().getTable() == null && sourceQueryName == null) {
+            sourceQueryName = NsiQuery.MAIN_QUERY;
+        }
+
         Table<?> fromSource;
         NsiConfigDict dict = query.getDict();
         if(sourceQueryName == null) {
@@ -92,12 +103,14 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected Condition getIdCondition(NsiQuery query) {
-        NsiConfigAttr idAttr = query.getDict().getIdAttr();
+        NsiConfigDict dict = query.getDict();
 
-        Condition result = field(NsiQuery.MAIN_ALIAS + "." + idAttr.getFields().get(0).getName()).equal(val(null));
+        Condition result = field(NsiQuery.MAIN_ALIAS + "." + dict.getIdAttr().getFields().get(0).getName()).equal(val(null));
+        /*
         for ( NsiConfigField field : idAttr.getFields()) {
             result.and(field(NsiQuery.MAIN_ALIAS + "." + field.getName()).equal(val(null)));
         }
+        */
         return result;
     }
 
@@ -133,7 +146,7 @@ public class DefaultSqlGen implements SqlGen {
     protected Condition createJoinFieldCondition(NsiQueryAttr queryAttr,
             NsiConfigField refAttrField, NsiConfigField refIdField) {
         Condition condition = field(queryAttr.getAlias() + "." + refAttrField.getName())
-            .eq(field(queryAttr.getRefAlias() + "." + refIdField.getName()));
+                .eq(field(queryAttr.getRefAlias() + "." + refIdField.getName()));
         return condition;
     }
 
@@ -197,8 +210,9 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowUpdateSql(NsiQuery query) {
+        NsiConfigDict dict = query.getDict();
         UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
-                .update(table(query.getDict().getTable()).as(NsiQuery.MAIN_ALIAS));
+                .update(table(dict.getTable()).as(NsiQuery.MAIN_ALIAS));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
@@ -210,7 +224,8 @@ public class DefaultSqlGen implements SqlGen {
              }
         }
         if(updateSetMoreStep != null) {
-            return updateSetMoreStep.where(getIdCondition(query)).getSQL();
+            Condition condition = getIdCondition(query);
+            return updateSetMoreStep.where(condition).getSQL();
         } else {
             throw new NsiDataException("no attrs found");
         }
@@ -226,32 +241,23 @@ public class DefaultSqlGen implements SqlGen {
             List<SortExp> sortList, long offset, int size, String sourceQuery) {
         checkPaginationExp(offset, size);
 
-        SelectJoinStep<?> baseQueryPart = createBaseQuery(query, true, sourceQuery);
-        Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
+        SelectJoinStep<?> baseQuery = createBaseQuery(query, true, sourceQuery);
+        Condition filterCondition = getWhereCondition(query, filter, baseQuery);
         if(filterCondition != null) {
-            baseQueryPart.where(filterCondition);
+            baseQuery.where(filterCondition);
         }
 
         Collection<? extends SortField<?>> sortFields = getSortFields(query, sortList);
         if(sortFields != null) {
-            baseQueryPart.orderBy(sortFields);
+            baseQuery.orderBy(sortFields);
         }
 
-        if (size != -1 && offset != -1) {
-            List<SelectField<?>> fields = new ArrayList<>();
-            fields.add(field("a.*"));
-            fields.add(field("ROWNUM").as("rnum"));
-
-            Table<Record> base = getQueryBuilder().select(fields)
-                    .from(baseQueryPart.asTable("a"))
-                    .where(field("ROWNUM").lessThan(val(null))).asTable("b");
-            SelectConditionStep<Record1<Object>> result = getQueryBuilder()
-                    .select(field("*")).from(base).where(field("rnum").greaterOrEqual(val(null)));
-
-            return result.getSQL();
+        if( size != -1 ) {
+            return platformSqlGen.limit(baseQuery, offset, size).getSQL();
+        } else {
+            return baseQuery.getSQL();    
         }
-
-        return baseQueryPart.getSQL();
+        
     }
 
     protected void checkPaginationExp(long offset, int size) {
@@ -262,9 +268,8 @@ public class DefaultSqlGen implements SqlGen {
                 + offset + ", size : " + size + "]");
     }
 
-    protected Condition getWhereCondition(NsiQuery query, BoolExp filter,
-            SelectJoinStep<?> baseQueryPart) {
-        Condition filterCondition = getFilterCondition(query, filter, baseQueryPart);
+    protected Condition getWhereCondition(NsiQuery query, BoolExp filter, SelectJoinStep<?> baseQuery) {
+        Condition filterCondition = getFilterCondition(query, filter, baseQuery);
         return filterCondition;
     }
 
@@ -297,7 +302,9 @@ public class DefaultSqlGen implements SqlGen {
         case OperationType.NOTOR:
             return getOrCondition(query, filter.getExpList(), baseQuery).not();
         case OperationType.EQUALS:
+        case OperationType.NOT_EQUALS:
         case OperationType.LIKE:
+        case OperationType.CONTAINS:
         case OperationType.GT:
         case OperationType.GE:
         case OperationType.LT:
@@ -309,51 +316,28 @@ public class DefaultSqlGen implements SqlGen {
         }
     }
 
-    protected Condition getFuncCondition(NsiQuery query, BoolExp filter,SelectJoinStep<?> baseQuery) {
+    protected Condition getFuncCondition(NsiQuery query, BoolExp filter, SelectJoinStep<?> baseQuery) {
         NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
         List<NsiConfigField> fields = configAttr.getFields();
-        Condition condition = getFieldFuncCondition(query, fields.get(0),filter);
+        Condition condition = getFieldFuncCondition(query, fields.get(0), filter, baseQuery);
         for(int i=1;i<fields.size();i++) {
-            condition = condition.and(getFieldFuncCondition(query, fields.get(i),filter));
+            condition = condition.and(getFieldFuncCondition(query, fields.get(i), filter, baseQuery));
         }
         return condition;
     }
 
     protected Condition getFieldFuncCondition(NsiQuery query,
-            NsiConfigField field, BoolExp filter) {
-        Field<Object> f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
-        switch (filter.getFunc()) {
-        case OperationType.EQUALS:
-            if (filter.getValue().getValues().get(0) != null){
-                return f.eq(val(null));
-            }
-            else{
-                return f.isNull();
-            }
-        case OperationType.GT:
-            return f.gt(val(null));
-        case OperationType.GE:
-            return f.ge(val(null));
-        case OperationType.LT:
-            return f.lt(val(null));
-        case OperationType.LE:
-            return f.le(val(null));
-        case OperationType.LIKE:
-            if (filter.getValue().getValues().get(0) != null){
-                Field<String> value = null;
-                return f.like(value );
-            }
-            else{
-                return f.isNull();
-            }
-        case OperationType.NOTNULL:
-            return f.isNotNull();
-        default:
-            throw new NsiDataException("invalid func: " + filter.getFunc());
+            NsiConfigField field, BoolExp filter, SelectJoinStep<?> baseQuery) {
+        return platformSqlGen.getFieldFuncCondition(query, field, filter, baseQuery);
+    }
+
+    protected void checkExpList(List<BoolExp> expList) {
+        if(expList == null || expList.size() == 0) {
+            throw new NsiDataException("empty exp list");
         }
     }
 
-    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList,SelectJoinStep<?> baseQuery) {
+    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList, SelectJoinStep<?> baseQuery) {
         checkExpList(expList);
         Condition condition = getFilterCondition(query, expList.get(0), baseQuery);
         for(int i=1;i<expList.size();i++) {
@@ -377,12 +361,6 @@ public class DefaultSqlGen implements SqlGen {
         return condition;
     }
 
-    protected void checkExpList(List<BoolExp> expList) {
-        if(expList == null || expList.size() == 0) {
-            throw new NsiDataException("empty exp list");
-        }
-    }
-
     @Override
     public String getCountSql(NsiQuery query, BoolExp filter) {
         return getCountSql(query, filter, null);
@@ -399,13 +377,17 @@ public class DefaultSqlGen implements SqlGen {
 
         SelectJoinStep<?> baseQueryPart = addRefAttrJoins(query, selectQueryPart);
 
-        Condition filterCondition = getWhereCondition(query, filter, selectQueryPart);
+        Condition filterCondition = getWhereCondition(query, filter, baseQueryPart);
 
         if(filterCondition != null) {
             baseQueryPart.where(filterCondition);
         }
 
         return baseQueryPart.getSQL();
+    }
+
+    public void setPlatformSqlGen(PlatformSqlGen platformSqlGen) {
+        this.platformSqlGen = platformSqlGen;
     }
 
 

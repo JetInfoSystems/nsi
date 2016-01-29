@@ -16,43 +16,46 @@ import org.hibernate.boot.model.naming.NamingHelper;
 public class NsiImplicitNamingStrategyImpl extends
         ImplicitNamingStrategyJpaCompliantImpl {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public Identifier determineForeignKeyName(
             ImplicitForeignKeyNameSource source) {
         return toIdentifier(
                 compose("fk",
-                        source.getTableName(),
+                        source.getTableName().render(),
                         NamingHelper.INSTANCE.generateHashedFkName("",
                                 source.getTableName(),
                                 source.getReferencedTableName(),
-                                source.getColumnNames())),
+                                source.getColumnNames()),30),
                 source.getBuildingContext());
     }
 
     @Override
     public Identifier determineUniqueKeyName(ImplicitUniqueKeyNameSource source) {
         return toIdentifier(
-                compose("uk", source.getTableName(), NamingHelper.INSTANCE
+                compose("uk", source.getTableName().render(), NamingHelper.INSTANCE
                         .generateHashedConstraintName("",
-                                source.getTableName(), source.getColumnNames())),
+                                source.getTableName(), source.getColumnNames()),30),
                 source.getBuildingContext());
     }
 
     @Override
     public Identifier determineIndexName(ImplicitIndexNameSource source) {
         return toIdentifier(
-                compose("idx", source.getTableName(), NamingHelper.INSTANCE
+                compose("idx", source.getTableName().render(), NamingHelper.INSTANCE
                         .generateHashedConstraintName("",
-                                source.getTableName(), source.getColumnNames())),
+                                source.getTableName(), source.getColumnNames()),30),
                 source.getBuildingContext());
     }
 
-    private String compose(String prefix, Identifier tableName, String suffix) {
-        String a = new StringBuilder().append(prefix).append("_").append(tableName.render()).toString();
+    public static String compose(String prefix, String tableName, String suffix, int maxLen) {
+        String a = new StringBuilder().append(prefix).append("_").append(tableName).toString();
         String b = new StringBuilder().append("_").append(Integer.toHexString(suffix.hashCode()).toUpperCase()).toString();
         if(a.length() + b.length() > 30) {
             a = a.substring(0, a.length() + b.length() - 30);
         }
         return a + b;
     }
+    
 }

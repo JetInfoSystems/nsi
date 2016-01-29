@@ -9,7 +9,9 @@ import jet.isur.nsi.api.model.SortExp;
 public interface SqlGen {
 
     public String getRowGetSql(NsiQuery query);
-
+    
+    public String getRowGetSql(NsiQuery query, boolean lock);
+    
     public String getRowInsertSql(NsiQuery query, boolean useSeq);
 
     public String getRowUpdateSql(NsiQuery query);

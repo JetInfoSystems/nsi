@@ -15,7 +15,8 @@
     <cm:property-placeholder persistent-id="jet.isur.nsi.services" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="configPath" value="/opt/isur/database/metadata"/>
-            <cm:property name="lastUserDict" value="USER_PROFILE"/>
+            <cm:property name="lastUserDict" value="USER_PROFILE_REF"/>
+            <cm:property name="nsiPlatform" value="jet.isur.nsi.common.platform.oracle.OracleNsiPlatform"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -35,23 +36,40 @@
         <argument ref="configParams"/>
     </bean>
 
-    <bean id="sqlGen" class="jet.isur.nsi.common.sql.DefaultSqlGen">
+    <bean id="nsiPlatformFactory" class="jet.isur.nsi.common.platform.NsiPlatformFactory"/>
+
+    <bean id="nsiPlatform" factory-ref="nsiPlatformFactory" factory-method="create" activation="lazy">
+        <argument value="${nsiPlatform}"/>
     </bean>
+
+    <bean id="platformSqlGen" factory-ref="nsiPlatform" factory-method="getPlatformSqlGen" activation="lazy"/>
+
+    <bean id="sqlGen" class="jet.isur.nsi.common.sql.DefaultSqlGen">
+        <property name="platformSqlGen" ref="platformSqlGen"/>
+    </bean>
+
+    <bean id="platformSqlDao" factory-ref="nsiPlatform" factory-method="getPlatformSqlDao" activation="lazy"/>
 
     <bean id="sqlDao" class="jet.isur.nsi.common.sql.DefaultSqlDao">
         <property name="sqlGen" ref="sqlGen"/>
+        <property name="platformSqlDao" ref="platformSqlDao"/>
     </bean>
-
+    
     <bean id="nsiService" class="jet.isur.nsi.services.NsiServiceImpl">
         <argument ref="metrics"/>
         <property name="sqlDao" ref="sqlDao"/>
         <property name="nsiGenericService" ref="nsiGenericService"/>
     </bean>
 
+    <bean id="nsiTransactionService" class="jet.isur.nsi.services.NsiTransactionServiceImpl">
+        <argument ref="metrics"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <bean id="nsiGenericService" class="jet.isur.nsi.services.NsiGenericServiceImpl">
         <argument ref="metrics"/>
-        <property name="configManager" ref="configManager"/>
-        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionService" ref="nsiTransactionService"/>
+        <property name="nsiPlatform" ref="nsiPlatform"/>
     </bean>
 
     <bean id="nsiMetaService" class="jet.isur.nsi.services.NsiMetaServiceImpl">
@@ -66,6 +84,9 @@
     </service>
 
     <service ref="nsiMetaService" interface="jet.isur.nsi.api.NsiMetaService">
+    </service>
+
+    <service ref="nsiTransactionService" interface="jet.isur.nsi.api.tx.NsiTransactionService">
     </service>
 
 </blueprint>

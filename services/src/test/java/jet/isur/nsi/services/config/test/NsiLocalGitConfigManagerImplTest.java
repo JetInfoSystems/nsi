@@ -30,7 +30,17 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
         MetaDict o1 = DataGen.genMetaDict("dict1", "table1").build();
         MetaDict o2 = configManager.readConfigFile(new File("src/test/resources/metadata1/dict1.yaml"));
-        DataUtils.assertEqual(o1, o2);
+        DataUtils.assertEqualAllOptionals(o1, o2);
+    }
+    
+    @Test
+    public void testReadConfigFileWithClob() {
+        NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
+        MetaDict o1 = DataGen.genMetaDictWithClob("dictWithClob", "tableWithClob").build();
+        MetaDict o2 = configManager.readConfigFile(new File("src/test/resources/metadata1/clob/dictWithClob.yaml"));
+        DataUtils.assertEqualCommon(o1, o2);
+        DataUtils.assertEqualRefObjectAttrs(o1, o2);
+        DataUtils.assertEqualTableObjectAttrs(o1, o2);
     }
 
     @Test
@@ -38,10 +48,16 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
+        
         NsiConfigDict dict1 = config.getDict("dict1");
         Assert.assertNotNull(dict1);
         Assert.assertTrue(dict1.isHidden());
         Assert.assertTrue(dict1.getAttr("last_user").isReadonly());
+        
+        NsiConfigDict dictWithClob = config.getDict("dictWithClob");
+        Assert.assertNotNull(dictWithClob);
+        Assert.assertTrue(dictWithClob.isHidden());
+        Assert.assertNotNull(dictWithClob.getAttr("clobAttr"));
     }
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {

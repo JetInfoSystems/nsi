@@ -1,3 +1,4 @@
+
 package jet.isur.nsi.api.model.builder;
 
 import jet.isur.nsi.api.model.MetaAttrType;
@@ -35,9 +36,11 @@ public interface MetaDictBuilder {
 
         MetaAttrBuilder hidden(Boolean value);
 
-		MetaAttrBuilder createOnly(Boolean value);
+        MetaAttrBuilder createOnly(Boolean value);
 
-		MetaAttrBuilder required(Boolean value);
+        MetaAttrBuilder required(Boolean value);
+        
+        MetaAttrBuilder refAttrHidden(boolean value);
 
         MetaAttrBuilder defaultValue(String defaultValue);
 
@@ -68,15 +71,22 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder lastUserAttr(String name);
 
+    MetaDictBuilder uniqueAttr(String name);
+    
     MetaDictBuilder addCaptionAttr(String value);
 
     MetaDictBuilder addRefObjectAttr(String value);
 
     MetaDictBuilder addTableObjectAttr(String value);
 
-    MetaDictBuilder addConstraint(String value);
+    MetaDictBuilder addMergeExternalAttr(String value);
+    
+    MetaDictBuilder addInterceptor(String value);
+
+    MetaDictBuilder addOwn(String key, String value);
 
     MetaDict build();
 
     MetaDictBuilder addLoadDataAttr(String value);
+
 }

@@ -2,28 +2,31 @@ package jet.isur.nsi.services.sql.test;
 
 import java.io.File;
 
+import org.junit.Test;
+
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiConfigParams;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
-import jet.isur.nsi.common.sql.DefaultSqlGen;
+import jet.isur.nsi.migrator.platform.PlatformMigrator;
+import jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.isur.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
-
-import org.junit.Test;
 
 public class SqlGenTest extends BaseSqlTest {
 
     private NsiConfig config;
-    private DefaultSqlGen sqlGen;
+    private PlatformMigrator platformMigrator;
 
     @Override
     public void setup() throws Exception {
+        platformMigrator = new OraclePlatformMigrator();
+        platform = platformMigrator.getPlatform();
+        super.setup();
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
-        sqlGen = new DefaultSqlGen();
     }
 
     @Test
@@ -32,7 +35,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = dict.query().addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION "
                         + "from table1 m " + "where m.id = ?", sql);
     }
 
@@ -42,10 +45,19 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = dict.query().addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.dict1_id, a1.f1 a1_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                "select m.dict1_id, a1.f1 a1_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION "
                         + "from table2 m "
                         + "left outer join table1 a1 on m.dict1_id = a1.id "
                         + "where m.id = ?", sql);
+    }
+
+    @Test
+    public void testDict2RowGetForUpdateSql() {
+        NsiConfigDict dict = config.getDict("dict2");
+        NsiQuery query = dict.query().addAttrs();
+        String sql = sqlGen.getRowGetSql(query, true);
+        Assert.assertEquals(
+                "select m.dict1_id, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION from table2 m where m.id = ? for update", sql);
     }
 
     @Test
@@ -54,7 +66,7 @@ public class SqlGenTest extends BaseSqlTest {
         NsiQuery query = dict.query().addAttrs();
         String sql = sqlGen.getRowGetSql(query);
         Assert.assertEquals(
-                "select m.dict1_a_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user "
+                "select m.dict1_a_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION "
                         + "from table3 m "
                         + "left outer join table1 a1 on m.dict1_a_id = a1.id "
                         + "left outer join table1 a2 on m.dict1_id = a2.id "
@@ -76,8 +88,8 @@ public class SqlGenTest extends BaseSqlTest {
                     .add(dict.getLastUserAttr())
                     .build(), 1, 2);
         Assert.assertEquals(
-                "select * from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                "select b.* from (select a.*, ROWNUM rnum from (" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where m.f1 = ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
@@ -99,8 +111,8 @@ public class SqlGenTest extends BaseSqlTest {
                 .add(dict.getLastUserAttr())
                 .build(), 1, 2);
         Assert.assertEquals(
-                "select * from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                "select b.* from (select a.*, ROWNUM rnum from (" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where (m.f1 = ? and m.is_deleted = ?) order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
@@ -118,8 +130,8 @@ public class SqlGenTest extends BaseSqlTest {
                     .add(dict.getLastUserAttr())
                     .build(), 1, 2);
         Assert.assertEquals(
-                "select * from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                "select b.* from (select a.*, ROWNUM rnum from (" +
+                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where m.f1 like ? order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
@@ -131,7 +143,7 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getListSql(query, dict.filter()
             .key("f1").notNull().build(), null, -1, -1);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user from table1 m" +
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where m.f1 is not null", sql);
     }
 
@@ -175,8 +187,8 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
-                "insert into table1 (f1, id, is_deleted, last_change, last_user) "
-                        + "values (?, seq_table1.nextval, ?, ?, ?)", sql);
+                "insert into table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID, VERSION) "
+                        + "values (?, seq_table1.nextval, ?, ?, ?, ?, ?, ?)", sql);
 
     }
 
@@ -187,8 +199,8 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowInsertSql(query, false);
         Assert.assertEquals(
-                "insert into table1 (f1, id, is_deleted, last_change, last_user) "
-                        + "values (?, ?, ?, ?, ?)", sql);
+                "insert into table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID, VERSION) "
+                        + "values (?, ?, ?, ?, ?, ?, ?, ?)", sql);
 
     }
 
@@ -199,8 +211,8 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
-                "insert into table2 (dict1_id, f1, id, is_deleted, last_change, last_user) "
-                        + "values (?, ?, seq_table2.nextval, ?, ?, ?)", sql);
+                "insert into table2 (dict1_id, f1, id, is_deleted, last_change, last_user, VERSION) "
+                        + "values (?, ?, seq_table2.nextval, ?, ?, ?, ?)", sql);
 
     }
 
@@ -212,10 +224,34 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
                 "update table2 m "
+                        + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ?, m.VERSION = ? "
+                        + "where m.id = ?", sql);
+    }
+
+    @Test
+    public void testDict2RowUpdateSeqWithoutVersion() {
+        NsiConfigDict dict = config.getDict("dict2_without_version");
+        NsiQuery query = dict.query().addAttrs();
+
+        String sql = sqlGen.getRowUpdateSql(query);
+        Assert.assertEquals(
+                "update table2 m "
                         + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ? "
                         + "where m.id = ?", sql);
     }
 
+    @Test
+    public void testContainsOperationSql(){
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = dict.query().addAttrs();
+        BoolExp filter = dict.filter()
+                .key("f1").contains().value("abc")
+                .build();
+        String sql = sqlGen.getListSql(query, filter, null, -1, -1);
+        Assert.assertEquals(
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m where catsearch(m.f1, ?, '') > 0", sql);
+    }
+    
     @Test
     public void testOperationsSql() {
         NsiConfigDict dict = config.getDict("dict1");
@@ -273,6 +309,18 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getListSql(query, null, null, -1, -1, "TEST1");
         Assert.assertEquals(
                 "select m.f1 from ( select f1 from table1 )  m", sql);
+
+    }
+
+    
+    @Test
+    public void testListUseDefaultSourceQuery() {
+        NsiConfigDict dict = config.getDict("dict1_view");
+        NsiQuery query = dict.query().addAttr("f1");
+
+        String sql = sqlGen.getListSql(query, null, null, -1, -1);
+        Assert.assertEquals(
+                "select m.f1 from ( select f1, 1 as cnt from table1 where f1 <> ? )  m", sql);
 
     }
 

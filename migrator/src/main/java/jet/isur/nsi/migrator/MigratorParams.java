@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Properties;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 
 public class MigratorParams {
 
@@ -11,7 +12,7 @@ public class MigratorParams {
     public static final String NAME = "name";
     public static final String TABLESPACE = "tablespace";
     public static final String DB = "db";
-
+    private static final String IDENT_ISUR = "isur";
 
     public static final String METADATA_PATH = "metadataPath";
 
@@ -22,7 +23,7 @@ public class MigratorParams {
         this.properties = properties;
     }
 
-    private String getProperty(String key, String defaultValue) {
+    public String getProperty(String key, String defaultValue) {
         return properties.getProperty(key, defaultValue);
     }
 
@@ -34,6 +35,10 @@ public class MigratorParams {
         return new File(getProperty(METADATA_PATH, "/opt/isur/database/metadata"));
     }
 
+    public String getPlatformMigrator(String ident) {
+        return getProperty(key(DB,ident,"platformMigrator"), "jet.isur.nsi.migrator.platform.oracle.OraclePlatformMigrator");
+    }
+    
     public String getUsername(String ident) {
         return getProperty(key(DB,ident,"username"), null);
     }
@@ -47,7 +52,9 @@ public class MigratorParams {
     }
 
     public String getTablespace(String ident) {
-        return getProperty(key(DB,ident,TABLESPACE,NAME), getUsername(ident));
+        String name = getProperty(key(DB,ident,TABLESPACE,NAME), null);
+        Preconditions.checkNotNull(name, "Не задано название табличного пространства для ident=%s", ident);
+        return getUsername(IDENT_ISUR) + "_" + name;
     }
 
     public String getTempTablespace(String ident) {
@@ -56,7 +63,7 @@ public class MigratorParams {
 
     public String getDataFilePath(String ident) {
         return getProperty(key(DB,ident,TABLESPACE,"dataFile","path"),
-                "+DATA/" + getGlobalName(ident) + "/datafile/");
+                "+DATA/" + getGlobalName(IDENT_ISUR) + "/datafile/");
     }
 
     public String getDataFileName(String ident) {
@@ -73,5 +80,13 @@ public class MigratorParams {
 
     public String getDataFileMaxSize(String ident) {
         return getProperty(key(DB,ident,TABLESPACE,DATA_FILE,"maxSize"), "15360M");
+    }
+
+    public String getLogPrefix() {
+        return getProperty(key(DB,"liqubase","logPrefix"), "NSI_");
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

@@ -67,9 +67,9 @@ public class GeneratorDictRowHelper {
             if (field.getEnumValues() != null) {
                 if (ddFieldNames.contains(attrName)) {
                     Set<String> enums = new HashSet<>(field.getEnumValues().keySet());
-                    if (enums.contains(value)) {
+                    if (value == null  || enums.contains(value)) {
                         drb.attr(attrName, value);
-                    } else {
+                    } else{
                         log.error("Bad value for enum attr ['{}','{}']", ddObj.getDictName(), attrName);
                         return null;
                     }

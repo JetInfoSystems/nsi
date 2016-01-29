@@ -5,27 +5,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.sql.DataSource;
-
-import jet.isur.nsi.api.data.NsiConfig;
-import jet.isur.nsi.api.data.NsiConfigDict;
-import jet.isur.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
-import jet.isur.nsi.migrator.hibernate.LogActionsTargetImpl;
-import jet.isur.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
-import jet.isur.nsi.migrator.hibernate.NsiOracleDialect;
-import jet.isur.nsi.migrator.hibernate.NsiSchemaMigratorImpl;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.BootstrapServiceRegistry;
-import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.jdbc.connections.spi.JdbcConnectionAccess;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.jdbc.spi.JdbcServices;
@@ -35,6 +23,15 @@ import org.hibernate.tool.schema.spi.SchemaMigrator;
 import org.hibernate.tool.schema.spi.Target;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jet.isur.nsi.api.data.NsiConfig;
+import jet.isur.nsi.api.data.NsiConfigDict;
+import jet.isur.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
+import jet.isur.nsi.migrator.hibernate.LogActionsTargetImpl;
+import jet.isur.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
+import jet.isur.nsi.migrator.hibernate.NsiSchemaMigratorImpl;
+import jet.isur.nsi.migrator.platform.DictToHbmSerializer;
+import jet.isur.nsi.migrator.platform.PlatformMigrator;
 
 public class Migrator {
 
@@ -53,25 +50,34 @@ public class Migrator {
     private final DataSource dataSource;
     private final List<Target> targets = new ArrayList<>();
     private final String logPrefix;
+    private final PlatformMigrator platformMigrator;
 
-    public Migrator(NsiConfig config, DataSource dataSource, MigratorParams params) {
-        this(config, dataSource, params, "NSI_");
-    }
-
-    public Migrator(NsiConfig config, DataSource dataSource, MigratorParams params, String logPrefix) {
+    public Migrator(NsiConfig config, DataSource dataSource, MigratorParams params, PlatformMigrator platformMigrator) {
         this.config = config;
         this.dataSource = dataSource;
         this.params = params;
-        this.logPrefix = logPrefix;
+        this.logPrefix = params.getLogPrefix();
+        this.platformMigrator = platformMigrator;
     }
 
     public void update(String tag) {
 
         try {
-
+            try(Connection connection = dataSource.getConnection()) {
+                platformMigrator.onUpdateBeforePrepare(connection, config);
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateBeforePrepare(connection, model);
+                }
+            }
             doLiquibaseUpdate(MIGRATIONS_PREPARE,LIQUIBASE_PREPARE_CHANGELOG_XML, tag);
+            try(Connection connection = dataSource.getConnection()) {
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateAfterPrepare(connection, model);
+                }
+                platformMigrator.onUpdateAfterPrepare(connection, config);
+            }
 
-            StandardServiceRegistry serviceRegistry = buildStandardServiceRegistry();
+            StandardServiceRegistry serviceRegistry = platformMigrator.buildStandardServiceRegistry(dataSource);
 
             try {
                 MetadataImplementor metadata = buildMetadata( serviceRegistry );
@@ -106,7 +112,19 @@ public class Migrator {
             finally {
                 StandardServiceRegistryBuilder.destroy( serviceRegistry );
             }
+            try(Connection connection = dataSource.getConnection()) {
+                platformMigrator.onUpdateBeforePostproc(connection, config);
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateBeforePostproc(connection, model);
+                }
+            }
             doLiquibaseUpdate(MIGRATIONS_POSTPROC,LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
+            try(Connection connection = dataSource.getConnection()) {
+                for (NsiConfigDict model : config.getDicts()) {
+                    platformMigrator.onUpdateAfterPostproc(connection, model);
+                }
+                platformMigrator.onUpdateAfterPostproc(connection, config);
+            }
         }
         catch (Exception e) {
             throw new MigratorException(ACTION_UPDATE, e);
@@ -137,8 +155,8 @@ public class Migrator {
 
     private void doLiquibaseUpdate(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(Connection c = dataSource.getConnection()) {
-            la.update(c, tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.update(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_UPDATE, e);
         }
@@ -146,8 +164,8 @@ public class Migrator {
 
     private void doLiquibaseRollback(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(Connection c = dataSource.getConnection()) {
-            la.rollback(c, tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.rollback(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
         }
@@ -155,8 +173,8 @@ public class Migrator {
 
     private void doLiquibaseTag(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
-        try(Connection c = dataSource.getConnection()) {
-            la.tag(c, tag);
+        try(Connection connection = dataSource.getConnection()) {
+            la.tag(connection, tag);
         } catch (SQLException e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
         }
@@ -174,7 +192,7 @@ public class Migrator {
             StandardServiceRegistry serviceRegistry) {
         MetadataSources metadataSources = new MetadataSources( serviceRegistry );
 
-        NsiDictToHbmEntitySerializer serializer = new NsiDictToHbmEntitySerializer();
+        DictToHbmSerializer serializer = platformMigrator.getDictToHbmSerializer();
 
         for ( NsiConfigDict dict : config.getDicts()) {
             // только те сущности для которых задана таблица
@@ -183,27 +201,16 @@ public class Migrator {
                 serializer.marshalTo(dict, os);
                 ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
                 metadataSources.addInputStream(is);
+                platformMigrator.updateMetadataSources(metadataSources, dict);
             }
         }
+        platformMigrator.updateMetadataSources(metadataSources, config);
 
         MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
 
         metadataBuilder.applyImplicitNamingStrategy(new NsiImplicitNamingStrategyImpl());
 
         return (MetadataImplementor) metadataBuilder.build();
-    }
-
-    private StandardServiceRegistry buildStandardServiceRegistry() {
-        final BootstrapServiceRegistry bsr = new BootstrapServiceRegistryBuilder().build();
-        final StandardServiceRegistryBuilder ssrBuilder = new StandardServiceRegistryBuilder( bsr );
-
-        Properties props = new Properties();
-        // TODO: используем params
-        props.put(AvailableSettings.DIALECT, NsiOracleDialect.class.getName());
-        props.put(AvailableSettings.DATASOURCE, dataSource);
-        ssrBuilder.applySettings( props );
-
-        return ssrBuilder.build();
     }
 
 }

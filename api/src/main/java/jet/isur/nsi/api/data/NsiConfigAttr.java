@@ -18,6 +18,8 @@ public class NsiConfigAttr {
     private boolean readonly;
     private Boolean createOnly;
     private String defaultValue;
+    private boolean refAttrHidden;
+    private boolean persist;
 
     private List<NsiConfigField> fields = new ArrayList<>();
     private NsiConfigDict refDict;
@@ -33,6 +35,8 @@ public class NsiConfigAttr {
         readonly = metaAttr.getReadonly() == Boolean.TRUE;
         createOnly = metaAttr.getCreateOnly() == Boolean.TRUE;
         defaultValue = metaAttr.getDefaultValue();
+        refAttrHidden = metaAttr.isRefAttrHidden();
+        persist = metaAttr.isPersist();
     }
     public MetaAttrType getType() {
         return type;
@@ -94,13 +98,25 @@ public class NsiConfigAttr {
         this.hidden = hidden;
     }
 
-	public Boolean getCreateOnly() {
-		return createOnly;
-	}
+    public Boolean getCreateOnly() {
+        return createOnly;
+    }
 
-	public void setCreateOnly(Boolean createOnly) {
-		this.createOnly = createOnly;
-	}
+    public void setCreateOnly(Boolean createOnly) {
+        this.createOnly = createOnly;
+    }
+    public boolean isRefAttrHidden() {
+        return refAttrHidden;
+    }
+    public void setRefAttrHidden(boolean refAttrHidden) {
+        this.refAttrHidden = refAttrHidden;
+    }
+    public boolean isPersist() {
+        return persist;
+    }
+    public void setPersist(boolean persist) {
+        this.persist = persist;
+    }
 
     public String getDefaultValue() {
         return defaultValue;

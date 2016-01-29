@@ -1,3 +1,4 @@
+
 package jet.isur.nsi.api.model;
 
 import java.util.Collection;
@@ -60,6 +61,10 @@ public class MetaDict extends MetaDictRef {
      */
     private String lastUserAttr;
     /**
+     * атрибут уникально идентифицирующий запись среди неудалённых.
+     */
+    private String uniqueAttr;
+    /**
      * Список наименований атрибутов кторые используются для текстового представления записи.
      */
     private List<String> captionAttrs;
@@ -78,9 +83,9 @@ public class MetaDict extends MetaDictRef {
      */
     private List<String> tableObjectAttrs;
     /**
-     * Список констрейнтов, которые должны проверяться при создании, сохранении или удалении записи
+     * Список интерсепторов, которые должны выполняться при создании, сохранении или удалении записи
      */
-    private List<String> constraints;
+    private List<String> interceptors;
 
     /**
      * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.
@@ -88,12 +93,38 @@ public class MetaDict extends MetaDictRef {
     private Boolean hidden;
 
     /**
+     * Список наименований атрибутов кторые используются для мерджа данных, поступивших из внешней системы
+     * 
+     */
+    private List<String> mergeExternalAttrs;
+    
+    /**
      * Именованные запросы
      */
     private Map<String, MetaSourceQuery> sourceQueries;
 
+    /**
+     * Принадлежности
+     */
+    private Map<String, MetaOwn> owns;
+
+    /**
+     * Показывает что сущность не самостоятельна и отображается на заданную.
+     * Этот атрибут позволяет через view делать операции изменения данных.
+     * При этом учитываются только те атрибуты кторые есть в @mainDict
+     */
     private String mainDict;
 
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения версии
+     */
+    private boolean autoVersion = true;
+    
+    /**
+     * Атрибут для представления версии
+     */
+    private String versionAttr;
+    
     public String getTable() {
         return table;
     }
@@ -180,12 +211,15 @@ public class MetaDict extends MetaDictRef {
     public void setTableObjectAttrs(List<String> tableObjectAttrs) {
         this.tableObjectAttrs = tableObjectAttrs;
     }
-    public List<String> getConstraints() {
-        return constraints;
+
+    public List<String> getInterceptors() {
+        return interceptors;
     }
-    public void setConstraints(List<String> constraints) {
-        this.constraints = constraints;
+
+    public void setInterceptors(List<String> interceptors) {
+        this.interceptors = interceptors;
     }
+
     public String getName() {
         return name;
     }
@@ -217,4 +251,36 @@ public class MetaDict extends MetaDictRef {
         this.mainDict = mainDict;
     }
 
+    public Map<String, MetaOwn> getOwns() {
+        return owns;
+    }
+
+    public void setOwns(Map<String, MetaOwn> owns) {
+        this.owns = owns;
+    }
+	public List<String> getMergeExternalAttrs() {
+		return mergeExternalAttrs;
+	}
+	public void setMergeExternalAttrs(List<String> mergeExternalAttrs) {
+		this.mergeExternalAttrs = mergeExternalAttrs;
+	}
+    public String getUniqueAttr() {
+        return uniqueAttr;
+    }
+    public void setUniqueAttr(String uniqueAttr) {
+        this.uniqueAttr = uniqueAttr;
+    }
+    public boolean isAutoVersion() {
+        return autoVersion;
+    }
+    public void setAutoVersion(boolean autoVersion) {
+        this.autoVersion = autoVersion;
+    }
+    public String getVersionAttr() {
+        return versionAttr;
+    }
+    public void setVersionAttr(String versionAttr) {
+        this.versionAttr = versionAttr;
+    }
+    
 }

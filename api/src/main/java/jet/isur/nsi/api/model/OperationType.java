@@ -3,6 +3,7 @@ package jet.isur.nsi.api.model;
 public final class OperationType {
 
     public static final String EQUALS = "=";
+    public static final String NOT_EQUALS = "!=";
     public static final String GT = ">";
     public static final String GE = ">=";
     public static final String LT = "<";
@@ -13,5 +14,6 @@ public final class OperationType {
     public static final String OR = "or";
     public static final String LIKE = "like";
     public static final String NOTNULL = "notNull";
+    public static final String CONTAINS = "contains";
 
 }

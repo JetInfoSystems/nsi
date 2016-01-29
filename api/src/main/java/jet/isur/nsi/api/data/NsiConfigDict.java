@@ -29,13 +29,17 @@ public class NsiConfigDict {
     private NsiConfigAttr deleteMarkAttr;
     private NsiConfigAttr lastChangeAttr;
     private NsiConfigAttr lastUserAttr;
+    private NsiConfigAttr uniqueAttr;
+    private NsiConfigAttr versionAttr;
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
     private List<NsiConfigAttr> loadDataAttrs = new ArrayList<>();
     private List<NsiConfigAttr> tableObjectAttrs = new ArrayList<>();
+    private List<NsiConfigAttr> mergeExternalAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
-    private List<String> constraints = new ArrayList<>();
+    private final boolean autoVersion;
+    private List<String> interceptors = new ArrayList<>();
     private final NsiConfig config;
 
     public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
@@ -49,12 +53,15 @@ public class NsiConfigDict {
                 sourceQueries.put(q.getKey(), new NsiConfigSourceQuery(q.getValue()));
             }
         }
+
         mainDictName = metaDict.getMainDict();
+        autoVersion = metaDict.isAutoVersion();
     }
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
     private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
     private Map<String, NsiConfigSourceQuery> sourceQueries = new TreeMap<>();
+    private Map<String, NsiConfigAttr> owns = new TreeMap<>();
 
     public Map<String, NsiConfigAttr> getAttrNameMap() {
         return attrNameMap;
@@ -81,7 +88,19 @@ public class NsiConfigDict {
     }
 
     public void setIdAttr(NsiConfigAttr idAttr) {
+        // Выставляем обязательность ID в false, чтобы при вставки новой записи фронт не требовал наличие идентификатора  
+        idAttr.setRequired(false);
         this.idAttr = idAttr;
+    }
+
+    
+    public NsiConfigAttr getUniqueAttr() {
+        return uniqueAttr;
+    }
+
+    public void setUniqueAttr(NsiConfigAttr uniqueAttr) {
+        this.uniqueAttr = uniqueAttr;
+        uniqueAttr.setRequired(true);
     }
 
     public NsiConfigAttr getParentAttr() {
@@ -136,6 +155,10 @@ public class NsiConfigDict {
         return Collections.unmodifiableList(tableObjectAttrs);
     }
 
+    public List<NsiConfigAttr> getMergeExternalAttrs() {
+        return Collections.unmodifiableList(mergeExternalAttrs);
+    }
+    
     public Collection<NsiConfigField> getFields() {
         return Collections.unmodifiableCollection(fieldNameMap.values());
     }
@@ -178,7 +201,9 @@ public class NsiConfigDict {
     }
 
     public boolean isAttrHasRefAttrs(NsiConfigAttr attr) {
-        return attr.getType() == MetaAttrType.REF && attr != ownerAttr && attr != parentAttr;
+        // убрал оптимизацию, изз того что фронту требуются refAttrs, owner и parent могут редактироваться теоретически
+        // TODO: подумать как сделать ее правильно
+        return attr.getType() == MetaAttrType.REF ;//&& attr != ownerAttr && attr != parentAttr;
     }
 
     @Override
@@ -223,18 +248,31 @@ public class NsiConfigDict {
         this.tableObjectAttrs = tableObjectAttrs;
     }
 
-    public List<String> getConstraints() {
-        return constraints;
+    public void setMergeExternalAttrs(List<NsiConfigAttr> mergeExternalAttrs) {
+        this.mergeExternalAttrs = mergeExternalAttrs;
+    }
+    
+    public List<String> getInterceptors() {
+        return interceptors;
     }
 
-    public void setConstraints(List<String> constraints) {
-        this.constraints = constraints;
+    public void setInterceptors(List<String> interceptors) {
+        this.interceptors = interceptors;
     }
 
     public NsiConfigSourceQuery getSourceQuery(String name) {
         NsiConfigSourceQuery result = sourceQueries.get(name);
         Preconditions.checkNotNull(result, "dict %s source query %s not exists", getName(), name);
         return result;
+    }
+
+    public void setOwns(Map<String, NsiConfigAttr> owns) {
+        this.owns = owns;
+    }
+
+    public NsiConfigAttr getOwnAttr(String name) {
+
+        return owns.get(name);
     }
 
     public NsiConfigDict getMainDict() {
@@ -287,5 +325,13 @@ public class NsiConfigDict {
 
     public void setLoadDataAttrs(List<NsiConfigAttr> loadDataAttrs) {
         this.loadDataAttrs = loadDataAttrs;
+    }
+
+    public NsiConfigAttr getVersionAttr() {
+        return versionAttr;
+    }
+
+    public void setVersionAttr(NsiConfigAttr versionAttr) {
+        this.versionAttr = versionAttr;
     }
 }
