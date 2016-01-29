@@ -337,7 +337,9 @@ public class NsiGenericServiceImpl implements NsiGenericService {
               
         if (isInsert) {
             query.addStdAttrs();
+            query.addDefaultAttrs();
         }
+        
         try {
             outData = sqlDao.save(tx.getConnection(), query, data, isInsert);
             if (isInsert) {

@@ -455,7 +455,7 @@ public class SqlDaoTest extends BaseSqlTest {
 
         return sqlDao.insert(connection, query, inData);
     }
-
+    
     private DictRow saveDict2Row(Connection connection, NsiQuery query,
             long  dic1Id, boolean insert) {
         DictRow inData = query.getDict().builder()
@@ -783,5 +783,27 @@ public class SqlDaoTest extends BaseSqlTest {
             fb.key(configAttr.getName()).eq().value(rowAttr).add();
         }
         return fb.end().build();
+    }
+    
+    @Test
+    public void testDefaultAttrs() throws Exception {
+        NsiConfigDict dict = config.getDict("dict_default_attr");
+        try (Connection connection = dataSource.getConnection()) {
+            platformMigrator.recreateTable(dict, connection);
+            try {
+                platformMigrator.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow outData = insertDict1Row(connection, query, "f1-value");
+                    Assert.assertEquals(true, outData.getAttr("is_closed").getBoolean());
+
+                } finally {
+                    platformMigrator.dropSeq(dict, connection);
+                }
+
+            } finally {
+                platformMigrator.dropTable(dict, connection);
+            }
+        }
     }
 }
