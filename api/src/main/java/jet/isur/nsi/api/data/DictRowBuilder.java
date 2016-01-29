@@ -280,6 +280,10 @@ public class DictRowBuilder {
     public DictRowBuilder attr(String name, Long value) {
         return attr(name,1).value(ConvertUtils.longToString(value)).add();
     }
+    
+    public DictRowBuilder attr(String name, Double value) {
+        return attr(name,1).value(ConvertUtils.doubleToString(value)).add();
+    }
 
     public DictRowBuilder attr(String name, String value) {
         return attr(name,1).value(value).add();
