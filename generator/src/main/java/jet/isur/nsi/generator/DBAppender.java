@@ -12,6 +12,8 @@ import jet.isur.nsi.api.data.DictRow;
 import jet.isur.nsi.api.data.NsiConfig;
 import jet.isur.nsi.api.data.NsiConfigDict;
 import jet.isur.nsi.api.data.NsiQuery;
+import jet.isur.nsi.common.platform.oracle.OracleNsiPlatform;
+import jet.isur.nsi.common.platform.oracle.OraclePlatformSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlDao;
 import jet.isur.nsi.common.sql.DefaultSqlGen;
 
@@ -30,8 +32,11 @@ public class DBAppender {
     public DBAppender(DataSource dataSource, NsiConfig config) {
         this.dataSource = dataSource;
         this.config = config;
+        OracleNsiPlatform platform = new OracleNsiPlatform();
         this.sqlGen = new DefaultSqlGen();
+        sqlGen.setPlatformSqlGen(platform.getPlatformSqlGen());
         this.sqlDao = new DefaultSqlDao();
+        sqlDao.setPlatformSqlDao(platform.getPlatformSqlDao());
         this.sqlDao.setSqlGen(sqlGen);
     }
 
@@ -74,6 +79,7 @@ public class DBAppender {
                     }
                     */
                     data.setIdAttr(id);
+                    data.setVersionAttr((String)null);
                     sqlDao.setParamsForInsert(query, data, ps);
                     ps.addBatch();
                 }
