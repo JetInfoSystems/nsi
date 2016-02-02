@@ -33,6 +33,11 @@ public class MetaField implements Serializable {
     private Map<String, String> enumValues;
     
     /**
+     * Значение по умолчанию.
+     */
+    private String defaultValue;
+    
+    /**
      * Определяет возможность выполнения полнотекстового поиска по данному атрибуту
      * Поддерживается только для строковых типов.
      */
@@ -74,4 +79,12 @@ public class MetaField implements Serializable {
     public void setEnableFts(boolean enableFts) {
         this.enableFts = enableFts;
     }
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+    
+    
 }

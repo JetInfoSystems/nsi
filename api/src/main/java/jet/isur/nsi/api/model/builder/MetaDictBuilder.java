@@ -17,6 +17,8 @@ public interface MetaDictBuilder {
 
         MetaFieldBuilder precision(Integer value);
 
+        MetaFieldBuilder defaultValue(String value);
+        
         MetaDictBuilder add();
     }
 
@@ -41,8 +43,6 @@ public interface MetaDictBuilder {
         MetaAttrBuilder required(Boolean value);
         
         MetaAttrBuilder refAttrHidden(boolean value);
-
-        MetaAttrBuilder defaultValue(String defaultValue);
 
         MetaDictBuilder add();
     }

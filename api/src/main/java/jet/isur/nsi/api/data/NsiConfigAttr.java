@@ -17,7 +17,6 @@ public class NsiConfigAttr {
     private boolean required;
     private boolean readonly;
     private Boolean createOnly;
-    private String defaultValue;
     private boolean refAttrHidden;
     private boolean persist;
 
@@ -34,7 +33,6 @@ public class NsiConfigAttr {
         required = metaAttr.isRequired();
         readonly = metaAttr.getReadonly() == Boolean.TRUE;
         createOnly = metaAttr.getCreateOnly() == Boolean.TRUE;
-        defaultValue = metaAttr.getDefaultValue();
         refAttrHidden = metaAttr.isRefAttrHidden();
         persist = metaAttr.isPersist();
     }
@@ -77,7 +75,7 @@ public class NsiConfigAttr {
     @Override
     public String toString() {
         return "NsiConfigAttr [type=" + type.toString() + ", valueType=" + valueType
-                + ", name=" + name + ", default=" + defaultValue + ", caption=" + caption + ", hidden="
+                + ", name=" + name + ", caption=" + caption + ", hidden="
                 + hidden + ", refDictName=" + refDictName + ", required="
                 + required + ", fields=" + fields + ", refDict=" + refDict
                 + "]";
@@ -117,12 +115,18 @@ public class NsiConfigAttr {
     public void setPersist(boolean persist) {
         this.persist = persist;
     }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
+    
+    public List<String> getDefaultValue() {
+        List<String> res = null;
+        for(NsiConfigField field : fields) {
+            if(field.getDefaultValue() != null) {
+                if(res == null) {
+                    res = new ArrayList<>();
+                }
+                res.add(field.getDefaultValue());
+            }
+        }
+        
+        return res;
     }
 }

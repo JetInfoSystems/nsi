@@ -82,7 +82,6 @@ public class DictSerializer {
         result.setHidden(attr.getHidden());
         result.setRequired(attr.isRequired());
         result.setCreateOnly(attr.getCreateOnly());
-		result.setDefaultValue(attr.getDefaultValue());
         result.setName(attr.getName());
         if(attr.getRefDict()!=null) {
             result.setRefDict(attr.getRefDict().getName());

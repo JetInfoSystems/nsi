@@ -69,7 +69,6 @@ public class DataGen {
             .caption("is_deleted")
             .hidden(false)
             .name("is_deleted")
-            .defaultValue("N")
         .add()
         .attr()
             .addField("last_change")

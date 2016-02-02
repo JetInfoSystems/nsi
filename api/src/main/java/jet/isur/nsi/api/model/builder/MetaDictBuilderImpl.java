@@ -41,6 +41,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
         }
 
         @Override
+        public MetaFieldBuilder defaultValue(String value) {
+            getPrototype().setDefaultValue(value);
+            return this;
+        }
+        
+        @Override
         public MetaFieldBuilder size(Integer value) {
             getPrototype().setSize(value);
             return this;
@@ -142,12 +148,6 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
         public MetaAttrBuilder refAttrHidden(boolean value) {
             getPrototype().setRefAttrHidden(value);
             return null;
-        }
-
-        @Override
-        public MetaAttrBuilder defaultValue(String defaultValue) {
-            getPrototype().setDefaultValue(defaultValue);
-            return this;
         }
     }
 

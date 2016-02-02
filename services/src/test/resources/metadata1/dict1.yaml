@@ -17,7 +17,6 @@ attrs:
   hidden: false
   name: is_deleted
   type: value
-  defaultValue: N
 - caption: last change
   fields: [last_change]
   hidden: true
