@@ -32,6 +32,7 @@ import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaFieldType;
 import jet.isur.nsi.api.model.MetaParamValue;
+import jet.isur.nsi.api.model.RefAttrsType;
 import jet.isur.nsi.api.model.SortExp;
 import jet.isur.nsi.api.platform.PlatformSqlDao;
 import jet.isur.nsi.api.sql.SqlDao;
@@ -99,6 +100,10 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     protected void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result, boolean includeRefAttrs) throws SQLException {
+        rsToDictRow(query, rs, result, includeRefAttrs, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    protected void rsToDictRow(NsiQuery query, ResultSet rs, DictRow result, boolean includeRefAttrs, RefAttrsType refAttrsType) throws SQLException {
         int index = 1;
         NsiConfigDict dict = query.getDict();
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
@@ -113,17 +118,19 @@ public class DefaultSqlDao implements SqlDao {
                 index++;
             }
             if(includeRefAttrs && dict.isAttrHasRefAttrs(attr)) {
-                int refAttrCount = attr.getRefDict().getRefObjectAttrs().size();
-                Map<String, DictRowAttr> refAttrValues = new HashMap<>(refAttrCount);
-                attrValue.setRefAttrs(refAttrValues);
-                for (NsiConfigAttr refAttr : attr.getRefDict().getRefObjectAttrs()) {
-                    DictRowAttr refAttrValue = new DictRowAttr();
-                    refAttrValues.put(refAttr.getName(), refAttrValue);
-                    List<String> refAttrFieldValues = new ArrayList<>(refAttr.getFields().size());
-                    refAttrValue.setValues(refAttrFieldValues);
-                    for (NsiConfigField field : refAttr.getFields() ) {
-                        refAttrFieldValues.add(getFieldValue(rs,index,field));
-                        index++;
+                List<NsiConfigAttr> refAttrs = attr.getRefDict().getRefAttrs(refAttrsType);
+                if(refAttrs != null) {
+                    Map<String, DictRowAttr> refAttrValues = new HashMap<>(refAttrs.size());
+                    attrValue.setRefAttrs(refAttrValues);
+                    for (NsiConfigAttr refAttr : refAttrs) {
+                        DictRowAttr refAttrValue = new DictRowAttr();
+                        refAttrValues.put(refAttr.getName(), refAttrValue);
+                        List<String> refAttrFieldValues = new ArrayList<>(refAttr.getFields().size());
+                        refAttrValue.setValues(refAttrFieldValues);
+                        for (NsiConfigField field : refAttr.getFields() ) {
+                            refAttrFieldValues.add(getFieldValue(rs,index,field));
+                            index++;
+                        }
                     }
                 }
             }
@@ -336,6 +343,12 @@ public class DefaultSqlDao implements SqlDao {
     @Override
     public DictRow get(Connection connection, NsiQuery query,
             DictRowAttr id, boolean lock) {
+        return get(connection, query, id, lock, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    @Override
+    public DictRow get(Connection connection, NsiQuery query,
+            DictRowAttr id, boolean lock, RefAttrsType refAttrsType) {
         NsiConfigDict dict = query.getDict();
         checkDictHasIdAttr(dict);
         DictRow result = dict.newDictRow();
@@ -347,7 +360,7 @@ public class DefaultSqlDao implements SqlDao {
 
             try(ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
-                    rsToDictRow(query, rs, result, !lock);
+                    rsToDictRow(query, rs, result, !lock, refAttrsType);
                 } else {
                     throw new NsiDataException(Joiner.on(" ").join("not foud", id));
                 }
@@ -399,8 +412,15 @@ public class DefaultSqlDao implements SqlDao {
     public List<DictRow> list(Connection connection, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size,
             String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
+        return list(connection, query, filter, sortList, offset, size, sourceQueryName, sourceQueryParams, RefAttrsType.REF_OBJECT_ATTRS);
+    }
+
+    @Override
+    public List<DictRow> list(Connection connection, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams, RefAttrsType refAttrsType) {
         List<DictRow> result = new ArrayList<>();
-        String sql = sqlGen.getListSql(query, filter, sortList, offset, size, sourceQueryName);
+        String sql = sqlGen.getListSql(query, filter, sortList, offset, size, sourceQueryName, refAttrsType);
         log.info(sql);
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             int paramCount = setParamsForList(query, ps, filter, offset, size, sourceQueryName, sourceQueryParams) - 1;
@@ -409,7 +429,7 @@ public class DefaultSqlDao implements SqlDao {
                 try(ResultSet rs = ps.getResultSet()) {
                     while(rs.next()) {
                         DictRow data = query.getDict().newDictRow();
-                        rsToDictRow(query, rs, data);
+                        rsToDictRow(query, rs, data, true, refAttrsType);
                         result.add(data);
                     }
                 }

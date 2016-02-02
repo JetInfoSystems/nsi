@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.List;
 
 import jet.isur.nsi.api.data.DictRow;
-import jet.isur.nsi.api.data.NsiConfigField;
 import jet.isur.nsi.api.data.NsiQuery;
 import jet.isur.nsi.api.model.BoolExp;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaParamValue;
+import jet.isur.nsi.api.model.RefAttrsType;
 import jet.isur.nsi.api.model.SortExp;
 
 public interface SqlDao {
@@ -34,6 +34,17 @@ public interface SqlDao {
     public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock);
 
     /**
+     * Получить запись справочника, если есть REF атрибуты то для низ возвращаютмя ref атрибуты
+     * @param connection
+     * @param query
+     * @param id
+     * @param lock взять эксклюзивную блокировку для записи
+     * @param refAttrsType тип заполнения ссылочных атрибутов
+     * @return
+     */
+    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock, RefAttrsType refAttrsType);
+
+    /**
      * Получить страницу записей справочника удовлетворяющих критерию,
      * если есть REF атрибуты то для низ возвращаютмя ref атрибуты
      * @param connection
@@ -50,6 +61,10 @@ public interface SqlDao {
     public List<DictRow> list(Connection connection, NsiQuery query,
             BoolExp filter, List<SortExp> sortList, long offset, int size,
             String sourceQueryName, Collection<MetaParamValue> sourceQueryParams);
+
+    public List<DictRow> list(Connection connection, NsiQuery query,
+            BoolExp filter, List<SortExp> sortList, long offset, int size,
+            String sourceQueryName, Collection<MetaParamValue> sourceQueryParams, RefAttrsType refAttrsType);
 
     /**
      * Получить количество записей справочника, удовлетворяющих критерию,

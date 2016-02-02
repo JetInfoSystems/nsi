@@ -60,22 +60,47 @@ public class NsiConfigImpl implements NsiConfig {
         }
 
         // обрабатываем служебные атрибуты
-        if(metaDict.getIdAttr() != null) {
+        if(metaDict.isAutoIdAttr()) {
+            MetaField metaField = createAutoIdField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoIdAttr(metaField);
+            dict.setIdAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getIdAttr() != null) {
             dict.setIdAttr(checkAttrExists(dict, metaDict.getIdAttr()));
             dict.getIdAttr().setReadonly(true);
         }
-        if(metaDict.getIsGroupAttr()!=null) {
+        if(metaDict.isAutoIsGroupAttr()) {
+            MetaField metaField = createAutoIsGroupField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoIsGroupAttr(metaField);
+            dict.setIsGroupAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getIsGroupAttr()!=null) {
             dict.setIsGroupAttr(checkAttrExists(dict,metaDict.getIsGroupAttr()));
         }
-        if(metaDict.getLastUserAttr()!=null) {
+        if(metaDict.isAutoLastUserAttr()) {
+            MetaField metaField = createAutoLastUserField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoLastUserAttr(metaField);
+            dict.setLastUserAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getLastUserAttr()!=null) {
             dict.setLastUserAttr(checkAttrExists(dict,metaDict.getLastUserAttr()));
             dict.getLastUserAttr().setReadonly(true);
         }
-        if(metaDict.getLastChangeAttr()!=null) {
+        if(metaDict.isAutoLastChangeAttr()) {
+            MetaField metaField = createAutoLastChangeField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoLastChangeAttr(metaField);
+            dict.setLastChangeAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getLastChangeAttr()!=null) {
             dict.setLastChangeAttr(checkAttrExists(dict,metaDict.getLastChangeAttr()));
             dict.getLastChangeAttr().setReadonly(true);
         }
-        if(metaDict.getParentAttr()!=null) {
+        if(metaDict.isAutoParentAttr()) {
+            MetaField metaField = createAutoParentField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoParentAttr(metaDict, metaField);
+            dict.setParentAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getParentAttr()!=null) {
             dict.setParentAttr(checkAttrExists(dict,metaDict.getParentAttr()));
             dict.getParentAttr().setReadonly(true);
         }
@@ -84,7 +109,12 @@ public class NsiConfigImpl implements NsiConfig {
             dict.getOwnerAttr().setReadonly(true);
             dict.getOwnerAttr().setRequired(true);
         }
-        if(metaDict.getDeleteMarkAttr()!=null) {
+        if(metaDict.isAutoDeleteMarkAttr()) {
+            MetaField metaField = createAutoDeleteMarkField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoDeleteMarkAttr(metaField);
+            dict.setDeleteMarkAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getDeleteMarkAttr()!=null) {
             dict.setDeleteMarkAttr(checkAttrExists(dict,metaDict.getDeleteMarkAttr()));
             dict.getDeleteMarkAttr().setReadonly(true);
         }
@@ -142,6 +172,66 @@ public class NsiConfigImpl implements NsiConfig {
         return result;
     }
 
+    private MetaAttr createAutoDeleteMarkAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultDeleteMarkName());
+        result.setCaption("Удален");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        result.setReadonly(true);
+        return result;
+    }
+
+    private MetaAttr createAutoIdAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultIdName());
+        result.setCaption("Идентификатор");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        //result.setReadonly(true);
+        return result;
+    }
+
+    private MetaAttr createAutoIsGroupAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultIsGroupName());
+        result.setCaption("Группа");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        return result;
+    }
+
+    private MetaAttr createAutoParentAttr(MetaDict dict, MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultParentName());
+        result.setCaption("Родитель");
+        result.setType(MetaAttrType.REF);
+        result.setRefDict(dict.getName());
+        result.setFields(Arrays.asList(metaField.getName()));
+        result.setHidden(true);
+        return result;
+    }
+
+    private MetaAttr createAutoLastChangeAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultLastChangeName());
+        result.setCaption("Дата, время последнего изменения");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        result.setReadonly(true);
+        return result;
+    }
+
+    private MetaAttr createAutoLastUserAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultLastUserName());
+        result.setCaption("Автор последнего изменения");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        result.setReadonly(true);
+        return result;
+    }
+
     private void addDictField(NsiConfigDict dict, MetaField metaField) {
         preCheckField(dict, metaField);
         checkFieldExists(dict, metaField);
@@ -160,6 +250,54 @@ public class NsiConfigImpl implements NsiConfig {
         result.setName(params.getDefaultVersionName());
         result.setSize(params.getDefaultVersionSize());
         result.setType(params.getDefaultVersionType());
+        return result;
+    }
+
+    private MetaField createAutoDeleteMarkField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultDeleteMarkName());
+        result.setSize(params.getDefaultDeleteMarkSize());
+        result.setType(params.getDefaultDeleteMarkType());
+        return result;
+    }
+
+    private MetaField createAutoIdField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultIdName());
+        result.setSize(params.getDefaultIdSize());
+        result.setType(params.getDefaultIdType());
+        return result;
+    }
+
+    private MetaField createAutoIsGroupField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultIsGroupName());
+        result.setSize(params.getDefaultIsGroupSize());
+        result.setType(params.getDefaultIsGroupType());
+        return result;
+    }
+
+    private MetaField createAutoParentField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultParentName());
+        result.setSize(params.getDefaultIdSize());
+        result.setType(params.getDefaultIdType());
+        return result;
+    }
+
+    private MetaField createAutoLastChangeField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultLastChangeName());
+        result.setSize(params.getDefaultLastChangeSize());
+        result.setType(params.getDefaultLastChangeType());
+        return result;
+    }
+
+    private MetaField createAutoLastUserField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultLastUserName());
+        result.setSize(params.getDefaultLastUserSize());
+        result.setType(params.getDefaultLastUserType());
         return result;
     }
 

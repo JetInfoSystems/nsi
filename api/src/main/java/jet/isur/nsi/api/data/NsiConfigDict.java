@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaSourceQuery;
+import jet.isur.nsi.api.model.RefAttrsType;
 
 import com.google.common.base.Preconditions;
 
@@ -38,7 +40,7 @@ public class NsiConfigDict {
     private List<NsiConfigAttr> mergeExternalAttrs = new ArrayList<>();
     private final String mainDictName;
     private NsiConfigDict mainDict;
-    private final boolean autoVersion;
+
     private List<String> interceptors = new ArrayList<>();
     private final NsiConfig config;
 
@@ -55,7 +57,6 @@ public class NsiConfigDict {
         }
 
         mainDictName = metaDict.getMainDict();
-        autoVersion = metaDict.isAutoVersion();
     }
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
@@ -333,5 +334,16 @@ public class NsiConfigDict {
 
     public void setVersionAttr(NsiConfigAttr versionAttr) {
         this.versionAttr = versionAttr;
+    }
+
+    public List<NsiConfigAttr> getRefAttrs(RefAttrsType refAttrsType) {
+        switch (refAttrsType) {
+        case REF_OBJECT_ATTRS:
+            return refObjectAttrs;
+        case MERGE_EXTERNAL_ATTRS:
+            return mergeExternalAttrs;
+        default:
+            throw new NsiServiceException("неподдерживаемый refAttrsType: " + refAttrsType);
+        }
     }
 }

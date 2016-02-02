@@ -213,4 +213,10 @@ public class Migrator {
         return (MetadataImplementor) metadataBuilder.build();
     }
 
+    public static PlatformMigrator createPlatformMigrator(MigratorParams params, String ident) throws Exception {
+        Class<?> clasz = Thread.currentThread().getContextClassLoader().loadClass(params.getPlatformMigrator(ident));
+        return (PlatformMigrator)clasz.newInstance();
+    }
+
+
 }
