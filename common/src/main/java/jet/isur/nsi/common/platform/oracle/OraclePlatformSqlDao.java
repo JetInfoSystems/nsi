@@ -14,7 +14,6 @@ import jet.isur.nsi.common.platform.DefaultPlatformSqlDao;
 
 public class OraclePlatformSqlDao extends DefaultPlatformSqlDao {
 
-    
     public OraclePlatformSqlDao(NsiPlatform nsiPlatform) {
         super(nsiPlatform);
     }
@@ -26,7 +25,7 @@ public class OraclePlatformSqlDao extends DefaultPlatformSqlDao {
             // ** нужно использовать для обхода ограничения oracle
             // oracle11 не поддерживает left wildcard
             // https://docs.oracle.com/cd/B28359_01/text.111/b28304/csql.htm#i997256
-            return "**" + val + "*";
+            return "**" + replaceIllegalCharacters(val) + "*";
         } else {
             return super.wrapFilterFieldValue(filter, field, val);
         }
@@ -59,6 +58,10 @@ public class OraclePlatformSqlDao extends DefaultPlatformSqlDao {
             throw new NsiServiceException("unsupported field type: " + fieldType);
         }
         return DefaultDataType.getDataType(SQLDialect.DEFAULT, type);
+    }
+
+    private String replaceIllegalCharacters(String value) {
+        return value.replaceAll("[\"(),]", "");
     }
 
 }
