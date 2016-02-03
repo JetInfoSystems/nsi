@@ -21,7 +21,7 @@ public abstract class NsiTransactionTemplate<T> {
 		try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
 			try {
 				return (T) doInTransaction(tx);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error("onException rollback [{}] -> error", requestId, e);            
 	            tx.rollback();
 	            throw new NsiServiceException(e.getMessage());
