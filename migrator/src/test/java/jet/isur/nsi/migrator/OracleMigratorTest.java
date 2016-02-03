@@ -186,6 +186,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(testSize, connection);
+            platformMigrator.dropSeq(testSize, connection);
         }
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
@@ -206,6 +207,7 @@ public class OracleMigratorTest extends BaseSqlTest{
 
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(testSize, connection);
+            platformMigrator.dropSeq(testSize, connection);
         }
     }
 
