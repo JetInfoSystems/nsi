@@ -13,8 +13,6 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
@@ -41,7 +39,6 @@ import jet.scdp.metrics.mock.MockMetrics;
 public class SqlDaoTest extends BaseSqlTest {
 
     protected PlatformMigrator platformMigrator;
-    private static final Logger log = LoggerFactory.getLogger(SqlDaoTest.class);
     
     @Override
     public void setup() throws Exception {

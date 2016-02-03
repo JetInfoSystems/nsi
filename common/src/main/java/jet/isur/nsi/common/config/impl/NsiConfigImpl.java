@@ -511,6 +511,18 @@ public class NsiConfigImpl implements NsiConfig {
         }
         checkRefAttrFields(dict, dict.getOwnerAttr());
         checkRefAttrFields(dict, dict.getParentAttr());
+        
+        // автоматически добавляем versionAttr для прокси моделей если mainDict имеет versionAttr
+        if(dict.getVersionAttr() == null && dict.getMainDict() != null && dict.getMainDict().getVersionAttr() != null) {
+            NsiConfigField mainVersionField = dict.getMainDict().getVersionAttr().getFields().get(0);
+            MetaField metaField = new MetaField();
+            metaField.setName(mainVersionField.getName());
+            metaField.setSize(mainVersionField.getSize());
+            metaField.setType(mainVersionField.getType());
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoVersionAttr(metaField);
+            dict.setVersionAttr(addDictAttr(dict, metaAttr));
+        }
     }
 
 

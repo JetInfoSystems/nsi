@@ -60,6 +60,17 @@ public class NsiLocalGitConfigManagerImplTest {
         Assert.assertNotNull(dictWithClob.getAttr("clobAttr"));
     }
 
+    @Test
+    public void testAddVersionToProxyModel() {
+        NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
+        NsiConfig config = configManager.readConfig();
+        Assert.assertNotNull(config);
+        
+        NsiConfigDict dict = config.getDict("dict1_v");
+        Assert.assertNotNull(dict);
+        Assert.assertNotNull(dict.getVersionAttr());
+    }
+
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {
         NsiConfigParams configParams = new NsiConfigParams();
         return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl(), configParams );
