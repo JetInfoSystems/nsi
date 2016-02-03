@@ -177,7 +177,7 @@ public class DefaultSqlDao implements SqlDao {
                 if(attr.getDefaultValue() == null) {
                     throw new NsiDataException("can't find data attr for query attr: " + queryAttrName);
                 } else {
-                    dataValues = attr.getDefaultValue();
+                    dataValues = attr.getDefaultValue().getValues();
                 }
             } else {
                 dataValues = dataAttr.getValues();

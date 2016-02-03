@@ -3,6 +3,7 @@ package jet.isur.nsi.api.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import jet.isur.nsi.api.model.DictRowAttr;
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
 
@@ -116,14 +117,14 @@ public class NsiConfigAttr {
         this.persist = persist;
     }
     
-    public List<String> getDefaultValue() {
-        List<String> res = null;
+    public DictRowAttr getDefaultValue() {
+        DictRowAttr res = null;
         for(NsiConfigField field : fields) {
             if(field.getDefaultValue() != null) {
                 if(res == null) {
-                    res = new ArrayList<>();
+                    res = new DictRowAttr();
                 }
-                res.add(field.getDefaultValue());
+                res.addValue(field.getDefaultValue());
             }
         }
         
