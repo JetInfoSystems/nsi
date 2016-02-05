@@ -120,6 +120,17 @@ public class NsiQuery {
         return this;
     }
     
+    public NsiQuery addDefaultAttrs() {
+        for (NsiConfigAttr attr : dict.getAttrs()) {
+            // добавляем только те атрибуты, которые есть в модели и дл которых назначено значение по умолчанию
+            if(attr != null && attr.getDefaultValue() != null) {
+                addAttr(MAIN_ALIAS, attr);
+            }
+        }
+
+        return this;
+    }
+    
     public NsiQuery addRefObjectAttrs() {
         addStdAttrs();
         addAttrs(dict.getRefObjectAttrs());

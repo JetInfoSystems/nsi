@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,8 +149,7 @@ public class DefaultSqlDao implements SqlDao {
         return value == null ? null : CharMatcher.WHITESPACE.trimTrailingFrom(value);
     }
 
-    public int setParamsForInsert(NsiQuery query, DictRow data,
-            PreparedStatement ps) throws SQLException {
+    public int setParamsForInsert(NsiQuery query, DictRow data, PreparedStatement ps) throws SQLException {
         int index = 1;
         //if(dataAttrMap.size() != query.getAttrs().size()) {
         //    throw new NsiDataException("data and query attr count not match: " + query.getAttrs().size());
@@ -171,11 +171,18 @@ public class DefaultSqlDao implements SqlDao {
                 // потому что он получается из последовательности
                 continue;
             }
+            
+            List<String> dataValues;
             if(dataAttr == null) {
-                throw new NsiDataException("can't find data attr for query attr: " + queryAttrName);
+                if(attr.getDefaultValue() == null) {
+                    throw new NsiDataException("can't find data attr for query attr: " + queryAttrName);
+                } else {
+                    dataValues = attr.getDefaultValue().getValues();
+                }
+            } else {
+                dataValues = dataAttr.getValues();
             }
             
-            List<String> dataValues = dataAttr.getValues();
             checkDataValues(fields, queryAttrName, dataValues);
 
             int i = 0;

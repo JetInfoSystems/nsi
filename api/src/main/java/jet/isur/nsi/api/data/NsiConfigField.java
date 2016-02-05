@@ -13,7 +13,9 @@ public class NsiConfigField {
     private final Integer precision;
     private final Map<String, String> enumValues;
     private boolean enableFts;
-
+    private String defaultValue;
+    
+    
     public NsiConfigField(MetaField metaField) {
         name = metaField.getName();
         type = metaField.getType();
@@ -21,6 +23,7 @@ public class NsiConfigField {
         precision = metaField.getPrecision();
         enumValues = metaField.getEnumValues();
         enableFts = metaField.isEnableFts();
+        defaultValue = metaField.getDefaultValue();
     }
 
     public String getName() {
@@ -57,4 +60,13 @@ public class NsiConfigField {
         this.enableFts = enableFts;
     }
 
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    
 }

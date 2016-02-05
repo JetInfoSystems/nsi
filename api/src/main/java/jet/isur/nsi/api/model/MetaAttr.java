@@ -130,6 +130,7 @@ public class MetaAttr implements Serializable {
 	public void setCreateOnly(Boolean createOnly) {
 		this.createOnly = createOnly;
 	}
+
     public boolean isRefAttrHidden() {
         return refAttrHidden;
     }

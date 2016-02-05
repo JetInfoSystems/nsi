@@ -17,6 +17,8 @@ public interface MetaDictBuilder {
 
         MetaFieldBuilder precision(Integer value);
 
+        MetaFieldBuilder defaultValue(String value);
+        
         MetaDictBuilder add();
     }
 
