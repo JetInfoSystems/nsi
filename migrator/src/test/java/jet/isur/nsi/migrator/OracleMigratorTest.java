@@ -202,8 +202,8 @@ public class OracleMigratorTest extends BaseSqlTest{
 
         List<String> actions = rec.getActions();
         log.info(actions.toString());
-        Assert.assertEquals(2, actions.size());
-        Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(1));
+        Assert.assertEquals(3, actions.size());
+        Assert.assertEquals("alter table test_size modify test char(4 char)", actions.get(2));
 
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(testSize, connection);
