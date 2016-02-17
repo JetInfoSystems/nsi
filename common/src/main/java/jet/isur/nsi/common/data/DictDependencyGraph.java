@@ -98,16 +98,7 @@ public class DictDependencyGraph {
     }
 
     public List<NsiConfigDict> sort() {
-        int size = graph.vertexSet().size();
-        PriorityQueue<NsiConfigDict> q = new PriorityQueue<>(size, new Comparator<NsiConfigDict>() {
-
-            @Override
-            public int compare(NsiConfigDict o1, NsiConfigDict o2) {
-                return ComparisonChain.start().compare(o1.getName(), o2.getName()).result();
-            }
-        });
-
-        TopologicalOrderIterator<NsiConfigDict, DefaultEdge> i = new TopologicalOrderIterator<>(graph, q);
+        TopologicalOrderIterator<NsiConfigDict, DefaultEdge> i = new TopologicalOrderIterator<>(graph);
         List<NsiConfigDict> items = new ArrayList<>();
         while (i.hasNext()) {
             items.add(i.next());
