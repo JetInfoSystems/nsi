@@ -585,8 +585,7 @@ public class DefaultSqlDao implements SqlDao {
         DictRow result = null;
         if(dict.getVersionAttr() != null) {
             NsiQuery query = dict.query()
-                .addLastChange()
-                .addLastUser();
+                .addId();
             if(dict.getVersionAttr()!=null) {
                 query.addVersion();
             }
