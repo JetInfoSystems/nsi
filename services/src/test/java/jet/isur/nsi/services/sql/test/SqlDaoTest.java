@@ -252,6 +252,36 @@ public class SqlDaoTest extends BaseSqlTest {
     }
 
     @Test
+    public void testInsertAndUpdateNoLastChange() throws Exception {
+        NsiConfigDict dict = config.getDict("NO_LAST_CHANGE");
+        try (Connection connection = dataSource.getConnection()) {
+            platformMigrator.recreateTable(dict, connection);
+            try {
+                platformMigrator.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow inData = query.getDict().builder()
+                            .idAttrNull()
+                            .build();
+
+                    DictRow outData = sqlDao.insert(connection, query, inData);
+
+                    Assert.assertEquals((Long)1L, outData.getVersionAttrLong());
+
+                    DictRow outUpdatedData = sqlDao.update(connection, query, outData);
+                    Assert.assertEquals((Long)2L, outUpdatedData.getVersionAttrLong());
+
+                } finally {
+                    platformMigrator.dropSeq(dict, connection);
+                }
+
+            } finally {
+                platformMigrator.dropTable(dict, connection);
+            }
+        }
+    }
+
+    @Test
     public void testInsertAndUpdateWithoutVersion() throws Exception {
         NsiConfigDict dict = config.getDict("dict1_without_version");
         try (Connection connection = dataSource.getConnection()) {

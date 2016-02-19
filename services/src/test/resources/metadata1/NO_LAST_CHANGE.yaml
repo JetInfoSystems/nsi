@@ -1,0 +1,16 @@
+caption: NO_LAST_CHANGE
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+fields:
+ - name: ID
+   size: 19
+   type: number
+idAttr: ID
+name: NO_LAST_CHANGE
+refObjectAttrs: []
+table: NO_LAST_CHANGE1
+tableObjectAttrs: [ID]
