@@ -132,7 +132,7 @@ public class SqlGenTest extends BaseSqlTest {
         Assert.assertEquals(
                 "select b.* from (select a.*, ROWNUM rnum from (" +
                         "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
-                        " where lower(cast(m.f1 as varchar)) like lower(cast(? as varchar)) order by m.id asc, m.last_user asc" +
+                        " where lower(m.f1) like lower(?) order by m.id asc, m.last_user asc" +
                         ") a where ROWNUM < ?) b where rnum >= ?", sql);
     }
 

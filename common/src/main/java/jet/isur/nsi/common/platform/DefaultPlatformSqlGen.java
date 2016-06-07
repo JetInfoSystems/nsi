@@ -39,7 +39,14 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
     @Override
     public Condition getFieldFuncCondition(NsiQuery query, NsiConfigField field,
             BoolExp filter, SelectJoinStep<?> baseQuery) {
-        Field<Object> f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
+        Field<Object> f;
+        
+        if(OperationType.LIKE.equals(filter.getFunc())) {
+            f = field("lower(" + NsiQuery.MAIN_ALIAS +"."+field.getName() +")");
+        } else {
+            f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
+        }
+        
         switch (filter.getFunc()) {
         case OperationType.EQUALS:
             if (filter.getValue().getValues().get(0) != null){
@@ -66,7 +73,7 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
         case OperationType.LIKE:
             if (filter.getValue().getValues().get(0) != null){
                 Field<String> value = null;
-                return f.likeIgnoreCase(value);
+                return f.like(DSL.lower(value));
             }
             else{
                 return f.isNull();
