@@ -66,7 +66,7 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
         case OperationType.LIKE:
             if (filter.getValue().getValues().get(0) != null){
                 Field<String> value = null;
-                return f.like(value );
+                return f.likeIgnoreCase(value);
             }
             else{
                 return f.isNull();
