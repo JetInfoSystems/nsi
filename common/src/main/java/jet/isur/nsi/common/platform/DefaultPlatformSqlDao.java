@@ -167,7 +167,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
             String val) {
         if (filter.getFunc().equals(OperationType.LIKE))
         {
-            return val+"%";
+            return "%"+val+"%";
         } else if (filter.getFunc().equals(OperationType.CONTAINS)) {
             throw new NsiDataException("unsupported func: " + filter.getFunc());
         } else {
