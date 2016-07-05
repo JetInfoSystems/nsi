@@ -551,7 +551,8 @@ public class DefaultSqlDao implements SqlDao {
                         throw new WriteLockNsiDataException(
                                 // получаем полное текущее состояние
                                 get(connection, dict.query().addAttrs(), data.getIdAttr())
-                                ,"version not match expected: "+ dict.getName() + ", " + data.getVersionAttrString() + ", " + curData.getVersionAttrString());
+                                ,"record version missmatch: "+ dict.getName() + ", your/db versions are " + data.getVersionAttrString() + "/" + curData.getVersionAttrString())
+                                .localize("Редактируемые данные уже были изменены в другой сессии. Сохранение невозможно без повторного обновления. Обновите запись и отредактируйте ее снова.");
                     }
                     // задаем новую версию 
                     if(dict.getVersionAttr().getFields().get(0).getType() == MetaFieldType.NUMBER) {
