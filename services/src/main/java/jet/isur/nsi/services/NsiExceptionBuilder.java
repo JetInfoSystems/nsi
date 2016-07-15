@@ -9,6 +9,7 @@ public class NsiExceptionBuilder {
     private NsiError error;
     private String requestId;
     private String message;
+    private String localizedMessage;
     private DictRow data;
     
     NsiExceptionBuilder() {
@@ -22,7 +23,7 @@ public class NsiExceptionBuilder {
     public NsiExceptionBuilder map(NsiServiceException e) {
         requestId(e.getRequestId());
         error(e.getError());
-        message(e.getMessage());
+        message(e);
         data(e.getData());
         return this;
     }
@@ -36,6 +37,12 @@ public class NsiExceptionBuilder {
         this.requestId = requestId;
         return this;
     }
+
+    public NsiExceptionBuilder message(Exception ex) {
+        message(ex.getMessage());
+        localizedMessage(ex.getLocalizedMessage());
+        return this;
+    }
     
     public NsiExceptionBuilder message(String message) {
         this.message = message;
@@ -44,6 +51,16 @@ public class NsiExceptionBuilder {
     
     public NsiExceptionBuilder message(String format, Object ... args) {
         this.message = String.format(format, args);
+        return this;
+    }
+
+    public NsiExceptionBuilder localizedMessage(String localizedMessage) {
+        this.localizedMessage = localizedMessage;
+        return this;
+    }
+
+    public NsiExceptionBuilder localizedMessage(String format, Object ... args) {
+        this.localizedMessage = String.format(format, args);
         return this;
     }
     
@@ -56,6 +73,7 @@ public class NsiExceptionBuilder {
         NsiServiceException result = new NsiServiceException(message);
         result.setError(error);
         result.setRequestId(requestId);
+        result.setLocalizedMessage(localizedMessage);
         result.setData(data);
         return result;
     }

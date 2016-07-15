@@ -7,6 +7,7 @@ public class NsiServiceException extends RuntimeException {
     private NsiError error;
     private String requestId = null;
     private DictRow data;
+    private String localizedMessage = null;
 
     public NsiServiceException(String message, Object... args) {
         super(String.format(message, args));
@@ -60,4 +61,17 @@ public class NsiServiceException extends RuntimeException {
         this.data = data;
     }
 
+    public NsiServiceException setLocalizedMessage(String localizedMessage) {
+        this.localizedMessage = localizedMessage;
+        return this;
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        if(localizedMessage != null) {
+            return localizedMessage;
+        } else {
+            return super.getLocalizedMessage();
+        }
+    }
 }

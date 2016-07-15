@@ -354,7 +354,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             throw NsiExceptionBuilder.on()
                 .requestId(tx.getRequestId())
                 .error(NsiError.WRITE_LOCK_ERROR)
-                .message(e.getMessage())
+                .message(e)
                 .data(e.getData())
                 .build();
         }
@@ -373,7 +373,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             log.error("dictSave [{},{}] -> error", tx.getRequestId(), data.getDict().getName(), e);
             throw NsiExceptionBuilder.on()
                 .requestId(tx.getRequestId())
-                .message(e.getMessage())
+                .message(e)
                 .build();
         } finally {
             t.stop();
@@ -395,7 +395,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 tx.rollback();
                 throw NsiExceptionBuilder.on()
                 .requestId(requestId)
-                .message(e.getMessage())
+                .message(e)
                 .build();
             }
         } catch (NsiServiceException e){
@@ -404,7 +404,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             log.error("dictSave [{},{}] -> error", requestId, data.getDict().getName(), e);
             throw NsiExceptionBuilder.on()
             .requestId(requestId)
-            .message(e.getMessage())
+            .message(e)
             .build();
         } finally {
             t.stop();
