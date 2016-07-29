@@ -120,7 +120,9 @@ public class NsiConfigImpl implements NsiConfig {
         }
         if(metaDict.getUniqueAttr() != null) {
             dict.setUniqueAttr(checkAttrExists(dict, metaDict.getUniqueAttr()));
-            dict.getUniqueAttr().setRequired(true);
+            for(NsiConfigAttr cAttr : dict.getUniqueAttr()) {
+                cAttr.setRequired(true);
+            }
         }
         if(metaDict.isAutoVersion() && dict.getTable() != null) {
             MetaField metaField = createAutoVersionField();
@@ -309,6 +311,18 @@ public class NsiConfigImpl implements NsiConfig {
         return attr;
     }
 
+    private List<NsiConfigAttr> checkAttrExists(NsiConfigDict dict, List<String> names) {
+        List<NsiConfigAttr> res = new ArrayList<>();
+        for(String name : names) {
+            NsiConfigAttr attr = dict.getAttr(name);
+            if(attr == null) {
+                throwDictException(dict, "attr not exists", name);
+            }
+            res.add(attr);
+        }
+        return res;
+    }
+    
     private List<NsiConfigAttr> createAttrList(NsiConfigDict dict, List<String> attrNames) {
         List<NsiConfigAttr> result = new ArrayList<>();
         if(attrNames != null) {

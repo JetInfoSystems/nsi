@@ -143,6 +143,11 @@ public class NsiQuery {
         return this;
     }
 
+    public NsiQuery addUniqueAttrs() {
+        addAttrs(dict.getUniqueAttr());
+        return this;
+    }
+    
     private NsiQuery addAttrs(Collection<NsiConfigAttr> attrs) {
         for ( NsiConfigAttr attr : attrs) {
             addAttr(MAIN_ALIAS, attr);

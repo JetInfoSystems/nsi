@@ -1,6 +1,8 @@
 
 package jet.isur.nsi.api.model.builder;
 
+import java.util.List;
+
 import jet.isur.nsi.api.model.MetaAttrType;
 import jet.isur.nsi.api.model.MetaDict;
 import jet.isur.nsi.api.model.MetaFieldType;
@@ -71,7 +73,7 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder lastUserAttr(String name);
 
-    MetaDictBuilder uniqueAttr(String name);
+    MetaDictBuilder uniqueAttr(List<String> name);
     
     MetaDictBuilder addCaptionAttr(String value);
 

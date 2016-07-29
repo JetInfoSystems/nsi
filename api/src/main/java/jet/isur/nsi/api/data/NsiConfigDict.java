@@ -31,7 +31,7 @@ public class NsiConfigDict {
     private NsiConfigAttr deleteMarkAttr;
     private NsiConfigAttr lastChangeAttr;
     private NsiConfigAttr lastUserAttr;
-    private NsiConfigAttr uniqueAttr;
+    private List<NsiConfigAttr> uniqueAttr;
     private NsiConfigAttr versionAttr;
     private List<NsiConfigAttr> captionAttrs = new ArrayList<>();
     private List<NsiConfigAttr> refObjectAttrs = new ArrayList<>();
@@ -95,13 +95,15 @@ public class NsiConfigDict {
     }
 
     
-    public NsiConfigAttr getUniqueAttr() {
+    public List<NsiConfigAttr> getUniqueAttr() {
         return uniqueAttr;
     }
 
-    public void setUniqueAttr(NsiConfigAttr uniqueAttr) {
+    public void setUniqueAttr(List<NsiConfigAttr> uniqueAttr) {
         this.uniqueAttr = uniqueAttr;
-        uniqueAttr.setRequired(true);
+        for(NsiConfigAttr attr : uniqueAttr) {
+            attr.setRequired(true);
+        }
     }
 
     public NsiConfigAttr getParentAttr() {
@@ -345,5 +347,14 @@ public class NsiConfigDict {
         default:
             throw new NsiServiceException("неподдерживаемый refAttrsType: " + refAttrsType);
         }
+    }
+    
+    public static String formatAttrs(String dictName, List<NsiConfigAttr> attrs, String sep) {
+        StringBuilder res = new StringBuilder();
+        for(NsiConfigAttr attr : attrs) {
+            res.append(dictName).append(".").append(attr.getName()).append(sep);
+        }
+        
+        return res.toString();
     }
 }

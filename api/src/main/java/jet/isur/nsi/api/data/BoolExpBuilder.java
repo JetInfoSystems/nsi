@@ -2,6 +2,7 @@ package jet.isur.nsi.api.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
@@ -204,10 +205,18 @@ public class BoolExpBuilder {
         return key(dict.getDeleteMarkAttr()).eq().value(value);
     }
     
-    public BoolExpBuilder uniqueAttr(DictRowAttr value) {
+    public BoolExpBuilder uniqueAttr(Map<String, DictRowAttr> rowAttrs) {
         if(dict.getUniqueAttr() == null) {
             throw new NsiServiceException("dict %s have not uniqueAttr",dict.getName());
         }
-        return key(dict.getUniqueAttr()).eq().value(value);
+        
+        for(NsiConfigAttr configAttr : dict.getUniqueAttr()) {
+            DictRowAttr ra = rowAttrs.get(configAttr.getName());
+            if(ra == null || ra.isEmpty()) {
+                throw new NsiServiceException("attr %s is null or empty", configAttr.getName());
+            }
+            key(configAttr).eq().value(ra).add();
+        }
+        return this;
     }
 }

@@ -3,6 +3,7 @@ package jet.isur.nsi.api.model.builder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import jet.isur.nsi.api.model.MetaAttr;
 import jet.isur.nsi.api.model.MetaAttrType;
@@ -290,7 +291,7 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
     }
 
     @Override
-    public MetaDictBuilder uniqueAttr(String val) {
+    public MetaDictBuilder uniqueAttr(List<String> val) {
         getPrototype().setUniqueAttr(val);
         return this;
     }

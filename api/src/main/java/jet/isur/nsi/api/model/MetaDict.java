@@ -67,7 +67,7 @@ public class MetaDict extends MetaDictRef {
     /**
      * атрибут уникально идентифицирующий запись среди неудалённых.
      */
-    private String uniqueAttr;
+    private List<String> uniqueAttr;
     /**
      * Список наименований атрибутов кторые используются для текстового представления записи.
      */
@@ -298,10 +298,10 @@ public class MetaDict extends MetaDictRef {
 	public void setMergeExternalAttrs(List<String> mergeExternalAttrs) {
 		this.mergeExternalAttrs = mergeExternalAttrs;
 	}
-    public String getUniqueAttr() {
+    public List<String> getUniqueAttr() {
         return uniqueAttr;
     }
-    public void setUniqueAttr(String uniqueAttr) {
+    public void setUniqueAttr(List<String> uniqueAttr) {
         this.uniqueAttr = uniqueAttr;
     }
     public boolean isAutoVersion() {

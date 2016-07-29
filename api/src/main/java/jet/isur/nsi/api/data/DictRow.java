@@ -54,42 +54,23 @@ public class DictRow {
     }
 
     @Transient
-    public DictRowAttr getUniqueAttr() {
-        NsiConfigAttr attr = dict.getUniqueAttr();
-        return (attr == null)? null : getAttr(attr.getName());
+    public Map<String, DictRowAttr> getUniqueAttrs() {
+        Map<String, DictRowAttr> rowAttrs = new HashMap<>();
+        for(NsiConfigAttr attr : dict.getUniqueAttr()) {
+            if(attr != null) {
+                DictRowAttr ra = getAttr(attr.getName());
+                rowAttrs.put(attr.getName(), ra);
+            }
+        }
+        return rowAttrs;
     }
     
     @Transient
-    public void setUniquAttr(DictRowAttr value) {
-        NsiConfigAttr attr = dict.getUniqueAttr();
-        checkDictAttrNotNull(attr, "uniqueAttr");
-        setAttr(attr, value);
-    }
-    
-    @Transient
-    public String getUniqueAttrString() {
-        NsiConfigAttr attr = dict.getUniqueAttr();
-        return (attr == null)? null : getString(attr);
-    }
-
-    @Transient
-    public Long getUniqueAttrLong() {
-        NsiConfigAttr attr = dict.getUniqueAttr();
-        return (attr == null)? null : getLong(attr);
-    }
-
-    @Transient
-    public void setUniqueAttr(String value) {
-        NsiConfigAttr attr = dict.getUniqueAttr();
-        checkDictAttrNotNull(attr, "uniqueAttr");
-        setAttr(attr, value);
-    }
-
-    @Transient
-    public void setUniqueAttr(Long value) {
-        NsiConfigAttr attr = dict.getUniqueAttr();
-        checkDictAttrNotNull(attr, "uniqueAttr");
-        setAttr(attr, value);
+    public void setUniquAttr(Map<String, DictRowAttr> values) {
+        for(NsiConfigAttr attr : dict.getUniqueAttr()) {
+            checkDictAttrNotNull(attr, "uniqueAttr");
+            setAttr(attr, values.get(attr.getName()));
+        }
     }
 
     @Transient

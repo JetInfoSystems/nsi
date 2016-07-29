@@ -612,32 +612,50 @@ public class DefaultSqlDao implements SqlDao {
     
     private void checkUniqueAttr(Connection connection, DictRow data, boolean insert) {
         // TODO - сделать проверку уникальности распеределенной
-        NsiConfigAttr configAttr = data.getDict().getUniqueAttr();
-        if(configAttr == null || data.getDeleteMarkAttrBoolean()) {
+        List<NsiConfigAttr> configAttrs = data.getDict().getUniqueAttr();
+        if(configAttrs == null || configAttrs.size() == 0 || data.getDeleteMarkAttrBoolean()) {
             return;
         }
         
-        DictRowAttr rowAttr = data.getUniqueAttr();
-        log.debug(String.valueOf(rowAttr));
-        if((insert && (rowAttr == null || rowAttr.isEmpty())) || (!insert && rowAttr != null && rowAttr.isEmpty()) ) {
-            throw new NsiServiceException("Атрибут " + data.getDict().getName() + "." +configAttr.getName()+ " обязательный");
+        Map<String, DictRowAttr> rowAttrs = data.getUniqueAttrs();
+        log.debug(String.valueOf(rowAttrs));
+        
+        boolean isExistAllAttr = true;
+        boolean isExistAttr = false;
+        for(DictRowAttr value : rowAttrs.values()) {
+            if(value == null || value.isEmpty()) {
+                isExistAllAttr = false;
+            } else {
+                isExistAttr = true;
+            }
         }
         
-        if(rowAttr == null) {
+        if(insert && !isExistAllAttr || (!insert && isExistAttr && !isExistAllAttr) ) {
+            throw new NsiServiceException("Атрибуты " + NsiConfigDict.formatAttrs(data.getDict().getName(), configAttrs, ", ")+  "обязательные");
+        }
+        
+        if(!isExistAllAttr) {
             return;
         }
         
         BoolExpBuilder fb = data.getDict().filter().and().expList();
-        fb.uniqueAttr(rowAttr).add();
+        fb.uniqueAttr(rowAttrs);
         fb.deleteMark(false).add();
         if(!insert) {
             fb.key(data.getDict().getIdAttr().getName()).notEq().value(data.getIdAttr()).add();
         }
         
-        long count = count(connection, data.getDict().query().addAttr(configAttr.getName()), fb.end().build());
+        long count = count(connection, data.getDict().query().addUniqueAttrs(), fb.end().build());
         
         if(count > 0) {
-            throw new NsiServiceException("Значение атрибута  " + data.getDict().getName() + "." +configAttr.getName()+ " должно быть уникальным. Нарушено ограничение для значения " + rowAttr.getValues() );
+            if(configAttrs.size() == 1) {
+                NsiConfigAttr configAttr = configAttrs.get(0); 
+                throw new NsiServiceException("Значение атрибута  " + data.getDict().getName() + "." +configAttr.getName()+ " должно быть уникальным. Нарушено ограничение для значения " + rowAttrs.get(configAttr.getName()).getValues() );
+            } else {
+                throw new NsiServiceException("Значения атрибутов  " + 
+                        NsiConfigDict.formatAttrs(data.getDict().getName(), configAttrs, ", ") +
+                        " должны быть уникальными. Нарушено ограничение для значений " + DictRowAttr.formatAttrs(configAttrs, rowAttrs, ", ") );
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 
 import jet.isur.nsi.api.NsiServiceException;
 import jet.isur.nsi.api.data.ConvertUtils;
+import jet.isur.nsi.api.data.NsiConfigAttr;
 
 import com.google.common.base.Strings;
 
@@ -116,4 +117,16 @@ public class DictRowAttr implements Serializable {
         return "DictRowAttr [values=" + values + ", refAttrs=" + refAttrs + "]";
     }
 
+    public static String formatAttrs(List<NsiConfigAttr> configAttrs, Map<String, DictRowAttr> rowAttrs, String sep) {
+        StringBuilder res = new StringBuilder();
+        for(NsiConfigAttr attr : configAttrs) {
+            DictRowAttr ra = rowAttrs.get(attr.getName());
+            if(ra != null) {
+                res.append(ra.getValues()).append(sep);
+            }
+        }
+        
+        return res.toString();
+    }
+    
 }
