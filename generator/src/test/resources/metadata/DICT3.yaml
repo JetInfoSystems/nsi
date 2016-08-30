@@ -1,0 +1,24 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Название
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   type: value
+caption: Справочник3
+fields:
+ - name: ID
+   size: 10
+   type: number
+ - name: NAME
+   size: 300
+   type: varchar
+idAttr: ID
+name: DICT3
+refObjectAttrs: [NAME]
+table: TABLE3
+tableObjectAttrs: [NAME]

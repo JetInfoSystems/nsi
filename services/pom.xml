@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>jet.isur.nsi</groupId>
-        <artifactId>parent</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <groupId>jet.nsi</groupId>
+        <artifactId>nsi-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -12,14 +12,7 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
+        <!-- project dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nsi-api</artifactId>
@@ -32,17 +25,25 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- Jet dependencies -->
         <dependency>
-            <groupId>jet.scdp.metrics</groupId>
+            <groupId>jet.metrics</groupId>
             <artifactId>metrics-api</artifactId>
-            <version>${scdp.metrics.version}</version>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- other dependencies -->
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        
+        <!-- project dependencies for tests-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nsi-testkit</artifactId>
@@ -55,10 +56,17 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>jet.isur.nsi</groupId>
+        <!-- <dependency>
+            <groupId>jet.nsi</groupId>
             <artifactId>nsi-common</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency> -->
+        
+        <!-- other dependencies for tests -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -66,6 +74,7 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        
     </dependencies>
 
     <build>

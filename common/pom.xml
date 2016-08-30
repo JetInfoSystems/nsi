@@ -1,34 +1,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>jet.isur.nsi</groupId>
-        <artifactId>parent</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <groupId>jet.nsi</groupId>
+        <artifactId>nsi-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>nsi-common</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jet.isur.nsi</groupId>
+            <groupId>jet.nsi</groupId>
             <artifactId>nsi-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        
+        
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commons.io.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>${yaml.snakeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -37,30 +37,10 @@
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
-            <version>${jooq.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jgrapht</groupId>
             <artifactId>jgrapht</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -75,15 +55,15 @@
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Import-Package>*</Import-Package>
                         <Export-Package>
-                            jet.isur.nsi.common;version=${project.version},
-                            jet.isur.nsi.common.config.impl;version=${project.version},
-                            jet.isur.nsi.common.data;version=${project.version},
-                            jet.isur.nsi.common.sql;version=${project.version},
-                            jet.isur.nsi.common.utils;version=${project.version},
-                            jet.isur.nsi.common.yaml;version=${project.version},
-                            jet.isur.nsi.common.tx;version=${project.version},
-                            jet.isur.nsi.common.platform;version=${project.version},
-                            jet.isur.nsi.common.platform.oracle;version=${project.version}
+                            jet.nsi.common;version=${project.version},
+                            jet.nsi.common.config.impl;version=${project.version},
+                            jet.nsi.common.data;version=${project.version},
+                            jet.nsi.common.sql;version=${project.version},
+                            jet.nsi.common.utils;version=${project.version},
+                            jet.nsi.common.yaml;version=${project.version},
+                            jet.nsi.common.tx;version=${project.version},
+                            jet.nsi.common.platform;version=${project.version},
+                            jet.nsi.common.platform.oracle;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>

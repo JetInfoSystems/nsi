@@ -1,0 +1,72 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Cсылка на DICT1
+   fields: [DICT1_ID]
+   hidden: false
+   name: DICT1_ID
+   type: ref
+   refDict: DICT1
+ - caption: Ссылка на DICT3
+   fields: [DICT3_ID]
+   hidden: false
+   name: DICT3_ID
+   type: ref
+   refDict: DICT3
+   required: true
+ - caption: Название
+   fields: [NAME]
+   hidden: false
+   name: NAME
+   required: true
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Пользователь
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата обновления
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Справочник2
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 10
+   type: number
+ - name: DICT1_ID
+   size: 19
+   type: number
+ - name: DICT3_ID
+   size: 19
+   type: number
+ - name: NAME
+   size: 100
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: true
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: DICT2
+refObjectAttrs: [NAME]
+table: TABLE2
+tableObjectAttrs: [DICT1_ID,DICT3_ID,NAME,IS_DELETED,LAST_USER,LAST_CHANGE]

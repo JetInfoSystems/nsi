@@ -12,31 +12,31 @@
 
     <ext:property-placeholder placeholder-prefix="{{" placeholder-suffix="}}"/>
 
-    <cm:property-placeholder persistent-id="jet.isur.nsi.services" update-strategy="reload">
+    <cm:property-placeholder persistent-id="jet.nsi.services" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="configPath" value="/opt/isur/database/metadata"/>
+            <cm:property name="configPath" value="/opt/nsi/database/metadata"/>
             <cm:property name="lastUserDict" value="USER_PROFILE_REF"/>
-            <cm:property name="nsiPlatform" value="jet.isur.nsi.common.platform.oracle.OracleNsiPlatform"/>
+            <cm:property name="nsiPlatform" value="jet.nsi.common.platform.oracle.OracleNsiPlatform"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
     <reference id="metrics" interface="jet.scdp.metrics.api.Metrics"/>
 
     <reference id="dataSource" interface="javax.sql.DataSource"
-               filter="(osgi.jndi.service.name=jdbc/isur_ds)" availability="optional"/>
+               filter="(osgi.jndi.service.name=jdbc/nsi_ds)" availability="optional"/>
 
-    <bean id="configParams" class="jet.isur.nsi.api.data.NsiConfigParams">
+    <bean id="configParams" class="jet.nsi.api.data.NsiConfigParams">
         <property name="lastUserDict" value="${lastUserDict}"/>
     </bean>
 
-    <bean id="configManagerFactory" class="jet.isur.nsi.common.config.impl.NsiConfigManagerFactoryImpl"/>
+    <bean id="configManagerFactory" class="jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl"/>
 
     <bean id="configManager" factory-ref="configManagerFactory" factory-method="create" activation="lazy">
         <argument value="${configPath}"/>
         <argument ref="configParams"/>
     </bean>
 
-    <bean id="nsiPlatformFactory" class="jet.isur.nsi.common.platform.NsiPlatformFactory"/>
+    <bean id="nsiPlatformFactory" class="jet.nsi.common.platform.NsiPlatformFactory"/>
 
     <bean id="nsiPlatform" factory-ref="nsiPlatformFactory" factory-method="create" activation="lazy">
         <argument value="${nsiPlatform}"/>
@@ -44,49 +44,49 @@
 
     <bean id="platformSqlGen" factory-ref="nsiPlatform" factory-method="getPlatformSqlGen" activation="lazy"/>
 
-    <bean id="sqlGen" class="jet.isur.nsi.common.sql.DefaultSqlGen">
+    <bean id="sqlGen" class="jet.nsi.common.sql.DefaultSqlGen">
         <property name="platformSqlGen" ref="platformSqlGen"/>
     </bean>
 
     <bean id="platformSqlDao" factory-ref="nsiPlatform" factory-method="getPlatformSqlDao" activation="lazy"/>
 
-    <bean id="sqlDao" class="jet.isur.nsi.common.sql.DefaultSqlDao">
+    <bean id="sqlDao" class="jet.nsi.common.sql.DefaultSqlDao">
         <property name="sqlGen" ref="sqlGen"/>
         <property name="platformSqlDao" ref="platformSqlDao"/>
     </bean>
     
-    <bean id="nsiService" class="jet.isur.nsi.services.NsiServiceImpl">
+    <bean id="nsiService" class="jet.nsi.services.NsiServiceImpl">
         <argument ref="metrics"/>
         <property name="sqlDao" ref="sqlDao"/>
         <property name="nsiGenericService" ref="nsiGenericService"/>
     </bean>
 
-    <bean id="nsiTransactionService" class="jet.isur.nsi.services.NsiTransactionServiceImpl">
+    <bean id="nsiTransactionService" class="jet.nsi.services.NsiTransactionServiceImpl">
         <argument ref="metrics"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="nsiGenericService" class="jet.isur.nsi.services.NsiGenericServiceImpl">
+    <bean id="nsiGenericService" class="jet.nsi.services.NsiGenericServiceImpl">
         <argument ref="metrics"/>
         <property name="transactionService" ref="nsiTransactionService"/>
         <property name="nsiPlatform" ref="nsiPlatform"/>
     </bean>
 
-    <bean id="nsiMetaService" class="jet.isur.nsi.services.NsiMetaServiceImpl">
+    <bean id="nsiMetaService" class="jet.nsi.services.NsiMetaServiceImpl">
         <argument ref="metrics"/>
         <property name="configManager" ref="configManager"/>
     </bean>
 
-    <service ref="nsiService" interface="jet.isur.nsi.api.NsiService">
+    <service ref="nsiService" interface="jet.nsi.api.NsiService">
     </service>
 
-    <service ref="nsiGenericService" interface="jet.isur.nsi.api.NsiGenericService">
+    <service ref="nsiGenericService" interface="jet.nsi.api.NsiGenericService">
     </service>
 
-    <service ref="nsiMetaService" interface="jet.isur.nsi.api.NsiMetaService">
+    <service ref="nsiMetaService" interface="jet.nsi.api.NsiMetaService">
     </service>
 
-    <service ref="nsiTransactionService" interface="jet.isur.nsi.api.tx.NsiTransactionService">
+    <service ref="nsiTransactionService" interface="jet.nsi.api.tx.NsiTransactionService">
     </service>
 
 </blueprint>
