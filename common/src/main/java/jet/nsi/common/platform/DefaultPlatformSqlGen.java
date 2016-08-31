@@ -50,26 +50,26 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
         switch (filter.getFunc()) {
         case OperationType.EQUALS:
             if (filter.getValue().getValues().get(0) != null){
-                return f.eq(val(null));
+                return f.eq(val((Object) null));
             }
             else{
                 return f.isNull();
             }
         case OperationType.NOT_EQUALS:
             if (filter.getValue().getValues().get(0) != null){
-                return f.notEqual(val(null));
+                return f.notEqual(val((Object) null));
             }
             else{
                 return f.isNotNull();
             }
         case OperationType.GT:
-            return f.gt(val(null));
+            return f.gt(val((Object) null));
         case OperationType.GE:
-            return f.ge(val(null));
+            return f.ge(val((Object) null));
         case OperationType.LT:
-            return f.lt(val(null));
+            return f.lt(val((Object) null));
         case OperationType.LE:
-            return f.le(val(null));
+            return f.le(val((Object) null));
         case OperationType.LIKE:
             if (filter.getValue().getValues().get(0) != null){
                 Field<String> value = null;

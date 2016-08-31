@@ -164,7 +164,7 @@ public class BaseSqlTest {
                         
                         NsiConfigAttr idAttr = dict.getIdAttr();
                         for ( NsiConfigField field : idAttr.getFields()) {
-                            updateSetMoreStep.where(DSL.field(field.getName()).eq(DSL.val(null)));
+                            updateSetMoreStep.where(DSL.field(field.getName()).eq(DSL.val((Object) null)));
                         }
                         
                         try (PreparedStatement ps = connection.prepareStatement(updateSetMoreStep.getSQL())) {
@@ -194,7 +194,7 @@ public class BaseSqlTest {
                     if (testDictRowMap.containsKey(dict)) {
                         DeleteWhereStep<Record> deleteWhereStep = DSL.using(SQLDialect.DEFAULT).delete(DSL.table(dict.getTable()));
                         for ( NsiConfigField field : dict.getIdAttr().getFields()) {
-                            deleteWhereStep.where(DSL.field(field.getName()).eq(DSL.val(null)));
+                            deleteWhereStep.where(DSL.field(field.getName()).eq(DSL.val((Object) null)));
                         }
                         try (PreparedStatement ps = connection.prepareStatement(deleteWhereStep.getSQL())) {
                             for (DictRow data : testDictRowMap.get(dict)) {

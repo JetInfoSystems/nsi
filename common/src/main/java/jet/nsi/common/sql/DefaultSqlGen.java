@@ -114,7 +114,8 @@ public class DefaultSqlGen implements SqlGen {
     protected Condition getIdCondition(NsiQuery query) {
         NsiConfigDict dict = query.getDict();
 
-        Condition result = field(NsiQuery.MAIN_ALIAS + "." + dict.getIdAttr().getFields().get(0).getName()).equal(val(null));
+        Condition result = field(NsiQuery.MAIN_ALIAS + "." 
+                + dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
         /*
         for ( NsiConfigField field : idAttr.getFields()) {
             result.and(field(NsiQuery.MAIN_ALIAS + "." + field.getName()).equal(val(null)));

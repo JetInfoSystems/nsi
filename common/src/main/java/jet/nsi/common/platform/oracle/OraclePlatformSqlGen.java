@@ -51,12 +51,12 @@ public class OraclePlatformSqlGen extends DefaultPlatformSqlGen {
             SelectConditionStep<Record> limitQuery = getQueryBuilder()
                     .select(limitFields)
                     .from(baseQuery.asTable("a"))
-                    .where(field("ROWNUM").lessThan(val(null)));
+                    .where(field("ROWNUM").lessThan(val((Object) null)));
             if(offset != -1) {
                 return getQueryBuilder()
                     .select(field("b.*"))
                     .from(limitQuery.asTable("b"))
-                    .where(field("rnum").greaterOrEqual(val(null)));
+                    .where(field("rnum").greaterOrEqual(val((Object) null)));
             } else {
                 return limitQuery;
             }
