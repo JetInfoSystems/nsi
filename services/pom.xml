@@ -56,12 +56,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency>
+        <dependency>
             <groupId>jet.nsi</groupId>
             <artifactId>nsi-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency> -->
+        </dependency>
         
         <!-- other dependencies for tests -->
         <dependency>

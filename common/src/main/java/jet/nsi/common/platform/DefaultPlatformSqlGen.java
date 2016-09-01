@@ -91,9 +91,9 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
     public Query limit(SelectJoinStep<?> baseQuery, long offset, int size) {
         if(size != -1) {
             if(offset != -1) {
-                return baseQuery.limit(DSL.val((int)offset), DSL.val(size));
+                return baseQuery.limit(val((int)offset), val(size));
             } else {
-                return baseQuery.limit(DSL.val(size));
+                return baseQuery.limit(val(size));
             }
         } else {
             return baseQuery;

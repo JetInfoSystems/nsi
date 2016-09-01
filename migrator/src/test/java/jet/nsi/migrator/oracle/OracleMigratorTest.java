@@ -1,4 +1,4 @@
-package jet.nsi.migrator;
+package jet.nsi.migrator.oracle;
 
 import java.io.File;
 import java.io.IOException;

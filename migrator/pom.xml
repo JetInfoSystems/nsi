@@ -8,11 +8,6 @@
     <artifactId>nsi-migrator</artifactId>
     <packaging>jar</packaging>
 
-    <build>
-        <plugins>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
