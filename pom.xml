@@ -35,7 +35,7 @@
         
         <oracle.ojdbc6.version>11.2.0.3</oracle.ojdbc6.version>
         <org.hibernate.core.version>5.0.0.CR4</org.hibernate.core.version>
-        <org.jooq.version>3.8.4</org.jooq.version>
+        <org.jooq.version>3.7.0</org.jooq.version>
         <org.liquibase.core>3.5.1</org.liquibase.core>
         <org.liquibase.ext.oracle.version>3.2</org.liquibase.ext.oracle.version>
         <org.liquibase.ext.nochangeloglock.version>1.1</org.liquibase.ext.nochangeloglock.version>
