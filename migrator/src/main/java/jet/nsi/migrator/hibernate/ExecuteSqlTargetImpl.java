@@ -5,10 +5,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.hibernate.engine.jdbc.connections.spi.JdbcConnectionAccess;
+import org.hibernate.tool.schema.internal.exec.GenerationTarget;
 import org.hibernate.tool.schema.spi.SchemaManagementException;
-import org.hibernate.tool.schema.spi.Target;
 
-public class ExecuteSqlTargetImpl implements Target {
+
+public class ExecuteSqlTargetImpl implements GenerationTarget {
     private final JdbcConnectionAccess connectionAccess;
 
     private Connection connection;
@@ -18,10 +19,10 @@ public class ExecuteSqlTargetImpl implements Target {
         this.connectionAccess = connectionAccess;
     }
 
-    @Override
-    public boolean acceptsImportScriptActions() {
-        return true;
-    }
+//    @Override
+//    public boolean acceptsImportScriptActions() {
+//        return true;
+//    }
 
     @Override
     public void prepare() {

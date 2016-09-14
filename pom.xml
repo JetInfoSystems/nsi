@@ -18,28 +18,29 @@
 
     <properties>
         <jet.metrics.version>1.0.0-SNAPSHOT</jet.metrics.version>
-        
+
         <ch.qos.logback.version>1.0.9</ch.qos.logback.version>
         <com.beust.jcommander.version>1.35</com.beust.jcommander.version>
         <com.google.guava.version>15.0</com.google.guava.version>
         <com.mattbertolini.liquibase.slf4j.version>1.2.1</com.mattbertolini.liquibase.slf4j.version>
         <commons.io.version>2.4</commons.io.version>
         <com.jolbox.bonecp.version>0.8.0.RELEASE</com.jolbox.bonecp.version>
-        
+
         <javax.validation.api.version>1.1.0.Final</javax.validation.api.version>
         <javax.ws.rs.jcr311.version>1.1.1</javax.ws.rs.jcr311.version>
         <joda.time.version>2.7</joda.time.version>
         <junit.version>4.10</junit.version>
-        
+
         <net.sf.jgrapht.version>0.8.3</net.sf.jgrapht.version>
-        
+
         <oracle.ojdbc6.version>11.2.0.3</oracle.ojdbc6.version>
-        <org.hibernate.core.version>5.0.0.CR4</org.hibernate.core.version>
+        <org.hibernate.core.version>5.2.2.Final</org.hibernate.core.version>
         <org.jooq.version>3.7.0</org.jooq.version>
         <org.liquibase.core>3.5.1</org.liquibase.core>
         <org.liquibase.ext.oracle.version>3.2</org.liquibase.ext.oracle.version>
         <org.liquibase.ext.nochangeloglock.version>1.1</org.liquibase.ext.nochangeloglock.version>
         <org.mockito.core.version>1.9.5</org.mockito.core.version>
+        <org.postgresql.version>9.4.1210</org.postgresql.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
         <org.yaml.snakeyaml.version>1.15</org.yaml.snakeyaml.version>
     </properties>
@@ -155,7 +156,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <profiles>
         <profile>
             <id>nsi-postgresql-tests</id>
@@ -167,7 +168,7 @@
                             <artifactId>maven-surefire-plugin</artifactId>
                             <configuration>
                                 <includes>
-                                    <include>**/postgres/*Test.java</include>
+                                    <include>**/postgresql/*Test.java</include>
                                 </includes>
                             </configuration>
                         </plugin>
@@ -202,7 +203,7 @@
                 <artifactId>metrics-api</artifactId>
                 <version>${jet.metrics.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -219,7 +220,7 @@
                 <version>${com.google.guava.version}</version>
             </dependency>
             <dependency>
-            <groupId>com.mattbertolini</groupId>
+                <groupId>com.mattbertolini</groupId>
                 <artifactId>liquibase-slf4j</artifactId>
                 <version>${com.mattbertolini.liquibase.slf4j.version}</version>
             </dependency>
@@ -233,7 +234,7 @@
                 <artifactId>bonecp</artifactId>
                 <version>${com.jolbox.bonecp.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
@@ -254,19 +255,19 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>net.sf.jgrapht</groupId>
                 <artifactId>jgrapht</artifactId>
                 <version>${net.sf.jgrapht.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>oracle</groupId>
                 <artifactId>ojdbc6</artifactId>
                 <version>${oracle.ojdbc6.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
@@ -296,6 +297,11 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${org.mockito.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${org.postgresql.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

@@ -59,6 +59,15 @@ public class BaseSqlTest {
     protected DefaultSqlDao sqlDao;
     protected static Logger log = LoggerFactory.getLogger(BaseSqlTest.class);
     protected String metadataPath;
+    protected String dbIdent;
+    
+    protected BaseSqlTest() {
+        this("nsi");
+    }
+    
+    protected BaseSqlTest(String dbIdent) {
+        this.dbIdent = dbIdent;
+    }
     
     @Before
     public void setupInternal() throws Exception {
@@ -67,11 +76,12 @@ public class BaseSqlTest {
 
     public void setup() throws Exception {
         properties = new Properties();
-        File file = new File("target/test-classes/project.properties").getAbsoluteFile();
+        File file = new File("target/test-classes/project."+ dbIdent +".properties").getAbsoluteFile();
         try(FileReader reader = new FileReader(file)) {
             properties.load(reader);
         }
-        dataSource = DaoUtils.createDataSource("nsi", properties);
+        
+        dataSource = DaoUtils.createDataSource(dbIdent, properties);
         sqlGen = new DefaultSqlGen();
         platformSqlGen = platform.getPlatformSqlGen();
         sqlGen.setPlatformSqlGen(platformSqlGen);

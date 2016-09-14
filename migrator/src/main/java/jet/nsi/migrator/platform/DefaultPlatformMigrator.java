@@ -12,6 +12,13 @@ import org.jooq.DSLContext;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlDao;
+import jet.nsi.migrator.liquibase.LiqubaseAction;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.core.UnsupportedDatabase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 
 public abstract class DefaultPlatformMigrator implements PlatformMigrator {
 
@@ -29,19 +36,19 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
     }
     
     @Override
-    public void removeUserProfile(Connection con, Long id) throws SQLException {
+    public void removeUserProfile(Connection con, Long id) {
         DSLContext dsl = platformSqlDao.getQueryBuilder(con);
         dsl.delete(table("USER_PROFILE").as("u")).where(field("u.id").eq(id)).execute();
     }
 
-    protected int countUserProfile(Connection con, String login) throws SQLException {
+    protected int countUserProfile(Connection con, String login) {
         DSLContext dsl = platformSqlDao.getQueryBuilder(con);
         return dsl.selectCount().from(table("USER_PROFILE").as("u"))
             .where(field("u.login").eq(login)).fetchOne(0, int.class);
     }
 
     @Override
-    public Long createUserProfile(Connection con, String login) throws SQLException {
+    public Long createUserProfile(Connection con, String login) {
         int count = countUserProfile(con, login);
 
         if(count > 0) {
@@ -79,6 +86,21 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
             createSeq(dict, connection);
         }
     }
+    
+    @Override
+    public Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) throws LiquibaseException {
+
+        Database db = new UnsupportedDatabase();
+        db.setConnection(new JdbcConnection(c));
+
+        db.setDatabaseChangeLogTableName(liquibaseAction.getName() + "_LOG");
+        db.setDatabaseChangeLogLockTableName(liquibaseAction.getName() + "_LOCK");
+        db.setOutputDefaultCatalog(false);
+
+        Liquibase l = new Liquibase(liquibaseAction.getFile(), new ClassLoaderResourceAccessor(), db);
+        // TODO: set parameters l.setChangeLogParameter("key","value");
+        return l;
+    }
 
     protected static void throwIfNot(SQLSyntaxErrorException e, int errorCode) {
         if(e.getErrorCode() != errorCode) {
@@ -86,7 +108,7 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
         }
     }
 
-
+    
 
 
 }

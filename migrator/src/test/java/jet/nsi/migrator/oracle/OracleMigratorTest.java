@@ -26,10 +26,14 @@ import junit.framework.Assert;
 
 public class OracleMigratorTest extends BaseSqlTest{
 
-    private static final String DB_IDENT = "nsi";
+    private static final String DB_IDENT = "nsi.oracle";
     private MigratorParams params;
     private PlatformMigrator platformMigrator;
     private OracleFtsModule ftsModule;
+    
+    public OracleMigratorTest() {
+        super(DB_IDENT);
+    }
 
     @Override
     public void setup() throws Exception {
@@ -49,9 +53,8 @@ public class OracleMigratorTest extends BaseSqlTest{
         config = manager.getConfig();
     }
 
-
     private void getConfiguration() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project.properties");
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project."+ dbIdent +".properties");
         Properties props = new Properties();
         props.load(in);
     }
@@ -136,7 +139,7 @@ public class OracleMigratorTest extends BaseSqlTest{
     @Test
     public void tablespaceTest() throws SQLException {
         String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db.nsi.tablespace.name", tempName);
+        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
         try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
             platformMigrator.createTablespace(connection,
                     params.getTablespace(DB_IDENT),
@@ -148,8 +151,8 @@ public class OracleMigratorTest extends BaseSqlTest{
     @Test
     public void userTest() throws SQLException {
         String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db.nsi.tablespace.name", tempName);
-        properties.put("db.nsi.username", tempName);
+        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
+        properties.put("db."+ DB_IDENT + ".username", tempName);
         try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
             platformMigrator.createTablespace(connection,
                     params.getTablespace(DB_IDENT),

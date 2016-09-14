@@ -3,9 +3,9 @@ package jet.nsi.migrator.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.tool.schema.spi.Target;
+import org.hibernate.tool.schema.internal.exec.GenerationTarget;
 
-public class RecActionsTargetImpl implements Target {
+public class RecActionsTargetImpl implements GenerationTarget {
 
     private final List<String> actions;
 
@@ -13,10 +13,10 @@ public class RecActionsTargetImpl implements Target {
         this.actions = new ArrayList<>();
     }
 
-    @Override
-    public boolean acceptsImportScriptActions() {
-        return true;
-    }
+//    @Override
+//    public boolean acceptsImportScriptActions() {
+//        return true;
+//    }
 
     @Override
     public void prepare() {

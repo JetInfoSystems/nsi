@@ -1,4 +1,4 @@
-package jet.nsi.migrator.platform.oracle;
+package jet.nsi.migrator.platform.postgresql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,28 +24,28 @@ import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
-import jet.nsi.common.platform.oracle.OracleNsiPlatform;
+import jet.nsi.common.platform.postgresql.PostgresqlNsiPlatform;
 import jet.nsi.migrator.MigratorException;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import jet.nsi.migrator.platform.DefaultPlatformMigrator;
 import jet.nsi.migrator.platform.DictToHbmSerializer;
-import jet.nsi.migrator.platform.PlatformException;
+import jet.nsi.migrator.platform.oracle.OracleFtsModule;
 import liquibase.Liquibase;
 import liquibase.database.Database;
-import liquibase.database.core.OracleDatabase;
+import liquibase.database.core.PostgresDatabase;
 import liquibase.database.core.UnsupportedDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
-public class OraclePlatformMigrator extends DefaultPlatformMigrator {
+public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
 
-    private final OracleFtsModule ftsModule;
-
-    public OraclePlatformMigrator() {
-        super(new OracleNsiPlatform());
-        ftsModule = new OracleFtsModule(platformSqlDao);
+    //private final PostgresqlFtsModule ftsModule;
+    
+    public PostgresqlPlatformMigrator() {
+        super(new PostgresqlNsiPlatform());
+        //this.ftsModule = new PostgresqlFtsModule(platformSqlDao);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
 
         Properties props = new Properties();
         // TODO: используем params
-        props.put(AvailableSettings.DIALECT, NsiOracleDialect.class.getName());
+        props.put(AvailableSettings.DIALECT, NsiPostresqlDialect.class.getName());
         props.put(AvailableSettings.DATASOURCE, dataSource);
         ssrBuilder.applySettings( props );
 
@@ -65,14 +65,14 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public DictToHbmSerializer getDictToHbmSerializer() {
-        return new OracleDictToHbmSerializer();
+        return new PostgresqlDictToHbmSerializer();
     }
 
     @Override
     public Connection createAdminConnection(String name, Properties properties)
             throws SQLException {
         Properties connectProperties = new Properties();
-        connectProperties.put("user", properties.getProperty("db." + name + ".sys.username") + " as sysdba");
+        connectProperties.put("user", properties.getProperty("db." + name + ".sys.username"));
         connectProperties.put("password", properties.getProperty("db." + name + ".sys.password"));
         return DriverManager.getConnection (properties.getProperty("db." + name + ".url"), connectProperties );
     }
@@ -81,18 +81,14 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     public void createTablespace(Connection connection, String name,
             String dataFileName, String dataFileSize, String dataFileAutoSize,
             String dataFileMaxSize) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append(" create tablespace ").append(name)
-                .append(" datafile '").append(dataFileName).append("' ")
-                .append(" size ").append(dataFileSize).append(" reuse ")
-                .append(" autoextend on next ").append(dataFileAutoSize)
-                .append(" maxsize ").append(dataFileMaxSize).toString());
+        createTablespace(connection, name, dataFileName);
     }
-
+    
+    
     @Override
-    public void dropTablespace(Connection connection, String name) {
+    public void dropTablespace(Connection connection, String name){
         platformSqlDao.executeSql(connection, new StringBuilder()
-                .append(" drop tablespace ").append(name).append(" including contents and datafiles").toString());
+                .append(" drop tablespace ").append(name).toString());
     }
 
     @Override
@@ -100,31 +96,20 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
             String defaultTablespace, String tempTablespace) {
         platformSqlDao.executeSql(connection, new StringBuilder()
                 .append(" create user ").append(name)
-                .append(" IDENTIFIED BY \"").append(password).append("\" ")
-                .append(" DEFAULT TABLESPACE ").append(defaultTablespace)
-                .append(" TEMPORARY TABLESPACE ").append(tempTablespace).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append(" ALTER USER ").append(name)
-                .append(" QUOTA UNLIMITED ON ").append(defaultTablespace).toString());
+                .append(" password '").append(password).append("'").toString());
+        
+        setTablespaceOwner(connection, defaultTablespace, name);
+        createSchema(connection, name, name);
         grantUser(connection, name);
     }
-    
+        
     @Override
-    public void dropUser(Connection connection, String name){
+    public void dropUser(Connection connection, String name) {
+        dropSchema(connection, name);
         platformSqlDao.executeSql(connection, new StringBuilder()
-                .append(" DROP USER  ").append(name).append(" CASCADE").toString());
+                .append("drop user ").append(name).toString());
     }
     
-    @Override
-    public void createSchema(Connection connection, String name, String user){
-        throw new PlatformException("createSchema: unsupported for Oracle Platform");
-    }
-    
-    @Override
-    public void dropSchema(Connection connection, String name) {
-        throw new PlatformException("createSchema: unsupported for Oracle Platform");
-    }
-
     @Override
     public void createTable(NsiConfigDict dict, Connection connection) {
         CreateTableAsStep<?> createTableAsStep = platformSqlDao.getQueryBuilder(connection).createTable(dict.getTable());
@@ -190,13 +175,15 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     @Override
     public void createFullSearchIndex(NsiConfigDict dict, String field,
             Connection connection) {
-        ftsModule.createFullSearchIndex(dict, field, connection);
+        // ftsModule.createFullSearchIndex(dict, field, connection);
+        throw new MigratorException("createFullSearchIndex: Not supported full search yet");
     }
 
     @Override
     public void dropFullSearchIndex(NsiConfigDict dict, String field,
             Connection connection) {
-        ftsModule.dropFullSearchIndex(dict, field, connection);
+        // ftsModule.dropFullSearchIndex(dict, field, connection);
+        throw new MigratorException("dropFullSearchIndex: Not supported full search yet");
     }
 
     @Override
@@ -212,23 +199,10 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public void grantUser(Connection connection, String name)
-       //     throws SQLException { 
-    {
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT RESOURCE TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT CONNECT TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT CREATE ANY VIEW TO ").append(name).toString());
-        
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT CTXAPP TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_CLS TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_DDL TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_DOC TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_OUTPUT TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_QUERY TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_REPORT TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_THES TO ").append(name).toString());
-        platformSqlDao.executeSql(connection, new StringBuilder().append(" GRANT EXECUTE ON CTXSYS.CTX_ULEXER TO ").append(name).toString());
+    public void grantUser(Connection connection, String name) {
     }
+
+    
 
     @Override
     public DataSource createDataSource(String name, Properties properties) {
@@ -280,11 +254,11 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public void onUpdateAfterPostproc(Connection connection, NsiConfigDict model) {
-        try {
-            ftsModule.updateFtsIndexesAfterPostproc(connection, model);
-        } catch (Exception e) {
-            throw new MigratorException("onUpdateAfterPostproc", e);
-        }
+//        try {
+//            ftsModule.updateFtsIndexesAfterPostproc(connection, model);
+//        } catch (Exception e) {
+//            throw new MigratorException("onUpdateAfterPostproc", e);
+//        }
     }
 
 
@@ -321,22 +295,54 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) {
+    public Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) throws LiquibaseException {
 
-        Database db = new OracleDatabase();
+        Database db = new PostgresDatabase();
         db.setConnection(new JdbcConnection(c));
 
         db.setDatabaseChangeLogTableName(liquibaseAction.getName() + "_LOG");
         db.setDatabaseChangeLogLockTableName(liquibaseAction.getName() + "_LOCK");
         db.setOutputDefaultCatalog(false);
 
-        try {
-            Liquibase l = new Liquibase(liquibaseAction.getFile(), new ClassLoaderResourceAccessor(), db);
-            return l;
-        } catch (LiquibaseException e) {
-            // TODO Auto-generated catch block
-            throw new RuntimeException("createLiquibase(OraclePlatform) -> failed" , e);
-        }
-        
+        Liquibase l = new Liquibase(liquibaseAction.getFile(), new ClassLoaderResourceAccessor(), db);
+        // TODO: set parameters l.setChangeLogParameter("key","value");
+        return l;
+    }
+    
+    public void setDatabaseDefaultTablespace(Connection connection, String name, String defaultTablespace)
+            throws SQLException {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("alter database ").append(name)
+                .append(" set tablespace ").append(defaultTablespace).toString());
+    }
+    
+    public void createTablespace(Connection connection, String name, String dataFilePath) {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("create tablespace ").append(name)
+                .append(" location '").append(dataFilePath).append("' ").toString());
+    }
+    
+    public void setTablespaceOwner(Connection connection, String name, String user) {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("alter tablespace ").append(name)
+                .append(" owner to ").append(user).toString());
+    }
+    
+    public void setSchemaOwner(Connection connection, String name, String user)
+            throws SQLException {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("alter schema").append(name).append(" owner to ").append(user).toString());
+    }
+    
+    @Override
+    public void createSchema(Connection connection, String name, String user){
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("create schema if not exists ").append(name).append(" authorization ").append(user).toString());
+    }
+    
+    @Override
+    public void dropSchema(Connection connection, String name) {
+        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("drop schema if exists ").append(name).append(" cascade").toString());
     }
 }

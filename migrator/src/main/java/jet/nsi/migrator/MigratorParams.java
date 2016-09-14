@@ -12,7 +12,6 @@ public class MigratorParams {
     public static final String NAME = "name";
     public static final String TABLESPACE = "tablespace";
     public static final String DB = "db";
-    private static final String DB_IDENT = "nsi";
 
     public static final String METADATA_PATH = "metadataPath";
 
@@ -54,7 +53,7 @@ public class MigratorParams {
     public String getTablespace(String ident) {
         String name = getProperty(key(DB,ident,TABLESPACE,NAME), null);
         Preconditions.checkNotNull(name, "Не задано название табличного пространства для ident=%s", ident);
-        return getUsername(DB_IDENT) + "_" + name;
+        return getUsername(ident) + "_" + name;
     }
 
     public String getTempTablespace(String ident) {
@@ -63,7 +62,7 @@ public class MigratorParams {
 
     public String getDataFilePath(String ident) {
         return getProperty(key(DB,ident,TABLESPACE,"dataFile","path"),
-                "+DATA/" + getGlobalName(DB_IDENT) + "/datafile/");
+                "+DATA/" + getGlobalName(ident) + "/datafile/");
     }
 
     public String getDataFileName(String ident) {

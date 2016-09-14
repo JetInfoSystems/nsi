@@ -19,8 +19,10 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl;
 import org.hibernate.tool.schema.extract.spi.DatabaseInformation;
+import org.hibernate.tool.schema.internal.SchemaMigratorImpl;
+import org.hibernate.tool.schema.internal.exec.GenerationTarget;
 import org.hibernate.tool.schema.spi.SchemaMigrator;
-import org.hibernate.tool.schema.spi.Target;
+//import org.hibernate.tool.schema.spi.Target;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +31,14 @@ import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
 import jet.nsi.migrator.hibernate.LogActionsTargetImpl;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
+//import jet.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
+//import jet.nsi.migrator.hibernate.LogActionsTargetImpl;
+//import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
 import jet.nsi.migrator.hibernate.NsiSchemaMigratorImpl;
+import jet.nsi.migrator.liquibase.LiqubaseAction;
 import jet.nsi.migrator.platform.DictToHbmSerializer;
+//import jet.nsi.migrator.platform.DictToHbmSerializer;
+//import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.PlatformMigrator;
 
 public class Migrator {
@@ -48,7 +56,7 @@ public class Migrator {
     private final NsiConfig config;
     private final MigratorParams params;
     private final DataSource dataSource;
-    private final List<Target> targets = new ArrayList<>();
+    private final List<GenerationTarget> targets = new ArrayList<>();
     private final String logPrefix;
     private final PlatformMigrator platformMigrator;
 
@@ -88,7 +96,7 @@ public class Migrator {
 
                 addTarget( new ExecuteSqlTargetImpl( jdbcConnectionAccess ) );
 
-                SchemaMigrator schemaMigrator = new NsiSchemaMigratorImpl();
+                NsiSchemaMigratorImpl schemaMigrator = new NsiSchemaMigratorImpl();
 
                 JdbcServices jdbcServices = serviceRegistry.getService( JdbcServices.class );
                 DatabaseInformation databaseInformation;
@@ -154,7 +162,7 @@ public class Migrator {
     }
 
     private void doLiquibaseUpdate(String name, String file, String tag) {
-        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
+        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, platformMigrator);
         try(Connection connection = dataSource.getConnection()) {
             la.update(connection, tag);
         } catch (SQLException e) {
@@ -163,7 +171,7 @@ public class Migrator {
     }
 
     private void doLiquibaseRollback(String name, String file, String tag) {
-        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
+        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, platformMigrator);
         try(Connection connection = dataSource.getConnection()) {
             la.rollback(connection, tag);
         } catch (SQLException e) {
@@ -172,7 +180,7 @@ public class Migrator {
     }
 
     private void doLiquibaseTag(String name, String file, String tag) {
-        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file);
+        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, platformMigrator);
         try(Connection connection = dataSource.getConnection()) {
             la.tag(connection, tag);
         } catch (SQLException e) {
@@ -184,7 +192,7 @@ public class Migrator {
         return logPrefix == null ? name : logPrefix + name;
     }
 
-    public void addTarget(Target target) {
+    public void addTarget(GenerationTarget target) {
         targets.add(target);
     }
 

@@ -12,6 +12,9 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.platform.NsiPlatform;
+import jet.nsi.migrator.liquibase.LiqubaseAction;
+import liquibase.Liquibase;
+import liquibase.exception.LiquibaseException;
 
 public interface PlatformMigrator {
     NsiPlatform getPlatform();
@@ -25,14 +28,18 @@ public interface PlatformMigrator {
     void createTablespace(Connection connection, String name,String dataFileName,
             String dataFileSize, String dataFileAutoSize, String dataFileMaxSize);
 
-    void dropTablespace(Connection connection, String name) throws SQLException;
+    void dropTablespace(Connection connection, String name);
 
     void createUser(Connection connection, String name,String password,
-            String defaultTablespace, String tempTablespace) throws SQLException;
+            String defaultTablespace, String tempTablespace);
     
-    void grantUser(Connection connection, String name) throws SQLException;
-
-    void dropUser(Connection connection, String name) throws SQLException;
+    void dropUser(Connection connection, String name);
+    
+    void createSchema(Connection connection, String name, String user);
+    
+    void dropSchema(Connection connection, String name);
+    
+    void grantUser(Connection connection, String name);
 
     void createTable(NsiConfigDict dict, Connection connection);
     
@@ -62,9 +69,9 @@ public interface PlatformMigrator {
 
     void recreateFullSearchIndex(NsiConfigDict dict, String field, Connection connection);
 
-    Long createUserProfile(Connection con, String login) throws SQLException;
+    Long createUserProfile(Connection con, String login);
 
-    void removeUserProfile(Connection con, Long id) throws SQLException;
+    void removeUserProfile(Connection con, Long id);
 
     void onUpdateBeforePrepare(Connection connection, NsiConfig config);
     
@@ -87,5 +94,6 @@ public interface PlatformMigrator {
     void onUpdateAfterPostproc(Connection connection, NsiConfigDict model);
     
     void onUpdateAfterPostproc(Connection connection, NsiConfig config);
-
+    
+    Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) throws LiquibaseException;
 }
