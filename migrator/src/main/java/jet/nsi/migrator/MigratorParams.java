@@ -14,6 +14,8 @@ public class MigratorParams {
     public static final String DB = "db";
 
     public static final String METADATA_PATH = "metadataPath";
+    
+    public static final String LIQUIBASE_CHANGELOG_BASE_PATH = "liquibaseChangelogBasePath";
 
 
     private final Properties properties;
@@ -33,6 +35,11 @@ public class MigratorParams {
     public File getMetadataPath() {
         return new File(getProperty(METADATA_PATH, "/opt/nsi/database/metadata"));
     }
+    
+    public String getChangelogBasePath() {
+        return getProperty(LIQUIBASE_CHANGELOG_BASE_PATH, "");
+    }
+    
 
     public String getPlatformMigrator(String ident) {
         return getProperty(key(DB,ident,"platformMigrator"), "jet.nsi.migrator.platform.oracle.OraclePlatformMigrator");

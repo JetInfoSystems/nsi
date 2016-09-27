@@ -47,7 +47,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         ftsModule = new OracleFtsModule(platformSqlDao);
     }
 
-    public void setupMigrator(String metadataPath) throws Exception {
+    public void setupMigrator(String metadataPath) {
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();

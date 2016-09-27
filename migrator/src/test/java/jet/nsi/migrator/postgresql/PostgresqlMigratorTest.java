@@ -30,9 +30,10 @@ import junit.framework.Assert;
 public class PostgresqlMigratorTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.postgresql95";
+    private static final String TEST_NSI_PREFIX = "TEST_NSI_";
     private MigratorParams params;
     private PlatformMigrator platformMigrator;
-    //private OracleFtsModule ftsModule;
+    //private PostgresqlFtsModule ftsModule;
 
     public PostgresqlMigratorTest() {
         super(DB_IDENT);
@@ -44,13 +45,13 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
         platform = platformMigrator.getPlatform();
         super.setup();
         getConfiguration();
-        properties.setProperty("db.liqubase.logPrefix", "TEST_NSI_");
+        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
         params = new MigratorParams(properties);
-        Assert.assertEquals("TEST_NSI_", params.getLogPrefix());
+        Assert.assertEquals(TEST_NSI_PREFIX, params.getLogPrefix());
         //ftsModule = new OracleFtsModule(platformSqlDao);
     }
 
-    public void setupMigrator(String metadataPath) throws Exception {
+    public void setupMigrator(String metadataPath) {
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
@@ -144,49 +145,5 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
             platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
-
     }
-
-    @Test
-    public void tablespaceTest() throws SQLException {
-        String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
-        try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
-            platformMigrator.createTablespace(connection,
-                    params.getTablespace(DB_IDENT),
-                    params.getDataFilePath(DB_IDENT), "1M", "1M", "10M");
-            platformMigrator.dropTablespace(connection, params.getTablespace(DB_IDENT));
-        }
-    }
-    
-    
-    @Test
-    public void userTest() throws SQLException {
-        String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db."+ DB_IDENT +".tablespace.name", tempName);
-        properties.put("db."+ DB_IDENT +".username", tempName);
-        try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
-            platformMigrator.createTablespace(connection,
-                    params.getTablespace(DB_IDENT),
-                    params.getDataFilePath(DB_IDENT), "1M", "1M", "10M");
-            try {
-                
-                platformMigrator.createUser(connection,
-                        params.getUsername(DB_IDENT),
-                        params.getPassword(DB_IDENT),
-                        params.getTablespace(DB_IDENT),
-                        params.getTempTablespace(DB_IDENT));
-                
-            } finally {
-                try {
-                    platformMigrator.dropTablespace(connection, params.getTablespace(DB_IDENT));
-                    
-                    
-                } finally {
-                    platformMigrator.dropUser(connection, params.getUsername(DB_IDENT));
-                }
-            }
-        }
-    }
-    
 }

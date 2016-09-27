@@ -4,7 +4,6 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 
 import org.jooq.DSLContext;
@@ -38,7 +37,8 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
     @Override
     public void removeUserProfile(Connection con, Long id) {
         DSLContext dsl = platformSqlDao.getQueryBuilder(con);
-        dsl.delete(table("USER_PROFILE").as("u")).where(field("u.id").eq(id)).execute();
+        dsl.delete(table("USER_PROFILE"))
+                    .where(field("id", Long.class).eq(id)).execute();
     }
 
     protected int countUserProfile(Connection con, String login) {
@@ -57,8 +57,8 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
 
         DSLContext dsl = platformSqlDao.getQueryBuilder(con);
         Long id = dsl.nextval("SEQ_USER_PROFILE").longValue();
-        dsl.insertInto(table("USER_PROFILE").as("u"),
-            field("u.id"), field("u.IS_DELETED"), field("u.LOGIN"), field("u.STATE"))
+        dsl.insertInto(table("USER_PROFILE"),
+            field("ID"), field("IS_DELETED"), field("LOGIN"), field("STATE"))
             .values(id, "N", login, "1")
             .execute();
 
@@ -107,8 +107,5 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
             throw new RuntimeException(e);
         }
     }
-
-    
-
 
 }

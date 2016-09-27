@@ -1,7 +1,11 @@
 package jet.nsi.common.platform.postgresql;
 
+import java.sql.Connection;
+
+import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 
 import jet.nsi.api.NsiServiceException;
@@ -62,6 +66,11 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
 
     private String replaceIllegalCharacters(String value) {
         return value.replaceAll("[\"(),]", "");
+    }
+    
+    @Override
+    public DSLContext getQueryBuilder(Connection connection) {
+        return DSL.using(connection,SQLDialect.POSTGRES_9_5,settings);
     }
 
 }

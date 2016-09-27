@@ -26,6 +26,8 @@ import org.hibernate.tool.schema.spi.SchemaMigrator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
@@ -59,6 +61,9 @@ public class Migrator {
     private final List<GenerationTarget> targets = new ArrayList<>();
     private final String logPrefix;
     private final PlatformMigrator platformMigrator;
+    
+    private final String liquibasePrepareChangelogFilePath;
+    private final String liquibasePostprocChangelogFilePath;
 
     public Migrator(NsiConfig config, DataSource dataSource, MigratorParams params, PlatformMigrator platformMigrator) {
         this.config = config;
@@ -66,6 +71,18 @@ public class Migrator {
         this.params = params;
         this.logPrefix = params.getLogPrefix();
         this.platformMigrator = platformMigrator;
+        
+        if (Strings.isNullOrEmpty(params.getChangelogBasePath())) {
+            this.liquibasePrepareChangelogFilePath = LIQUIBASE_PREPARE_CHANGELOG_XML;
+            this.liquibasePostprocChangelogFilePath = LIQUIBASE_POSTPROC_CHANGELOG_XML;
+        } else {
+            this.liquibasePrepareChangelogFilePath = params.getChangelogBasePath()
+                                                    + "/"
+                                                    + LIQUIBASE_PREPARE_CHANGELOG_XML;
+            this.liquibasePostprocChangelogFilePath = params.getChangelogBasePath()
+                                                    + "/"
+                                                    + LIQUIBASE_POSTPROC_CHANGELOG_XML;
+        }
     }
 
     public void update(String tag) {
@@ -77,7 +94,7 @@ public class Migrator {
                     platformMigrator.onUpdateBeforePrepare(connection, model);
                 }
             }
-            doLiquibaseUpdate(MIGRATIONS_PREPARE,LIQUIBASE_PREPARE_CHANGELOG_XML, tag);
+            doLiquibaseUpdate(MIGRATIONS_PREPARE,liquibasePrepareChangelogFilePath, tag);
             try(Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateAfterPrepare(connection, model);
@@ -126,7 +143,7 @@ public class Migrator {
                     platformMigrator.onUpdateBeforePostproc(connection, model);
                 }
             }
-            doLiquibaseUpdate(MIGRATIONS_POSTPROC,LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
+            doLiquibaseUpdate(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag);
             try(Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateAfterPostproc(connection, model);
@@ -142,7 +159,7 @@ public class Migrator {
 
     public void rollback(String tag) {
         try {
-            doLiquibaseRollback(MIGRATIONS_POSTPROC, LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
+            doLiquibaseRollback(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag);
         }
         catch (Exception e) {
             throw new MigratorException(ACTION_ROLLBACK, e);
@@ -152,8 +169,8 @@ public class Migrator {
 
     public void tag(String tag) {
         try {
-            doLiquibaseTag(MIGRATIONS_PREPARE, LIQUIBASE_PREPARE_CHANGELOG_XML, tag);
-            doLiquibaseTag(MIGRATIONS_POSTPROC, LIQUIBASE_POSTPROC_CHANGELOG_XML, tag);
+            doLiquibaseTag(MIGRATIONS_PREPARE, liquibasePrepareChangelogFilePath, tag);
+            doLiquibaseTag(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag);
         }
         catch (Exception e) {
             throw new MigratorException(ACTION_ROLLBACK, e);

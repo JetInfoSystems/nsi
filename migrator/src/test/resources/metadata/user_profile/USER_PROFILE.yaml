@@ -1,0 +1,65 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Логин
+   fields: [LOGIN]
+   hidden: false
+   required: true
+   name: LOGIN
+   type: value
+ - caption: Статус
+   fields: [STATE]
+   hidden: false
+   required: true
+   name: STATE
+   type: value
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Автор последнего изменения
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата, время последнего изменения
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Профили пользователей
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: LOGIN
+   size: 200
+   type: varchar
+ - name: STATE
+   size: 2
+   type: char
+   enumValues:
+     1: Активен
+     2: Заблокирован
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: false
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: USER_PROFILE
+uniqueAttr: [LOGIN]
+table: USER_PROFILE
+tableObjectAttrs: [LOGIN,STATE,IS_DELETED,LAST_USER,LAST_CHANGE]
