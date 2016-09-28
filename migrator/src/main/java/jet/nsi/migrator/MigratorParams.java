@@ -14,8 +14,11 @@ public class MigratorParams {
     public static final String DB = "db";
 
     public static final String METADATA_PATH = "metadataPath";
+    public static final String IDENT = "ident";
     
     public static final String LIQUIBASE_CHANGELOG_BASE_PATH = "liquibaseChangelogBasePath";
+    
+    public static final String DEFAULT_IDENT = "nsi";
 
 
     private final Properties properties;
@@ -90,6 +93,10 @@ public class MigratorParams {
 
     public String getLogPrefix() {
         return getProperty(key(DB,"liqubase","logPrefix"), "NSI_");
+    }
+    
+    public String getDbIdent() {
+        return getProperty(key(DB, IDENT), DEFAULT_IDENT);
     }
 
     public Properties getProperties() {
