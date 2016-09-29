@@ -315,9 +315,22 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
+    <distributionManagement>
+        <repository>
+            <id>nexus-jet</id>
+            <name>jet-releases</name>
+            <url>http://nexus.lpr.jet.msk.su:8081/nexus/content/repositories/jet-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-jet</id>
+            <name>jet-snapshots</name>
+            <url>http://nexus.lpr.jet.msk.su:8081/nexus/content/repositories/jet-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <scm>
-        <developerConnection>scm:git:git@cdpdev.lpr.jet.msk.su:sukhanova/nsi.git</developerConnection>
+        <developerConnection>scm:git:git@cdpdev.lpr.jet.msk.su:jet/nsi.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 </project>
