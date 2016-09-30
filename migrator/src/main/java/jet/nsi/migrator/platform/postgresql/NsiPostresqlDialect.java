@@ -10,6 +10,7 @@ public class NsiPostresqlDialect extends PostgreSQL95Dialect {
         super();
         registerCharacterTypeMappings();
         registerNumericTypeMappings();
+        registerDateTimeTypeMappings();
     }
     
     
@@ -20,5 +21,7 @@ public class NsiPostresqlDialect extends PostgreSQL95Dialect {
     protected void registerNumericTypeMappings() {
         registerColumnType( Types.BOOLEAN, "char(1)" );
     }
+
+    protected void registerDateTimeTypeMappings() { registerColumnType( Types.DATE, "timestamp" );}
     
 }

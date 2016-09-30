@@ -98,8 +98,8 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(4, actions.size());
-            Assert.assertEquals("create table table1 (id int8 not null, f1 varchar(100), is_deleted char(1), last_change date, last_user int8, VERSION int8, primary key (id))", actions.get(0));
-            Assert.assertEquals("create table table2 (id int8 not null, dict1_id int8, is_deleted char(1), last_change date, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table1 (id int8 not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(0));
+            Assert.assertEquals("create table table2 (id int8 not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(1));
             Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(2));
             Assert.assertEquals("create sequence seq_table2 start 1 increment 1", actions.get(3));
         }
