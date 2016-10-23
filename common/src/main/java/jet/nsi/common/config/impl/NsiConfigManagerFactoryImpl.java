@@ -11,12 +11,12 @@ public class NsiConfigManagerFactoryImpl implements NsiConfigManagerFactory {
     @Override
     public NsiConfigManager create(File configPath) {
         NsiConfigParams configParams = new NsiConfigParams();
-        return new NsiLocalGitConfigManagerImpl(configPath, new NsiYamlMetaDictReaderImpl(), configParams );
+        return new NsiLocalGitConfigManagerImpl(configPath, new NsiYamlMetaDictReaderImpl(), new NsiYamlMetaDictWriterImpl(), configParams );
     }
 
     @Override
     public NsiConfigManager create(File configPath, NsiConfigParams configParams) {
-        return new NsiLocalGitConfigManagerImpl(configPath, new NsiYamlMetaDictReaderImpl(), configParams);
+        return new NsiLocalGitConfigManagerImpl(configPath, new NsiYamlMetaDictReaderImpl(), new NsiYamlMetaDictWriterImpl(), configParams);
     }
 
 }

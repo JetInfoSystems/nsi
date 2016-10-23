@@ -1,16 +1,13 @@
 package jet.nsi.common.config.impl;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.NsiMetaDictReader;
+import jet.nsi.api.NsiMetaDictWriter;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigParams;
 import jet.nsi.api.model.MetaDict;
@@ -32,7 +29,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             results.add(file);
         }
 
-        public Set<File> find(File configPath) {
+        Set<File> find(File configPath) {
             Set<File> result = new HashSet<>();
             try {
                 walk(configPath, result);
@@ -45,12 +42,14 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
     private final File configPath;
     private final NsiMetaDictReader reader;
+    private final NsiMetaDictWriter writer;
     private final NsiConfigParams configParams;
     private NsiConfigImpl config;
 
-    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiConfigParams configParams) {
+    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiMetaDictWriter writer, NsiConfigParams configParams) {
         this.configPath = configPath;
         this.reader = reader;
+        this.writer = writer;
         this.configParams = configParams;
     }
 
@@ -91,4 +90,17 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             throw new NsiConfigException("read config file: " + configFile.toString(),e);
         }
     }
+
+    @Override
+    public void writeConfigFile (MetaDict metaDict)  {
+        FileWriter newFile = null;
+        try {
+            newFile = new FileWriter(new File(configPath.getPath().concat(metaDict.getName().concat(".yaml"))));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        writer.write(metaDict,newFile);
+        config.addDict(metaDict);
+    }
+
 }

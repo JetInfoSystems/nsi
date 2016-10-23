@@ -9,6 +9,7 @@ import jet.nsi.api.data.NsiConfigParams;
 import jet.nsi.api.model.MetaDict;
 import jet.nsi.common.config.impl.NsiLocalGitConfigManagerImpl;
 import jet.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
+import jet.nsi.common.config.impl.NsiYamlMetaDictWriterImpl;
 import jet.nsi.testkit.utils.DataUtils;
 import junit.framework.Assert;
 
@@ -73,7 +74,7 @@ public class NsiLocalGitConfigManagerImplTest {
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {
         NsiConfigParams configParams = new NsiConfigParams();
-        return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl(), configParams );
+        return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl(), new NsiYamlMetaDictWriterImpl(), configParams );
     }
 
 }

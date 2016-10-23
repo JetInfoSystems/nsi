@@ -20,10 +20,10 @@ public class NsiYamlMetaDictReaderTest {
     public void testDumpRead() throws Exception {
         MetaDict o1 = DataGen.genMetaDict("dict1", "table1").build();
 
-        DumperOptions options = new DumperOptions();
+     /*   DumperOptions options = new DumperOptions();
         options.setDefaultScalarStyle(DumperOptions.ScalarStyle.DOUBLE_QUOTED);
         options.setDefaultFlowStyle(FlowStyle.BLOCK);
-
+*/
 
 
         String dump = new Yaml(new JaxbRepresenter()).dump(o1);
