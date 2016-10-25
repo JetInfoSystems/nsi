@@ -2,27 +2,28 @@ package jet.nsi.services;
 
 import java.util.Collection;
 
-import jet.metrics.api.Metrics;
-import jet.metrics.api.MetricsDomain;
-import jet.nsi.api.NsiConfigManager;
-import jet.nsi.api.NsiMetaService;
-import jet.nsi.api.NsiServiceException;
-import jet.nsi.api.data.NsiConfig;
-import jet.nsi.api.data.NsiConfigDict;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
 
-@MetricsDomain(name = "nsiMetaService")
-public class NsiMetaServiceImpl implements NsiMetaService {
+import jet.metrics.api.Metrics;
+import jet.metrics.api.MetricsDomain;
+import jet.nsi.api.NsiConfigManager;
+import jet.nsi.api.NsiMetaEditorService;
+import jet.nsi.api.NsiServiceException;
+import jet.nsi.api.data.NsiConfig;
+import jet.nsi.api.model.MetaDict;
+import jet.nsi.common.helper.MetaDictGen;
 
-    private static final Logger log = LoggerFactory.getLogger(NsiMetaServiceImpl.class);
+@MetricsDomain(name = "nsiMetaService")
+public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
+
+    private static final Logger log = LoggerFactory.getLogger(NsiMetaEditorServiceImpl.class);
     private final Timer metaDictListTimer;
     private final Timer metaDictGetTimer;
 
-    public NsiMetaServiceImpl(Metrics metrics) {
+    public NsiMetaEditorServiceImpl(Metrics metrics) {
         metaDictListTimer = metrics.timer(getClass(), "metaDictList");
         metaDictGetTimer = metrics.timer(getClass(), "metaDictGet");
     }
@@ -34,11 +35,11 @@ public class NsiMetaServiceImpl implements NsiMetaService {
     }
 
     @Override
-    public Collection<NsiConfigDict> metaDictList(String requestId) {
+    public Collection<MetaDict> metaDictList(String requestId) {
         final Timer.Context t = metaDictListTimer.time();
         try {
-            Collection<NsiConfigDict> dicts = configManager.getConfig().getDicts();
-            log.info("metaDictList [{}] -> ok [{}]", requestId, dicts.size());
+            Collection<MetaDict> dicts = configManager.getConfig().getMetaDicts();
+            log.info("metaDictList [{}] -> ok[{}]", requestId, dicts.size());
             return dicts;
         } catch(Exception e) {
             log.error("metaDictList [{}] -> error", requestId, e);
@@ -50,10 +51,10 @@ public class NsiMetaServiceImpl implements NsiMetaService {
     }
 
     @Override
-    public NsiConfigDict metaDictGet(String requestId, String name) {
+    public MetaDict metaDictGet(String requestId, String name) {
         final Timer.Context t = metaDictGetTimer.time();
         try {
-            NsiConfigDict dict = configManager.getConfig().getDict(name);
+            MetaDict dict = configManager.getConfig().getMetaDict(name);
             log.info("metaDictGet [{},{}] -> ok", requestId, name);
             return dict;
         } catch (Exception e) {
@@ -62,6 +63,16 @@ public class NsiMetaServiceImpl implements NsiMetaService {
         } finally {
             t.stop();
         }
+    }
+
+    @Override
+    public void metaDictSet(MetaDict metaDict) {
+        configManager.writeConfigFile(metaDict);
+    }
+
+    @Override
+    public MetaDict createMetaDict(String dictName) {
+        return MetaDictGen.genMetaDict(dictName).build();
     }
 
     @Override

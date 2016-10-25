@@ -46,6 +46,13 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     private final NsiConfigParams configParams;
     private NsiConfigImpl config;
 
+    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiConfigParams configParams) {
+        this.configPath = configPath;
+        this.reader = reader;
+        this.writer = null;
+        this.configParams = configParams;
+    }
+    
     public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiMetaDictWriter writer, NsiConfigParams configParams) {
         this.configPath = configPath;
         this.reader = reader;
@@ -91,8 +98,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         }
     }
 
-    @Override
-    public void writeConfigFile (MetaDict metaDict)  {
+    public void writeConfigFile(MetaDict metaDict) {
         FileWriter newFile = null;
         try {
             newFile = new FileWriter(new File(configPath.getPath().concat(metaDict.getName().concat(".yaml"))));
