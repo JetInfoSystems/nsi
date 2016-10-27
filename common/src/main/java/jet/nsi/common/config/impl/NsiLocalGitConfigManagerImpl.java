@@ -1,9 +1,18 @@
 package jet.nsi.common.config.impl;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.io.DirectoryWalker;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.NsiMetaDictReader;
@@ -11,10 +20,6 @@ import jet.nsi.api.NsiMetaDictWriter;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigParams;
 import jet.nsi.api.model.MetaDict;
-
-import org.apache.commons.io.DirectoryWalker;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
 
 public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
@@ -105,8 +110,9 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writer.write(metaDict,newFile);
+        writer.write(metaDict, newFile);
         config.addDict(metaDict);
+        config.postCheck();
     }
 
 }

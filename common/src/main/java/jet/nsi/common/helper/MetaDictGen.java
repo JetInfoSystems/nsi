@@ -14,7 +14,7 @@ public class MetaDictGen {
         return new MetaDictBuilderImpl()
                 .name(name)
                 .caption("")
-                .table(null)
+                .table(name)
                 //Fields
                 .field()
                     .name("id")

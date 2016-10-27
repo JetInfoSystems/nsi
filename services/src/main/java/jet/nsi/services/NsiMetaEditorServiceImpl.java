@@ -22,10 +22,14 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     private static final Logger log = LoggerFactory.getLogger(NsiMetaEditorServiceImpl.class);
     private final Timer metaDictListTimer;
     private final Timer metaDictGetTimer;
+    private final Timer metaDictCreateTimer;
+    private final Timer metaDictSetTimer;
 
     public NsiMetaEditorServiceImpl(Metrics metrics) {
         metaDictListTimer = metrics.timer(getClass(), "metaDictList");
         metaDictGetTimer = metrics.timer(getClass(), "metaDictGet");
+        metaDictCreateTimer = metrics.timer(getClass(), "metaDictCreate");
+        metaDictSetTimer = metrics.timer(getClass(), "metaDictSet");
     }
 
     private NsiConfigManager configManager;
@@ -66,13 +70,32 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     }
 
     @Override
-    public void metaDictSet(MetaDict metaDict) {
-        configManager.writeConfigFile(metaDict);
+    public MetaDict metaDictCreate(String requestId, String name) {
+        final Timer.Context t = metaDictCreateTimer.time();
+        try {
+            MetaDict metaDict = MetaDictGen.genMetaDict(name).build();
+            log.info("metaDictCreate [{},{}] -> ok", requestId, name);
+            return metaDict;
+        } catch (Exception e) {
+            log.error("metaDictCreate [{},{}] -> error", requestId, name, e);
+            throw new NsiServiceException(e.getMessage());
+        } finally {
+            t.stop();
+        }
     }
 
     @Override
-    public MetaDict createMetaDict(String dictName) {
-        return MetaDictGen.genMetaDict(dictName).build();
+    public void metaDictSet(String requestId, MetaDict metaDict) {
+        final Timer.Context t = metaDictSetTimer.time();
+        try {
+            configManager.writeConfigFile(metaDict);
+            log.info("metaDictSet [{},{}] -> ok", requestId, metaDict.getName());
+        } catch (Exception e) {
+            log.error("metaDictSet [{},{}] -> error", requestId, metaDict.getName(), e);
+            throw new NsiServiceException(e.getMessage());
+        } finally {
+            t.stop();
+        }
     }
 
     @Override

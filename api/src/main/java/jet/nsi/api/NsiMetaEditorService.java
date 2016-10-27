@@ -3,9 +3,7 @@ package jet.nsi.api;
 import java.util.Collection;
 
 import jet.nsi.api.data.NsiConfig;
-import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.model.MetaDict;
-import org.jooq.Meta;
 
 public interface NsiMetaEditorService {
 
@@ -22,12 +20,12 @@ public interface NsiMetaEditorService {
     /**
      * Сохранить описание справочника на диск
      */
-    void metaDictSet(MetaDict metaDict);
+    void metaDictSet(String requestId, MetaDict metaDict);
 
     /**
      * Создать новое описание справочника
      */
-    MetaDict createMetaDict(String dictName);
+    MetaDict metaDictCreate(String requestId, String dictName);
 
     /**
      * Получить конфигурацию метаданных
