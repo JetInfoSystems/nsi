@@ -20,7 +20,7 @@ public interface NsiMetaEditorService {
     /**
      * Сохранить описание справочника на диск
      */
-    void metaDictSet(String requestId, MetaDict metaDict);
+    MetaDict metaDictSet(String requestId, MetaDict metaDict);
 
     /**
      * Создать новое описание справочника

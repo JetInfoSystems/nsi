@@ -85,11 +85,12 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     }
 
     @Override
-    public void metaDictSet(String requestId, MetaDict metaDict) {
+    public MetaDict metaDictSet(String requestId, MetaDict metaDict) {
         final Timer.Context t = metaDictSetTimer.time();
         try {
             configManager.writeConfigFile(metaDict);
             log.info("metaDictSet [{},{}] -> ok", requestId, metaDict.getName());
+            return metaDict;
         } catch (Exception e) {
             log.error("metaDictSet [{},{}] -> error", requestId, metaDict.getName(), e);
             throw new NsiServiceException(e.getMessage());
