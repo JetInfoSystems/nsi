@@ -25,7 +25,7 @@ public class NsiMigratorServiceImpl implements NsiMigratorService {
     public void update(String requestId, String tag) {
         final Timer.Context t = updateTimer.time();
         try {
-            // migrator.update(tag);
+            migrator.update(tag);
             log.info("update [{}] -> done", requestId);
         } catch (Exception e) {
             log.error("update [{}] -> error", requestId, e);

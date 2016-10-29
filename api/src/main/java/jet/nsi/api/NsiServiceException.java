@@ -19,12 +19,6 @@ public class NsiServiceException extends RuntimeException {
         setError(NsiError.INTERNAL_ERROR);
     }
 
-    @Deprecated
-    public NsiServiceException(Throwable th, String message, Object... args) {
-        super(String.format(message, args), th);
-        setError(NsiError.INTERNAL_ERROR);
-    }
-
     public NsiServiceException(String requestId, NsiError error, String message, Object... args) {
         super(String.format(message, args));
         this.requestId = requestId;
