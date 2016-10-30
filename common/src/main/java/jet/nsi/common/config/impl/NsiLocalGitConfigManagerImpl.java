@@ -15,8 +15,14 @@ import jet.nsi.api.model.MetaDict;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
+
+    private static final Logger log = LoggerFactory.getLogger(NsiLocalGitConfigManagerImpl.class);
 
     private final class ConfigFileWalker extends DirectoryWalker<File> {
         private ConfigFileWalker(FileFilter filter) {
@@ -93,13 +99,23 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
     @Override
     public void writeConfigFile (MetaDict metaDict)  {
-        FileWriter newFile = null;
+        FileWriter newFileWriter = null;
+        File newFile = new File(configPath,metaDict.getName().concat(".yaml"));
         try {
-            newFile = new FileWriter(new File(configPath.getPath().concat(metaDict.getName().concat(".yaml"))));
+            newFileWriter = new FileWriter(newFile);
+            log.info("writeConfigFile [{}] -> ok", metaDict.getName().concat(".yaml"));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("writeConfigFile [{}] -> error on file create", metaDict.getName().concat(".yaml"), e);
         }
-        writer.write(metaDict,newFile);
+        writer.write(metaDict,newFileWriter);
+
+        try {
+            this.readConfigFile(newFile);
+        } catch (NsiConfigException e) {
+            log.error("writeConfigFile [{}] -> cant add config to dict file is incorrect, will delete file", metaDict.getName().concat(".yaml"), e);
+            newFile.delete();
+        }
+
         config.addDict(metaDict);
     }
 
