@@ -34,7 +34,8 @@
         <net.sf.jgrapht.version>0.8.3</net.sf.jgrapht.version>
 
         <oracle.ojdbc6.version>11.2.0.3</oracle.ojdbc6.version>
-        <org.hibernate.core.version>5.2.2.Final</org.hibernate.core.version>
+        <!--  <org.hibernate.core.version>5.2.2.Final</org.hibernate.core.version> -->
+        <org.hibernate.core.version>5.1.0.Final</org.hibernate.core.version>
         <org.jooq.version>3.7.0</org.jooq.version>
         <org.liquibase.core>3.5.1</org.liquibase.core>
         <org.liquibase.ext.oracle.version>3.2</org.liquibase.ext.oracle.version>

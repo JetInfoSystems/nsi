@@ -2,9 +2,9 @@ package jet.nsi.migrator.platform.postgresql;
 
 import java.sql.Types;
 
-import org.hibernate.dialect.PostgreSQL95Dialect;
+import org.hibernate.dialect.PostgreSQL94Dialect;
 
-public class NsiPostresqlDialect extends PostgreSQL95Dialect {
+public class NsiPostresqlDialect extends PostgreSQL94Dialect {
     
     public NsiPostresqlDialect() {
         super();

@@ -26,7 +26,6 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Index;
 import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UniqueKey;
-import org.hibernate.resource.transaction.spi.DdlTransactionIsolator;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.UniqueConstraintSchemaUpdateStrategy;
 import org.hibernate.tool.schema.extract.spi.ColumnInformation;
@@ -35,18 +34,12 @@ import org.hibernate.tool.schema.extract.spi.ForeignKeyInformation;
 import org.hibernate.tool.schema.extract.spi.IndexInformation;
 import org.hibernate.tool.schema.extract.spi.SequenceInformation;
 import org.hibernate.tool.schema.extract.spi.TableInformation;
-import org.hibernate.tool.schema.internal.DdlTransactionIsolatorSharedImpl;
-import org.hibernate.tool.schema.internal.Helper;
-import org.hibernate.tool.schema.internal.HibernateSchemaManagementTool;
 import org.hibernate.tool.schema.internal.exec.GenerationTarget;
-import org.hibernate.tool.schema.internal.exec.JdbcContext;
 import org.hibernate.tool.schema.spi.ExecutionOptions;
 import org.hibernate.tool.schema.spi.Exporter;
-import org.hibernate.tool.schema.spi.SchemaFilter;
+import org.hibernate.tool.schema.spi.SchemaManagementException;
 import org.hibernate.tool.schema.spi.SchemaMigrator;
 import org.hibernate.tool.schema.spi.TargetDescriptor;
-import org.hibernate.tool.schema.spi.SchemaManagementException;
-
 import org.jboss.logging.Logger;
 
 import com.beust.jcommander.Strings;
