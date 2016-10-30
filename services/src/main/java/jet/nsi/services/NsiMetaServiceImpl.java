@@ -1,19 +1,15 @@
 package jet.nsi.services;
 
-import java.io.FileWriter;
 import java.util.Collection;
 
 import jet.metrics.api.Metrics;
 import jet.metrics.api.MetricsDomain;
 import jet.nsi.api.NsiConfigManager;
-import jet.nsi.api.NsiMetaDictWriter;
 import jet.nsi.api.NsiMetaService;
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 
-import jet.nsi.api.model.MetaDict;
-import jet.nsi.common.helper.MetaDictGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,16 +62,6 @@ public class NsiMetaServiceImpl implements NsiMetaService {
         } finally {
             t.stop();
         }
-    }
-
-    @Override
-    public void metaDictSet(MetaDict metaDict) {
-        configManager.writeConfigFile(metaDict);
-    }
-
-    @Override
-    public MetaDict createMetaDict(String dictName) {
-        return MetaDictGen.genMetaDict(dictName).build();
     }
 
     @Override

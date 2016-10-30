@@ -35,6 +35,8 @@ public class NsiConfigImpl implements NsiConfig {
     private static final CharMatcher NAME_MATCHER = CharMatcher.JAVA_LETTER_OR_DIGIT.or(new OneCharMatcher('_'));
 
     private Map<String,NsiConfigDict> dictMap = new TreeMap<>();
+    
+    private Map<String, MetaDict> metaDictMap = new TreeMap<>();
 
     private final NsiConfigParams params;
 
@@ -49,6 +51,7 @@ public class NsiConfigImpl implements NsiConfig {
         if(dictMap.containsKey(dictName)) {
             throwDictException(dict, "dict already exists");
         }
+        
         // обрабатываем поля
         for (MetaField metaField : metaDict.getFields()) {
             addDictField(dict, metaField);
@@ -152,6 +155,8 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setOwns(result);
 
         dictMap.put(dictName, dict);
+        metaDictMap.put(dictName, metaDict);
+
     }
 
     private NsiConfigAttr addDictAttr(NsiConfigDict dict, MetaAttr metaAttr) {
@@ -507,6 +512,11 @@ public class NsiConfigImpl implements NsiConfig {
     public NsiConfigDict getDict(String name) {
         return dictMap.get(name);
     }
+    
+    @Override
+    public MetaDict getMetaDict(String name) {
+        return metaDictMap.get(name);
+    }
 
     private void postCheckDict(NsiConfigDict dict) {
         checkOneFieldAttr(dict, "deleteMarkAttr", dict.getDeleteMarkAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
@@ -608,5 +618,9 @@ public class NsiConfigImpl implements NsiConfig {
     public Collection<NsiConfigDict> getDicts() {
         return dictMap.values();
     }
-
+    
+    @Override
+    public Collection<MetaDict> getMetaDicts() {
+        return metaDictMap.values();
+    }
 }

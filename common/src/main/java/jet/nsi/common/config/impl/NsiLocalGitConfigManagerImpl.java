@@ -1,6 +1,11 @@
 package jet.nsi.common.config.impl;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +56,13 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     private final NsiMetaDictWriter writer;
     private final NsiConfigParams configParams;
     private NsiConfigImpl config;
+
+    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiConfigParams configParams) {
+        this.configPath = configPath;
+        this.reader = reader;
+        this.writer = null;
+        this.configParams = configParams;
+    }
 
     public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiMetaDictWriter writer, NsiConfigParams configParams) {
         this.configPath = configPath;
@@ -117,6 +129,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         }
 
         config.addDict(metaDict);
+        config.postCheck();
     }
 
 }
