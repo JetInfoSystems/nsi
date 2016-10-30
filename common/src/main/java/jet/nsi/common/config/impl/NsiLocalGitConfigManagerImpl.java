@@ -1,29 +1,21 @@
 package jet.nsi.common.config.impl;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.NsiMetaDictReader;
 import jet.nsi.api.NsiMetaDictWriter;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigParams;
 import jet.nsi.api.model.MetaDict;
-
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+import java.io.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
@@ -109,7 +101,6 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         }
     }
 
-    @Override
     public void writeConfigFile (MetaDict metaDict)  {
         FileWriter newFileWriter = null;
         File newFile = new File(configPath,metaDict.getName().concat(".yaml"));
