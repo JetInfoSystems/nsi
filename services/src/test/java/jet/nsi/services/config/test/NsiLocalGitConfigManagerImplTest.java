@@ -45,6 +45,19 @@ public class NsiLocalGitConfigManagerImplTest {
     }
 
     @Test
+    public void testWriteConfigFile() {
+        File testFile = new File("src/test/resources/metadata1/empty/writeDict.yaml");
+        NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1/empty");
+        configManager.getConfig();
+        MetaDict o1 = DataGen.genMetaDict("writeDict","writeTestTable").build();
+        configManager.writeConfigFile(o1);
+        MetaDict o2 = configManager.readConfigFile(testFile);
+        DataUtils.assertEqualAllOptionals(o1, o2);
+        /*delete test file to prevent configManager to read it next time*/
+        testFile.delete();
+    }
+
+    @Test
     public void testGetConfig() {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
         NsiConfig config = configManager.readConfig();

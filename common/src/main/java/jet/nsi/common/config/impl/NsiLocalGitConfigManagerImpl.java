@@ -1,27 +1,25 @@
 package jet.nsi.common.config.impl;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.io.DirectoryWalker;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
-
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.NsiMetaDictReader;
 import jet.nsi.api.NsiMetaDictWriter;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigParams;
 import jet.nsi.api.model.MetaDict;
+import org.apache.commons.io.DirectoryWalker;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
+
+    private static final Logger log = LoggerFactory.getLogger(NsiLocalGitConfigManagerImpl.class);
 
     private final class ConfigFileWalker extends DirectoryWalker<File> {
         private ConfigFileWalker(FileFilter filter) {
@@ -57,7 +55,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         this.writer = null;
         this.configParams = configParams;
     }
-    
+
     public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiMetaDictWriter writer, NsiConfigParams configParams) {
         this.configPath = configPath;
         this.reader = reader;
@@ -103,14 +101,24 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         }
     }
 
-    public void writeConfigFile(MetaDict metaDict) {
-        FileWriter newFile = null;
+    public void writeConfigFile (MetaDict metaDict)  {
+        FileWriter newFileWriter = null;
+        File newFile = new File(configPath,metaDict.getName().concat(".yaml"));
         try {
-            newFile = new FileWriter(new File(configPath.getPath().concat(metaDict.getName().concat(".yaml"))));
+            newFileWriter = new FileWriter(newFile);
+            log.info("writeConfigFile [{}] -> ok", metaDict.getName().concat(".yaml"));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("writeConfigFile [{}] -> error on file create", metaDict.getName().concat(".yaml"), e);
         }
-        writer.write(metaDict, newFile);
+        writer.write(metaDict,newFileWriter);
+
+        try {
+            this.readConfigFile(newFile);
+        } catch (NsiConfigException e) {
+            log.error("writeConfigFile [{}] -> cant add config to dict file is incorrect, will delete file", metaDict.getName().concat(".yaml"), e);
+            newFile.delete();
+        }
+
         config.addDict(metaDict);
         config.postCheck();
     }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
+import com.google.common.base.Preconditions;
 
 import jet.metrics.api.Metrics;
 import jet.metrics.api.MetricsDomain;
@@ -73,7 +74,12 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     public MetaDict metaDictCreate(String requestId, String name) {
         final Timer.Context t = metaDictCreateTimer.time();
         try {
+            Preconditions.checkNotNull(name, "name is not set");
+            Preconditions.checkArgument(configManager.getConfig().getDict(name) == null, "dict already exists");
+
             MetaDict metaDict = MetaDictGen.genMetaDict(name).build();
+            
+            
             log.info("metaDictCreate [{},{}] -> ok", requestId, name);
             return metaDict;
         } catch (Exception e) {
