@@ -19,9 +19,7 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl;
 import org.hibernate.tool.schema.extract.spi.DatabaseInformation;
-import org.hibernate.tool.schema.internal.SchemaMigratorImpl;
 import org.hibernate.tool.schema.internal.exec.GenerationTarget;
-import org.hibernate.tool.schema.spi.SchemaMigrator;
 //import org.hibernate.tool.schema.spi.Target;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +56,12 @@ public class Migrator {
     private final NsiConfig config;
     private final MigratorParams params;
     private final DataSource dataSource;
-    private final List<GenerationTarget> targets = new ArrayList<>();
+
     private final String logPrefix;
     private final PlatformMigrator platformMigrator;
     
+    private List<GenerationTarget> targets = new ArrayList<>();
+
     private final String liquibasePrepareChangelogFilePath;
     private final String liquibasePostprocChangelogFilePath;
 
@@ -135,6 +135,7 @@ public class Migrator {
 
             }
             finally {
+                cleanTargets();
                 StandardServiceRegistryBuilder.destroy( serviceRegistry );
             }
             try(Connection connection = dataSource.getConnection()) {
@@ -211,6 +212,10 @@ public class Migrator {
 
     public void addTarget(GenerationTarget target) {
         targets.add(target);
+    }
+
+    public void cleanTargets() {
+        targets = new ArrayList<>();
     }
 
     private MetadataImplementor buildMetadata(
