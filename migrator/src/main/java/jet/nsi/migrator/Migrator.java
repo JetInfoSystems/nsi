@@ -20,7 +20,6 @@ import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl;
 import org.hibernate.tool.schema.extract.spi.DatabaseInformation;
 import org.hibernate.tool.schema.internal.exec.GenerationTarget;
-//import org.hibernate.tool.schema.spi.Target;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +30,9 @@ import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
 import jet.nsi.migrator.hibernate.LogActionsTargetImpl;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
-//import jet.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
-//import jet.nsi.migrator.hibernate.LogActionsTargetImpl;
-//import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
 import jet.nsi.migrator.hibernate.NsiSchemaMigratorImpl;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import jet.nsi.migrator.platform.DictToHbmSerializer;
-//import jet.nsi.migrator.platform.DictToHbmSerializer;
-//import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.PlatformMigrator;
 
 public class Migrator {
@@ -54,7 +48,6 @@ public class Migrator {
     private static final Logger log = LoggerFactory.getLogger(Migrator.class);
 
     private final NsiConfig config;
-    private final MigratorParams params;
     private final DataSource dataSource;
 
     private final String logPrefix;
@@ -68,7 +61,7 @@ public class Migrator {
     public Migrator(NsiConfig config, DataSource dataSource, MigratorParams params, PlatformMigrator platformMigrator) {
         this.config = config;
         this.dataSource = dataSource;
-        this.params = params;
+
         this.logPrefix = params.getLogPrefix();
         this.platformMigrator = platformMigrator;
         
