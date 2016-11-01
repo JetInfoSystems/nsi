@@ -6,7 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import com.google.common.base.Preconditions;
 
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.model.DictRowAttr;
@@ -14,8 +18,6 @@ import jet.nsi.api.model.MetaAttrType;
 import jet.nsi.api.model.MetaDict;
 import jet.nsi.api.model.MetaSourceQuery;
 import jet.nsi.api.model.RefAttrsType;
-
-import com.google.common.base.Preconditions;
 
 public class NsiConfigDict {
 
@@ -42,6 +44,7 @@ public class NsiConfigDict {
     private NsiConfigDict mainDict;
 
     private List<String> interceptors = new ArrayList<>();
+    private Set<String> labels = new TreeSet<>();
     private final NsiConfig config;
 
     public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
@@ -261,6 +264,14 @@ public class NsiConfigDict {
 
     public void setInterceptors(List<String> interceptors) {
         this.interceptors = interceptors;
+    }
+    
+    public Set<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Set<String> labels) {
+        this.labels = labels;
     }
 
     public NsiConfigSourceQuery getSourceQuery(String name) {

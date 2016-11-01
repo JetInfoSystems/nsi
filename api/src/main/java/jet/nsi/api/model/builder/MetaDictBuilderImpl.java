@@ -4,6 +4,7 @@ package jet.nsi.api.model.builder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import jet.nsi.api.model.MetaAttr;
 import jet.nsi.api.model.MetaAttrType;
@@ -166,6 +167,7 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             prototype.setTableObjectAttrs(new ArrayList<String>());
             prototype.setMergeExternalAttrs(new ArrayList<String>());
             prototype.setInterceptors(new ArrayList<String>());
+            prototype.setLabels(new TreeSet<String>());
             prototype.setOwns(new HashMap<String, MetaOwn>());
         }
         return prototype;
@@ -269,6 +271,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
     @Override
     public MetaDictBuilder addInterceptor(String value) {
         getPrototype().getInterceptors().add(value);
+        return this;
+    }
+    
+    @Override
+    public MetaDictBuilder addLabel(String value) {
+        getPrototype().getLabels().add(value);
         return this;
     }
 

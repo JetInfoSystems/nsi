@@ -4,6 +4,7 @@ package jet.nsi.api.model;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Описание справочника.
@@ -37,7 +38,7 @@ public class MetaDict extends MetaDictRef {
      */
     private Collection<MetaAttr> attrs;
     /**
-     * атрибут кторый представлет ид.
+     * атрибут кторый представляет ид.
      */
     private String idAttr;
     /**
@@ -91,6 +92,7 @@ public class MetaDict extends MetaDictRef {
      */
     private List<String> interceptors;
 
+    private Set<String> labels;
     /**
      * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.
      */
@@ -159,6 +161,22 @@ public class MetaDict extends MetaDictRef {
      */
     private boolean autoLastUserAttr = false;
     
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
     public String getTable() {
         return table;
     }
@@ -254,18 +272,14 @@ public class MetaDict extends MetaDictRef {
         this.interceptors = interceptors;
     }
 
-    public String getName() {
-        return name;
+    public Set<String> getLabels() {
+        return labels;
     }
-    public void setName(String name) {
-        this.name = name;
+
+    public void setLabels(Set<String> labels) {
+        this.labels = labels;
     }
-    public String getCaption() {
-        return caption;
-    }
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
+
     public Boolean getHidden() {
         return hidden;
     }

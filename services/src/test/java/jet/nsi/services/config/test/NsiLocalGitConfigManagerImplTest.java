@@ -3,6 +3,8 @@ package jet.nsi.services.config.test;
 import java.io.File;
 import java.util.Set;
 
+import org.junit.Test;
+
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigParams;
@@ -12,8 +14,6 @@ import jet.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
 import jet.nsi.common.config.impl.NsiYamlMetaDictWriterImpl;
 import jet.nsi.testkit.utils.DataUtils;
 import junit.framework.Assert;
-
-import org.junit.Test;
 
 public class NsiLocalGitConfigManagerImplTest {
 
@@ -44,6 +44,17 @@ public class NsiLocalGitConfigManagerImplTest {
         DataUtils.assertEqualTableObjectAttrs(o1, o2);
     }
 
+    @Test
+    public void testReadConfigFileWithLabels() {
+        NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
+        MetaDict o1 = DataGen.genMetaDictWithLabels("dictWithLabels", "tableWithLabels").build();
+        MetaDict o2 = configManager.readConfigFile(new File("src/test/resources/metadata1/labels/dict_labels.yaml"));
+        DataUtils.assertEqualCommon(o1, o2);
+        DataUtils.assertEqualRefObjectAttrs(o1, o2);
+        DataUtils.assertEqualTableObjectAttrs(o1, o2);
+        DataUtils.assertEqualLabels(o1, o2);
+    }
+    
     @Test
     public void testWriteConfigFile() {
         File testFile = new File("src/test/resources/metadata1/empty/writeDict.yaml");

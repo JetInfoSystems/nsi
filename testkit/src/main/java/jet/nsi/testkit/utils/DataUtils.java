@@ -6,14 +6,14 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.junit.Assert;
+
 import jet.nsi.api.data.DictRow;
 import jet.nsi.api.data.NsiQuery;
 import jet.nsi.api.model.DictRowAttr;
 import jet.nsi.api.model.MetaAttr;
 import jet.nsi.api.model.MetaDict;
 import jet.nsi.api.model.MetaField;
-
-import org.junit.Assert;
 
 public class DataUtils {
 
@@ -56,6 +56,10 @@ public class DataUtils {
     
     public static void assertEqualInterceptors(MetaDict o1, MetaDict o2) {
         Assert.assertEquals(o1.getInterceptors(), o2.getInterceptors());
+    }
+    
+    public static void assertEqualLabels(MetaDict o1, MetaDict o2) {
+        Assert.assertEquals(o1.getLabels(), o2.getLabels());
     }
     
     public static void assertEqualLoadDataAttrs(MetaDict o1, MetaDict o2) {
