@@ -251,8 +251,9 @@ public class DataGen {
         .addRefObjectAttr("attr1")
         .addTableObjectAttr("attr1")
         .addLabel("event")
-        .addLabel("dict")
+        .addLabel("refdata")
         .addLabel("aggregate")
+        .addLabel("traindata")
         ;
     }
 }
