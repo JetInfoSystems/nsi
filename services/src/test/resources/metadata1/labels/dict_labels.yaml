@@ -48,5 +48,6 @@ loadDataAttrs: [id]
 table: tableWithLabels
 tableObjectAttrs: [attr1]
 interceptors: [interceptor]
-labels: [event, dict, aggregate, событие, справочник, агрегат]
+labels: [event, refdata, aggregate, traindata]
+
 

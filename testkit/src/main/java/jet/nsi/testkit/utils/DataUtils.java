@@ -86,7 +86,7 @@ public class DataUtils {
         assertEqualInterceptors(o1, o2);
         assertEqualLoadDataAttrs(o1, o2);
         assertEqualCaptionAttrs(o1, o2);
-        
+        assertEqualLabels(o1, o2);
     }
 
     public static <K, V> void assertEquals(final String message,

@@ -253,9 +253,6 @@ public class DataGen {
         .addLabel("event")
         .addLabel("dict")
         .addLabel("aggregate")
-        .addLabel("событие")
-        .addLabel("справочник")
-        .addLabel("агрегат")
         ;
     }
 }

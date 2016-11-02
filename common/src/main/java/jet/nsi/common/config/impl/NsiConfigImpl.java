@@ -351,8 +351,8 @@ public class NsiConfigImpl implements NsiConfig {
         return result;
     }
     
-    private Set<String> createLabels(Set<String> labels) {
-        Set<String> result = new TreeSet<>();
+    private List<String> createLabels(List<String> labels) {
+       List<String> result = new ArrayList<>();
         if(labels != null) {
             result.addAll(labels);
         }
@@ -627,9 +627,38 @@ public class NsiConfigImpl implements NsiConfig {
     public Collection<NsiConfigDict> getDicts() {
         return dictMap.values();
     }
+    @Override
+    public Collection<NsiConfigDict> getDicts(Collection<String> labels) {
+        Collection<NsiConfigDict> result = new ArrayList<>();
+        Set<String> labelsSet = new HashSet<>();
+        labelsSet.addAll(labels);
+        
+        for(NsiConfigDict dict : dictMap.values()) {
+            for (String label : labelsSet) {
+                if (dict.getLabels().contains(label)) {
+                    result.add(dict);
+                }
+            }
+        }
+        return result;
+    }
     
     @Override
     public Collection<MetaDict> getMetaDicts() {
         return metaDictMap.values();
+    }
+    @Override
+    public Collection<MetaDict> getMetaDicts(Collection<String> labels) {
+        Collection<MetaDict> result = new ArrayList<>();
+        Set<String> labelsSet = new HashSet<>();
+        labelsSet.addAll(labels);
+        for(MetaDict dict : metaDictMap.values()) {
+            for (String label : labelsSet) {
+                if (dict.getLabels().contains(label)) {
+                    result.add(dict);
+                }
+            }
+        }
+        return result;
     }
 }
