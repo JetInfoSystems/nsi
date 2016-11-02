@@ -2,6 +2,11 @@ package jet.nsi.services;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.codahale.metrics.Timer;
+
 import jet.metrics.api.Metrics;
 import jet.metrics.api.MetricsDomain;
 import jet.nsi.api.NsiConfigManager;
@@ -9,11 +14,6 @@ import jet.nsi.api.NsiMetaService;
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.codahale.metrics.Timer;
 
 @MetricsDomain(name = "nsiMetaService")
 public class NsiMetaServiceImpl implements NsiMetaService {
@@ -42,6 +42,22 @@ public class NsiMetaServiceImpl implements NsiMetaService {
             return dicts;
         } catch(Exception e) {
             log.error("metaDictList [{}] -> error", requestId, e);
+            throw new NsiServiceException(e.getMessage());
+        } finally {
+            t.stop();
+        }
+
+    }
+    
+    @Override
+    public Collection<NsiConfigDict> metaDictList(String requestId, Collection<String> labels) {
+        final Timer.Context t = metaDictListTimer.time();
+        try {
+            Collection<NsiConfigDict> dicts = configManager.getConfig().getDicts(labels);
+            log.info("metaDictList [{}, {}] -> ok [{}]", requestId, labels, dicts.size());
+            return dicts;
+        } catch(Exception e) {
+            log.error("metaDictList [{}, {}] -> error", requestId, labels, e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();

@@ -11,6 +11,11 @@ public interface NsiMetaService {
      * Получить список коротких описаний справочников
      */
     Collection<NsiConfigDict> metaDictList(String requestId);
+    
+    /**
+     * Получить список коротких описаний справочников
+     */
+    Collection<NsiConfigDict> metaDictList(String requestId, Collection<String> lables);
 
     /**
      * Получить полное описание справочника

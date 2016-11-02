@@ -13,6 +13,10 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigAttr;
 import jet.nsi.api.data.NsiConfigDict;
@@ -25,10 +29,6 @@ import jet.nsi.api.model.MetaDict;
 import jet.nsi.api.model.MetaField;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.model.MetaOwn;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 
 public class NsiConfigImpl implements NsiConfig {
 
@@ -144,6 +144,7 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setLoadDataAttrs(createAttrList(dict, metaDict.getLoadDataAttrs()));
         dict.setTableObjectAttrs(createAttrList(dict,metaDict.getTableObjectAttrs()));
         dict.setInterceptors(createInterceptors(metaDict.getInterceptors()));
+        dict.setLabels(createLabels(metaDict.getLabels()));
         dict.setMergeExternalAttrs(createAttrList(dict,metaDict.getMergeExternalAttrs()));
         
         Map<String, NsiConfigAttr> result = new HashMap<String, NsiConfigAttr>();
@@ -346,6 +347,14 @@ public class NsiConfigImpl implements NsiConfig {
         List<String> result = new ArrayList<>();
         if(interceptors != null) {
             result.addAll(interceptors);
+        }
+        return result;
+    }
+    
+    private List<String> createLabels(List<String> labels) {
+       List<String> result = new ArrayList<>();
+        if(labels != null) {
+            result.addAll(labels);
         }
         return result;
     }
@@ -618,9 +627,38 @@ public class NsiConfigImpl implements NsiConfig {
     public Collection<NsiConfigDict> getDicts() {
         return dictMap.values();
     }
+    @Override
+    public Collection<NsiConfigDict> getDicts(Collection<String> labels) {
+        Collection<NsiConfigDict> result = new ArrayList<>();
+        Set<String> labelsSet = new HashSet<>();
+        labelsSet.addAll(labels);
+        
+        for(NsiConfigDict dict : dictMap.values()) {
+            for (String label : labelsSet) {
+                if (dict.getLabels().contains(label)) {
+                    result.add(dict);
+                }
+            }
+        }
+        return result;
+    }
     
     @Override
     public Collection<MetaDict> getMetaDicts() {
         return metaDictMap.values();
+    }
+    @Override
+    public Collection<MetaDict> getMetaDicts(Collection<String> labels) {
+        Collection<MetaDict> result = new ArrayList<>();
+        Set<String> labelsSet = new HashSet<>();
+        labelsSet.addAll(labels);
+        for(MetaDict dict : metaDictMap.values()) {
+            for (String label : labelsSet) {
+                if (dict.getLabels().contains(label)) {
+                    result.add(dict);
+                }
+            }
+        }
+        return result;
     }
 }

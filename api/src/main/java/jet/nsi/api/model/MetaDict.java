@@ -37,7 +37,7 @@ public class MetaDict extends MetaDictRef {
      */
     private Collection<MetaAttr> attrs;
     /**
-     * атрибут кторый представлет ид.
+     * атрибут кторый представляет ид.
      */
     private String idAttr;
     /**
@@ -91,6 +91,7 @@ public class MetaDict extends MetaDictRef {
      */
     private List<String> interceptors;
 
+    private List<String> labels;
     /**
      * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.
      */
@@ -159,6 +160,22 @@ public class MetaDict extends MetaDictRef {
      */
     private boolean autoLastUserAttr = false;
     
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
     public String getTable() {
         return table;
     }
@@ -254,18 +271,14 @@ public class MetaDict extends MetaDictRef {
         this.interceptors = interceptors;
     }
 
-    public String getName() {
-        return name;
+    public List<String> getLabels() {
+        return labels;
     }
-    public void setName(String name) {
-        this.name = name;
+
+    public void setLabels(List<String> labels) {
+        this.labels = labels;
     }
-    public String getCaption() {
-        return caption;
-    }
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
+
     public Boolean getHidden() {
         return hidden;
     }

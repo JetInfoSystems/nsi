@@ -166,6 +166,7 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
             prototype.setTableObjectAttrs(new ArrayList<String>());
             prototype.setMergeExternalAttrs(new ArrayList<String>());
             prototype.setInterceptors(new ArrayList<String>());
+            prototype.setLabels(new ArrayList<String>());
             prototype.setOwns(new HashMap<String, MetaOwn>());
         }
         return prototype;
@@ -269,6 +270,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
     @Override
     public MetaDictBuilder addInterceptor(String value) {
         getPrototype().getInterceptors().add(value);
+        return this;
+    }
+    
+    @Override
+    public MetaDictBuilder addLabel(String value) {
+        getPrototype().getLabels().add(value);
         return this;
     }
 

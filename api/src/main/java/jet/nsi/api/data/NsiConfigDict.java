@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.google.common.base.Preconditions;
+
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.model.DictRowAttr;
 import jet.nsi.api.model.MetaAttrType;
 import jet.nsi.api.model.MetaDict;
 import jet.nsi.api.model.MetaSourceQuery;
 import jet.nsi.api.model.RefAttrsType;
-
-import com.google.common.base.Preconditions;
 
 public class NsiConfigDict {
 
@@ -42,6 +42,15 @@ public class NsiConfigDict {
     private NsiConfigDict mainDict;
 
     private List<String> interceptors = new ArrayList<>();
+    private List<String> labels;
+
+    private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
+    private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
+    private Map<String, NsiConfigSourceQuery> sourceQueries = new TreeMap<>();
+    private Map<String, NsiConfigAttr> owns = new TreeMap<>();
+    
+    
+    
     private final NsiConfig config;
 
     public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
@@ -59,10 +68,6 @@ public class NsiConfigDict {
         mainDictName = metaDict.getMainDict();
     }
 
-    private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
-    private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
-    private Map<String, NsiConfigSourceQuery> sourceQueries = new TreeMap<>();
-    private Map<String, NsiConfigAttr> owns = new TreeMap<>();
 
     public Map<String, NsiConfigAttr> getAttrNameMap() {
         return attrNameMap;
@@ -261,6 +266,14 @@ public class NsiConfigDict {
 
     public void setInterceptors(List<String> interceptors) {
         this.interceptors = interceptors;
+    }
+    
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<String> labels) {
+        this.labels = labels;
     }
 
     public NsiConfigSourceQuery getSourceQuery(String name) {

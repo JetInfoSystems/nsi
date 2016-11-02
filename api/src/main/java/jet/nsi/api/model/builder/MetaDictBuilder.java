@@ -82,13 +82,17 @@ public interface MetaDictBuilder {
     MetaDictBuilder addTableObjectAttr(String value);
 
     MetaDictBuilder addMergeExternalAttr(String value);
-    
+
     MetaDictBuilder addInterceptor(String value);
+
+    MetaDictBuilder addLabel(String value);
 
     MetaDictBuilder addOwn(String key, String value);
 
     MetaDict build();
 
     MetaDictBuilder addLoadDataAttr(String value);
+
+
 
 }
