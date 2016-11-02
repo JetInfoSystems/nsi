@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 import jet.nsi.api.data.NsiConfig;
@@ -629,6 +630,8 @@ public class NsiConfigImpl implements NsiConfig {
     }
     @Override
     public Collection<NsiConfigDict> getDicts(Collection<String> labels) {
+        Preconditions.checkNotNull(labels, "labels must be not null");
+        
         Collection<NsiConfigDict> result = new ArrayList<>();
         Set<String> labelsSet = new HashSet<>();
         labelsSet.addAll(labels);
@@ -649,6 +652,8 @@ public class NsiConfigImpl implements NsiConfig {
     }
     @Override
     public Collection<MetaDict> getMetaDicts(Collection<String> labels) {
+        Preconditions.checkNotNull(labels, "labels must be not null");
+        
         Collection<MetaDict> result = new ArrayList<>();
         Set<String> labelsSet = new HashSet<>();
         labelsSet.addAll(labels);
