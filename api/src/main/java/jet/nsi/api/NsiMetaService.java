@@ -8,12 +8,13 @@ import jet.nsi.api.data.NsiConfigDict;
 public interface NsiMetaService {
 
     /**
-     * Получить список коротких описаний справочников
+     * Получить список описаний справочников
      */
     Collection<NsiConfigDict> metaDictList(String requestId);
     
     /**
-     * Получить список коротких описаний справочников
+     * Получить список описаний справочников, отфильтрованных по меткам
+     * В результат будет добавлен справочник, у которого присуствует хотя бы одна метка
      */
     Collection<NsiConfigDict> metaDictList(String requestId, Collection<String> lables);
 
