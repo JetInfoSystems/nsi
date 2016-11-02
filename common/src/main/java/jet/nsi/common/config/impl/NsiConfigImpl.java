@@ -45,6 +45,23 @@ public class NsiConfigImpl implements NsiConfig {
         this.params = params;
     }
 
+    public void removeDict(String dictName) {
+        //check if dict exists
+        if (!dictMap.containsKey(dictName) || !metaDictMap.containsKey(dictName)) {
+            throwDictException(dictName,"dict not exists");
+        }
+        dictMap.remove(dictName);
+        metaDictMap.remove(dictName);
+    }
+
+    public void updateDict(MetaDict metaDict) {
+        if (dictMap.containsKey(metaDict.getName())) {
+            //add dict does many checks, so it is easy way
+            removeDict(metaDict.getName());
+        }
+        addDict(metaDict);
+    }
+
     public void addDict(MetaDict metaDict) {
         NsiConfigDict dict = new NsiConfigDict(this, metaDict);
         preCheckDict(dict);
@@ -424,6 +441,11 @@ public class NsiConfigImpl implements NsiConfig {
             }
         }
     }
+
+    private void throwDictException(String dictName, String message ) {
+        throw new NsiConfigException(Joiner.on(": ").join(message,dictName));
+    }
+
     private void throwDictException(NsiConfigDict dict, String message ) {
         throw new NsiConfigException(Joiner.on(": ").join(message,dict.getName()));
     }
