@@ -1,4 +1,4 @@
-package jet.nsi.services.sql.test;
+package jet.nsi.services.sql.test.oracle;
 
 import java.io.File;
 import java.sql.Connection;
@@ -38,6 +38,8 @@ import jet.nsi.testkit.utils.DataUtils;
 
 public class SqlDaoTest extends BaseSqlTest {
 
+    private static final String DB_IDENT = "nsi.oracle";
+    
     protected PlatformMigrator platformMigrator;
     
     @Override

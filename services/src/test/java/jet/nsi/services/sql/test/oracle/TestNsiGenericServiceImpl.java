@@ -1,4 +1,4 @@
-package jet.nsi.services.sql.test;
+package jet.nsi.services.sql.test.oracle;
 
 import java.io.File;
 import java.sql.Connection;
@@ -26,10 +26,16 @@ import jet.nsi.testkit.test.BaseSqlTest;
 
 public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
+    private static final String DB_IDENT = "nsi.oracle";
+    
     private NsiConfig config;
     private NsiGenericServiceImpl service;
     private NsiTransactionServiceImpl transactionService;
     private PlatformMigrator platformMigrator;
+
+    public TestNsiGenericServiceImpl() {
+        super(DB_IDENT);
+    }
 
     @Override
     public void setup() throws Exception {

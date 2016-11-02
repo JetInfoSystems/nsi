@@ -1,4 +1,4 @@
-package jet.nsi.services.sql.test;
+package jet.nsi.services.sql.test.oracle;
 
 import java.io.File;
 
@@ -16,7 +16,8 @@ import jet.nsi.testkit.test.BaseSqlTest;
 import junit.framework.Assert;
 
 public class SqlGenTest extends BaseSqlTest {
-
+    private static final String DB_IDENT = "nsi.oracle";
+    
     private NsiConfig config;
     private PlatformMigrator platformMigrator;
 
