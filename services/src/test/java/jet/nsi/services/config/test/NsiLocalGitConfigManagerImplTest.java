@@ -57,25 +57,25 @@ public class NsiLocalGitConfigManagerImplTest {
     }
     
     @Test
-    public void testWriteConfigFile() {
+    public void testCreateOrUpdateConfig() {
         File testFile = new File("src/test/resources/metadata1/empty/writeDict.yaml");
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1/empty");
         configManager.getConfig();
-        int i0 = configManager.getConfig().getDicts().size();
+        int beforeSize = configManager.getConfig().getDicts().size();
         MetaDict o1 = DataGen.genMetaDict("writeDict","writeTestTable").build();
-        configManager.writeConfigFile(o1);
+        configManager.createOrUpdateConfig(o1);
         MetaDict o2 = configManager.readConfigFile(testFile);
         DataUtils.assertEqualAllOptionals(o1, o2);
         //It's added exactly ones
-        int i1 = configManager.getConfig().getDicts().size();
-        Assert.assertEquals(i0+1,i1);
+        int afterSize = configManager.getConfig().getDicts().size();
+        Assert.assertEquals(beforeSize + 1, afterSize);
 
         //Check if it updates Correct
         o1.setCaption("New caption Проверка русского языка");
-        configManager.writeConfigFile(o1);
+        configManager.createOrUpdateConfig(o1);
         //It's updated and not duplicates
-        i1 = configManager.getConfig().getDicts().size();
-        Assert.assertEquals(i0+1,i1);
+        afterSize = configManager.getConfig().getDicts().size();
+        Assert.assertEquals(beforeSize + 1, afterSize);
         o2 = configManager.readConfigFile(testFile);
         DataUtils.assertEqualAllOptionals(o1, o2);
         /*delete test file to prevent configManager to read it next time*/

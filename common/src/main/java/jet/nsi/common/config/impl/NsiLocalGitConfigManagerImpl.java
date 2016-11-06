@@ -101,27 +101,29 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         }
     }
 
-    public void writeConfigFile (MetaDict metaDict)  {
+    public void createOrUpdateConfig(MetaDict metaDict)  {
         File newFile = new File(configPath,metaDict.getName().concat(".yaml"));
 
         try (FileWriter newFileWriter = new FileWriter(newFile)) {
-            writer.write(metaDict,newFileWriter);
-            checkConfigFile(newFile);
+            config.updateDict(metaDict);
+            config.postCheck();
+            
+            writer.write(metaDict, newFileWriter);
+            
+            log.info("createOrUpdateConfig [{}] -> ok", metaDict.getName());
+            readConfigFile(newFile);
         } catch (Exception e) {
-            log.error("writeConfigFile [{}] -> error", metaDict.getName().concat(".yaml"), e);
-        }
-
-        config.updateDict(metaDict);
-        config.postCheck();
-
-    }
-
-    private void checkConfigFile(File configFile) {
-        try {
-            this.readConfigFile(configFile);
-        } catch (NsiConfigException e) {
-            configFile.delete();
-            throw e;
+            log.error("createOrUpdateConfig [{}] -> error", metaDict.getName(), e);
+            // Удалим из памяти, если успели добавить
+            config.removeDict(metaDict.getName());
+            
+            // Удалим файл, если он существует
+            try {
+                newFile.delete();
+            } catch (Exception ex) {
+                log.warn("writeConfigFile[{}] tried to delete file -> file wasn't created", metaDict.getName(), ex);
+            }
+            throw new NsiConfigException("Failed to write config file for metaDict: " + metaDict.getName(), e);
         }
     }
 

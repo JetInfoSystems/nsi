@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
@@ -35,9 +35,9 @@ public class NsiConfigImpl implements NsiConfig {
 
     private static final CharMatcher NAME_MATCHER = CharMatcher.JAVA_LETTER_OR_DIGIT.or(new OneCharMatcher('_'));
 
-    private Map<String,NsiConfigDict> dictMap = new TreeMap<>();
+    private Map<String, NsiConfigDict> dictMap = new ConcurrentSkipListMap<>();
     
-    private Map<String, MetaDict> metaDictMap = new TreeMap<>();
+    private Map<String, MetaDict> metaDictMap = new ConcurrentSkipListMap<>();
 
     private final NsiConfigParams params;
 
@@ -46,10 +46,6 @@ public class NsiConfigImpl implements NsiConfig {
     }
 
     public void removeDict(String dictName) {
-        //check if dict exists
-        if (!dictMap.containsKey(dictName) || !metaDictMap.containsKey(dictName)) {
-            throwDictException(dictName,"dict not exists");
-        }
         dictMap.remove(dictName);
         metaDictMap.remove(dictName);
     }

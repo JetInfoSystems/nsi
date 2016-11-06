@@ -6,5 +6,5 @@ import jet.nsi.api.model.MetaDict;
 public interface NsiConfigManager {
 
     NsiConfig getConfig();
-    void writeConfigFile(MetaDict metaDict);
+    void createOrUpdateConfig(MetaDict metaDict);
 }
