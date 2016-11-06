@@ -27,4 +27,14 @@ public interface NsiMetaService {
      * Получить конфигурацию метаданных
      */
     NsiConfig getConfig();
+    
+    /**
+     * Перезагрузить конфигурацию метаданных
+     */
+    NsiConfig reloadConfig(String requestId);
+
+    /**
+     * Получить новую конфигурацию метаданных
+     */
+    void checkoutNewConfig(String requestId, String from);
 }

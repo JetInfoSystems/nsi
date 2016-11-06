@@ -21,10 +21,14 @@ public class NsiMetaServiceImpl implements NsiMetaService {
     private static final Logger log = LoggerFactory.getLogger(NsiMetaServiceImpl.class);
     private final Timer metaDictListTimer;
     private final Timer metaDictGetTimer;
+    private final Timer reloadConfigTimer;
+    private final Timer copyConfigTimer;
 
     public NsiMetaServiceImpl(Metrics metrics) {
         metaDictListTimer = metrics.timer(getClass(), "metaDictList");
         metaDictGetTimer = metrics.timer(getClass(), "metaDictGet");
+        reloadConfigTimer = metrics.timer(getClass(), "reloadConfigTimer");
+        copyConfigTimer = metrics.timer(getClass(), "copyConfigTimer");
     }
 
     private NsiConfigManager configManager;
@@ -79,11 +83,40 @@ public class NsiMetaServiceImpl implements NsiMetaService {
             t.stop();
         }
     }
+    
+    @Override
+    public NsiConfig reloadConfig(String requestId) {
+        final Timer.Context t = reloadConfigTimer.time();
+        try {
+            configManager.reloadConfig();
+            log.info("reloadConfig[{}] -> ok", requestId);
+        } catch (Exception e) {
+            log.error("reloadConfig [{},{}] -> error", requestId, e);
+        } finally {
+            t.stop();
+        }
+        
+        return configManager.getConfig();
+    }
+    
+    @Override
+    public void checkoutNewConfig(String requestId, String from) {
+        final Timer.Context t = copyConfigTimer.time();
+        try {
+            configManager.checkoutNewConfig(from);
+            log.info("checkoutNewConfig [{}, {}] -> ok", requestId, from);
+        } catch (Exception e) {
+            log.error("checkoutNewConfig [{},{}] -> error", requestId, e);
+        } finally {
+            t.stop();
+        }
+    }
 
     @Override
     public NsiConfig getConfig() {
         return configManager.getConfig();
     }
 
+    
 
 }
