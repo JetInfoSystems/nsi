@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashSet;
@@ -71,7 +72,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
         @Override
         public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
             return FileVisitResult.CONTINUE;
         }
     }
@@ -128,7 +129,8 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             Files.walkFileTree(source, new CopyFileVisitor(configPath.toPath()));
             log.info("checkoutNewConfig [{}] -> ok", from);
         } catch (IOException e) {
-            log.error("checkoutNewConfig [{}] -> failed", from);
+            log.error("checkoutNewConfig [{}] -> failed", from, e);
+            throw new NsiConfigException("checkoutNewConfig from  " + from, e);
         }
 
     }

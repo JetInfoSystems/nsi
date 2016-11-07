@@ -92,6 +92,7 @@ public class NsiMetaServiceImpl implements NsiMetaService {
             log.info("reloadConfig[{}] -> ok", requestId);
         } catch (Exception e) {
             log.error("reloadConfig [{},{}] -> error", requestId, e);
+            throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
         }
@@ -107,6 +108,7 @@ public class NsiMetaServiceImpl implements NsiMetaService {
             log.info("checkoutNewConfig [{}, {}] -> ok", requestId, from);
         } catch (Exception e) {
             log.error("checkoutNewConfig [{},{}] -> error", requestId, e);
+            throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
         }
