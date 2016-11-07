@@ -85,7 +85,7 @@ public interface MetaDictBuilder {
 
     MetaDictBuilder addInterceptor(String value);
 
-    MetaDictBuilder addLabel(String value);
+    MetaDictBuilder label(String value);
 
     MetaDictBuilder addOwn(String key, String value);
 

@@ -91,6 +91,9 @@ public class MetaDict extends MetaDictRef {
      */
     protected List<String> interceptors;
 
+    /**
+     * Список меток для фильтрации метаданных
+     * */
     protected List<String> labels;
     /**
      * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.

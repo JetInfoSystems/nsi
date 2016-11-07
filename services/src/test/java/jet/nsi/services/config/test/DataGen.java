@@ -250,10 +250,10 @@ public class DataGen {
         .lastUserAttr("last_user")
         .addRefObjectAttr("attr1")
         .addTableObjectAttr("attr1")
-        .addLabel("event")
-        .addLabel("refdata")
-        .addLabel("aggregate")
-        .addLabel("traindata")
+        .label("event")
+        .label("refdata")
+        .label("aggregate")
+        .label("traindata")
         ;
     }
 }

@@ -1,11 +1,14 @@
 package jet.nsi.services;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
+import com.google.common.base.Preconditions;
 
 import jet.metrics.api.Metrics;
 import jet.metrics.api.MetricsDomain;
@@ -57,7 +60,11 @@ public class NsiMetaServiceImpl implements NsiMetaService {
     public Collection<NsiConfigDict> metaDictList(String requestId, Collection<String> labels) {
         final Timer.Context t = metaDictListTimer.time();
         try {
-            Collection<NsiConfigDict> dicts = configManager.getConfig().getDicts(labels);
+            Preconditions.checkNotNull(labels);
+            
+            Set<String> labelsSet = new HashSet<>();
+            labelsSet.addAll(labels);
+            Collection<NsiConfigDict> dicts = configManager.getConfig().getDicts(labelsSet);
             log.info("metaDictList [{}, {}] -> ok [{}]", requestId, labels, dicts.size());
             return dicts;
         } catch(Exception e) {

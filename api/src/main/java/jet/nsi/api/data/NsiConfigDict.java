@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.base.Preconditions;
@@ -42,7 +43,7 @@ public class NsiConfigDict {
     private NsiConfigDict mainDict;
 
     private List<String> interceptors = new ArrayList<>();
-    private List<String> labels;
+    private Set<String> labels;
 
     private Map<String, NsiConfigAttr> attrNameMap = new TreeMap<>();
     private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
@@ -268,11 +269,11 @@ public class NsiConfigDict {
         this.interceptors = interceptors;
     }
     
-    public List<String> getLabels() {
+    public Set<String> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<String> labels) {
+    public void setLabels(Set<String> labels) {
         this.labels = labels;
     }
 

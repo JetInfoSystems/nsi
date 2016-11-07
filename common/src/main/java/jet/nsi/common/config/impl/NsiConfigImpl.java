@@ -365,8 +365,8 @@ public class NsiConfigImpl implements NsiConfig {
         return result;
     }
     
-    private List<String> createLabels(List<String> labels) {
-       List<String> result = new ArrayList<>();
+    private Set<String> createLabels(List<String> labels) {
+       Set<String> result = new TreeSet<>();
         if(labels != null) {
             result.addAll(labels);
         }
@@ -647,15 +647,12 @@ public class NsiConfigImpl implements NsiConfig {
         return dictMap.values();
     }
     @Override
-    public Collection<NsiConfigDict> getDicts(Collection<String> labels) {
+    public Collection<NsiConfigDict> getDicts(Set<String> labels) {
         Preconditions.checkNotNull(labels, "labels must be not null");
         
-        Collection<NsiConfigDict> result = new ArrayList<>();
-        Set<String> labelsSet = new HashSet<>();
-        labelsSet.addAll(labels);
-        
+        Set<NsiConfigDict> result = new HashSet<>();
         for(NsiConfigDict dict : dictMap.values()) {
-            for (String label : labelsSet) {
+            for (String label : labels) {
                 if (dict.getLabels().contains(label)) {
                     result.add(dict);
                 }
@@ -669,14 +666,12 @@ public class NsiConfigImpl implements NsiConfig {
         return metaDictMap.values();
     }
     @Override
-    public Collection<MetaDict> getMetaDicts(Collection<String> labels) {
+    public Collection<MetaDict> getMetaDicts(Set<String> labels) {
         Preconditions.checkNotNull(labels, "labels must be not null");
         
-        Collection<MetaDict> result = new ArrayList<>();
-        Set<String> labelsSet = new HashSet<>();
-        labelsSet.addAll(labels);
+        Set<MetaDict> result = new HashSet<>();
         for(MetaDict dict : metaDictMap.values()) {
-            for (String label : labelsSet) {
+            for (String label : labels) {
                 if (dict.getLabels().contains(label)) {
                     result.add(dict);
                 }
