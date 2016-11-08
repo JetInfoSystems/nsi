@@ -18,147 +18,150 @@ public class MetaDict extends MetaDictRef {
     /**
      * Уникальное имя справочника.
      */
-    private String name;
+    protected String name;
 
     /**
      * Заголовок справочника.
      */
-    private String caption;
+    protected String caption;
     /**
      * Имя таблицы для хранения данных.
      */
-    private String table;
+    protected String table;
     /**
      * Список полей таблицы.
      */
-    private Collection<MetaField> fields;
+    protected Collection<MetaField> fields;
     /**
      * Список атрибутов справочника.
      */
-    private Collection<MetaAttr> attrs;
+    protected Collection<MetaAttr> attrs;
     /**
      * атрибут кторый представляет ид.
      */
-    private String idAttr;
+    protected String idAttr;
     /**
      * атрибут который представляет ссылку на родителя в иерархии.
      */
-    private String parentAttr;
+    protected String parentAttr;
     /**
      * атрибут который представляет является ли запись группой.
      */
-    private String isGroupAttr;
+    protected String isGroupAttr;
     /**
      * атрибут который представляет ссылку на запись родительского справочника.
      */
-    private String ownerAttr;
+    protected String ownerAttr;
     /**
      * атрибут который представляет пометку о удалении.
      */
-    private String deleteMarkAttr;
+    protected String deleteMarkAttr;
     /**
      * атрибут который представляет дату время последней модификации.
      */
-    private String lastChangeAttr;
+    protected String lastChangeAttr;
     /**
      * атрибут который представляет уникальный идентификатор пользователя последний раз менявшего запись.
      */
-    private String lastUserAttr;
+    protected String lastUserAttr;
     /**
      * атрибут уникально идентифицирующий запись среди неудалённых.
      */
-    private List<String> uniqueAttr;
+    protected List<String> uniqueAttr;
     /**
      * Список наименований атрибутов кторые используются для текстового представления записи.
      */
-    private List<String> captionAttrs;
+    protected List<String> captionAttrs;
     /**
      * Список наименований атрибутов кторые используются для короткого представления записи.
      */
-    private List<String> refObjectAttrs;
+    protected List<String> refObjectAttrs;
     /**
      * Список наименований атрибутов которые используются в задачах загрузки
      * данных
      */
-    private List<String> loadDataAttrs;
+    protected List<String> loadDataAttrs;
     /**
      * Список наименований атрибутов кторые используются для табличного
      * представления записи.
      */
-    private List<String> tableObjectAttrs;
+    protected List<String> tableObjectAttrs;
     /**
      * Список интерсепторов, которые должны выполняться при создании, сохранении или удалении записи
      */
-    private List<String> interceptors;
+    protected List<String> interceptors;
 
-    private List<String> labels;
+    /**
+     * Список меток для фильтрации метаданных
+     * */
+    protected List<String> labels;
     /**
      * Флаг определяет скрытый словарь или нет. В админке справочников отображаются только нескрытые словари.
      */
-    private Boolean hidden;
+    protected Boolean hidden;
 
     /**
      * Список наименований атрибутов кторые используются для мерджа данных, поступивших из внешней системы
      * 
      */
-    private List<String> mergeExternalAttrs;
+    protected List<String> mergeExternalAttrs;
     
     /**
      * Именованные запросы
      */
-    private Map<String, MetaSourceQuery> sourceQueries;
+    protected Map<String, MetaSourceQuery> sourceQueries;
 
     /**
      * Принадлежности
      */
-    private Map<String, MetaOwn> owns;
+    protected Map<String, MetaOwn> owns;
 
     /**
      * Показывает что сущность не самостоятельна и отображается на заданную.
      * Этот атрибут позволяет через view делать операции изменения данных.
      * При этом учитываются только те атрибуты кторые есть в @mainDict
      */
-    private String mainDict;
+    protected String mainDict;
 
     /**
      * Атрибут для представления версии
      */
-    private String versionAttr;
+    protected String versionAttr;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения версии
      */
-    private boolean autoVersion = true;
+    protected boolean autoVersion = true;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения отметки о удалении
      */
-    private boolean autoDeleteMarkAttr = false;
+    protected boolean autoDeleteMarkAttr = false;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения идентификатора
      */
-    private boolean autoIdAttr = false;
+    protected boolean autoIdAttr = false;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения отметки о том что запись является группой
      */
-    private boolean autoIsGroupAttr = false;
+    protected boolean autoIsGroupAttr = false;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения ссылки на родителя
      */
-    private boolean autoParentAttr = false;
+    protected boolean autoParentAttr = false;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения времени модификации
      */
-    private boolean autoLastChangeAttr = false;
+    protected boolean autoLastChangeAttr = false;
     
     /**
      * Автоматическое генерирование поля и атрибута для хранения ид пользователя сделавшего последнии изменения
      */
-    private boolean autoLastUserAttr = false;
+    protected boolean autoLastUserAttr = false;
     
     public String getName() {
         return name;

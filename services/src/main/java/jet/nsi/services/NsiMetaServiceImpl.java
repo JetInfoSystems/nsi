@@ -1,11 +1,14 @@
 package jet.nsi.services;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
+import com.google.common.base.Preconditions;
 
 import jet.metrics.api.Metrics;
 import jet.metrics.api.MetricsDomain;
@@ -21,10 +24,14 @@ public class NsiMetaServiceImpl implements NsiMetaService {
     private static final Logger log = LoggerFactory.getLogger(NsiMetaServiceImpl.class);
     private final Timer metaDictListTimer;
     private final Timer metaDictGetTimer;
+    private final Timer reloadConfigTimer;
+    private final Timer copyConfigTimer;
 
     public NsiMetaServiceImpl(Metrics metrics) {
         metaDictListTimer = metrics.timer(getClass(), "metaDictList");
         metaDictGetTimer = metrics.timer(getClass(), "metaDictGet");
+        reloadConfigTimer = metrics.timer(getClass(), "reloadConfigTimer");
+        copyConfigTimer = metrics.timer(getClass(), "copyConfigTimer");
     }
 
     private NsiConfigManager configManager;
@@ -53,7 +60,11 @@ public class NsiMetaServiceImpl implements NsiMetaService {
     public Collection<NsiConfigDict> metaDictList(String requestId, Collection<String> labels) {
         final Timer.Context t = metaDictListTimer.time();
         try {
-            Collection<NsiConfigDict> dicts = configManager.getConfig().getDicts(labels);
+            Preconditions.checkNotNull(labels);
+            
+            Set<String> labelsSet = new HashSet<>();
+            labelsSet.addAll(labels);
+            Collection<NsiConfigDict> dicts = configManager.getConfig().getDicts(labelsSet);
             log.info("metaDictList [{}, {}] -> ok [{}]", requestId, labels, dicts.size());
             return dicts;
         } catch(Exception e) {
@@ -79,11 +90,42 @@ public class NsiMetaServiceImpl implements NsiMetaService {
             t.stop();
         }
     }
+    
+    @Override
+    public NsiConfig reloadConfig(String requestId) {
+        final Timer.Context t = reloadConfigTimer.time();
+        try {
+            configManager.reloadConfig();
+            log.info("reloadConfig[{}] -> ok", requestId);
+        } catch (Exception e) {
+            log.error("reloadConfig [{},{}] -> error", requestId, e);
+            throw new NsiServiceException(e.getMessage());
+        } finally {
+            t.stop();
+        }
+        
+        return configManager.getConfig();
+    }
+    
+    @Override
+    public void checkoutNewConfig(String requestId, String from) {
+        final Timer.Context t = copyConfigTimer.time();
+        try {
+            configManager.checkoutNewConfig(from);
+            log.info("checkoutNewConfig [{}, {}] -> ok", requestId, from);
+        } catch (Exception e) {
+            log.error("checkoutNewConfig [{},{}] -> error", requestId, e);
+            throw new NsiServiceException(e.getMessage());
+        } finally {
+            t.stop();
+        }
+    }
 
     @Override
     public NsiConfig getConfig() {
         return configManager.getConfig();
     }
 
+    
 
 }

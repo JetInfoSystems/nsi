@@ -94,7 +94,9 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     public MetaDict metaDictSet(String requestId, MetaDict metaDict) {
         final Timer.Context t = metaDictSetTimer.time();
         try {
-            configManager.writeConfigFile(metaDict);
+            Preconditions.checkNotNull(metaDict);
+            
+            configManager.createOrUpdateConfig(metaDict);
             log.info("metaDictSet [{},{}] -> ok", requestId, metaDict.getName());
             return metaDict;
         } catch (Exception e) {

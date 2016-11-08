@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 import jet.nsi.api.data.NsiConfig;
@@ -34,14 +35,27 @@ public class NsiConfigImpl implements NsiConfig {
 
     private static final CharMatcher NAME_MATCHER = CharMatcher.JAVA_LETTER_OR_DIGIT.or(new OneCharMatcher('_'));
 
-    private Map<String,NsiConfigDict> dictMap = new TreeMap<>();
+    private Map<String, NsiConfigDict> dictMap = new ConcurrentSkipListMap<>();
     
-    private Map<String, MetaDict> metaDictMap = new TreeMap<>();
+    private Map<String, MetaDict> metaDictMap = new ConcurrentSkipListMap<>();
 
     private final NsiConfigParams params;
 
     public NsiConfigImpl(NsiConfigParams params) {
         this.params = params;
+    }
+
+    public void removeDict(String dictName) {
+        dictMap.remove(dictName);
+        metaDictMap.remove(dictName);
+    }
+
+    public void updateDict(MetaDict metaDict) {
+        if (dictMap.containsKey(metaDict.getName())) {
+            //add dict does many checks, so it is easy way
+            removeDict(metaDict.getName());
+        }
+        addDict(metaDict);
     }
 
     public void addDict(MetaDict metaDict) {
@@ -351,8 +365,8 @@ public class NsiConfigImpl implements NsiConfig {
         return result;
     }
     
-    private List<String> createLabels(List<String> labels) {
-       List<String> result = new ArrayList<>();
+    private Set<String> createLabels(List<String> labels) {
+       Set<String> result = new TreeSet<>();
         if(labels != null) {
             result.addAll(labels);
         }
@@ -423,6 +437,11 @@ public class NsiConfigImpl implements NsiConfig {
             }
         }
     }
+
+    private void throwDictException(String dictName, String message ) {
+        throw new NsiConfigException(Joiner.on(": ").join(message,dictName));
+    }
+
     private void throwDictException(NsiConfigDict dict, String message ) {
         throw new NsiConfigException(Joiner.on(": ").join(message,dict.getName()));
     }
@@ -628,13 +647,12 @@ public class NsiConfigImpl implements NsiConfig {
         return dictMap.values();
     }
     @Override
-    public Collection<NsiConfigDict> getDicts(Collection<String> labels) {
-        Collection<NsiConfigDict> result = new ArrayList<>();
-        Set<String> labelsSet = new HashSet<>();
-        labelsSet.addAll(labels);
+    public Collection<NsiConfigDict> getDicts(Set<String> labels) {
+        Preconditions.checkNotNull(labels, "labels must be not null");
         
+        Set<NsiConfigDict> result = new HashSet<>();
         for(NsiConfigDict dict : dictMap.values()) {
-            for (String label : labelsSet) {
+            for (String label : labels) {
                 if (dict.getLabels().contains(label)) {
                     result.add(dict);
                 }
@@ -648,12 +666,12 @@ public class NsiConfigImpl implements NsiConfig {
         return metaDictMap.values();
     }
     @Override
-    public Collection<MetaDict> getMetaDicts(Collection<String> labels) {
-        Collection<MetaDict> result = new ArrayList<>();
-        Set<String> labelsSet = new HashSet<>();
-        labelsSet.addAll(labels);
+    public Collection<MetaDict> getMetaDicts(Set<String> labels) {
+        Preconditions.checkNotNull(labels, "labels must be not null");
+        
+        Set<MetaDict> result = new HashSet<>();
         for(MetaDict dict : metaDictMap.values()) {
-            for (String label : labelsSet) {
+            for (String label : labels) {
                 if (dict.getLabels().contains(label)) {
                     result.add(dict);
                 }
