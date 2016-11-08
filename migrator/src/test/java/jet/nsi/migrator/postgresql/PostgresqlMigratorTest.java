@@ -4,14 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
+
 import java.util.Properties;
 
-import org.joda.time.DateTime;
 import org.jooq.exception.DataAccessException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
@@ -21,10 +18,9 @@ import jet.nsi.migrator.Migrator;
 import jet.nsi.migrator.MigratorParams;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
-import jet.nsi.migrator.platform.oracle.OracleFtsModule;
-import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 import junit.framework.Assert;
 
 public class PostgresqlMigratorTest extends BaseSqlTest{
@@ -36,7 +32,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     //private PostgresqlFtsModule ftsModule;
 
     public PostgresqlMigratorTest() {
-        super(DB_IDENT);
+        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
     
     @Override

@@ -28,6 +28,7 @@ import org.jooq.UpdateSetFirstStep;
 import org.jooq.UpdateSetMoreStep;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import jet.nsi.api.data.NsiConfigAttr;
 import jet.nsi.api.data.NsiConfigDict;
@@ -108,19 +109,15 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected Condition getIdCondition(NsiQuery query, SelectJoinStep<?> baseQueryPart) {
-        return getIdCondition(query);
+        return getIdCondition(query, NsiQuery.MAIN_ALIAS);
     }
 
-    protected Condition getIdCondition(NsiQuery query) {
+    protected Condition getIdCondition(NsiQuery query, String alias) {
         NsiConfigDict dict = query.getDict();
 
-        Condition result = field(NsiQuery.MAIN_ALIAS + "." 
+        Condition result = field( (Strings.isNullOrEmpty(alias) ? "" : alias + ".")
                 + dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
-        /*
-        for ( NsiConfigField field : idAttr.getFields()) {
-            result.and(field(NsiQuery.MAIN_ALIAS + "." + field.getName()).equal(val(null)));
-        }
-        */
+
         return result;
     }
 
@@ -241,7 +238,7 @@ public class DefaultSqlGen implements SqlGen {
              }
         }
         if(updateSetMoreStep != null) {
-            Condition condition = field(dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
+            Condition condition = getIdCondition(query, "");
             return updateSetMoreStep.where(condition).getSQL();
         } else {
             throw new NsiDataException("no attrs found");
@@ -278,7 +275,7 @@ public class DefaultSqlGen implements SqlGen {
         if( size != -1 ) {
             return platformSqlGen.limit(baseQuery, offset, size).getSQL();
         } else {
-            return baseQuery.getSQL();    
+            return baseQuery.getSQL();
         }
         
     }

@@ -6,9 +6,10 @@ import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-public class DaoUtils {
+public class OraclePlatformDaoUtils implements PlatformDaoUtils {
 
-    public static DataSource createDataSource(String name, Properties properties) {
+    @Override
+    public DataSource createDataSource(String name, Properties properties) {
         BoneCPDataSource dataSource = new BoneCPDataSource();
         dataSource.setDriverClass("oracle.jdbc.driver.OracleDriver");
         dataSource.setJdbcUrl(properties.getProperty("db." + name + ".url"));

@@ -25,6 +25,7 @@ import jet.nsi.migrator.platform.oracle.OracleFtsModule;
 import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 import junit.framework.Assert;
 
 public class PostgresqlMigratorToolsTest extends BaseSqlTest{
@@ -36,7 +37,7 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     //private PostgresqlFtsModule ftsModule;
 
     public PostgresqlMigratorToolsTest() {
-        super(DB_IDENT);
+        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
     
     @Override

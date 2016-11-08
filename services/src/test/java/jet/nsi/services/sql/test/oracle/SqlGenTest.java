@@ -13,6 +13,7 @@ import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
 import junit.framework.Assert;
 
 public class SqlGenTest extends BaseSqlTest {
@@ -22,7 +23,7 @@ public class SqlGenTest extends BaseSqlTest {
     private PlatformMigrator platformMigrator;
 
     public SqlGenTest() {
-        super(DB_IDENT);
+        super(DB_IDENT, new OraclePlatformDaoUtils());
     }
     
     @Override
@@ -228,9 +229,9 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
-                "update table2 m "
-                        + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ?, m.VERSION = ? "
-                        + "where m.id = ?", sql);
+                "update table2 "
+                        + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ?, VERSION = ? "
+                        + "where id = ?", sql);
     }
 
     @Test
@@ -240,9 +241,9 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
-                "update table2 m "
-                        + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ? "
-                        + "where m.id = ?", sql);
+                "update table2 "
+                        + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ? "
+                        + "where id = ?", sql);
     }
 
     @Test

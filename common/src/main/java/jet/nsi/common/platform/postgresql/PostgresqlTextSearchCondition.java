@@ -1,8 +1,6 @@
 package jet.nsi.common.platform.postgresql;
 
-import org.jooq.BindContext;
 import org.jooq.Condition;
-import org.jooq.Context;
 import org.jooq.Field;
 import org.jooq.RenderContext;
 import org.jooq.impl.CustomCondition;
@@ -21,12 +19,7 @@ public class PostgresqlTextSearchCondition<T> extends CustomCondition implements
     }
 
     @Override
-    public void accept(Context<?> ctx) {
-        if (ctx instanceof RenderContext) {
-            ctx.sql("catsearch(").visit(field).sql(", ?, '') > 0");
-        } else {
-            bind((BindContext) ctx);
-        }
-        ctx.visit(this);
+    public void toSQL(RenderContext context) {
+        context.sql("to_tsvector(").visit(field).sql(") @@ to_tsquery(?)");
     }
 }

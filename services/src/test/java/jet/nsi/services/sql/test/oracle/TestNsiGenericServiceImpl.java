@@ -23,6 +23,7 @@ import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.services.NsiGenericServiceImpl;
 import jet.nsi.services.NsiTransactionServiceImpl;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
 
 public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
@@ -34,7 +35,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     private PlatformMigrator platformMigrator;
 
     public TestNsiGenericServiceImpl() {
-        super(DB_IDENT);
+        super(DB_IDENT, new OraclePlatformDaoUtils());
     }
 
     @Override

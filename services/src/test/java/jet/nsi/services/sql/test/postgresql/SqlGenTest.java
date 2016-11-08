@@ -2,6 +2,7 @@ package jet.nsi.services.sql.test.postgresql;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jet.nsi.api.data.NsiConfig;
@@ -13,6 +14,7 @@ import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 import junit.framework.Assert;
 
 public class SqlGenTest extends BaseSqlTest {
@@ -23,7 +25,7 @@ public class SqlGenTest extends BaseSqlTest {
     private PlatformMigrator platformMigrator;
     
     public SqlGenTest() {
-        super(DB_IDENT);
+        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
 
     @Override
@@ -150,29 +152,6 @@ public class SqlGenTest extends BaseSqlTest {
                         " where m.f1 is not null", sql);
     }
 
-    /*
-     * @Test public void testDict2ListSql() { NsiConfigDict dict =
-     * config.getDict("dict1"); NsiQuery query = new NsiQuery(dict).addAttrs();
-     * BoolExp filter = new BoolExp(); filter.setFunc("or");
-     *
-     * BoolExp e1 = new BoolExp(); e1.setFunc("="); e1.setKey("f1");
-     *
-     * BoolExp e2 = new BoolExp(); e2.setFunc("="); e2.setKey("f1");
-     *
-     * List<BoolExp> expList = new ArrayList<BoolExp>() ; expList.add(e1);
-     * expList.add(e2); filter.setExpList(expList );
-     *
-     * List<SortExp> sortList = new ArrayList<>();
-     * sortList.add(buildSortExp("id",true));
-     * sortList.add(buildSortExp("last_user",true));
-     *
-     * String sql = sqlGen.getListSql(query, filter ,sortList, 1, 2 );
-     * Assert.assertEquals(
-     * "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user " +
-     * "from table1 m " + "where (m.f1 = ? or m.f1 = ?)" +
-     * "order by m.id asc, m.last_user asc limit ?", sql); }
-     */
-
     @Test
     public void testDict1CountSql() {
         NsiConfigDict dict = config.getDict("dict1");
@@ -238,9 +217,9 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
-                "update table2 m "
-                        + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ? "
-                        + "where m.id = ?", sql);
+                "update table2 "
+                        + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ? "
+                        + "where id = ?", sql);
     }
 
     @Test
@@ -252,7 +231,9 @@ public class SqlGenTest extends BaseSqlTest {
                 .build();
         String sql = sqlGen.getListSql(query, filter, null, -1, -1);
         Assert.assertEquals(
-                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m where catsearch(m.f1, ?, '') > 0", sql);
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION " +
+                    "from table1 m " +
+                    "where to_tsvector(m.f1) @@ to_tsquery(?)", sql);
     }
     
     @Test

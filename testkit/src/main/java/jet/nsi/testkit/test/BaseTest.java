@@ -8,7 +8,7 @@ import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class BaseTest extends BaseSqlTest {
+public abstract class BaseTest extends BaseSqlTest {
 
     public static DateTimeFormatter BASE_DATE_FORMATTER = DateTimeFormat.forPattern("DD.MM.YYYY");
 

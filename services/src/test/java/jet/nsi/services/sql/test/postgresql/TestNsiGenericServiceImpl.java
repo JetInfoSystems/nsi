@@ -7,6 +7,7 @@ import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.services.NsiGenericServiceImpl;
 import jet.nsi.services.NsiTransactionServiceImpl;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 
 public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
@@ -18,7 +19,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     private PlatformMigrator platformMigrator;
 
     public TestNsiGenericServiceImpl() {
-        super(DB_IDENT);
+        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
     
     @Override

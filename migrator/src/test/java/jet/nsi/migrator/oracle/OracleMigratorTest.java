@@ -22,6 +22,7 @@ import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.oracle.OracleFtsModule;
 import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
+import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
 import junit.framework.Assert;
 
 public class OracleMigratorTest extends BaseSqlTest{
@@ -32,7 +33,7 @@ public class OracleMigratorTest extends BaseSqlTest{
     private OracleFtsModule ftsModule;
     
     public OracleMigratorTest() {
-        super(DB_IDENT);
+        super(DB_IDENT, new OraclePlatformDaoUtils());
     }
 
     @Override

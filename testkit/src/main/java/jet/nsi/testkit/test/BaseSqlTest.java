@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.sql.DataSource;
+
 import org.jooq.DeleteWhereStep;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -43,11 +45,14 @@ import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.common.data.DictDependencyGraph;
 import jet.nsi.common.sql.DefaultSqlDao;
 import jet.nsi.common.sql.DefaultSqlGen;
-import jet.nsi.testkit.utils.DaoUtils;
+import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
+import jet.nsi.testkit.utils.PlatformDaoUtils;
 
 
-public class BaseSqlTest {
+public abstract class BaseSqlTest {
 
+    protected final PlatformDaoUtils daoUtils;
+    
     protected DataSource dataSource;
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
@@ -61,12 +66,15 @@ public class BaseSqlTest {
     protected String metadataPath;
     protected String dbIdent;
     
+
+    
     protected BaseSqlTest() {
-        this("nsi");
+        this("nsi", new OraclePlatformDaoUtils());
     }
     
-    protected BaseSqlTest(String dbIdent) {
+    protected BaseSqlTest(String dbIdent, PlatformDaoUtils daoUtils) {
         this.dbIdent = dbIdent;
+        this.daoUtils = daoUtils;
     }
     
     @Before
@@ -81,7 +89,7 @@ public class BaseSqlTest {
             properties.load(reader);
         }
         
-        dataSource = DaoUtils.createDataSource(dbIdent, properties);
+        dataSource = daoUtils.createDataSource(dbIdent, properties);
         sqlGen = new DefaultSqlGen();
         platformSqlGen = platform.getPlatformSqlGen();
         sqlGen.setPlatformSqlGen(platformSqlGen);
