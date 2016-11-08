@@ -17,6 +17,10 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     private NsiTransactionServiceImpl transactionService;
     private PlatformMigrator platformMigrator;
 
+    public TestNsiGenericServiceImpl() {
+        super(DB_IDENT);
+    }
+    
     @Override
     public void setup() throws Exception {
         platformMigrator = new PostgresqlPlatformMigrator();

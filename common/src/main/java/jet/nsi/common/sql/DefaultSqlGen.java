@@ -229,19 +229,19 @@ public class DefaultSqlGen implements SqlGen {
     public String getRowUpdateSql(NsiQuery query) {
         NsiConfigDict dict = query.getDict();
         UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
-                .update(table(dict.getTable()).as(NsiQuery.MAIN_ALIAS));
+                .update(table(dict.getTable()));
         UpdateSetMoreStep<?> updateSetMoreStep = null;
         for (NsiQueryAttr queryAttr : query.getAttrs()) {
             NsiConfigAttr attr = queryAttr.getAttr();
              if(attr != query.getDict().getIdAttr()) {
                 for (NsiConfigField field : attr.getFields()) {
                     updateSetMoreStep  = updateSetFirstStep.set(
-                        field(queryAttr.getAlias() + "." + field.getName(),String.class),val(""));
+                        field(field.getName(),String.class),val(""));
                 }
              }
         }
         if(updateSetMoreStep != null) {
-            Condition condition = getIdCondition(query);
+            Condition condition = field(dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
             return updateSetMoreStep.where(condition).getSQL();
         } else {
             throw new NsiDataException("no attrs found");

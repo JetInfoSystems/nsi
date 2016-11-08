@@ -21,6 +21,10 @@ public class SqlGenTest extends BaseSqlTest {
 
     private NsiConfig config;
     private PlatformMigrator platformMigrator;
+    
+    public SqlGenTest() {
+        super(DB_IDENT);
+    }
 
     @Override
     public void setup() throws Exception {
@@ -90,10 +94,9 @@ public class SqlGenTest extends BaseSqlTest {
                     .add(dict.getLastUserAttr())
                     .build(), 1, 2);
         Assert.assertEquals(
-                "select b.* from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where m.f1 = ? order by m.id asc, m.last_user asc" +
-                        ") a where ROWNUM < ?) b where rnum >= ?", sql);
+                        " limit ? offset ?", sql);
     }
 
     @Test
@@ -113,10 +116,9 @@ public class SqlGenTest extends BaseSqlTest {
                 .add(dict.getLastUserAttr())
                 .build(), 1, 2);
         Assert.assertEquals(
-                "select b.* from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where (m.f1 = ? and m.is_deleted = ?) order by m.id asc, m.last_user asc" +
-                        ") a where ROWNUM < ?) b where rnum >= ?", sql);
+                        " limit ? offset ?", sql);
     }
 
     @Test
@@ -132,10 +134,9 @@ public class SqlGenTest extends BaseSqlTest {
                     .add(dict.getLastUserAttr())
                     .build(), 1, 2);
         Assert.assertEquals(
-                "select b.* from (select a.*, ROWNUM rnum from (" +
-                        "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
+                "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION from table1 m" +
                         " where lower(m.f1) like lower(?) order by m.id asc, m.last_user asc" +
-                        ") a where ROWNUM < ?) b where rnum >= ?", sql);
+                        " limit ? offset ?", sql);
     }
 
     @Test
@@ -225,9 +226,9 @@ public class SqlGenTest extends BaseSqlTest {
 
         String sql = sqlGen.getRowUpdateSql(query);
         Assert.assertEquals(
-                "update table2 m "
-                        + "set m.dict1_id = ?, m.f1 = ?, m.is_deleted = ?, m.last_change = ?, m.last_user = ?, m.VERSION = ? "
-                        + "where m.id = ?", sql);
+                "update table2 "
+                        + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ?, VERSION = ? "
+                        + "where id = ?", sql);
     }
 
     @Test
