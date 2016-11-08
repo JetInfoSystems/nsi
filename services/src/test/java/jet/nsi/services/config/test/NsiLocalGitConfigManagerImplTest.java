@@ -1,6 +1,7 @@
 package jet.nsi.services.config.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 import org.junit.Test;
@@ -60,9 +61,22 @@ public class NsiLocalGitConfigManagerImplTest {
         File testFile = new File("src/test/resources/metadata1/empty/writeDict.yaml");
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1/empty");
         configManager.getConfig();
+        int i0 = configManager.getConfig().getDicts().size();
         MetaDict o1 = DataGen.genMetaDict("writeDict","writeTestTable").build();
         configManager.writeConfigFile(o1);
         MetaDict o2 = configManager.readConfigFile(testFile);
+        DataUtils.assertEqualAllOptionals(o1, o2);
+        //It's added exactly ones
+        int i1 = configManager.getConfig().getDicts().size();
+        Assert.assertEquals(i0+1,i1);
+
+        //Check if it updates Correct
+        o1.setCaption("New caption Проверка русского языка");
+        configManager.writeConfigFile(o1);
+        //It's updated and not duplicates
+        i1 = configManager.getConfig().getDicts().size();
+        Assert.assertEquals(i0+1,i1);
+        o2 = configManager.readConfigFile(testFile);
         DataUtils.assertEqualAllOptionals(o1, o2);
         /*delete test file to prevent configManager to read it next time*/
         testFile.delete();
