@@ -174,4 +174,17 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
             return val;
         }
     }
+
+    @Override
+    public int limit(PreparedStatement ps, int index, long offset, int size) throws SQLException {
+        if (size != -1){
+            if(offset != -1) {
+                ps.setLong(index++, offset+size+1);
+                ps.setLong(index++, offset+1);
+            } else {
+                ps.setLong(index++, size);
+            }
+        }
+        return index;
+    }
 }

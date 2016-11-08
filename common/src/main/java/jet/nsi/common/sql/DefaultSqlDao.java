@@ -266,16 +266,11 @@ public class DefaultSqlDao implements SqlDao {
         // затем параметры для фильтра
         index = setParamsForFilter(query, ps, index, filter);
         // затем ограничение выборки
-        if (size != -1){
-            if(offset != -1) {
-                ps.setLong(index++, offset+size+1);
-                ps.setLong(index++, offset+1);
-            } else {
-                ps.setLong(index++, size);
-            }
-        }
+        index = platformSqlDao.limit(ps, index, offset, size);
+
         return index;
     }
+
 
     protected int setParamsForSourceQuery(NsiQuery query, PreparedStatement ps,
             int index, String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) throws SQLException {

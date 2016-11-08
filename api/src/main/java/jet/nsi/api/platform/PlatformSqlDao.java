@@ -32,5 +32,6 @@ public interface PlatformSqlDao {
     void executeSql(Connection connection, String sql);
 
     String wrapFilterFieldValue(BoolExp filter, NsiConfigField field, String val);
-    
+
+    int limit(PreparedStatement ps, int index, long offset, int size) throws SQLException;
 }
