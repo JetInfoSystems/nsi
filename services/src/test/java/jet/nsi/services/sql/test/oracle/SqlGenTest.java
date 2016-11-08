@@ -21,6 +21,10 @@ public class SqlGenTest extends BaseSqlTest {
     private NsiConfig config;
     private PlatformMigrator platformMigrator;
 
+    public SqlGenTest() {
+        super(DB_IDENT);
+    }
+    
     @Override
     public void setup() throws Exception {
         platformMigrator = new OraclePlatformMigrator();

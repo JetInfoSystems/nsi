@@ -42,6 +42,10 @@ public class SqlDaoTest extends BaseSqlTest {
     
     protected PlatformMigrator platformMigrator;
     
+    public SqlDaoTest() {
+        super(DB_IDENT);
+    }
+    
     @Override
     public void setup() throws Exception {
         platformMigrator = new OraclePlatformMigrator();
