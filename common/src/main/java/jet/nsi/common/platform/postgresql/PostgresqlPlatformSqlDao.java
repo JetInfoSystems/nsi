@@ -1,6 +1,8 @@
 package jet.nsi.common.platform.postgresql;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.jooq.DSLContext;
 import org.jooq.DataType;
@@ -71,6 +73,19 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
     @Override
     public DSLContext getQueryBuilder(Connection connection) {
         return DSL.using(connection,SQLDialect.POSTGRES_9_5,settings);
+    }
+
+    @Override
+    public int limit(PreparedStatement ps, int index, long offset, int size) throws SQLException {
+        if (size != -1){
+            if(offset != -1) {
+                ps.setLong(index++, size);
+                ps.setLong(index++, offset);
+            } else {
+                ps.setLong(index++, size);
+            }
+        }
+        return index;
     }
 
 }
