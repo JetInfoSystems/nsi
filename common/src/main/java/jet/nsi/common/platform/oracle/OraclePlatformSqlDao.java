@@ -1,5 +1,8 @@
 package jet.nsi.common.platform.oracle;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DefaultDataType;
@@ -64,4 +67,17 @@ public class OraclePlatformSqlDao extends DefaultPlatformSqlDao {
         return value.replaceAll("[\"(),]", "");
     }
 
+    
+    @Override
+    public int limit(PreparedStatement ps, int index, long offset, int size) throws SQLException {
+        if (size != -1){
+            if(offset != -1) {
+                ps.setLong(index++, offset+size+1);
+                ps.setLong(index++, offset+1);
+            } else {
+                ps.setLong(index++, size);
+            }
+        }
+        return index;
+    }
 }

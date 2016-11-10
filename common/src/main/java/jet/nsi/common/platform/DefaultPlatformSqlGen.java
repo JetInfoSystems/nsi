@@ -3,12 +3,13 @@ package jet.nsi.common.platform;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.val;
 
+
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Query;
-import org.jooq.SQLDialect;
 import org.jooq.SelectJoinStep;
+import org.jooq.RenderContext.CastMode;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
@@ -19,8 +20,9 @@ import jet.nsi.api.model.OperationType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlGen;
 import jet.nsi.common.data.NsiDataException;
+import jet.nsi.common.sql.CustomizedDSL;
 
-public class DefaultPlatformSqlGen implements PlatformSqlGen {
+public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
 
     protected final NsiPlatform nsiPlatform;
     protected final Settings settings;
@@ -32,7 +34,7 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
 
     @Override
     public DSLContext getQueryBuilder() {
-        DSLContext queryBuilder = DSL.using(SQLDialect.DEFAULT,settings );
+        DSLContext queryBuilder = CustomizedDSL.using(nsiPlatform.getJooqSQLDialect(), settings);
         return queryBuilder;
     }
 
@@ -99,5 +101,4 @@ public class DefaultPlatformSqlGen implements PlatformSqlGen {
             return baseQuery;
         }
     }
-
 }

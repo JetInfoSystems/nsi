@@ -46,10 +46,10 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
             type = "char";
             break;
         case DATE_TIME:
-            type = "date";
+            type = "timestamp";
             break;
         case NUMBER:
-            type = "number";
+            type = "numeric";
             break;
         case VARCHAR:
             type = "varchar";
