@@ -20,7 +20,6 @@ import jet.nsi.api.model.OperationType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlGen;
 import jet.nsi.common.data.NsiDataException;
-import jet.nsi.common.sql.CustomizedDSL;
 
 public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
 
@@ -34,7 +33,7 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
 
     @Override
     public DSLContext getQueryBuilder() {
-        DSLContext queryBuilder = CustomizedDSL.using(nsiPlatform.getJooqSQLDialect(), settings);
+        DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);
         return queryBuilder;
     }
 
