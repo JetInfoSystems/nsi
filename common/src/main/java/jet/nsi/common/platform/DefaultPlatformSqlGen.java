@@ -1,6 +1,7 @@
 package jet.nsi.common.platform;
 
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.sequence;
 import static org.jooq.impl.DSL.val;
 
 
@@ -9,7 +10,6 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.SelectJoinStep;
-import org.jooq.RenderContext.CastMode;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
@@ -22,6 +22,9 @@ import jet.nsi.api.platform.PlatformSqlGen;
 import jet.nsi.common.data.NsiDataException;
 
 public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
+    
+    public static final String NEXTVAL = "nextval";
+    public static final String CURRVAL = "currval";
 
     protected final NsiPlatform nsiPlatform;
     protected final Settings settings;
@@ -35,6 +38,11 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
     public DSLContext getQueryBuilder() {
         DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);
         return queryBuilder;
+    }
+    
+    @Override
+    public Settings getJooqSettings() {
+        return settings;
     }
 
     @Override
@@ -98,6 +106,18 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
             }
         } else {
             return baseQuery;
+        }
+    }
+    
+    @Override
+    public Object sequenceFunсtion(String name, String seqFunction) {
+        switch (seqFunction) {
+        case NEXTVAL:
+            return field(sequence(name).nextval());
+        case CURRVAL:
+            return field(sequence(name).currval());
+        default:
+            throw new NsiDataException("Invalid function for using with sequence: " + seqFunction);
         }
     }
 }

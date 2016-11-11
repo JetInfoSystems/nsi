@@ -17,6 +17,7 @@ import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertSetStep;
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.SQLDialect;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectField;
 import org.jooq.SelectJoinStep;
@@ -26,6 +27,7 @@ import org.jooq.SortOrder;
 import org.jooq.Table;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.UpdateSetMoreStep;
+import org.jooq.impl.DSL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -73,7 +75,7 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     protected DSLContext getQueryBuilder() {
-        return platformSqlGen.getQueryBuilder();
+        return DSL.using(SQLDialect.DEFAULT, platformSqlGen.getJooqSettings());
     }
 
     protected SelectJoinStep<?> createBaseQuery(NsiQuery query, boolean includeRefFields) {
@@ -197,7 +199,7 @@ public class DefaultSqlGen implements SqlGen {
                     throw new NsiDataException("use seq possible for id attr with one field only");
                 }
                 // seq
-                insertSetMoreStep = insertSetStep.set(field(idFields.get(0).getName()),sequence( "seq_" + dict.getTable()).nextval());
+                insertSetMoreStep = insertSetStep.set(field(idFields.get(0).getName()), platformSqlGen.sequenceFunсtion("seq_" + dict.getTable(), PlatformSqlGen.NEXTVAL));
             } else {
                 for (NsiConfigField field : attr.getFields()) {
                     insertSetMoreStep = insertSetStep.set(field(field.getName(),String.class),val(""));
