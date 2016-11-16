@@ -356,8 +356,6 @@ public class DefaultSqlDao implements SqlDao {
             try(ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
                     rsToDictRow(query, rs, result, !lock, refAttrsType);
-                } else {
-                    throw new NsiDataException(Joiner.on(" ").join("not foud", id));
                 }
             }
         } catch (Exception e) {
