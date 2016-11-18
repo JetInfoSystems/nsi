@@ -65,7 +65,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
         case CHAR:
             return trimTrailing(rs.getString(index));
         case CLOB:
-            getStringFromClob(rs, index);
+            return getStringFromClob(rs, index);
         default:
             throw new NsiDataException("unsupported field type: " + field.getType());
         }
