@@ -261,6 +261,7 @@ public class SqlDaoTest extends BaseSqlTest {
     }
 
     @Test
+    @Ignore("Must be fixed by AFS-147")
     public void testInsertAndUpdateNoLastChange() throws Exception {
         NsiConfigDict dict = config.getDict("NO_LAST_CHANGE");
         try (Connection connection = dataSource.getConnection()) {
@@ -703,6 +704,7 @@ public class SqlDaoTest extends BaseSqlTest {
     }
 
     @Test
+    @Ignore("Must be fixed by AFS-147")
     public void testMerge() throws SQLException {
         NsiConfigDict dictEmp = config.getDict("EMP_MERGE_TEST");
         NsiConfigDict dictOrg = config.getDict("ORG_MERGE_TEST");
@@ -756,6 +758,7 @@ public class SqlDaoTest extends BaseSqlTest {
     }
     
     @Test
+    @Ignore("Must be fixed by AFS-147")
     public void testUniqueAttr() throws SQLException {
         NsiConfigDict dict = config.getDict("UNIQUE_ATTR_TEST");
         
