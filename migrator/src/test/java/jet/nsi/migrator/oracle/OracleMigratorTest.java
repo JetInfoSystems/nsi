@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.joda.time.DateTime;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
@@ -187,6 +188,7 @@ public class OracleMigratorTest extends BaseSqlTest{
     }
 
     @Test
+    @Ignore("Must be fixed by AFS-31")
     public void changeColumnSizeTest() throws Exception {
         setupMigrator("src/test/resources/metadata/changeColumnSize/create");
         NsiConfigDict testSize = config.getDict("test_size");

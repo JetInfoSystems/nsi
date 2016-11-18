@@ -53,7 +53,7 @@ public class NsiYamlMetaDictWriterImplTest {
             MetaDict o2 = reader.read(stream);
             DataUtils.assertEqualAllOptionals(o1, o2);
         }
-        /* delete test file */
-        //testFile.delete();
+        
+        testFile.delete();
     }
 }

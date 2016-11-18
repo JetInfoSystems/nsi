@@ -67,6 +67,7 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     }
 
     @Test
+    @Ignore("Requiring proper environment (catalog for datafiles on remote server)")
     public void tablespaceTest() throws SQLException {
         String tempName = "t" + DateTime.now().getMillis();
         properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
@@ -80,6 +81,7 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     
     
     @Test
+    @Ignore("Requiring proper environment (catalog for datafiles on remote server)")
     public void userTest() throws SQLException {
         String tempName = "t" + DateTime.now().getMillis();
         properties.put("db."+ DB_IDENT +".tablespace.name", tempName);

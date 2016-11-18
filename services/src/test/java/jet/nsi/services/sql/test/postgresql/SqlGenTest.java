@@ -170,7 +170,7 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
                 "insert into table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID, VERSION) "
-                        + "values (?, seq_table1.nextval, ?, ?, ?, ?, ?, ?)", sql);
+                        + "values (?, nextval('seq_table1'), ?, ?, ?, ?, ?, ?)", sql);
 
     }
 
@@ -194,7 +194,7 @@ public class SqlGenTest extends BaseSqlTest {
         String sql = sqlGen.getRowInsertSql(query, true);
         Assert.assertEquals(
                 "insert into table2 (dict1_id, f1, id, is_deleted, last_change, last_user, VERSION) "
-                        + "values (?, ?, seq_table2.nextval, ?, ?, ?, ?)", sql);
+                        + "values (?, ?, nextval('seq_table2'), ?, ?, ?, ?)", sql);
 
     }
 

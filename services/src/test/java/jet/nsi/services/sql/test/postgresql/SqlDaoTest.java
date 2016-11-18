@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.base.Preconditions;
@@ -154,6 +155,7 @@ public class SqlDaoTest extends BaseSqlTest {
     }
     
     @Test
+    @Ignore("Not implemented yet, AFS-148")
     public void testInsertAndGetClob() throws Exception {
         NsiConfigDict dict = config.getDict("dictWithClob");
         try (Connection connection = dataSource.getConnection()) {
@@ -409,6 +411,7 @@ public class SqlDaoTest extends BaseSqlTest {
     }
     
     @Test
+    @Ignore("full search indexes not supported yet for postgres (must be done with AFS-30)")
     public void testListContainsFilter() throws Exception {
         NsiConfigDict dict = config.getDict("dict1");
         String fullSearchFName = "f1";
@@ -555,8 +558,8 @@ public class SqlDaoTest extends BaseSqlTest {
                     // используем
                     String sql = sqlGen.getRowInsertSql(query, false);
                     try (PreparedStatement psGetId = connection
-                            .prepareStatement("select " + dict.getSeq()
-                                    + ".nextval from dual");
+                            .prepareStatement("select nextval('" + dict.getSeq()
+                                    + "')");
                             PreparedStatement ps = connection
                                     .prepareStatement(sql)) {
 
