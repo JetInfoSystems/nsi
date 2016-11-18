@@ -754,23 +754,23 @@ public class SqlDaoTest extends BaseSqlTest {
     
     @Test
     public void testUniqueAttr() throws SQLException {
-        NsiConfigDict dictEventCat = config.getDict("EVENT_CATEGORY_UA_TEST");
+        NsiConfigDict dictEventCat = config.getDict("UNIQUE_ATTR_TEST");
         
         try (Connection connection = dataSource.getConnection()) {
             try {
-                platformMigrator.recreateTable(dictEventCat, connection);            
+                platformMigrator.recreateTable(dictEventCat, connection);
                 platformMigrator.recreateSeq(dictEventCat, connection);
                 
                 String key = String.valueOf(System.nanoTime());
-                DictRow eventCat1 = defaultBuilder("EVENT_CATEGORY_UA_TEST").attr("EVENT_CATEGORY_KEY", key).build();
-                DictRow eventCat2 = defaultBuilder("EVENT_CATEGORY_UA_TEST").attr("EVENT_CATEGORY_KEY", key + 2).build();
-                DictRow eventCatEmpty = defaultBuilder("EVENT_CATEGORY_UA_TEST").build();
+                DictRow eventCat1 = defaultBuilder("UNIQUE_ATTR_TEST").attr("KEY", key).build();
+                DictRow eventCat2 = defaultBuilder("UNIQUE_ATTR_TEST").attr("KEY", key + 2).build();
+                DictRow eventCatEmpty = defaultBuilder("UNIQUE_ATTR_TEST").build();
 
                 DictRow res1 = sqlDao.save(connection, dictEventCat.query().addAttrs(), eventCat1, true);
                 DictRow res2 = sqlDao.save(connection, dictEventCat.query().addAttrs(), eventCat2, true);
 
                 sqlDao.save(connection, dictEventCat.query().addAttrs(), res1, false);
-                res1.removeAttr("EVENT_CATEGORY_KEY");
+                res1.removeAttr("KEY");
                 sqlDao.save(connection, dictEventCat.query().addAttrs(), res1, false);
 
                 eventCat1.removeAttr("ID");
@@ -785,14 +785,14 @@ public class SqlDaoTest extends BaseSqlTest {
                 } catch (NsiServiceException e) {
                 }
                 try {
-                    res1.setAttr("EVENT_CATEGORY_KEY", res2.getAttr("EVENT_CATEGORY_KEY"));
+                    res1.setAttr("KEY", res2.getAttr("KEY"));
                     sqlDao.save(connection, dictEventCat.query().addAttrs(), res1, false);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
             } finally {
                 platformMigrator.dropSeq(dictEventCat, connection);
-                platformMigrator.dropTable(dictEventCat, connection);        
+                platformMigrator.dropTable(dictEventCat, connection);
             }
         }
     }

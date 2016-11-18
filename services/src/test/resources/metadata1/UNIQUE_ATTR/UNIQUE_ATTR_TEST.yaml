@@ -1,0 +1,64 @@
+attrs:
+ - caption: Идентификатор
+   fields: [ID]
+   hidden: false
+   name: ID
+   type: value
+ - caption: Название
+   fields: [NAME]
+   hidden: false
+   required: true
+   name: NAME
+   type: value
+ - caption: Уникальный ключ
+   fields: [KEY]
+   hidden: false
+   required: true
+   name: KEY
+   type: value
+   refAttrHidden: true
+ - caption: Удален
+   fields: [IS_DELETED]
+   hidden: false
+   name: IS_DELETED
+   type: value
+ - caption: Автор последнего изменения
+   fields: [LAST_USER]
+   hidden: false
+   name: LAST_USER
+   type: value
+ - caption: Дата, время последнего изменения
+   fields: [LAST_CHANGE]
+   hidden: false
+   name: LAST_CHANGE
+   type: value
+caption: Справочник с уникальным полем
+deleteMarkAttr: IS_DELETED
+fields:
+ - name: ID
+   size: 19
+   type: number
+ - name: NAME
+   size: 255
+   type: varchar
+ - name: KEY
+   size: 255
+   type: varchar
+ - name: IS_DELETED
+   size: 1
+   type: boolean
+ - name: LAST_USER
+   size: 19
+   type: number
+ - name: LAST_CHANGE
+   size: 0
+   type: date-time
+hidden: false
+idAttr: ID
+lastChangeAttr: LAST_CHANGE
+lastUserAttr: LAST_USER
+name: UNIQUE_ATTR_TEST
+uniqueAttr: [KEY]
+refObjectAttrs: [NAME,KEY]
+table: UNIQUE_ATTR_TEST
+tableObjectAttrs: [NAME,KEY,IS_DELETED,LAST_USER,LAST_CHANGE]
