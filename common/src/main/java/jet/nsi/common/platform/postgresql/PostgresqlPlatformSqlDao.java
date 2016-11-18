@@ -1,15 +1,6 @@
 package jet.nsi.common.platform.postgresql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import org.jooq.DSLContext;
-import org.jooq.DataType;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.impl.DefaultDataType;
-
+import com.google.common.base.Strings;
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.api.model.BoolExp;
@@ -17,11 +8,27 @@ import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.model.OperationType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.common.platform.DefaultPlatformSqlDao;
+import org.jooq.DSLContext;
+import org.jooq.DataType;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.impl.DefaultDataType;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
 public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
 
     public PostgresqlPlatformSqlDao(NsiPlatform nsiPlatform) {
         super(nsiPlatform);
+    }
+
+    @Override
+    public String getFieldSpelling(String field) {
+        return field != null ? field.toLowerCase() : null;
     }
 
     @Override
@@ -37,6 +44,19 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
         }
     }
 
+    @Override
+    public String getStringFromClob(ResultSet rs, int index) throws SQLException {
+        return rs.getString(index);
+    }
+
+    @Override
+    public void setClobParam(PreparedStatement ps, String value, int index) throws SQLException {
+        if (Strings.isNullOrEmpty(value)) {
+            ps.setNull(index, Types.VARCHAR);
+        } else {
+            ps.setString(index, value);
+        }
+    }
 
     @Override
     public DataType<?> getDataType(MetaFieldType fieldType) {
@@ -69,7 +89,7 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
     private String replaceIllegalCharacters(String value) {
         return value.replaceAll("[\"(),]", "");
     }
-    
+
     @Override
     public DSLContext getQueryBuilder(Connection connection) {
         return DSL.using(connection,SQLDialect.POSTGRES_9_5,settings);
