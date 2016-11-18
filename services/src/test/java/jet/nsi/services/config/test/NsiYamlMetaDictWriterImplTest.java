@@ -53,8 +53,6 @@ public class NsiYamlMetaDictWriterImplTest {
             MetaDict o2 = reader.read(stream);
             DataUtils.assertEqualAllOptionals(o1, o2);
         }
-        File ff = new File("src/test/resources/metadata1/labels/dictWithLabels.yaml");
-        System.out.println("delete "+ff.delete());
         /* delete test file */
         //testFile.delete();
     }

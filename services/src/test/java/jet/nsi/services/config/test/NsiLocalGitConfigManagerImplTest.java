@@ -60,8 +60,6 @@ public class NsiLocalGitConfigManagerImplTest {
         DataUtils.assertEqualRefObjectAttrs(o1, o2);
         DataUtils.assertEqualTableObjectAttrs(o1, o2);
         DataUtils.assertEqualLabels(o1, o2);
-        File ff = new File("src/test/resources/metadata1/labels/dictWithLabels.yaml");
-        System.out.println("delete "+ff.delete());
     }
 
     @Test
