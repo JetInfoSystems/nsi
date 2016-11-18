@@ -67,10 +67,14 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
         case CHAR:
             return trimTrailing(rs.getString(index));
         case CLOB:
-            return getClobStringValue(rs.getClob(index));
+            getStringFromClob(rs, index);
         default:
             throw new NsiDataException("unsupported field type: " + field.getType());
         }
+    }
+    @Override
+    public String getStringFromClob(ResultSet rs, int index) throws SQLException {
+        return getClobStringValue(rs.getClob(index));
     }
 
     protected String trimTrailing(String value) {
@@ -133,16 +137,21 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
             }
             break;
         case CLOB:
-            if(Strings.isNullOrEmpty(value)) {
-                ps.setNull(index, Types.CLOB);
-            } else {
-                Clob clob = ps.getConnection().createClob();
-                clob.setString(1, value);
-                ps.setClob(index, clob);
-            }
+            setClobParam(ps, value, index);
             break;
         default:
             throw new NsiDataException(Joiner.on(" ").join("unsupported param type:",fieldType));
+        }
+    }
+
+    @Override
+    public void setClobParam(PreparedStatement ps, String value, int index) throws SQLException {
+        if(Strings.isNullOrEmpty(value)) {
+            ps.setNull(index, Types.CLOB);
+        } else {
+            Clob clob = ps.getConnection().createClob();
+            clob.setString(1, value);
+            ps.setClob(index, clob);
         }
     }
 

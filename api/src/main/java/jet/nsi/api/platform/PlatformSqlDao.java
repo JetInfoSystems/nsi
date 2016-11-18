@@ -16,9 +16,13 @@ import jet.nsi.api.model.MetaFieldType;
 
 public interface PlatformSqlDao {
 
+    void setClobParam(PreparedStatement ps, String value, int index) throws SQLException;
+
     long getCountFromRs(NsiQuery query, ResultSet rs) throws SQLException;
     
     String getFieldValue(ResultSet rs, int index, NsiConfigField field) throws SQLException;
+
+    String getStringFromClob(ResultSet rs, int index) throws SQLException;
 
     String getClobStringValue(Clob clob) throws SQLException;
 

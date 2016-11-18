@@ -19,6 +19,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 
 import java.math.BigDecimal;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,89 +52,16 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
     }
 
     @Override
-    public String getFieldValue(ResultSet rs, int index, NsiConfigField field)
-            throws SQLException {
-        // TODO нужен внутренний интерфейс без конверсии в строки
-        switch (field.getType()) {
-            case BOOLEAN:
-                String boolValue = rs.getString(index);
-                return ConvertUtils.boolToString(ConvertUtils.dbStringToBool(boolValue));
-            case DATE_TIME:
-                Timestamp dateValue = rs.getTimestamp(index);
-                return ConvertUtils.timestampToString(dateValue);
-            case NUMBER:
-                BigDecimal bigDecimalValue = rs.getBigDecimal(index);
-                return ConvertUtils.bigDecimalToString(bigDecimalValue);
-            case VARCHAR:
-                return rs.getString(index);
-            case CHAR:
-                return trimTrailing(rs.getString(index));
-            case CLOB:
-                return rs.getString(index);
-            default:
-                throw new NsiDataException("unsupported field type: " + field.getType());
-        }
+    public String getStringFromClob(ResultSet rs, int index) throws SQLException {
+        return rs.getString(index);
     }
 
     @Override
-    public void setParam(PreparedStatement ps, int index,
-                         MetaFieldType fieldType, int fieldSize, int fieldPrecision,
-                         Object value_) throws SQLException {
-        // TODO: переписать это
-        String value = (String) value_;
-
-        switch (fieldType) {
-            case BOOLEAN:
-                if (Strings.isNullOrEmpty(value)) {
-                    ps.setNull(index, Types.VARCHAR);
-                } else {
-                    ps.setString(index, ConvertUtils.dbBoolToString(ConvertUtils.stringToBool(value)));
-                }
-                break;
-            case NUMBER:
-                if (Strings.isNullOrEmpty(value)) {
-                    ps.setNull(index, Types.BIGINT);
-                } else {
-                    if (fieldPrecision > 0) {
-                        ps.setBigDecimal(index, new BigDecimal(value));
-                    } else if (fieldSize <= 19) {
-                        ps.setLong(index, Long.parseLong(value));
-                    } else {
-                        ps.setBigDecimal(index, new BigDecimal(value));
-                    }
-                }
-                break;
-            case DATE_TIME:
-                if (Strings.isNullOrEmpty(value)) {
-                    ps.setNull(index, Types.DATE);
-                } else {
-                    DateTime dateTime = ConvertUtils.stringToDateTime(value);
-                    ps.setTimestamp(index, new Timestamp(dateTime.getMillis()));
-                }
-                break;
-            case VARCHAR:
-                if (Strings.isNullOrEmpty(value)) {
-                    ps.setNull(index, Types.VARCHAR);
-                } else {
-                    ps.setString(index, value);
-                }
-                break;
-            case CHAR:
-                if (Strings.isNullOrEmpty(value)) {
-                    ps.setNull(index, Types.CHAR);
-                } else {
-                    ps.setString(index, Strings.padEnd(value, fieldSize, ' '));
-                }
-                break;
-            case CLOB:
-                if (Strings.isNullOrEmpty(value)) {
-                    ps.setNull(index, Types.VARCHAR);
-                } else {
-                    ps.setString(index, value);
-                }
-                break;
-            default:
-                throw new NsiDataException(Joiner.on(" ").join("unsupported param type:", fieldType));
+    public void setClobParam(PreparedStatement ps, String value, int index) throws SQLException {
+        if (Strings.isNullOrEmpty(value)) {
+            ps.setNull(index, Types.VARCHAR);
+        } else {
+            ps.setString(index, value);
         }
     }
 
