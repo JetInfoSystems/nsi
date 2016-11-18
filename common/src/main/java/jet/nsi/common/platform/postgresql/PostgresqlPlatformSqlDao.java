@@ -1,30 +1,23 @@
 package jet.nsi.common.platform.postgresql;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import jet.nsi.api.NsiServiceException;
-import jet.nsi.api.data.ConvertUtils;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.api.model.BoolExp;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.model.OperationType;
 import jet.nsi.api.platform.NsiPlatform;
-import jet.nsi.common.data.NsiDataException;
 import jet.nsi.common.platform.DefaultPlatformSqlDao;
-import org.joda.time.DateTime;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 
-import java.math.BigDecimal;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 
 public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
@@ -96,7 +89,7 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
     private String replaceIllegalCharacters(String value) {
         return value.replaceAll("[\"(),]", "");
     }
-    
+
     @Override
     public DSLContext getQueryBuilder(Connection connection) {
         return DSL.using(connection,SQLDialect.POSTGRES_9_5,settings);

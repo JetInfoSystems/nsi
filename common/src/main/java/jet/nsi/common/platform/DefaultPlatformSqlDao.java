@@ -1,26 +1,8 @@
 package jet.nsi.common.platform;
 
-import java.math.BigDecimal;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-
-import org.joda.time.DateTime;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.conf.Settings;
-import org.jooq.impl.DSL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-
 import jet.nsi.api.data.ConvertUtils;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.api.data.NsiQuery;
@@ -30,6 +12,22 @@ import jet.nsi.api.model.OperationType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlDao;
 import jet.nsi.common.data.NsiDataException;
+import org.joda.time.DateTime;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
+import org.jooq.impl.DSL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 
 public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
     private static final Logger log = LoggerFactory.getLogger(DefaultPlatformSqlDao.class);
@@ -72,6 +70,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
             throw new NsiDataException("unsupported field type: " + field.getType());
         }
     }
+
     @Override
     public String getStringFromClob(ResultSet rs, int index) throws SQLException {
         return getClobStringValue(rs.getClob(index));
@@ -146,7 +145,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
 
     @Override
     public void setClobParam(PreparedStatement ps, String value, int index) throws SQLException {
-        if(Strings.isNullOrEmpty(value)) {
+        if (Strings.isNullOrEmpty(value)) {
             ps.setNull(index, Types.CLOB);
         } else {
             Clob clob = ps.getConnection().createClob();
