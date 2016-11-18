@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -479,8 +478,9 @@ public class DefaultSqlDao implements SqlDao {
         String sql = sqlGen.getRowInsertSql(query, useSeq);
 
         log.info(sql);
+        String idField = platformSqlDao.getFieldSpelling(query.getDict().getIdAttr().getFields().get(0).getName());
         try(PreparedStatement ps = connection.prepareStatement(sql,
-                new String[] {query.getDict().getIdAttr().getFields().get(0).getName()})) {
+                new String[] {idField})) {
             int paramCount = setParamsForInsert(query, data, ps) - 1;
             log.info("params: {}", paramCount);
 

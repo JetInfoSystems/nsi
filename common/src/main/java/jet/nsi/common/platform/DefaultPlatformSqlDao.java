@@ -42,7 +42,12 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
         this.nsiPlatform = nsiPlatform;
         this.settings = nsiPlatform.getJooqSettings();
     }
-    
+
+    @Override
+    public String getFieldSpelling(String field){
+        return field;
+    }
+
     @Override
     public String getFieldValue(ResultSet rs, int index, NsiConfigField field)
             throws SQLException {

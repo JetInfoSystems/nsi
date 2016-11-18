@@ -40,7 +40,7 @@ public class NsiLocalGitConfigManagerImplTest {
         MetaDict o2 = configManager.readConfigFile(new File("src/test/resources/metadata1/dict1.yaml"));
         DataUtils.assertEqualAllOptionals(o1, o2);
     }
-    
+
     @Test
     public void testReadConfigFileWithClob() {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
@@ -60,8 +60,10 @@ public class NsiLocalGitConfigManagerImplTest {
         DataUtils.assertEqualRefObjectAttrs(o1, o2);
         DataUtils.assertEqualTableObjectAttrs(o1, o2);
         DataUtils.assertEqualLabels(o1, o2);
+        File ff = new File("src/test/resources/metadata1/labels/dictWithLabels.yaml");
+        System.out.println("delete "+ff.delete());
     }
-    
+
     @Test
     public void testCreateOrUpdateConfig() throws URISyntaxException {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1/empty");
@@ -69,7 +71,7 @@ public class NsiLocalGitConfigManagerImplTest {
         int beforeSize = configManager.getConfig().getDicts().size();
         MetaDict o1 = DataGen.genMetaDict("writeDict","writeTestTable").build();
         configManager.createOrUpdateConfig(o1);
-        
+
         File testFile = new File("src/test/resources/metadata1/empty/", o1.getName().concat(".yaml"));
         MetaDict o2 = configManager.readConfigFile(testFile);
         DataUtils.assertEqualAllOptionals(o1, o2);
@@ -88,16 +90,16 @@ public class NsiLocalGitConfigManagerImplTest {
         /*delete test file to prevent configManager to read it next time*/
         testFile.delete();
     }
-    
+
     @Test
     public void testReloadConfig() throws IOException {
         String testConfigPath = "src/test/resources/metadata1/empty";
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager(testConfigPath);
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
-        
+
         int beforeSize = configManager.getConfig().getDicts().size();
-        
+
         MetaDict o1 = DataGen.genMetaDict("writeDictForReload","writeTestTableForReload").build();
         String fileName = o1.getName().concat(".yaml");
         File newFile = new File(testConfigPath, fileName);
@@ -105,45 +107,45 @@ public class NsiLocalGitConfigManagerImplTest {
             NsiMetaDictWriter writer = new NsiYamlMetaDictWriterImpl();
             writer.write(o1, newFileWriter);
         }
-        
+
         NsiConfig reloadedConfig = configManager.reloadConfig();
         NsiConfig newConfig = configManager.getConfig();
-        
+
         Assert.assertNotNull(reloadedConfig);
         Assert.assertNotNull(newConfig);
         Assert.assertEquals(reloadedConfig, newConfig);
         Assert.assertEquals(beforeSize + 1, configManager.getConfig().getDicts().size());
-        
+
         Files.deleteIfExists(Paths.get(testConfigPath, fileName));
     }
-    
+
     @Test
     public void testCheckoutNewConfig() throws IOException {
         String testConfigPath = "src/test/resources/metadata1/empty";
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager(testConfigPath);
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
-        
+
         int beforeSize = configManager.getConfig().getDicts().size();
-        
+
         // Готовим данные
         MetaDict o1 = DataGen.genMetaDict("writeDictForCheckout","writeTestTableForCheckout").build();
         String fromSource = "src/test/resources/metadata1/from";
 
         Files.createDirectory(Paths.get(fromSource));
-        
+
         String fileName = o1.getName().concat(".yaml");
         File newFile = new File(fromSource, fileName);
         try (FileWriter newFileWriter = new FileWriter(newFile)) {
             NsiMetaDictWriter writer = new NsiYamlMetaDictWriterImpl();
             writer.write(o1, newFileWriter);
         }
-        
+
         configManager.checkoutNewConfig(fromSource);
-        
+
         Path checkFilePath = Paths.get(testConfigPath, fileName);
         Assert.assertTrue(Files.exists(checkFilePath));
-        
+
         Files.deleteIfExists(Paths.get(fromSource, fileName));
         Files.deleteIfExists(Paths.get(fromSource));
         Files.deleteIfExists(checkFilePath);
@@ -154,12 +156,12 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
-        
+
         NsiConfigDict dict1 = config.getDict("dict1");
         Assert.assertNotNull(dict1);
         Assert.assertTrue(dict1.isHidden());
         Assert.assertTrue(dict1.getAttr("last_user").isReadonly());
-        
+
         NsiConfigDict dictWithClob = config.getDict("dictWithClob");
         Assert.assertNotNull(dictWithClob);
         Assert.assertTrue(dictWithClob.isHidden());
@@ -171,13 +173,13 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1");
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
-        
+
         NsiConfigDict dict = config.getDict("dict1_v");
         Assert.assertNotNull(dict);
         Assert.assertNotNull(dict.getVersionAttr());
     }
-    
-    
+
+
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {
         NsiConfigParams configParams = new NsiConfigParams();

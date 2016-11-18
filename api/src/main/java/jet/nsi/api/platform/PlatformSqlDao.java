@@ -34,4 +34,6 @@ public interface PlatformSqlDao {
     String wrapFilterFieldValue(BoolExp filter, NsiConfigField field, String val);
 
     int limit(PreparedStatement ps, int index, long offset, int size) throws SQLException;
+
+    String getFieldSpelling(String field);
 }
