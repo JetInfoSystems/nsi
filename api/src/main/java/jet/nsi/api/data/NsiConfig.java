@@ -1,5 +1,6 @@
 package jet.nsi.api.data;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 
@@ -14,4 +15,6 @@ public interface NsiConfig {
     
     Collection<MetaDict> getMetaDicts();
     Collection<MetaDict> getMetaDicts(Set<String> labels);
+    
+    Path getMetaDictPath(String name);
 }

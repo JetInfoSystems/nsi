@@ -30,6 +30,8 @@ import java.util.Set;
 public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
     private static final Logger log = LoggerFactory.getLogger(NsiLocalGitConfigManagerImpl.class);
+    
+    private static final String TMP_DIR = ".tmp";
 
     private final class ConfigFileWalker extends DirectoryWalker<File> {
         private ConfigFileWalker(FileFilter filter) {
@@ -65,7 +67,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             if (sourcePath == null) {
                 sourcePath = dir;
             } else {
-            Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
+                Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
             }
             return FileVisitResult.CONTINUE;
         }
@@ -130,7 +132,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             log.info("checkoutNewConfig [{}] -> ok", from);
         } catch (IOException e) {
             log.error("checkoutNewConfig [{}] -> failed", from, e);
-            throw new NsiConfigException("checkoutNewConfig from  " + from, e);
+            throw new NsiConfigException("checkoutNewConfig  from  " + from + " failed", e);
         }
 
     }
@@ -149,8 +151,9 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     public Set<File> findFiles() {
         FileFilter fileFilter = 
             FileFilterUtils.or(
-                FileFilterUtils.and(FileFilterUtils.directoryFileFilter(), HiddenFileFilter.VISIBLE),
-                FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".yaml")));
+                FileFilterUtils.and(FileFilterUtils.directoryFileFilter(), HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(TMP_DIR))),
+                FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".yaml"))
+                );
 
         ConfigFileWalker walker = new ConfigFileWalker(fileFilter);
         return walker.find(configPath);
@@ -165,16 +168,37 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     }
 
     public void createOrUpdateConfig(MetaDict metaDict) {
-        File newFile = new File(configPath, metaDict.getName().concat(".yaml"));
-
-        try(FileWriter newFileWriter = new FileWriter(newFile)) {
+        Path tmpPath = Paths.get(configPath.toPath().toString(), TMP_DIR);
+        if (Files.notExists(tmpPath)) {
+            try {
+                Files.createDirectory(tmpPath);
+            } catch (IOException ex) {
+                log.error("createOrUpdateConfig['{}'] -> failed to create temp directory ['{}']", metaDict.getName(), tmpPath.toString(), ex);
+                throw new NsiConfigException("couldn't create temp directory " + tmpPath.toString(), ex);
+            }
+        }
+        
+        Path metaDictFilePath = Paths.get(tmpPath.toString(), metaDict.getName().concat(".yaml"));
+        boolean isMetaDictFileExists = Files.exists(metaDictFilePath);
+        if (!isMetaDictFileExists) {
+            try {
+                Files.createFile(metaDictFilePath);
+            } catch (IOException ex) {
+                log.error("createOrUpdateConfig['{}'] -> failed to create file in temp directory ['{}', '{}']", 
+                                        metaDict.getName(), metaDictFilePath.toString(), tmpPath.toString(), ex);
+                throw new NsiConfigException("couldn't create file " + metaDictFilePath.toString() + 
+                                        " in temp directory " + tmpPath.toString(), ex);
+            }
+        }
+        File metaDictFile = metaDictFilePath.toFile();
+        try(FileWriter newFileWriter = new FileWriter(metaDictFile)) {
             config.updateDict(metaDict);
             config.postCheck();
 
             writer.write(metaDict, newFileWriter);
 
             log.info("createOrUpdateConfig [{}] -> ok", metaDict.getName());
-            readConfigFile(newFile);
+            readConfigFile(metaDictFile);
         } catch(Exception e) {
             log.error("createOrUpdateConfig [{}] -> error", metaDict.getName(), e);
             // Удалим из памяти, если успели добавить
@@ -182,7 +206,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
             // Удалим файл, если он существует
             try {
-                newFile.delete();
+                metaDictFile.delete();
             } catch (Exception ex) {
                 log.warn("writeConfigFile[{}] tried to delete file -> file wasn't created", metaDict.getName(), ex);
             }

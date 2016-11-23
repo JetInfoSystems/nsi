@@ -1,6 +1,7 @@
 
 package jet.nsi.common.config.impl;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,9 +36,20 @@ public class NsiConfigImpl implements NsiConfig {
 
     private static final CharMatcher NAME_MATCHER = CharMatcher.JAVA_LETTER_OR_DIGIT.or(new OneCharMatcher('_'));
 
+    /**
+     * Хранение преобразованных метаданных справочников, для построения запросов
+     * */
     private Map<String, NsiConfigDict> dictMap = new ConcurrentSkipListMap<>();
     
+    /**
+    * Хранение метаданных справочников для редактирования метаданных
+    * */
     private Map<String, MetaDict> metaDictMap = new ConcurrentSkipListMap<>();
+    /**
+     * Относительные пути хранения метаданных справочников
+     * */
+    private Map<String, Path> metaDictPaths = new ConcurrentSkipListMap<>();
+    
 
     private final NsiConfigParams params;
 
@@ -45,17 +57,58 @@ public class NsiConfigImpl implements NsiConfig {
         this.params = params;
     }
 
-    public void removeDict(String dictName) {
-        dictMap.remove(dictName);
-        metaDictMap.remove(dictName);
+    @Override
+    public NsiConfigDict getDict(String name) {
+        return dictMap.get(name);
     }
 
-    public void updateDict(MetaDict metaDict) {
-        if (dictMap.containsKey(metaDict.getName())) {
-            //add dict does many checks, so it is easy way
-            removeDict(metaDict.getName());
+    @Override
+    public MetaDict getMetaDict(String name) {
+        return metaDictMap.get(name);
+    }
+
+    @Override
+    public Path getMetaDictPath(String name) {
+        return metaDictPaths.get(name);
+    }
+
+    @Override
+    public Collection<NsiConfigDict> getDicts() {
+        return dictMap.values();
+    }
+    @Override
+    public Collection<NsiConfigDict> getDicts(Set<String> labels) {
+        Preconditions.checkNotNull(labels, "labels must be not null");
+        
+        Set<NsiConfigDict> result = new HashSet<>();
+        for(NsiConfigDict dict : dictMap.values()) {
+            for (String label : labels) {
+                if (dict.getLabels().contains(label)) {
+                    result.add(dict);
+                }
+            }
         }
-        addDict(metaDict);
+        return result;
+    }
+
+    @Override
+    public Collection<MetaDict> getMetaDicts() {
+        return metaDictMap.values();
+    }
+
+    @Override
+    public Collection<MetaDict> getMetaDicts(Set<String> labels) {
+        Preconditions.checkNotNull(labels, "labels must be not null");
+        
+        Set<MetaDict> result = new HashSet<>();
+        for(MetaDict dict : metaDictMap.values()) {
+            for (String label : labels) {
+                if (dict.getLabels().contains(label)) {
+                    result.add(dict);
+                }
+            }
+        }
+        return result;
     }
 
     public void addDict(MetaDict metaDict) {
@@ -172,6 +225,42 @@ public class NsiConfigImpl implements NsiConfig {
         dictMap.put(dictName, dict);
         metaDictMap.put(dictName, metaDict);
 
+    }
+    
+    public void postCheck() {
+        postSetMainDict();
+
+        for (NsiConfigDict dict : dictMap.values()) {
+            postCheckDict(dict);
+        }
+
+        if(params != null && params.getLastUserDict() != null) {
+            NsiConfigDict lastUserDict = getDict(params.getLastUserDict());
+            if(lastUserDict == null) {
+                throw new NsiConfigException("Invalid lastUserDict in params: " + params.getLastUserDict());
+            }
+            for ( NsiConfigDict dict : dictMap.values()) {
+                NsiConfigAttr lastUserAttr = dict.getLastUserAttr();
+                if(lastUserAttr != null) {
+                    lastUserAttr.setType(MetaAttrType.REF);
+                    lastUserAttr.setRefDict(lastUserDict);
+                    lastUserAttr.setHidden(false);
+                }
+            }
+        }
+    }
+
+    public void removeDict(String dictName) {
+        dictMap.remove(dictName);
+        metaDictMap.remove(dictName);
+    }
+
+    public void updateDict(MetaDict metaDict) {
+        if (dictMap.containsKey(metaDict.getName())) {
+            //add dict does many checks, so it is easy way
+            removeDict(metaDict.getName());
+        }
+        addDict(metaDict);
     }
 
     private NsiConfigAttr addDictAttr(NsiConfigDict dict, MetaAttr metaAttr) {
@@ -496,31 +585,6 @@ public class NsiConfigImpl implements NsiConfig {
         }
     }
 
-
-    public void postCheck() {
-        postSetMainDict();
-
-        for (NsiConfigDict dict : dictMap.values()) {
-            postCheckDict(dict);
-        }
-
-        if(params != null && params.getLastUserDict() != null) {
-            NsiConfigDict lastUserDict = getDict(params.getLastUserDict());
-            if(lastUserDict == null) {
-                throw new NsiConfigException("Invalid lastUserDict in params: " + params.getLastUserDict());
-            }
-            for ( NsiConfigDict dict : dictMap.values()) {
-                NsiConfigAttr lastUserAttr = dict.getLastUserAttr();
-                if(lastUserAttr != null) {
-                    lastUserAttr.setType(MetaAttrType.REF);
-                    lastUserAttr.setRefDict(lastUserDict);
-                    lastUserAttr.setHidden(false);
-                }
-            }
-        }
-
-    }
-
     private void postSetMainDict() {
         for ( NsiConfigDict dict : dictMap.values()) {
             if(dict.getMainDictName() != null) {
@@ -534,16 +598,6 @@ public class NsiConfigImpl implements NsiConfig {
                 dict.setMainDict(mainDict);
             }
         }
-    }
-
-    @Override
-    public NsiConfigDict getDict(String name) {
-        return dictMap.get(name);
-    }
-    
-    @Override
-    public MetaDict getMetaDict(String name) {
-        return metaDictMap.get(name);
     }
 
     private void postCheckDict(NsiConfigDict dict) {
@@ -640,43 +694,5 @@ public class NsiConfigImpl implements NsiConfig {
             throwDictException(dict, "invalid field type", dictAttr, attr.getName(), type);
         }
 
-    }
-
-    @Override
-    public Collection<NsiConfigDict> getDicts() {
-        return dictMap.values();
-    }
-    @Override
-    public Collection<NsiConfigDict> getDicts(Set<String> labels) {
-        Preconditions.checkNotNull(labels, "labels must be not null");
-        
-        Set<NsiConfigDict> result = new HashSet<>();
-        for(NsiConfigDict dict : dictMap.values()) {
-            for (String label : labels) {
-                if (dict.getLabels().contains(label)) {
-                    result.add(dict);
-                }
-            }
-        }
-        return result;
-    }
-    
-    @Override
-    public Collection<MetaDict> getMetaDicts() {
-        return metaDictMap.values();
-    }
-    @Override
-    public Collection<MetaDict> getMetaDicts(Set<String> labels) {
-        Preconditions.checkNotNull(labels, "labels must be not null");
-        
-        Set<MetaDict> result = new HashSet<>();
-        for(MetaDict dict : metaDictMap.values()) {
-            for (String label : labels) {
-                if (dict.getLabels().contains(label)) {
-                    result.add(dict);
-                }
-            }
-        }
-        return result;
     }
 }
