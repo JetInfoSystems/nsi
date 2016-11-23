@@ -50,7 +50,7 @@ import com.beust.jcommander.Strings;
  */
 public class NsiSchemaMigratorImpl implements SchemaMigrator {
     
-    private static final String MODIFY_OPERATION = "alter";
+    private static final String MODIFY_OPERATION = "alter column";
     
 
     @Override
@@ -134,7 +134,25 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                     );
                 }
             }
-            
+
+            for (Sequence sequence : namespace.getSequences()) {
+                checkExportIdentifier(sequence, exportIdentifiers);
+                final SequenceInformation sequenceInformation = existingDatabase.getSequenceInformation(sequence.getName());
+                if (sequenceInformation != null) {
+                    // nothing we really can do...
+                    continue;
+                }
+                
+                applySqlStrings(
+                                database.getJdbcEnvironment().getDialect().getSequenceExporter().getSqlCreateStrings(
+                                                sequence,
+                                                metadata
+                                ), 
+                                targets,
+                                false
+                );
+            }
+
             // first pass
             for (Table table : namespace.getTables()) {
                 if (!table.isPhysicalTable()) {
@@ -171,24 +189,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 applyIndexes(table, tableInformation, metadata, targets);
                 applyUniqueKeys(table, tableInformation, metadata, targets);
                 applyForeignKeys(table, tableInformation, metadata, targets);
-            }
-            
-            for (Sequence sequence : namespace.getSequences()) {
-                checkExportIdentifier(sequence, exportIdentifiers);
-                final SequenceInformation sequenceInformation = existingDatabase.getSequenceInformation(sequence.getName());
-                if (sequenceInformation != null) {
-                    // nothing we really can do...
-                    continue;
-                }
-                
-                applySqlStrings(
-                                database.getJdbcEnvironment().getDialect().getSequenceExporter().getSqlCreateStrings(
-                                                sequence,
-                                                metadata
-                                ), 
-                                targets,
-                                false
-                );
             }
         }
     }

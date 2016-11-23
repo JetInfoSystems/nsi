@@ -11,6 +11,7 @@ import org.jooq.DSLContext;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlDao;
+import jet.nsi.common.config.MigratorParams;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -24,9 +25,12 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
     private final NsiPlatform platform;
     protected final PlatformSqlDao platformSqlDao;
     
-    public DefaultPlatformMigrator(NsiPlatform platform) {
+    protected final MigratorParams params;
+    
+    public DefaultPlatformMigrator(NsiPlatform platform, MigratorParams params) {
         this.platform = platform;
         this.platformSqlDao = platform.getPlatformSqlDao();
+        this.params = params;
     }
     
     @Override

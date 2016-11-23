@@ -1,10 +1,13 @@
-package jet.nsi.migrator;
+package jet.nsi.common.config;
 
 import java.io.File;
 import java.util.Properties;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import jet.nsi.api.data.ConvertUtils;
 
 public class MigratorParams {
 
@@ -19,7 +22,8 @@ public class MigratorParams {
     public static final String LIQUIBASE_CHANGELOG_BASE_PATH = "liquibaseChangelogBasePath";
     
     public static final String DEFAULT_IDENT = "nsi";
-
+    
+    public static final String USE_SEQUENCE_AS_DEFAULT_VALUE_FOR_ID = "useSequenceAsDefaultValueForId";
 
     private final Properties properties;
 
@@ -30,7 +34,7 @@ public class MigratorParams {
     public String getProperty(String key, String defaultValue) {
         return properties.getProperty(key, defaultValue);
     }
-
+    
     private String key(String ... args) {
         return Joiner.on('.').skipNulls().join(args);
     }
@@ -97,6 +101,14 @@ public class MigratorParams {
     
     public String getDbIdent() {
         return getProperty(key(DB, IDENT), DEFAULT_IDENT);
+    }
+    
+    public boolean getUseSequenceAsDefaultValueForId(String ident) {
+        String propValue = getProperty(key(DB,ident,USE_SEQUENCE_AS_DEFAULT_VALUE_FOR_ID), Boolean.FALSE.toString());
+        if (Strings.isNullOrEmpty(propValue)) {
+            return false;
+        }
+        return ConvertUtils.stringToBool(propValue);
     }
 
     public Properties getProperties() {

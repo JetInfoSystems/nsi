@@ -16,9 +16,9 @@ import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
+import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.migrator.Migrator;
-import jet.nsi.migrator.MigratorParams;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.oracle.OracleFtsModule;
@@ -32,7 +32,7 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.postgresql95";
     private static final String TEST_NSI_PREFIX = "TEST_NSI_";
-    private MigratorParams params;
+
     private PlatformMigrator platformMigrator;
     //private PostgresqlFtsModule ftsModule;
 
@@ -42,28 +42,32 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     
     @Override
     public void setup() throws Exception {
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platform = platformMigrator.getPlatform();
         super.setup();
-        getConfiguration();
-        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
-        properties.setProperty("liquibaseChangelogBasePath", "with_empty_liquibase_changelogs");
-        params = new MigratorParams(properties);
+
         Assert.assertEquals(TEST_NSI_PREFIX, params.getLogPrefix());
-        //ftsModule = new OracleFtsModule(platformSqlDao);
+
+        
+        params = new MigratorParams(properties);
+    }
+    
+    @Override
+    protected void initTestCustomProperties() {
+        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
+        // FIXME: looks like unused
+        properties.setProperty("liquibaseChangelogBasePath", "with_empty_liquibase_changelogs");
+    }
+    
+    @Override
+    protected void initPlatformSpecific() {
+        //ftsModule = new PostgresqlFtsModule(platformSqlDao);
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+        platform = platformMigrator.getPlatform();
     }
 
     public void setupMigrator(String metadataPath) {
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
-    }
-
-
-    private void getConfiguration() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project."+ dbIdent+ ".properties");
-        Properties props = new Properties();
-        props.load(in);
     }
 
     @Test

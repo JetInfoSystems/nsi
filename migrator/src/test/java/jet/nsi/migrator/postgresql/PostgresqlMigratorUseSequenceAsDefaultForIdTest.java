@@ -11,6 +11,8 @@ import java.util.Properties;
 import org.jooq.exception.DataAccessException;
 import org.junit.Test;
 
+import com.google.common.base.Joiner;
+
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.common.config.MigratorParams;
@@ -23,7 +25,7 @@ import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 import junit.framework.Assert;
 
-public class PostgresqlMigratorTest extends BaseSqlTest{
+public class PostgresqlMigratorUseSequenceAsDefaultForIdTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.postgresql95";
     private static final String TEST_NSI_PREFIX = "TEST_NSI_";
@@ -31,7 +33,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     private PlatformMigrator platformMigrator;
     //private PostgresqlFtsModule ftsModule;
 
-    public PostgresqlMigratorTest() {
+    public PostgresqlMigratorUseSequenceAsDefaultForIdTest() {
         super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
     
@@ -45,6 +47,9 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     @Override
     protected void initTestCustomProperties() {
         properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
+        properties.setProperty(
+                Joiner.on('.').skipNulls().join("db",dbIdent,MigratorParams.USE_SEQUENCE_AS_DEFAULT_VALUE_FOR_ID),
+                "true");
     }
 
     @Override
@@ -87,7 +92,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+            Migrator migrator = new Migrator (config, dataSource, params, platformMigrator);
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
             migrator.update("v1");
@@ -95,8 +100,8 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
             List<String> actions = rec.getActions();
             Assert.assertEquals(4, actions.size());
             Assert.assertEquals("create sequence seq_table2 start 1 increment 1", actions.get(0));
-            Assert.assertEquals("create table table1 (id int8 not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(1));
-            Assert.assertEquals("create table table2 (id int8 not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(2));
+            Assert.assertEquals("create table table1 (id int8 default nextval('seq_table1') not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table2 (id int8 default nextval('seq_table2') not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(2));
             Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(3));
             
         }

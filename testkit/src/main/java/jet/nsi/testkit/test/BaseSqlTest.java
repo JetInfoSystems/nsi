@@ -1,7 +1,8 @@
 package jet.nsi.testkit.test;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -41,6 +42,7 @@ import jet.nsi.api.model.MetaAttrType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlDao;
 import jet.nsi.api.platform.PlatformSqlGen;
+import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.common.data.DictDependencyGraph;
 import jet.nsi.common.sql.DefaultSqlDao;
@@ -65,7 +67,7 @@ public abstract class BaseSqlTest {
     protected static Logger log = LoggerFactory.getLogger(BaseSqlTest.class);
     protected String metadataPath;
     protected String dbIdent;
-    
+    protected MigratorParams params;
 
     
     protected BaseSqlTest() {
@@ -83,11 +85,12 @@ public abstract class BaseSqlTest {
     }
 
     public void setup() throws Exception {
-        properties = new Properties();
-        File file = new File("target/test-classes/project."+ dbIdent +".properties").getAbsoluteFile();
-        try(FileReader reader = new FileReader(file)) {
-            properties.load(reader);
-        }
+        
+        initConfiguration();
+        initTestCustomProperties();
+        
+        params = new MigratorParams(properties);
+        initPlatformSpecific();
         
         dataSource = daoUtils.createDataSource(dbIdent, properties);
         sqlGen = new DefaultSqlGen();
@@ -99,6 +102,17 @@ public abstract class BaseSqlTest {
         sqlDao.setPlatformSqlDao(platformSqlDao);
     }
 
+    protected void initConfiguration() throws IOException {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project."+ dbIdent+ ".properties");
+        properties = new Properties();
+        properties.load(in);
+    }
+    
+    protected void initTestCustomProperties() {
+    }
+    
+    protected abstract void initPlatformSpecific();
+    
     @After
     public void cleanupInternal() {
         cleanup();

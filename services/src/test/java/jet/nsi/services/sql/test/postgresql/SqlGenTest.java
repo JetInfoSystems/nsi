@@ -30,11 +30,16 @@ public class SqlGenTest extends BaseSqlTest {
 
     @Override
     public void setup() throws Exception {
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platform = platformMigrator.getPlatform();
         super.setup();
+
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
+    }
+
+    @Override
+    protected void initPlatformSpecific() {
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+        platform = platformMigrator.getPlatform();
     }
 
     @Test

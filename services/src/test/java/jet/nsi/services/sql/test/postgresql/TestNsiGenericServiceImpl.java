@@ -24,13 +24,18 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     
     @Override
     public void setup() throws Exception {
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platform = platformMigrator.getPlatform();
-
         super.setup();
+        
         transactionService = new NsiTransactionServiceImpl(new MockMetrics());
         transactionService.setDataSource(dataSource);
         service = new NsiGenericServiceImpl(new MockMetrics());
         service.setTransactionService(transactionService);
     }
+
+    @Override
+    protected void initPlatformSpecific() {
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+        platform = platformMigrator.getPlatform();
+    }
+
 }

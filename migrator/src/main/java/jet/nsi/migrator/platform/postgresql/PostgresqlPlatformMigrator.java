@@ -24,6 +24,7 @@ import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
+import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.platform.postgresql.PostgresqlNsiPlatform;
 import jet.nsi.migrator.MigratorException;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
@@ -43,14 +44,13 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
 
     //private final PostgresqlFtsModule ftsModule;
     
-    public PostgresqlPlatformMigrator() {
-        super(new PostgresqlNsiPlatform());
+    public PostgresqlPlatformMigrator(MigratorParams params) {
+        super(new PostgresqlNsiPlatform(), params);
         //this.ftsModule = new PostgresqlFtsModule(platformSqlDao);
     }
 
     @Override
-    public StandardServiceRegistry buildStandardServiceRegistry(
-            DataSource dataSource) {
+    public StandardServiceRegistry buildStandardServiceRegistry(DataSource dataSource) {
         final BootstrapServiceRegistry bsr = new BootstrapServiceRegistryBuilder().build();
         final StandardServiceRegistryBuilder ssrBuilder = new StandardServiceRegistryBuilder( bsr );
 
@@ -65,7 +65,7 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public DictToHbmSerializer getDictToHbmSerializer() {
-        return new PostgresqlDictToHbmSerializer();
+        return new PostgresqlDictToHbmSerializer(params.getUseSequenceAsDefaultValueForId(params.getDbIdent()));
     }
 
     @Override
@@ -159,8 +159,7 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     public void dropSeq(String name, Connection connection) {
         try {
             platformSqlDao.getQueryBuilder(connection).dropSequence(name).execute();
-        }
-        catch(DataAccessException e) {
+        } catch(DataAccessException e) {
             Throwable cause = e.getCause();
             if(cause instanceof SQLSyntaxErrorException) {
                 throwIfNot((SQLSyntaxErrorException)cause, 2289);
@@ -235,13 +234,11 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public void updateMetadataSources(MetadataSources metadataSources,
-            NsiConfig config) {
+    public void updateMetadataSources(MetadataSources metadataSources, NsiConfig config) {
     }
 
     @Override
-    public void updateMetadataSources(MetadataSources metadataSources,
-            NsiConfigDict model) {
+    public void updateMetadataSources(MetadataSources metadataSources, NsiConfigDict model) {
     }
 
     @Override

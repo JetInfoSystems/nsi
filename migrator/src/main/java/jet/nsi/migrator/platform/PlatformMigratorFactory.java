@@ -1,6 +1,6 @@
 package jet.nsi.migrator.platform;
 
-import jet.nsi.migrator.MigratorParams;
+import jet.nsi.common.config.MigratorParams;
 
 public class PlatformMigratorFactory {
 

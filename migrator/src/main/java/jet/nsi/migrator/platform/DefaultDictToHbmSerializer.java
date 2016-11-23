@@ -40,6 +40,17 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         }
     }
 
+
+    @Override
+    public void marshalTo(NsiConfigDict dict, OutputStream os) {
+        try {
+            Marshaller marchaler = context.createMarshaller();
+            marchaler.marshal(buildHibernateMapping(dict), os);
+        } catch (JAXBException e) {
+            throw new MigratorException("marchal",e);
+        }
+    }
+
     protected JaxbHbmRootEntityType buildRootEntity(NsiConfigDict dict) {
         JaxbHbmRootEntityType result = new JaxbHbmRootEntityType();
         result.setName(dict.getName());
@@ -116,9 +127,13 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         JaxbHbmSimpleIdType result = new JaxbHbmSimpleIdType();
         NsiConfigField field = dict.getIdAttr().getFields().get(0);
         result.setType(buildTypeSpecification(field));
-        result.getColumn().add(buildColumn(field));
+        result.getColumn().add(buildIdColumn(field, dict));
         result.setGenerator(buildSequence(dict));
         return result;
+    }
+    
+    protected JaxbHbmColumnType buildIdColumn(NsiConfigField field, NsiConfigDict dict) {
+        return buildColumn(field);
     }
 
     protected JaxbHbmTypeSpecificationType buildTypeSpecification(
@@ -163,8 +178,7 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         return result;
     }
 
-    protected JaxbHbmConfigParameterType buildConfigParameter(String name,
-            String value) {
+    protected JaxbHbmConfigParameterType buildConfigParameter(String name, String value) {
         JaxbHbmConfigParameterType result = new JaxbHbmConfigParameterType();
         result.setName(name);
         result.setValue(value);
@@ -192,17 +206,4 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         result.getClazz().add(buildRootEntity(dict));
         return result;
     }
-
-    @Override
-    public void marshalTo(NsiConfigDict dict, OutputStream os) {
-        try {
-            Marshaller marchaler = context.createMarshaller();
-            marchaler.marshal(buildHibernateMapping(dict), os);
-        } catch (JAXBException e) {
-            throw new MigratorException("marchal",e);
-        }
-    }
-
-
-
 }
