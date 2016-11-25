@@ -43,8 +43,8 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     private final String UNDEFINED_TABLE_ERROR_CODE = "42P01";
     //private final PostgresqlFtsModule ftsModule;
     
-    public PostgresqlPlatformMigrator(MigratorParams params) {
-        super(new PostgresqlNsiPlatform(), params);
+    public PostgresqlPlatformMigrator() {
+        super(new PostgresqlNsiPlatform());
         //this.ftsModule = new PostgresqlFtsModule(platformSqlDao);
     }
 

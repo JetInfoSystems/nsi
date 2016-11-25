@@ -52,7 +52,8 @@ public class OracleMigratorToolsTest extends BaseSqlTest{
 
     @Override
     protected void initPlatformSpecific() {
-        platformMigrator = new OraclePlatformMigrator(params);
+        platformMigrator = new OraclePlatformMigrator();
+        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

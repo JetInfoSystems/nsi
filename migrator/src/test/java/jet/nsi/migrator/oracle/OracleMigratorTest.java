@@ -61,7 +61,8 @@ public class OracleMigratorTest extends BaseSqlTest{
     @Override
     protected void initPlatformSpecific() {
         ftsModule = new OracleFtsModule(platformSqlDao);
-        platformMigrator = new OraclePlatformMigrator(params);
+        platformMigrator = new OraclePlatformMigrator();
+        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

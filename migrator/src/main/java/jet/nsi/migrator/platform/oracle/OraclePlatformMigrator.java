@@ -47,8 +47,8 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
     
     private final OracleFtsModule ftsModule;
 
-    public OraclePlatformMigrator(MigratorParams params) {
-        super(new OracleNsiPlatform(), params);
+    public OraclePlatformMigrator() {
+        super(new OracleNsiPlatform());
         ftsModule = new OracleFtsModule(platformSqlDao);
     }
 

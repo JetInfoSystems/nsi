@@ -50,7 +50,8 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     @Override
     protected void initPlatformSpecific() {
         //ftsModule = new PostgresqlFtsModule(platformSqlDao);
-        platformMigrator = new PostgresqlPlatformMigrator(params);
+        platformMigrator = new PostgresqlPlatformMigrator();
+        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

@@ -6,6 +6,9 @@ public class PlatformMigratorFactory {
 
     public static PlatformMigrator create(MigratorParams params, String ident) throws Exception {
         Class<?> clasz = Thread.currentThread().getContextClassLoader().loadClass(params.getPlatformMigrator(ident));
-        return (PlatformMigrator)clasz.newInstance();
+        
+        PlatformMigrator  migrator = (PlatformMigrator)clasz.newInstance();
+        migrator.setParams(params);
+        return migrator;
     }
 }

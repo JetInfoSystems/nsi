@@ -38,7 +38,8 @@ public class SqlGenTest extends BaseSqlTest {
 
     @Override
     protected void initPlatformSpecific() {
-        platformMigrator = new PostgresqlPlatformMigrator(params);
+        platformMigrator = new PostgresqlPlatformMigrator();
+        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

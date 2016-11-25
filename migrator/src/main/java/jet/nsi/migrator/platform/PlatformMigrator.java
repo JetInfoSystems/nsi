@@ -12,6 +12,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.platform.NsiPlatform;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import liquibase.Liquibase;
 import liquibase.exception.LiquibaseException;
@@ -96,4 +97,7 @@ public interface PlatformMigrator {
     void onUpdateAfterPostproc(Connection connection, NsiConfig config);
     
     Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) throws LiquibaseException;
+
+    void setParams(MigratorParams params);
+    
 }

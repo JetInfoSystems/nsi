@@ -4,7 +4,6 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
 import java.sql.Connection;
-import java.sql.SQLSyntaxErrorException;
 
 import org.jooq.DSLContext;
 
@@ -25,14 +24,18 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
     private final NsiPlatform platform;
     protected final PlatformSqlDao platformSqlDao;
     
-    protected final MigratorParams params;
+    protected MigratorParams params;
     
-    public DefaultPlatformMigrator(NsiPlatform platform, MigratorParams params) {
+    public DefaultPlatformMigrator(NsiPlatform platform) {
         this.platform = platform;
         this.platformSqlDao = platform.getPlatformSqlDao();
-        this.params = params;
     }
     
+    @Override
+    public void setParams(MigratorParams params) {
+        this.params = params;
+    }
+
     @Override
     public NsiPlatform getPlatform() {
         return platform;
