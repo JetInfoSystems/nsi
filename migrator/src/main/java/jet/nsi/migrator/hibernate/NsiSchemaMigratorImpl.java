@@ -428,7 +428,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
         return (columnInformation == null) ? dialect.getAddColumnString() : MODIFY_OPERATION;
     }
     public String getColumnOperationTypeString(ColumnInformation columnInformation, Dialect dialect) {
-        return (columnInformation == null) ? "" : "type";
+        return (columnInformation == null) ? "" : "type ";
     }
     
     public Iterator<String> sqlAlterStrings(Table table, Dialect dialect, Mapping p, TableInformation tableInfo,
@@ -449,7 +449,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 StringBuilder alter = new StringBuilder("alter table ").append(tableName).append(' ')
                         .append(getColumnOperationString(columnInfo, dialect)).append(' ')
                         .append(column.getQuotedName(dialect)).append(' ')
-                        .append(getColumnOperationTypeString(columnInfo, dialect)).append(' ')
+                        .append(getColumnOperationTypeString(columnInfo, dialect))
                         .append(column.getSqlType(dialect, p));
                 
                 String defaultValue = column.getDefaultValue();
