@@ -42,9 +42,9 @@ import jet.nsi.api.model.MetaAttrType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlDao;
 import jet.nsi.api.platform.PlatformSqlGen;
-import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.common.data.DictDependencyGraph;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.sql.DefaultSqlDao;
 import jet.nsi.common.sql.DefaultSqlGen;
 import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
@@ -92,14 +92,7 @@ public abstract class BaseSqlTest {
         params = new MigratorParams(properties);
         initPlatformSpecific();
         
-        dataSource = daoUtils.createDataSource(dbIdent, properties);
-        sqlGen = new DefaultSqlGen();
-        platformSqlGen = platform.getPlatformSqlGen();
-        sqlGen.setPlatformSqlGen(platformSqlGen);
-        sqlDao = new DefaultSqlDao();
-        sqlDao.setSqlGen(sqlGen);
-        platformSqlDao = platform.getPlatformSqlDao();
-        sqlDao.setPlatformSqlDao(platformSqlDao);
+        initCommon();
     }
 
     protected void initConfiguration() throws IOException {
@@ -112,6 +105,17 @@ public abstract class BaseSqlTest {
     }
     
     protected abstract void initPlatformSpecific();
+    
+    protected void initCommon() {
+        dataSource = daoUtils.createDataSource(dbIdent, properties);
+        sqlGen = new DefaultSqlGen();
+        platformSqlGen = platform.getPlatformSqlGen();
+        sqlGen.setPlatformSqlGen(platformSqlGen);
+        sqlDao = new DefaultSqlDao();
+        sqlDao.setSqlGen(sqlGen);
+        platformSqlDao = platform.getPlatformSqlDao();
+        sqlDao.setPlatformSqlDao(platformSqlDao);
+    }
     
     @After
     public void cleanupInternal() {

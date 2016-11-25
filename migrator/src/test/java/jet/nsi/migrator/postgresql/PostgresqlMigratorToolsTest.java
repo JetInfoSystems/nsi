@@ -1,28 +1,28 @@
 package jet.nsi.migrator.postgresql;
 
+import static jet.nsi.common.migrator.config.MigratorParams.key;
+import static jet.nsi.common.migrator.config.MigratorParams.BASE;
+import static jet.nsi.common.migrator.config.MigratorParams.PATH;
+import static jet.nsi.common.migrator.config.MigratorParams.DB;
+import static jet.nsi.common.migrator.config.MigratorParams.CHANGE_LOG;
+import static jet.nsi.common.migrator.config.MigratorParams.LIQUIBASE;
+import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import org.joda.time.DateTime;
-import org.jooq.exception.DataAccessException;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
-import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.Migrator;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
-import jet.nsi.migrator.platform.oracle.OracleFtsModule;
-import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
@@ -32,6 +32,7 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.postgresql95";
     private static final String TEST_NSI_PREFIX = "TEST_NSI_";
+    private static final String LIQUIBASE_CHANGE_LOG_BASE_PATH = "with_empty_liquibase_changelogs";
 
     private PlatformMigrator platformMigrator;
     //private PostgresqlFtsModule ftsModule;
@@ -52,9 +53,8 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     
     @Override
     protected void initTestCustomProperties() {
-        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
-        // FIXME: looks like unused
-        properties.setProperty("liquibaseChangelogBasePath", "with_empty_liquibase_changelogs");
+        properties.setProperty(key(DB,LIQUIBASE,LOG_PREFIX), TEST_NSI_PREFIX);
+        properties.setProperty(key(LIQUIBASE,CHANGE_LOG,BASE,PATH), LIQUIBASE_CHANGE_LOG_BASE_PATH);
     }
     
     @Override

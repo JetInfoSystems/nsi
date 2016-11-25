@@ -1,13 +1,19 @@
 package jet.nsi.migrator.oracle;
 
+import static jet.nsi.common.migrator.config.MigratorParams.key;
+import static jet.nsi.common.migrator.config.MigratorParams.DB;
+import static jet.nsi.common.migrator.config.MigratorParams.LIQUIBASE;
+import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
+import static jet.nsi.common.migrator.config.MigratorParams.NAME;
+import static jet.nsi.common.migrator.config.MigratorParams.TABLESPACE;
+import static jet.nsi.common.migrator.config.MigratorParams.USERNAME;
+
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.joda.time.DateTime;
 import org.junit.Ignore;
@@ -15,14 +21,13 @@ import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
-import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.Migrator;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.oracle.OracleFtsModule;
 import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
-import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
 import junit.framework.Assert;
@@ -50,7 +55,7 @@ public class OracleMigratorTest extends BaseSqlTest{
     
     @Override
     protected void initTestCustomProperties() {
-        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
+        properties.setProperty(key(DB,LIQUIBASE,LOG_PREFIX), TEST_NSI_PREFIX);
     }
 
     @Override
@@ -140,56 +145,6 @@ public class OracleMigratorTest extends BaseSqlTest{
 
             platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
-        }
-
-    }
-
-    @Test
-    public void tablespaceTest() throws SQLException {
-        String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
-        try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
-            platformMigrator.createTablespace(connection,
-                    params.getTablespace(DB_IDENT),
-                    params.getDataFileName(DB_IDENT), "1M", "1M", "10M");
-            platformMigrator.dropTablespace(connection, params.getTablespace(DB_IDENT));
-        }
-    }
-
-    @Test
-    public void userTest() throws SQLException {
-        String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
-        properties.put("db."+ DB_IDENT + ".username", tempName);
-        try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
-            platformMigrator.createTablespace(connection,
-                    params.getTablespace(DB_IDENT),
-                    params.getDataFileName(DB_IDENT), "1M", "1M", "10M");
-            try {
-                platformMigrator.createUser(connection,
-                        params.getUsername(DB_IDENT),
-                        params.getPassword(DB_IDENT),
-                        params.getTablespace(DB_IDENT),
-                        params.getTempTablespace(DB_IDENT));
-                platformMigrator.dropUser(connection, params.getUsername(DB_IDENT));
-            } finally {
-                platformMigrator.dropTablespace(connection, params.getTablespace(DB_IDENT));
-            }
-        }
-    }
-
-    @Test
-    public void createUserProfileTest() throws SQLException {
-        String login = String.valueOf(System.nanoTime());
-        try (Connection con = dataSource.getConnection()) {
-            Long id = null;
-            try {
-                id = platformMigrator.createUserProfile(con, login);
-                Assert.assertNotNull(id);
-                Assert.assertNull(platformMigrator.createUserProfile(con, login));
-            } finally {
-                platformMigrator.removeUserProfile(con, id);
-            }
         }
     }
 

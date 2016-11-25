@@ -1,19 +1,19 @@
 package jet.nsi.migrator.postgresql;
 
+import static jet.nsi.common.migrator.config.MigratorParams.key;
+import static jet.nsi.common.migrator.config.MigratorParams.DB;
+import static jet.nsi.common.migrator.config.MigratorParams.LIQUIBASE;
+import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.util.List;
-
-import java.util.Properties;
 
 import org.jooq.exception.DataAccessException;
 import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
-import jet.nsi.common.config.MigratorParams;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.migrator.Migrator;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
@@ -44,7 +44,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     
     @Override
     protected void initTestCustomProperties() {
-        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
+        properties.setProperty(key(DB,LIQUIBASE,LOG_PREFIX), TEST_NSI_PREFIX);
     }
 
     @Override
@@ -77,13 +77,6 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
 
             platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
-        } catch (DataAccessException e) {
-            String message = e.getMessage();
-            if (message.startsWith("SQL [drop table table") && message.endsWith("does not exist")) {
-                //do nothing
-            } else {
-                throw e;
-            }
         }
 
         {

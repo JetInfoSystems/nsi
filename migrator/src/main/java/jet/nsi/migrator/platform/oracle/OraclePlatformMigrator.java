@@ -24,7 +24,7 @@ import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
-import jet.nsi.common.config.MigratorParams;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.platform.oracle.OracleNsiPlatform;
 import jet.nsi.migrator.MigratorException;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
@@ -342,5 +342,11 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
             throw new RuntimeException("createLiquibase(OraclePlatform) -> failed" , e);
         }
         
+    }
+    
+    protected static void throwIfNot(SQLSyntaxErrorException e, int errorCode) {
+        if(e.getErrorCode() != errorCode) {
+            throw new RuntimeException(e);
+        }
     }
 }
