@@ -9,7 +9,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 
-import org.jooq.exception.DataAccessException;
 import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
@@ -73,7 +72,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
             platformMigrator.dropTable(dict1, connection);
             platformMigrator.dropSeq(dict2, connection);
             platformMigrator.dropSeq(dict1, connection);
-
+            
             platformMigrator.dropSeq("SEQ_POSTPROC1", connection);
 
             platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
@@ -135,38 +134,6 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
 
             platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
-        }
-    }
-    
-    @Test
-    public void changeColumnSizeTest() throws Exception {
-        setupMigrator("src/test/resources/metadata/changeColumnSize/create");
-        NsiConfigDict testSize = config.getDict("test_size");
-        
-        try(Connection connection = dataSource.getConnection()) {
-            platformMigrator.dropTable(testSize, connection);
-            platformMigrator.dropSeq(testSize, connection);
-        }
-
-        RecActionsTargetImpl rec = new RecActionsTargetImpl();
-
-        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
-        migrator.addTarget( rec );
-        migrator.update("v1");
-
-        setupMigrator("src/test/resources/metadata/changeColumnSize/alter");
-        migrator = new Migrator(config, dataSource, params, platformMigrator );
-        migrator.addTarget( rec );
-        migrator.update("v1");
-
-        List<String> actions = rec.getActions();
-        log.info(actions.toString());
-        Assert.assertEquals(3, actions.size());
-        Assert.assertEquals("alter table test_size alter column test type char(4)", actions.get(2));
-
-        try(Connection connection = dataSource.getConnection()) {
-            platformMigrator.dropTable(testSize, connection);
-            platformMigrator.dropSeq(testSize, connection);
         }
     }
 }

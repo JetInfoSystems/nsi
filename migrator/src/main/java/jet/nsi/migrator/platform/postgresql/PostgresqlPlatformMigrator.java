@@ -24,7 +24,6 @@ import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
-import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.platform.postgresql.PostgresqlNsiPlatform;
 import jet.nsi.migrator.MigratorException;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;

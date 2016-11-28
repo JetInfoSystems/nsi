@@ -13,9 +13,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 
-import org.jooq.exception.DataAccessException;
 import org.junit.Test;
-import org.postgresql.util.PSQLException;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
