@@ -121,6 +121,11 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
         
         NsiConfigDict userProfileDict = config.getDict("USER_PROFILE");
         
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropTable(userProfileDict, connection);
+            platformMigrator.dropSeq(userProfileDict, connection);
+        }
+        
         Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
         migrator.addTarget( rec );

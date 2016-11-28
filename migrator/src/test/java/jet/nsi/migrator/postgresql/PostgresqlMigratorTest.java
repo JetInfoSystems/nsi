@@ -146,14 +146,6 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(testSize, connection);
             platformMigrator.dropSeq(testSize, connection);
-        } // FIXME : 
-        catch (DataAccessException e) {
-            String message = e.getMessage();
-            if (message.startsWith("SQL [drop table ") && message.endsWith("does not exist")) {
-                //do nothing
-            } else {
-                throw e;
-            }
         }
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
