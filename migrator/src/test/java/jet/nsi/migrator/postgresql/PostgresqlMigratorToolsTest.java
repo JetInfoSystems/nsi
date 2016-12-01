@@ -1,28 +1,28 @@
 package jet.nsi.migrator.postgresql;
 
+import static jet.nsi.common.migrator.config.MigratorParams.key;
+import static jet.nsi.common.migrator.config.MigratorParams.BASE;
+import static jet.nsi.common.migrator.config.MigratorParams.PATH;
+import static jet.nsi.common.migrator.config.MigratorParams.DB;
+import static jet.nsi.common.migrator.config.MigratorParams.CHANGE_LOG;
+import static jet.nsi.common.migrator.config.MigratorParams.LIQUIBASE;
+import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import org.joda.time.DateTime;
-import org.jooq.exception.DataAccessException;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.Migrator;
-import jet.nsi.migrator.MigratorParams;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
-import jet.nsi.migrator.platform.oracle.OracleFtsModule;
-import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
@@ -32,7 +32,8 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.postgresql95";
     private static final String TEST_NSI_PREFIX = "TEST_NSI_";
-    private MigratorParams params;
+    private static final String LIQUIBASE_CHANGE_LOG_BASE_PATH = "with_empty_liquibase_changelogs";
+
     private PlatformMigrator platformMigrator;
     //private PostgresqlFtsModule ftsModule;
 
@@ -42,28 +43,32 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     
     @Override
     public void setup() throws Exception {
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platform = platformMigrator.getPlatform();
         super.setup();
-        getConfiguration();
-        properties.setProperty("db.liqubase.logPrefix", TEST_NSI_PREFIX);
-        properties.setProperty("liquibaseChangelogBasePath", "with_empty_liquibase_changelogs");
-        params = new MigratorParams(properties);
+
         Assert.assertEquals(TEST_NSI_PREFIX, params.getLogPrefix());
-        //ftsModule = new OracleFtsModule(platformSqlDao);
+
+        
+        params = new MigratorParams(properties);
+    }
+    
+    @Override
+    protected void initTestCustomProperties() {
+        properties.setProperty(key(DB,LIQUIBASE,LOG_PREFIX), TEST_NSI_PREFIX);
+        properties.setProperty(key(LIQUIBASE,CHANGE_LOG,BASE,PATH), LIQUIBASE_CHANGE_LOG_BASE_PATH);
+    }
+    
+    @Override
+    protected void initPlatformSpecific() {
+        //ftsModule = new PostgresqlFtsModule(platformSqlDao);
+        platformMigrator = new PostgresqlPlatformMigrator();
+        platformMigrator.setParams(params);
+        platform = platformMigrator.getPlatform();
     }
 
     public void setupMigrator(String metadataPath) {
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
-    }
-
-
-    private void getConfiguration() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project."+ dbIdent+ ".properties");
-        Properties props = new Properties();
-        props.load(in);
     }
 
     @Test
@@ -115,6 +120,11 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
         setupMigrator("src/test/resources/metadata/user_profile");
         
         NsiConfigDict userProfileDict = config.getDict("USER_PROFILE");
+        
+        try(Connection connection = dataSource.getConnection()) {
+            platformMigrator.dropTable(userProfileDict, connection);
+            platformMigrator.dropSeq(userProfileDict, connection);
+        }
         
         Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
         RecActionsTargetImpl rec = new RecActionsTargetImpl();

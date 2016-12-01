@@ -50,7 +50,7 @@ import com.beust.jcommander.Strings;
  */
 public class NsiSchemaMigratorImpl implements SchemaMigrator {
     
-    private static final String MODIFY_OPERATION = "alter";
+    private static final String MODIFY_OPERATION = "alter column";
     
 
     @Override
@@ -134,7 +134,25 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                     );
                 }
             }
-            
+
+            for (Sequence sequence : namespace.getSequences()) {
+                checkExportIdentifier(sequence, exportIdentifiers);
+                final SequenceInformation sequenceInformation = existingDatabase.getSequenceInformation(sequence.getName());
+                if (sequenceInformation != null) {
+                    // nothing we really can do...
+                    continue;
+                }
+                
+                applySqlStrings(
+                                database.getJdbcEnvironment().getDialect().getSequenceExporter().getSqlCreateStrings(
+                                                sequence,
+                                                metadata
+                                ), 
+                                targets,
+                                false
+                );
+            }
+
             // first pass
             for (Table table : namespace.getTables()) {
                 if (!table.isPhysicalTable()) {
@@ -171,24 +189,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 applyIndexes(table, tableInformation, metadata, targets);
                 applyUniqueKeys(table, tableInformation, metadata, targets);
                 applyForeignKeys(table, tableInformation, metadata, targets);
-            }
-            
-            for (Sequence sequence : namespace.getSequences()) {
-                checkExportIdentifier(sequence, exportIdentifiers);
-                final SequenceInformation sequenceInformation = existingDatabase.getSequenceInformation(sequence.getName());
-                if (sequenceInformation != null) {
-                    // nothing we really can do...
-                    continue;
-                }
-                
-                applySqlStrings(
-                                database.getJdbcEnvironment().getDialect().getSequenceExporter().getSqlCreateStrings(
-                                                sequence,
-                                                metadata
-                                ), 
-                                targets,
-                                false
-                );
             }
         }
     }
@@ -427,6 +427,9 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
     public String getColumnOperationString(ColumnInformation columnInformation, Dialect dialect) {
         return (columnInformation == null) ? dialect.getAddColumnString() : MODIFY_OPERATION;
     }
+    public String getColumnOperationTypeString(ColumnInformation columnInformation, Dialect dialect) {
+        return (columnInformation == null) ? "" : "type ";
+    }
     
     public Iterator<String> sqlAlterStrings(Table table, Dialect dialect, Mapping p, TableInformation tableInfo,
             String defaultCatalog, String defaultSchema) throws HibernateException {
@@ -445,7 +448,9 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 // the column doesnt exist at all.
                 StringBuilder alter = new StringBuilder("alter table ").append(tableName).append(' ')
                         .append(getColumnOperationString(columnInfo, dialect)).append(' ')
-                        .append(column.getQuotedName(dialect)).append(' ').append(column.getSqlType(dialect, p));
+                        .append(column.getQuotedName(dialect)).append(' ')
+                        .append(getColumnOperationTypeString(columnInfo, dialect))
+                        .append(column.getSqlType(dialect, p));
                 
                 String defaultValue = column.getDefaultValue();
                 if (defaultValue != null) {

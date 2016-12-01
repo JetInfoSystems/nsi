@@ -3,7 +3,6 @@ package jet.nsi.migrator.platform.postgresql;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -17,6 +16,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.jooq.CreateTableAsStep;
 import org.jooq.CreateTableColumnStep;
 import org.jooq.exception.DataAccessException;
+import org.postgresql.util.PSQLException;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
@@ -30,17 +30,16 @@ import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import jet.nsi.migrator.platform.DefaultPlatformMigrator;
 import jet.nsi.migrator.platform.DictToHbmSerializer;
-import jet.nsi.migrator.platform.oracle.OracleFtsModule;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.core.PostgresDatabase;
-import liquibase.database.core.UnsupportedDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
 public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
-
+    
+    private final String UNDEFINED_TABLE_ERROR_CODE = "42P01";
     //private final PostgresqlFtsModule ftsModule;
     
     public PostgresqlPlatformMigrator() {
@@ -49,8 +48,7 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public StandardServiceRegistry buildStandardServiceRegistry(
-            DataSource dataSource) {
+    public StandardServiceRegistry buildStandardServiceRegistry(DataSource dataSource) {
         final BootstrapServiceRegistry bsr = new BootstrapServiceRegistryBuilder().build();
         final StandardServiceRegistryBuilder ssrBuilder = new StandardServiceRegistryBuilder( bsr );
 
@@ -65,7 +63,7 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public DictToHbmSerializer getDictToHbmSerializer() {
-        return new PostgresqlDictToHbmSerializer();
+        return new PostgresqlDictToHbmSerializer(params.getUseSequenceAsDefaultValueForId(params.getDbIdent()));
     }
 
     @Override
@@ -137,8 +135,8 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
         }
         catch(DataAccessException e) {
             Throwable cause = e.getCause();
-            if(cause instanceof SQLSyntaxErrorException) {
-                throwIfNot((SQLSyntaxErrorException)cause, 942);
+            if(cause instanceof PSQLException) {
+                throwIfNot((PSQLException)cause, UNDEFINED_TABLE_ERROR_CODE);
             } else {
                 throw e;
             }
@@ -159,11 +157,10 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     public void dropSeq(String name, Connection connection) {
         try {
             platformSqlDao.getQueryBuilder(connection).dropSequence(name).execute();
-        }
-        catch(DataAccessException e) {
+        } catch(DataAccessException e) {
             Throwable cause = e.getCause();
-            if(cause instanceof SQLSyntaxErrorException) {
-                throwIfNot((SQLSyntaxErrorException)cause, 2289);
+            if(cause instanceof PSQLException) {
+                throwIfNot((PSQLException)cause, UNDEFINED_TABLE_ERROR_CODE);
             } else {
                 throw e;
             }
@@ -235,13 +232,11 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public void updateMetadataSources(MetadataSources metadataSources,
-            NsiConfig config) {
+    public void updateMetadataSources(MetadataSources metadataSources, NsiConfig config) {
     }
 
     @Override
-    public void updateMetadataSources(MetadataSources metadataSources,
-            NsiConfigDict model) {
+    public void updateMetadataSources(MetadataSources metadataSources, NsiConfigDict model) {
     }
 
     @Override
@@ -344,5 +339,11 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     public void dropSchema(Connection connection, String name) {
         platformSqlDao.executeSql(connection, new StringBuilder()
                 .append("drop schema if exists ").append(name).append(" cascade").toString());
+    }
+    
+    protected static void throwIfNot(PSQLException e, String errorCode) {
+        if(!e.getSQLState().equals(errorCode)) {
+            throw new RuntimeException(e);
+        }
     }
 }

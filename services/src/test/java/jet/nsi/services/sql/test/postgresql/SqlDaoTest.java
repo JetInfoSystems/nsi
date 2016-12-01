@@ -32,6 +32,7 @@ import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.tx.NsiTransactionService;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
+import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.services.NsiTransactionServiceImpl;
 import jet.nsi.testkit.test.BaseSqlTest;
@@ -50,11 +51,17 @@ public class SqlDaoTest extends BaseSqlTest {
     
     @Override
     public void setup() throws Exception {
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platform = platformMigrator.getPlatform();
         super.setup();
+
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
+    }
+
+    @Override
+    protected void initPlatformSpecific() {
+        platformMigrator = new PostgresqlPlatformMigrator();
+        platformMigrator.setParams(params);
+        platform = platformMigrator.getPlatform();
     }
 
     @Test

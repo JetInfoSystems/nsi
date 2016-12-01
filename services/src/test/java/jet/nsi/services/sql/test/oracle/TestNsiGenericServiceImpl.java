@@ -40,16 +40,21 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
     @Override
     public void setup() throws Exception {
-        platformMigrator = new OraclePlatformMigrator();
-        platform = platformMigrator.getPlatform();
-
         super.setup();
+        
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
         transactionService = new NsiTransactionServiceImpl(new MockMetrics());
         transactionService.setDataSource(dataSource);
         service = new NsiGenericServiceImpl(new MockMetrics());
         service.setTransactionService(transactionService);
+    }
+    
+    @Override
+    protected void initPlatformSpecific() {
+        platformMigrator = new OraclePlatformMigrator();
+        platformMigrator.setParams(params);
+        platform = platformMigrator.getPlatform();
     }
 
     @Test

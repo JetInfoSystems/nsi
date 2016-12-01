@@ -27,6 +27,7 @@ import com.google.common.base.Strings;
 
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.hibernate.ExecuteSqlTargetImpl;
 import jet.nsi.migrator.hibernate.LogActionsTargetImpl;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;

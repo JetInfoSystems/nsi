@@ -1,13 +1,19 @@
 package jet.nsi.migrator.oracle;
 
+import static jet.nsi.common.migrator.config.MigratorParams.key;
+import static jet.nsi.common.migrator.config.MigratorParams.DB;
+import static jet.nsi.common.migrator.config.MigratorParams.LIQUIBASE;
+import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
+import static jet.nsi.common.migrator.config.MigratorParams.NAME;
+import static jet.nsi.common.migrator.config.MigratorParams.TABLESPACE;
+import static jet.nsi.common.migrator.config.MigratorParams.USERNAME;
+
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.joda.time.DateTime;
 import org.junit.Ignore;
@@ -16,8 +22,8 @@ import org.junit.Test;
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.Migrator;
-import jet.nsi.migrator.MigratorParams;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.PlatformMigrator;
 import jet.nsi.migrator.platform.oracle.OracleFtsModule;
@@ -29,7 +35,8 @@ import junit.framework.Assert;
 public class OracleMigratorTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.oracle";
-    private MigratorParams params;
+    private static final String TEST_NSI_PREFIX = "TEST_NSI_";
+    
     private PlatformMigrator platformMigrator;
     private OracleFtsModule ftsModule;
     
@@ -39,26 +46,30 @@ public class OracleMigratorTest extends BaseSqlTest{
 
     @Override
     public void setup() throws Exception {
-        platformMigrator = new OraclePlatformMigrator();
-        platform = platformMigrator.getPlatform();
         super.setup();
-        getConfiguration();
-        properties.setProperty("db.liqubase.logPrefix", "TEST_NSI_");
+
+        Assert.assertEquals(TEST_NSI_PREFIX, params.getLogPrefix());
+
         params = new MigratorParams(properties);
-        Assert.assertEquals("TEST_NSI_", params.getLogPrefix());
+    }
+    
+    @Override
+    protected void initTestCustomProperties() {
+        properties.setProperty(key(DB,LIQUIBASE,LOG_PREFIX), TEST_NSI_PREFIX);
+    }
+
+    @Override
+    protected void initPlatformSpecific() {
         ftsModule = new OracleFtsModule(platformSqlDao);
+        platformMigrator = new OraclePlatformMigrator();
+        platformMigrator.setParams(params);
+        platform = platformMigrator.getPlatform();
     }
 
     public void setupMigrator(String metadataPath) {
         File configPath = new File(metadataPath);
         NsiConfigManager manager = new NsiConfigManagerFactoryImpl().create(configPath);
         config = manager.getConfig();
-    }
-
-    private void getConfiguration() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("project."+ dbIdent +".properties");
-        Properties props = new Properties();
-        props.load(in);
     }
 
     @Test
@@ -88,10 +99,11 @@ public class OracleMigratorTest extends BaseSqlTest{
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(4, actions.size());
-            Assert.assertEquals("create table table1 (id number(19,0) not null, f1 varchar2(100 char), is_deleted char(1 char), last_change date, last_user number(19,0), VERSION number(6,0), primary key (id))", actions.get(0));
-            Assert.assertEquals("create table table2 (id number(19,0) not null, dict1_id number(19,0), is_deleted char(1 char), last_change date, last_user number(19,0), name char(100 char), VERSION number(6,0), primary key (id))", actions.get(1));
-            Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(2));
-            Assert.assertEquals("create sequence seq_table2 start with 1 increment by 1", actions.get(3));
+            Assert.assertEquals("create sequence seq_table2 start with 1 increment by 1", actions.get(0));
+            Assert.assertEquals("create table table1 (id number(19,0) not null, f1 varchar2(100 char), is_deleted char(1 char), last_change date, last_user number(19,0), VERSION number(6,0), primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table2 (id number(19,0) not null, dict1_id number(19,0), is_deleted char(1 char), last_change date, last_user number(19,0), name char(100 char), VERSION number(6,0), primary key (id))", actions.get(2));
+            Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(3));
+            
         }
 
         // check SEQ_POSTPROC1
@@ -134,56 +146,6 @@ public class OracleMigratorTest extends BaseSqlTest{
 
             platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
-        }
-
-    }
-
-    @Test
-    public void tablespaceTest() throws SQLException {
-        String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
-        try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
-            platformMigrator.createTablespace(connection,
-                    params.getTablespace(DB_IDENT),
-                    params.getDataFileName(DB_IDENT), "1M", "1M", "10M");
-            platformMigrator.dropTablespace(connection, params.getTablespace(DB_IDENT));
-        }
-    }
-
-    @Test
-    public void userTest() throws SQLException {
-        String tempName = "t" + DateTime.now().getMillis();
-        properties.put("db."+ DB_IDENT + ".tablespace.name", tempName);
-        properties.put("db."+ DB_IDENT + ".username", tempName);
-        try(Connection connection = platformMigrator.createAdminConnection(DB_IDENT, properties)) {
-            platformMigrator.createTablespace(connection,
-                    params.getTablespace(DB_IDENT),
-                    params.getDataFileName(DB_IDENT), "1M", "1M", "10M");
-            try {
-                platformMigrator.createUser(connection,
-                        params.getUsername(DB_IDENT),
-                        params.getPassword(DB_IDENT),
-                        params.getTablespace(DB_IDENT),
-                        params.getTempTablespace(DB_IDENT));
-                platformMigrator.dropUser(connection, params.getUsername(DB_IDENT));
-            } finally {
-                platformMigrator.dropTablespace(connection, params.getTablespace(DB_IDENT));
-            }
-        }
-    }
-
-    @Test
-    public void createUserProfileTest() throws SQLException {
-        String login = String.valueOf(System.nanoTime());
-        try (Connection con = dataSource.getConnection()) {
-            Long id = null;
-            try {
-                id = platformMigrator.createUserProfile(con, login);
-                Assert.assertNotNull(id);
-                Assert.assertNull(platformMigrator.createUserProfile(con, login));
-            } finally {
-                platformMigrator.removeUserProfile(con, id);
-            }
         }
     }
 
@@ -241,7 +203,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         List<String> actions = rec.getActions();
         log.info(actions.toString());
         Assert.assertEquals(2, actions.size());
-        Assert.assertEquals("create table dict1 (id number(19,0) not null, v number(4,0), VERSION number(6,0), primary key (id))", actions.get(0));
+        Assert.assertEquals("create table dict1 (id number(19,0) not null, v number(4,0), VERSION number(6,0), primary key (id))", actions.get(1));
 
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(testSize, connection);
@@ -275,7 +237,7 @@ public class OracleMigratorTest extends BaseSqlTest{
         log.info("DUMP");
 
         Assert.assertEquals(actions.toString(), 2, actions.size());
-        Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), VERSION number(6,0), primary key (id))", actions.get(0));
+        Assert.assertEquals("create table dict1 (id number(19,0) not null, clobField clob, f1 number(20,8), VERSION number(6,0), primary key (id))", actions.get(1));
 
         try(Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(dict1, connection);

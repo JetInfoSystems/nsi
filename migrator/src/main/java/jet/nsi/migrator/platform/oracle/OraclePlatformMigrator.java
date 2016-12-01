@@ -24,6 +24,7 @@ import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.platform.oracle.OracleNsiPlatform;
 import jet.nsi.migrator.MigratorException;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
@@ -41,6 +42,9 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 
 public class OraclePlatformMigrator extends DefaultPlatformMigrator {
 
+    private final int ORA_SEQUENCE_DOES_NOT_EXISTS_ERROR_CODE = 2289;
+    private final int ORA_TABLE_OR_VIEW_DOES_NOT_EXISTS_ERROR_CODE = 942;
+    
     private final OracleFtsModule ftsModule;
 
     public OraclePlatformMigrator() {
@@ -153,7 +157,7 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
         catch(DataAccessException e) {
             Throwable cause = e.getCause();
             if(cause instanceof SQLSyntaxErrorException) {
-                throwIfNot((SQLSyntaxErrorException)cause, 942);
+                throwIfNot((SQLSyntaxErrorException)cause, ORA_TABLE_OR_VIEW_DOES_NOT_EXISTS_ERROR_CODE);
             } else {
                 throw e;
             }
@@ -178,7 +182,7 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
         catch(DataAccessException e) {
             Throwable cause = e.getCause();
             if(cause instanceof SQLSyntaxErrorException) {
-                throwIfNot((SQLSyntaxErrorException)cause, 2289);
+                throwIfNot((SQLSyntaxErrorException)cause, ORA_SEQUENCE_DOES_NOT_EXISTS_ERROR_CODE);
             } else {
                 throw e;
             }
@@ -338,5 +342,11 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
             throw new RuntimeException("createLiquibase(OraclePlatform) -> failed" , e);
         }
         
+    }
+    
+    protected static void throwIfNot(SQLSyntaxErrorException e, int errorCode) {
+        if(e.getErrorCode() != errorCode) {
+            throw new RuntimeException(e);
+        }
     }
 }
