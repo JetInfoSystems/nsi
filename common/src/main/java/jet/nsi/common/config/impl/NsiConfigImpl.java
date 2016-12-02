@@ -1,23 +1,10 @@
 
 package jet.nsi.common.config.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigAttr;
 import jet.nsi.api.data.NsiConfigDict;
@@ -30,6 +17,18 @@ import jet.nsi.api.model.MetaDict;
 import jet.nsi.api.model.MetaField;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.model.MetaOwn;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class NsiConfigImpl implements NsiConfig {
 
@@ -380,8 +379,8 @@ public class NsiConfigImpl implements NsiConfig {
         NsiConfigAttr attr = new NsiConfigAttr(metaAttr);
         preCheckAttr(dict, attr);
         Set<String> fieldSet = new HashSet<>(metaAttr.getFields());
-        if(fieldSet.size() == 0) {
-            throwDictException(dict, "fields not set", metaAttr.getName());
+        if (fieldSet.size() == 0 && metaAttr.isPersist()) {
+            throwDictException(dict, "fields not set. Please add field or unset persist", metaAttr.getName());
         }
         if(fieldSet.size() != metaAttr.getFields().size()) {
             throwDictException(dict, "fields dubbed", metaAttr.getName(), metaAttr.getFields().toString());

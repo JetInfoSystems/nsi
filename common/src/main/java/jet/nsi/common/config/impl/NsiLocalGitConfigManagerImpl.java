@@ -139,6 +139,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         NsiConfigImpl config = new NsiConfigImpl(configParams);
         Set<File> configFiles = findFiles();
         for (File configFile : configFiles) {
+            log.info("readConfig->reading file {}", configFile);
             MetaDict metaDict = readConfigFile(configFile);
             config.addDict(metaDict);
         }
