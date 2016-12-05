@@ -1,11 +1,14 @@
 package jet.nsi.api.model;
 
+import jet.nsi.api.validator.NotNullIfAnotherFieldHasValue;
+
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * Описание атрибута справочника.
  */
+@NotNullIfAnotherFieldHasValue(fieldName = "type", fieldValue = "REF", dependFieldName = "refDict")
 public class MetaAttr implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -54,19 +57,19 @@ public class MetaAttr implements Serializable {
      * Для нетребуемого атрибута будетформировать left join уcловие
      */
     private boolean required = false;
-    
+
     /**
      * Атрибут определяет, должно ли значение полей атрибута использоваться для формирования текстового представления.
      * Фронтенд может использовать такие скрытые атрибуты, например для раскрашивания записей.
      */
     private boolean refAttrHidden = false;
-    
+
     /**
-     * Атрибут показывает является ли данный атрибут сохраняемым, используется чтобы сказать фронту какие поля 
+     * Атрибут показывает является ли данный атрибут сохраняемым, используется чтобы сказать фронту какие поля
      * не нужно сохранять
      */
     private boolean persist = true;
-    
+
     public boolean isRequired() {
         return required;
     }

@@ -491,7 +491,7 @@ public class NsiConfigImpl implements NsiConfig {
         default:
             throwDictException(dict, "invalid field type", field.getName(), field.getType());
         }
-        if(field.getSize() != null && field.getSize() <= 0 && field.getType()!=MetaFieldType.DATE_TIME) {
+        if(field.getSize() != null && field.getSize() <= 0 && !(field.getType()==MetaFieldType.DATE_TIME||field.getType()==MetaFieldType.CLOB)) {
             throwDictException(dict, "invalid field size", field.getName(), field.getSize().toString());
         }
     }
