@@ -23,7 +23,7 @@ public @interface NotNullIfAnotherFieldHasValue {
 
     String dependFieldName();
 
-    String message() default "{NotNullIfAnotherFieldHasValue.message}";
+    String message() default "NotNullIfAnotherFieldHasValue.message";
 
     Class<?>[] groups() default {};
 

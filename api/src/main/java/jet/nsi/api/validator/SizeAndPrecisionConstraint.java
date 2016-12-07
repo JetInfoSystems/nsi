@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface SizeAndPrecisionConstraint {
     MetaFieldType dataType();
 
-    String message() default "{SizeAndPrecisionConstraint.message}";
+    String message() default "SizeAndPrecisionConstraint.message";
 
     Class<?>[] groups() default {};
 

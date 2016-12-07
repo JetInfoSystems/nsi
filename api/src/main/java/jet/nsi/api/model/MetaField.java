@@ -1,6 +1,7 @@
 package jet.nsi.api.model;
 
 import jet.nsi.api.validator.SizeAndPrecisionConstraint;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -19,7 +20,7 @@ public class MetaField implements Serializable {
     /**
      * Уникальное имя поля в таблице.
      */
-    @NotNull
+    @NotBlank
     private String name;
     /**
      * Тип поля: string | number | date-time | boolean.
