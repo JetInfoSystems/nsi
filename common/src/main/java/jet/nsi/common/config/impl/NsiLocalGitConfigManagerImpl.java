@@ -15,7 +15,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,52 +37,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     private static final Logger log = LoggerFactory.getLogger(NsiLocalGitConfigManagerImpl.class);
     
     private static final String TMP_DIR = ".tmp";
-
-    private final class ConfigFileWalker extends DirectoryWalker<File> {
-        private ConfigFileWalker(FileFilter filter) {
-            super(filter, -1);
-        }
-
-        @Override
-        protected void handleFile(File file, int depth, Collection<File> results) throws IOException {
-            results.add(file);
-        }
-
-        Set<File> find(File configPath) {
-            Set<File> result = new HashSet<>();
-            try {
-                walk(configPath, result);
-                return result;
-            } catch (Exception e) {
-                throw new NsiConfigException("find config files", e);
-            }
-        }
-    }
-    
-    private final class CopyFileVisitor extends SimpleFileVisitor<Path> {
-        private final Path targetPath;
-        private Path sourcePath = null;
-        
-        public CopyFileVisitor(Path targetPath) {
-            this.targetPath = targetPath;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-            if (sourcePath == null) {
-                sourcePath = dir;
-            } else {
-                Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
-            return FileVisitResult.CONTINUE;
-        }
-    }
+    private static final String FILE_EXTENTION = ".yaml";
 
     private final File configPath;
     private final NsiMetaDictReader reader;
@@ -142,7 +102,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         Set<File> configFiles = findFiles();
         for (File configFile : configFiles) {
             MetaDict metaDict = readConfigFile(configFile);
-            config.addDict(metaDict);
+            config.addDict(metaDict, configFile.toPath());
         }
         config.postCheck();
         return config;
@@ -168,50 +128,150 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     }
 
     public void createOrUpdateConfig(MetaDict metaDict) {
+        createOrUpdateConfig(metaDict, "");
+    }
+    
+    public void createOrUpdateConfig(MetaDict metaDict, String relativePath) {
+        // Сохраняем текущий путь до файла и текущую версию справочника, 
+        // чтобы удалить после успешного сохранения и если путь до файла изменится
+        Path curPath = config.getMetaDictPath(metaDict.getName());
+        MetaDict curMetaDict = config.getMetaDict(metaDict.getName());
+        
+        
+        Path tmpPath = getTmpPath();
+        Path metaDictTempFilePath = getCreatePathAndFile(tmpPath, metaDict.getName());
+        
+        checkAndWriteTempFile(metaDict, metaDictTempFilePath, curMetaDict, curPath);
+        
+        Path targetPath = configPath.toPath().resolve(relativePath).resolve(getDictFileName(metaDict.getName()));
+        moveTempFileToTargetPath(metaDict.getName(), curPath, targetPath, metaDictTempFilePath);
+    }
+    
+    private void moveTempFileToTargetPath(String name, Path curPath, Path targetPath, Path tempFilePath) {
+        try {
+            // перемещаем временный файл в целевой каталог
+            Files.move(tempFilePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            
+            if (curPath != null && !targetPath.equals(curPath)) {
+                // если предыдущая версия файла существовала файла по другому пути, то удаляем старый файл
+                Files.deleteIfExists(curPath);
+            }
+        } catch (IOException e) {
+            log.error("moveTempFileToTargetPath ['{}', '{}', '{}', '{}'] -> failed", name, curPath, targetPath, tempFilePath);
+            throw new NsiConfigException("Failed to move new version of metaDict '" + name + "' to target path '" + targetPath + "'", e);
+        }
+        
+        
+        if (curPath != null && !targetPath.equals(curPath)) { //метаданые уже существовали, но по другому пути, нужно удалить старый файл
+        }
+    } 
+    
+    private void checkAndWriteTempFile(MetaDict metaDict, Path metaDictFilePath, MetaDict oldMetaDict, Path oldMetaDictFilePath) {
+        try(FileWriter newFileWriter = new FileWriter(metaDictFilePath.toFile())) {
+            // Записываем промежуточную копию на диск
+            writer.write(metaDict, newFileWriter);
+
+            // Добавляем/обновляем метаданные в памяти, также выполняется проверка при добавлении
+            config.updateDict(metaDict, metaDictFilePath);
+            config.postCheck();
+            
+            // Читаем записанное в файл для проверки корректности записи
+            readConfigFile(metaDictFilePath.toFile());
+            log.info("checkAndWriteTempFile [{}] -> ok", metaDict.getName());
+        } catch(Exception e) {
+            // В случае любых проблем, удаляем из памяти, 
+            // но файл во временной директории можем оставить для разбора проблемы
+            log.error("checkAndWriteTempFile [{}] -> error", metaDict.getName(), e);
+            // Удалим из памяти, если успели добавить
+            config.removeDict(metaDict.getName());
+            // если предыдущая версия существовала, вернем в память
+            if(oldMetaDict != null) {
+                config.addDict(oldMetaDict, oldMetaDictFilePath);
+            }
+
+            throw new NsiConfigException("Failed to add/update config file for metaDict: " + metaDict.getName(), e);
+        }
+    }
+    
+    private Path getCreatePathAndFile(Path dir, String dictName) {
+        Path metaDictFilePath = Paths.get(dir.toString(), getDictFileName(dictName));
+        if (Files.notExists(metaDictFilePath)) {
+            try {
+                Files.createFile(metaDictFilePath);
+                log.debug("getCreatePathAndFile['{}'] -> new file created");
+            } catch (IOException ex) {
+                log.error("getCreatePathAndFile['{}'] -> failed to create file in directory ['{}', '{}']", 
+                                        dictName, metaDictFilePath.toString(), dir.toString(), ex);
+                throw new NsiConfigException("couldn't create file " + metaDictFilePath.toString() + 
+                                        " in directory '" + dir.toString() + "'", ex);
+            }
+        }
+        return metaDictFilePath;
+    }
+    
+    private Path getTmpPath() {
         Path tmpPath = Paths.get(configPath.toPath().toString(), TMP_DIR);
         if (Files.notExists(tmpPath)) {
             try {
-                Files.createDirectory(tmpPath);
-            } catch (IOException ex) {
-                log.error("createOrUpdateConfig['{}'] -> failed to create temp directory ['{}']", metaDict.getName(), tmpPath.toString(), ex);
-                throw new NsiConfigException("couldn't create temp directory " + tmpPath.toString(), ex);
+                    Files.createDirectories(tmpPath);
+                } catch (IOException ex) {
+                    log.error("getTmpPath -> failed to create temp directory ['{}']", tmpPath.toString(), ex);
+                    throw new NsiConfigException("couldn't create temp directory " + tmpPath.toString(), ex);
+                }
             }
-        }
         
-        Path metaDictFilePath = Paths.get(tmpPath.toString(), metaDict.getName().concat(".yaml"));
-        boolean isMetaDictFileExists = Files.exists(metaDictFilePath);
-        if (!isMetaDictFileExists) {
-            try {
-                Files.createFile(metaDictFilePath);
-            } catch (IOException ex) {
-                log.error("createOrUpdateConfig['{}'] -> failed to create file in temp directory ['{}', '{}']", 
-                                        metaDict.getName(), metaDictFilePath.toString(), tmpPath.toString(), ex);
-                throw new NsiConfigException("couldn't create file " + metaDictFilePath.toString() + 
-                                        " in temp directory " + tmpPath.toString(), ex);
-            }
+        return tmpPath;
+    }
+    
+    private String getDictFileName(String dictName) {
+        return dictName.concat(FILE_EXTENTION);
+    }
+    
+    private final class ConfigFileWalker extends DirectoryWalker<File> {
+        private ConfigFileWalker(FileFilter filter) {
+            super(filter, -1);
         }
-        File metaDictFile = metaDictFilePath.toFile();
-        try(FileWriter newFileWriter = new FileWriter(metaDictFile)) {
-            config.updateDict(metaDict);
-            config.postCheck();
 
-            writer.write(metaDict, newFileWriter);
+        @Override
+        protected void handleFile(File file, int depth, Collection<File> results) throws IOException {
+            results.add(file);
+        }
 
-            log.info("createOrUpdateConfig [{}] -> ok", metaDict.getName());
-            readConfigFile(metaDictFile);
-        } catch(Exception e) {
-            log.error("createOrUpdateConfig [{}] -> error", metaDict.getName(), e);
-            // Удалим из памяти, если успели добавить
-            config.removeDict(metaDict.getName());
-
-            // Удалим файл, если он существует
+        Set<File> find(File configPath) {
+            Set<File> result = new HashSet<>();
             try {
-                metaDictFile.delete();
-            } catch (Exception ex) {
-                log.warn("writeConfigFile[{}] tried to delete file -> file wasn't created", metaDict.getName(), ex);
+                walk(configPath, result);
+                return result;
+            } catch (Exception e) {
+                throw new NsiConfigException("find config files", e);
             }
-            throw new NsiConfigException("Failed to write config file for metaDict: " + metaDict.getName(), e);
         }
     }
+    
+    private final class CopyFileVisitor extends SimpleFileVisitor<Path> {
+        private final Path targetPath;
+        private Path sourcePath = null;
+        
+        public CopyFileVisitor(Path targetPath) {
+            this.targetPath = targetPath;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+            if (sourcePath == null) {
+                sourcePath = dir;
+            } else {
+                Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
 
 }

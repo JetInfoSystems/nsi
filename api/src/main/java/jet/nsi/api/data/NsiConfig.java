@@ -10,11 +10,12 @@ public interface NsiConfig {
     NsiConfigDict getDict(String name);
     MetaDict getMetaDict(String name);
     
+    Path getMetaDictPath(String name);
+    
     Collection<NsiConfigDict> getDicts();
     Collection<NsiConfigDict> getDicts(Set<String> labels);
     
     Collection<MetaDict> getMetaDicts();
     Collection<MetaDict> getMetaDicts(Set<String> labels);
-    
-    Path getMetaDictPath(String name);
+
 }

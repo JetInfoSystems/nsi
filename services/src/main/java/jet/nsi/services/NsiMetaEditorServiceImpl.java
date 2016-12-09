@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Timer;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import jet.metrics.api.Metrics;
 import jet.metrics.api.MetricsDomain;
@@ -92,11 +93,20 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
 
     @Override
     public MetaDict metaDictSet(String requestId, MetaDict metaDict) {
+        return metaDictSet(requestId, metaDict, "");
+    }
+    
+    @Override
+    public MetaDict metaDictSet(String requestId, MetaDict metaDict, String relativePath) {
         final Timer.Context t = metaDictSetTimer.time();
         try {
             Preconditions.checkNotNull(metaDict);
             
-            configManager.createOrUpdateConfig(metaDict);
+            if(Strings.isNullOrEmpty(relativePath)) {
+                configManager.createOrUpdateConfig(metaDict);
+            } else {
+                configManager.createOrUpdateConfig(metaDict, relativePath);
+            }
             log.info("metaDictSet [{},{}] -> ok", requestId, metaDict.getName());
             return metaDict;
         } catch (Exception e) {

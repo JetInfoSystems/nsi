@@ -9,4 +9,5 @@ public interface NsiConfigManager {
     NsiConfig reloadConfig();
     void checkoutNewConfig(String from);
     void createOrUpdateConfig(MetaDict metaDict);
+    void createOrUpdateConfig(MetaDict metaDict, String relativePath);
 }
