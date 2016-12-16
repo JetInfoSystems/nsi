@@ -1,0 +1,47 @@
+
+attrs:
+- caption: attr 1
+  fields: [field1]
+  hidden: false
+  name: attr1
+  type: value
+- caption: id
+  fields: [id]
+  hidden: false
+  name: id
+  type: value
+  createOnly : true
+  required: true
+- caption: is_deleted
+  fields: [is_deleted]
+  hidden: false
+  name: is_deleted
+  type: value
+- caption: last change
+  fields: [last_change]
+  hidden: true
+  name: last_change
+  type: value
+- caption: last_user
+  fields: [last_user]
+  hidden: false
+  name: last_user
+  type: value
+  readonly: true
+caption: Справочник1
+deleteMarkAttr: is_deleted
+fields:
+- {name: id, size: 19, type: number}
+- {name: is_deleted, size: 1, type: boolean}
+- {name: last_change, type: date-time}
+- {name: last_user, size: 19, type: number}
+- {name: field1, size: 100, type: varchar}
+hidden: true
+idAttr: id
+lastChangeAttr: last_change
+lastUserAttr: last_user
+name: dict_in_a
+refObjectAttrs: [attr1]
+loadDataAttrs: [id]
+table: table_in_a
+tableObjectAttrs: [attr1]

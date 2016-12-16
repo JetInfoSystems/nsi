@@ -1,0 +1,48 @@
+attrs:
+- type: value
+  caption: attr 1
+  fields: [field1]
+  hidden: false
+  name: attr1
+- type: ref
+  caption: dict in a reference
+  fields: [dict_in_a_id]
+  hidden: false
+  name: dict_in_a_id
+  refDict: dict_in_a
+- type: value
+  caption: id
+  fields: [id]
+  hidden: false
+  name: id
+- type: value
+  caption: last change
+  fields: [last_change]
+  hidden: true
+  name: last_change
+- type: value
+  caption: is_deleted
+  fields: [is_deleted]
+  hidden: false
+  name: is_deleted
+- type: value
+  caption: last_user
+  fields: [last_user]
+  hidden: false
+  name: last_user
+caption: Справочник1
+deleteMarkAttr: is_deleted
+fields:
+- {name: id, size: 19, type: number}
+- {name: dict_in_a_id, size: 19, type: number}
+- {name: is_deleted, size: 1, type: boolean}
+- {name: last_change, type: date-time}
+- {name: last_user, size: 19, type: number}
+- {name: field1, size: 100, type: varchar}
+idAttr: id
+lastChangeAttr: last_change
+lastUserAttr: last_user
+name: dict_in_b
+refObjectAttrs: [attr1]
+table: table_in_b
+tableObjectAttrs: [attr1]

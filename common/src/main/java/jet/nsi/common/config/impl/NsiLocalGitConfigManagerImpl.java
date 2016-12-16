@@ -102,7 +102,8 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         Set<File> configFiles = findFiles();
         for (File configFile : configFiles) {
             MetaDict metaDict = readConfigFile(configFile);
-            config.addDict(metaDict, configFile.toPath());
+            config.addDict(metaDict);
+            config.savePath(metaDict.getName(), configFile.toPath());
         }
         config.postCheck();
         return config;
@@ -145,24 +146,27 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         
         Path targetPath = configPath.toPath().resolve(relativePath).resolve(getDictFileName(metaDict.getName()));
         moveTempFileToTargetPath(metaDict.getName(), curPath, targetPath, metaDictTempFilePath);
+        
+        log.info("createOrUpdateConfig [{}] -> ok", metaDict.getName());
     }
     
     private void moveTempFileToTargetPath(String name, Path curPath, Path targetPath, Path tempFilePath) {
         try {
+            //Проверяем наличие директорий
+            checkCreateDirs(targetPath);
             // перемещаем временный файл в целевой каталог
             Files.move(tempFilePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            config.savePath(name, targetPath);
             
             if (curPath != null && !targetPath.equals(curPath)) {
                 // если предыдущая версия файла существовала файла по другому пути, то удаляем старый файл
                 Files.deleteIfExists(curPath);
             }
+            
+            log.debug("moveTempFileToTargetPath [{}] -> ok", name);
         } catch (IOException e) {
             log.error("moveTempFileToTargetPath ['{}', '{}', '{}', '{}'] -> failed", name, curPath, targetPath, tempFilePath);
             throw new NsiConfigException("Failed to move new version of metaDict '" + name + "' to target path '" + targetPath + "'", e);
-        }
-        
-        
-        if (curPath != null && !targetPath.equals(curPath)) { //метаданые уже существовали, но по другому пути, нужно удалить старый файл
         }
     } 
     
@@ -172,12 +176,12 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             writer.write(metaDict, newFileWriter);
 
             // Добавляем/обновляем метаданные в памяти, также выполняется проверка при добавлении
-            config.updateDict(metaDict, metaDictFilePath);
+            config.updateDict(metaDict);
             config.postCheck();
             
             // Читаем записанное в файл для проверки корректности записи
             readConfigFile(metaDictFilePath.toFile());
-            log.info("checkAndWriteTempFile [{}] -> ok", metaDict.getName());
+            log.debug("checkAndWriteTempFile [{}] -> ok", metaDict.getName());
         } catch(Exception e) {
             // В случае любых проблем, удаляем из памяти, 
             // но файл во временной директории можем оставить для разбора проблемы
@@ -186,7 +190,8 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             config.removeDict(metaDict.getName());
             // если предыдущая версия существовала, вернем в память
             if(oldMetaDict != null) {
-                config.addDict(oldMetaDict, oldMetaDictFilePath);
+                config.addDict(oldMetaDict);
+                config.savePath(oldMetaDict.getName(), oldMetaDictFilePath);
             }
 
             throw new NsiConfigException("Failed to add/update config file for metaDict: " + metaDict.getName(), e);
@@ -209,17 +214,20 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         return metaDictFilePath;
     }
     
+    private void checkCreateDirs(Path targetPath) {
+        if (Files.notExists(targetPath)) {
+            try {
+                Files.createDirectories(targetPath);
+            } catch (IOException ex) {
+                log.error("checkCreateDirs -> failed to create directory ['{}']", targetPath.toString(), ex);
+                throw new NsiConfigException("couldn't create directory " + targetPath.toString(), ex);
+            }
+        }
+    }
+    
     private Path getTmpPath() {
         Path tmpPath = Paths.get(configPath.toPath().toString(), TMP_DIR);
-        if (Files.notExists(tmpPath)) {
-            try {
-                    Files.createDirectories(tmpPath);
-                } catch (IOException ex) {
-                    log.error("getTmpPath -> failed to create temp directory ['{}']", tmpPath.toString(), ex);
-                    throw new NsiConfigException("couldn't create temp directory " + tmpPath.toString(), ex);
-                }
-            }
-        
+        checkCreateDirs(tmpPath);
         return tmpPath;
     }
     

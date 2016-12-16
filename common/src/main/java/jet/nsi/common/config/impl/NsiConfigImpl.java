@@ -111,7 +111,11 @@ public class NsiConfigImpl implements NsiConfig {
         return result;
     }
 
-    public void addDict(MetaDict metaDict, Path filePath) {
+    public void savePath(String dictName, Path filePath) {
+        metaDictPaths.put(dictName, filePath);
+    }
+    
+    public void addDict(MetaDict metaDict) {
         NsiConfigDict dict = new NsiConfigDict(this, metaDict);
         preCheckDict(dict);
         String dictName = metaDict.getName();
@@ -224,7 +228,6 @@ public class NsiConfigImpl implements NsiConfig {
 
         dictMap.put(dictName, dict);
         metaDictMap.put(dictName, metaDict);
-        metaDictPaths.put(dictName, filePath);
     }
     
     public void postCheck() {
@@ -256,12 +259,12 @@ public class NsiConfigImpl implements NsiConfig {
         metaDictPaths.remove(dictName);
     }
 
-    public void updateDict(MetaDict metaDict, Path filePath) {
+    public void updateDict(MetaDict metaDict) {
         if (dictMap.containsKey(metaDict.getName())) {
             //add dict does many checks, so it is easy way
             removeDict(metaDict.getName());
         }
-        addDict(metaDict, filePath);
+        addDict(metaDict);
     }
 
     private NsiConfigAttr addDictAttr(NsiConfigDict dict, MetaAttr metaAttr) {
