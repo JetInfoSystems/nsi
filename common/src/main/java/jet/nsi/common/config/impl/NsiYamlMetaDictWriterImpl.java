@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Created by akatkevich on 21.10.2016.
@@ -17,7 +17,7 @@ public class NsiYamlMetaDictWriterImpl implements NsiMetaDictWriter {
     private static final Logger log = LoggerFactory.getLogger(NsiYamlMetaDictWriterImpl.class);
 
     @Override
-    public void write (MetaDict dict, FileWriter fileWriter) {
+    public void write (MetaDict dict, Writer fileWriter) {
         try {
             fileWriter.write(new Yaml(new JaxbRepresenter()).dumpAsMap(dict));
         } catch (IOException e) {

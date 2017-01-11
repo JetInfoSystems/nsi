@@ -1,5 +1,7 @@
 package jet.nsi.common.config.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.NsiMetaDictReader;
 import jet.nsi.api.NsiMetaDictWriter;
@@ -12,10 +14,14 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,13 +88,6 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     private final NsiMetaDictWriter writer;
     private final NsiConfigParams configParams;
     private NsiConfigImpl config;
-
-    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiConfigParams configParams) {
-        this.configPath = configPath;
-        this.reader = reader;
-        this.writer = null;
-        this.configParams = configParams;
-    }
 
     public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiMetaDictWriter writer, NsiConfigParams configParams) {
         this.configPath = configPath;
@@ -168,7 +167,8 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     public void createOrUpdateConfig(MetaDict metaDict) {
         File newFile = new File(configPath, metaDict.getName().concat(".yaml"));
 
-        try(FileWriter newFileWriter = new FileWriter(newFile)) {
+        try (OutputStreamWriter newFileWriter = new OutputStreamWriter(new FileOutputStream(newFile),
+                StandardCharsets.UTF_8)) {
             config.updateDict(metaDict);
             config.postCheck();
 
@@ -176,7 +176,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
             log.info("createOrUpdateConfig [{}] -> ok", metaDict.getName());
             readConfigFile(newFile);
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("createOrUpdateConfig [{}] -> error", metaDict.getName(), e);
             // Удалим из памяти, если успели добавить
             config.removeDict(metaDict.getName());
