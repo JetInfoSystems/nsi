@@ -1,11 +1,14 @@
 package jet.nsi.migrator.hibernate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import jet.nsi.common.platform.phoenix.PhoenixDialect;
+import jet.nsi.common.platform.phoenix.PhoenixPrimaryKey;
 import org.hibernate.HibernateException;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.model.naming.Identifier;
@@ -20,10 +23,12 @@ import org.hibernate.engine.config.spi.ConfigurationService;
 import org.hibernate.engine.config.spi.StandardConverters;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.spi.Mapping;
+import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Constraint;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Index;
+import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UniqueKey;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -51,7 +56,6 @@ import com.beust.jcommander.Strings;
 public class NsiSchemaMigratorImpl implements SchemaMigrator {
     
     private static final String MODIFY_OPERATION = "alter column";
-    
 
     @Override
     public void doMigration(Metadata metadata, ExecutionOptions options, TargetDescriptor targetDescriptor) {
@@ -76,6 +80,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
         for (GenerationTarget target : targets) {
             target.release();
         }
+        System.out.println("i finished migration");
     }
     
     protected void doMigrationToTargets(
@@ -136,6 +141,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             }
 
             for (Sequence sequence : namespace.getSequences()) {
+                System.out.println("wow! sequence!"+sequence.getName());
                 checkExportIdentifier(sequence, exportIdentifiers);
                 final SequenceInformation sequenceInformation = existingDatabase.getSequenceInformation(sequence.getName());
                 if (sequenceInformation != null) {
@@ -155,9 +161,19 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
 
             // first pass
             for (Table table : namespace.getTables()) {
+                if(table.getName().contains("seq")){
+                    System.out.println("continue:"+table.getName());
+                    continue;
+                }
+                PrimaryKey sPk = table.getPrimaryKey();
+                PhoenixPrimaryKey pk = new PhoenixPrimaryKey(table);
+                pk.setName(sPk.getName());
+                pk.addColumns(sPk.getColumnIterator());
+                table.setPrimaryKey(pk);
                 if (!table.isPhysicalTable()) {
                     continue;
                 }
+
                 checkExportIdentifier(table, exportIdentifiers);
                 final TableInformation tableInformation = existingDatabase.getTableInformation(table.getQualifiedTableName());
                 if (tableInformation != null && !tableInformation.isPhysicalTable()) {
@@ -433,7 +449,9 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
     
     public Iterator<String> sqlAlterStrings(Table table, Dialect dialect, Mapping p, TableInformation tableInfo,
             String defaultCatalog, String defaultSchema) throws HibernateException {
-        
+        if(dialect instanceof PhoenixDialect){
+            return Collections.emptyIterator();
+        }
         @SuppressWarnings("rawtypes")
         Iterator iter = table.getColumnIterator();
         List<String> results = new ArrayList<>();

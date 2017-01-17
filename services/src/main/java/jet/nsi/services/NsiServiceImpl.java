@@ -2,6 +2,7 @@ package jet.nsi.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class NsiServiceImpl implements NsiService {
     private static final Logger log = LoggerFactory.getLogger(NsiServiceImpl.class);
     
     private SqlDao sqlDao;
+    private Map<String, SqlDao> sqlDaoMap;
     private NsiGenericService nsiGenericService;
     
     public void setSqlDao(SqlDao sqlDao) {

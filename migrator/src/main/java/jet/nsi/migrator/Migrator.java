@@ -17,7 +17,6 @@ import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.engine.jdbc.connections.spi.JdbcConnectionAccess;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.jdbc.spi.JdbcServices;
-import org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl;
 import org.hibernate.tool.schema.extract.spi.DatabaseInformation;
 import org.hibernate.tool.schema.internal.exec.GenerationTarget;
 import org.slf4j.Logger;
@@ -88,7 +87,7 @@ public class Migrator {
                     platformMigrator.onUpdateBeforePrepare(connection, model);
                 }
             }
-            doLiquibaseUpdate(MIGRATIONS_PREPARE,liquibasePrepareChangelogFilePath, tag);
+//            doLiquibaseUpdate(MIGRATIONS_PREPARE,liquibasePrepareChangelogFilePath, tag); //todo вернуть?!
             try(Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateAfterPrepare(connection, model);
@@ -138,7 +137,7 @@ public class Migrator {
                     platformMigrator.onUpdateBeforePostproc(connection, model);
                 }
             }
-            doLiquibaseUpdate(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag);
+//            doLiquibaseUpdate(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag); //todo!
             try(Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateAfterPostproc(connection, model);
