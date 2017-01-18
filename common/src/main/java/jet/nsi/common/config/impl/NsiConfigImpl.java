@@ -49,7 +49,7 @@ public class NsiConfigImpl implements NsiConfig {
      * Относительные пути хранения метаданных справочников
      * */
     private Map<String, Path> metaDictPaths = new ConcurrentSkipListMap<>();
-    
+
 
     private final NsiConfigParams params;
 
@@ -79,7 +79,7 @@ public class NsiConfigImpl implements NsiConfig {
     @Override
     public Collection<NsiConfigDict> getDicts(Set<String> labels) {
         Preconditions.checkNotNull(labels, "labels must be not null");
-        
+
         Set<NsiConfigDict> result = new HashSet<>();
         for(NsiConfigDict dict : dictMap.values()) {
             for (String label : labels) {
@@ -99,7 +99,7 @@ public class NsiConfigImpl implements NsiConfig {
     @Override
     public Collection<MetaDict> getMetaDicts(Set<String> labels) {
         Preconditions.checkNotNull(labels, "labels must be not null");
-        
+
         Set<MetaDict> result = new HashSet<>();
         for(MetaDict dict : metaDictMap.values()) {
             for (String label : labels) {
@@ -114,7 +114,7 @@ public class NsiConfigImpl implements NsiConfig {
     public void savePath(String dictName, Path filePath) {
         metaDictPaths.put(dictName, filePath);
     }
-    
+
     public void addDict(MetaDict metaDict) {
         NsiConfigDict dict = new NsiConfigDict(this, metaDict);
         preCheckDict(dict);
@@ -229,7 +229,7 @@ public class NsiConfigImpl implements NsiConfig {
         dictMap.put(dictName, dict);
         metaDictMap.put(dictName, metaDict);
     }
-    
+
     public void postCheck() {
         postSetMainDict();
 
@@ -473,8 +473,8 @@ public class NsiConfigImpl implements NsiConfig {
         NsiConfigAttr attr = new NsiConfigAttr(metaAttr);
         preCheckAttr(dict, attr);
         Set<String> fieldSet = new HashSet<>(metaAttr.getFields());
-        if(fieldSet.size() == 0) {
-            throwDictException(dict, "fields not set", metaAttr.getName());
+        if (fieldSet.size() == 0 && metaAttr.isPersist()) {
+            throwDictException(dict, "fields not set. Please add field or unset persist", metaAttr.getName());
         }
         if(fieldSet.size() != metaAttr.getFields().size()) {
             throwDictException(dict, "fields dubbed", metaAttr.getName(), metaAttr.getFields().toString());
@@ -584,7 +584,7 @@ public class NsiConfigImpl implements NsiConfig {
         default:
             throwDictException(dict, "invalid field type", field.getName(), field.getType());
         }
-        if(field.getSize() != null && field.getSize() <= 0 && field.getType()!=MetaFieldType.DATE_TIME) {
+        if(field.getSize() != null && field.getSize() <= 0 && !(field.getType()==MetaFieldType.DATE_TIME||field.getType()==MetaFieldType.CLOB)) {
             throwDictException(dict, "invalid field size", field.getName(), field.getSize().toString());
         }
     }

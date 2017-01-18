@@ -1,6 +1,7 @@
 
 package jet.nsi.api.model;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,12 @@ public class MetaDict extends MetaDictRef {
     /**
      * Список полей таблицы.
      */
+    @Valid
     protected Collection<MetaField> fields;
     /**
      * Список атрибутов справочника.
      */
+    @Valid
     protected Collection<MetaAttr> attrs;
     /**
      * атрибут кторый представляет ид.

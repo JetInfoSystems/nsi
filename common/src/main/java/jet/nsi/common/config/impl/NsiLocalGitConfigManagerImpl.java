@@ -1,5 +1,7 @@
 package jet.nsi.common.config.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import jet.nsi.api.NsiConfigManager;
 import jet.nsi.api.NsiMetaDictReader;
 import jet.nsi.api.NsiMetaDictWriter;
@@ -12,15 +14,14 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,13 +45,6 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     private final NsiMetaDictWriter writer;
     private final NsiConfigParams configParams;
     private NsiConfigImpl config;
-
-    public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiConfigParams configParams) {
-        this.configPath = configPath;
-        this.reader = reader;
-        this.writer = null;
-        this.configParams = configParams;
-    }
 
     public NsiLocalGitConfigManagerImpl(File configPath, NsiMetaDictReader reader, NsiMetaDictWriter writer, NsiConfigParams configParams) {
         this.configPath = configPath;
@@ -101,6 +95,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         NsiConfigImpl config = new NsiConfigImpl(configParams);
         Set<File> configFiles = findFiles();
         for (File configFile : configFiles) {
+            log.info("readConfig->reading file {}", configFile);
             MetaDict metaDict = readConfigFile(configFile);
             config.addDict(metaDict);
             config.savePath(metaDict.getName(), configFile.toPath());
@@ -131,25 +126,25 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     public void createOrUpdateConfig(MetaDict metaDict) {
         createOrUpdateConfig(metaDict, "");
     }
-    
+
     public void createOrUpdateConfig(MetaDict metaDict, String relativePath) {
-        // Сохраняем текущий путь до файла и текущую версию справочника, 
+        // Сохраняем текущий путь до файла и текущую версию справочника,
         // чтобы удалить после успешного сохранения и если путь до файла изменится
         Path curPath = config.getMetaDictPath(metaDict.getName());
         MetaDict curMetaDict = config.getMetaDict(metaDict.getName());
-        
-        
+
+
         Path tmpPath = getTmpPath();
         Path metaDictTempFilePath = getCreatePathAndFile(tmpPath, metaDict.getName());
-        
+
         checkAndWriteTempFile(metaDict, metaDictTempFilePath, curMetaDict, curPath);
-        
+
         Path targetPath = configPath.toPath().resolve(relativePath).resolve(getDictFileName(metaDict.getName()));
         moveTempFileToTargetPath(metaDict.getName(), curPath, targetPath, metaDictTempFilePath);
-        
+
         log.info("createOrUpdateConfig [{}] -> ok", metaDict.getName());
     }
-    
+
     private void moveTempFileToTargetPath(String name, Path curPath, Path targetPath, Path tempFilePath) {
         try {
             //Проверяем наличие директорий
@@ -157,33 +152,34 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             // перемещаем временный файл в целевой каталог
             Files.move(tempFilePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             config.savePath(name, targetPath);
-            
+
             if (curPath != null && !targetPath.equals(curPath)) {
                 // если предыдущая версия файла существовала файла по другому пути, то удаляем старый файл
                 Files.deleteIfExists(curPath);
             }
-            
+
             log.debug("moveTempFileToTargetPath [{}] -> ok", name);
         } catch (IOException e) {
             log.error("moveTempFileToTargetPath ['{}', '{}', '{}', '{}'] -> failed", name, curPath, targetPath, tempFilePath);
             throw new NsiConfigException("Failed to move new version of metaDict '" + name + "' to target path '" + targetPath + "'", e);
         }
-    } 
-    
+    }
+
     private void checkAndWriteTempFile(MetaDict metaDict, Path metaDictFilePath, MetaDict oldMetaDict, Path oldMetaDictFilePath) {
-        try(FileWriter newFileWriter = new FileWriter(metaDictFilePath.toFile())) {
+            try (OutputStreamWriter newFileWriter = new OutputStreamWriter(new FileOutputStream(metaDictFilePath.toFile()),
+                    StandardCharsets.UTF_8)) {
             // Записываем промежуточную копию на диск
             writer.write(metaDict, newFileWriter);
 
             // Добавляем/обновляем метаданные в памяти, также выполняется проверка при добавлении
             config.updateDict(metaDict);
             config.postCheck();
-            
+
             // Читаем записанное в файл для проверки корректности записи
             readConfigFile(metaDictFilePath.toFile());
             log.debug("checkAndWriteTempFile [{}] -> ok", metaDict.getName());
         } catch(Exception e) {
-            // В случае любых проблем, удаляем из памяти, 
+            // В случае любых проблем, удаляем из памяти,
             // но файл во временной директории можем оставить для разбора проблемы
             log.error("checkAndWriteTempFile [{}] -> error", metaDict.getName(), e);
             // Удалим из памяти, если успели добавить
@@ -197,7 +193,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             throw new NsiConfigException("Failed to add/update config file for metaDict: " + metaDict.getName(), e);
         }
     }
-    
+
     private Path getCreatePathAndFile(Path dir, String dictName) {
         Path metaDictFilePath = Paths.get(dir.toString(), getDictFileName(dictName));
         if (Files.notExists(metaDictFilePath)) {
@@ -205,15 +201,15 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
                 Files.createFile(metaDictFilePath);
                 log.debug("getCreatePathAndFile['{}'] -> new file created");
             } catch (IOException ex) {
-                log.error("getCreatePathAndFile['{}'] -> failed to create file in directory ['{}', '{}']", 
+                log.error("getCreatePathAndFile['{}'] -> failed to create file in directory ['{}', '{}']",
                                         dictName, metaDictFilePath.toString(), dir.toString(), ex);
-                throw new NsiConfigException("couldn't create file " + metaDictFilePath.toString() + 
+                throw new NsiConfigException("couldn't create file " + metaDictFilePath.toString() +
                                         " in directory '" + dir.toString() + "'", ex);
             }
         }
         return metaDictFilePath;
     }
-    
+
     private void checkCreateDirs(Path targetPath) {
         if (Files.notExists(targetPath)) {
             try {
@@ -224,17 +220,17 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             }
         }
     }
-    
+
     private Path getTmpPath() {
         Path tmpPath = Paths.get(configPath.toPath().toString(), TMP_DIR);
         checkCreateDirs(tmpPath);
         return tmpPath;
     }
-    
+
     private String getDictFileName(String dictName) {
         return dictName.concat(FILE_EXTENTION);
     }
-    
+
     private final class ConfigFileWalker extends DirectoryWalker<File> {
         private ConfigFileWalker(FileFilter filter) {
             super(filter, -1);
@@ -255,11 +251,11 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             }
         }
     }
-    
+
     private final class CopyFileVisitor extends SimpleFileVisitor<Path> {
         private final Path targetPath;
         private Path sourcePath = null;
-        
+
         public CopyFileVisitor(Path targetPath) {
             this.targetPath = targetPath;
         }

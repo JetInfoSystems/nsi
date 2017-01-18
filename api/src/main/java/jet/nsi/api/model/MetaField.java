@@ -1,21 +1,31 @@
 package jet.nsi.api.model;
 
+import jet.nsi.api.validator.SizeAndPrecisionConstraint;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Описание поля таблицы.
  */
+@SizeAndPrecisionConstraint.List({
+        @SizeAndPrecisionConstraint(dataType = MetaFieldType.DATE_TIME),
+        @SizeAndPrecisionConstraint(dataType = MetaFieldType.CLOB)
+})
 public class MetaField implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
      * Уникальное имя поля в таблице.
      */
+    @NotBlank
     private String name;
     /**
      * Тип поля: string | number | date-time | boolean.
      */
+    @NotNull
     private MetaFieldType type = MetaFieldType.VARCHAR;
 
     /**
