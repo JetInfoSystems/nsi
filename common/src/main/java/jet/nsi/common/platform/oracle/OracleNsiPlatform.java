@@ -60,4 +60,9 @@ public class OracleNsiPlatform implements NsiPlatform {
         return new OraclePlatformSqlDao(this);
     }
 
+    @Override
+    public String getPlatformName() {
+        return "ORACLE";
+    }
+
 }

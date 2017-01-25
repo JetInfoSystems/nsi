@@ -1,8 +1,7 @@
 package jet.nsi.services;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
 
 import com.codahale.metrics.Timer;
 
@@ -20,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class NsiTransactionServiceImpl implements NsiTransactionService {
 
     private static final Logger log = LoggerFactory.getLogger(NsiTransactionServiceImpl.class);
-    private DataSource dataSource;
+//    private DataSource dataSource;
     private final Timer createTransactionTimer;
 
     public NsiTransactionServiceImpl(Metrics metrics) {
@@ -29,10 +28,10 @@ public class NsiTransactionServiceImpl implements NsiTransactionService {
 
 
     @Override
-    public NsiTransaction createTransaction(String requestId) {
+    public NsiTransaction createTransaction(String requestId, Connection connection) {
         final Timer.Context t = createTransactionTimer.time();
         try {
-            return new NsiTransactionImpl(dataSource.getConnection(), requestId);
+            return new NsiTransactionImpl(connection, requestId);
         } catch (SQLException e) {
             log.error("createTransaction [{}] -> error", requestId, e);
             throw new NsiServiceException("createTransaction error", e);
@@ -41,8 +40,8 @@ public class NsiTransactionServiceImpl implements NsiTransactionService {
         }
     }
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+//    public void setDataSource(DataSource dataSource) {
+//        this.dataSource = dataSource;
+//    }
 
 }

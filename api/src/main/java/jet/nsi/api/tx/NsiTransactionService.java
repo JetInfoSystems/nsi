@@ -1,5 +1,7 @@
 package jet.nsi.api.tx;
 
+import java.sql.Connection;
+
 /**
  * Сервис предназначен для управления транзакциями связанными с одним источником данных
  */
@@ -10,5 +12,5 @@ public interface NsiTransactionService {
      * для объединения нескольких вызовов в одну транзакцию.
      * @return
      */
-    NsiTransaction createTransaction(String requestId);
+    NsiTransaction createTransaction(String requestId, Connection dataSource);
 }

@@ -45,7 +45,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
         transactionService = new NsiTransactionServiceImpl(new MockMetrics());
-        transactionService.setDataSource(dataSource);
+//        transactionService.setDataSource(dataSource);
         service = new NsiGenericServiceImpl(new MockMetrics());
         service.setTransactionService(transactionService);
     }

@@ -34,4 +34,9 @@ public class PostgresqlNsiPlatform implements NsiPlatform {
     public PlatformSqlDao getPlatformSqlDao() {
         return new PostgresqlPlatformSqlDao(this);
     }
+
+    @Override
+    public String getPlatformName() {
+        return "POSTGRES";
+    }
 }

@@ -98,6 +98,8 @@ public interface PlatformMigrator {
     
     Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) throws LiquibaseException;
 
+    void doLiquibaseUpdate(String name, String file, String tag, String action, String logPrefix, DataSource dataSource);
+
     void setParams(MigratorParams params);
     
 }

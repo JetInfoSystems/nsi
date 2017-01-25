@@ -808,8 +808,8 @@ public class SqlDaoTest extends BaseSqlTest {
     
     public NsiTransactionService getTransactionService() {
         NsiTransactionServiceImpl transactionService = new NsiTransactionServiceImpl(new MockMetrics());       
-        transactionService.setDataSource(dataSource); 
-        
+//        transactionService.setDataSource(dataSource);
+
         return transactionService;
     }
     

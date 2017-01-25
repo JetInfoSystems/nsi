@@ -65,8 +65,8 @@ public class PhoenixMigratorTest extends BaseSqlTest {
         NsiConfigDict dict2 = config.getDict("dict2");
 
         try (Connection connection = dataSource.getConnection()) {
-            platformMigrator.dropTable(dict2, connection);
-            platformMigrator.dropTable(dict1, connection);
+//            platformMigrator.dropTable(dict2, connection);
+//            platformMigrator.dropTable(dict1, connection);
 
 //            platformMigrator.dropSeq("SEQ_POSTPROC1", connection);
 

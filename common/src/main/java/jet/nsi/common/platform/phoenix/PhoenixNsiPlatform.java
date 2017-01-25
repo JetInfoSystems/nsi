@@ -34,4 +34,9 @@ public class PhoenixNsiPlatform implements NsiPlatform {
     public PlatformSqlDao getPlatformSqlDao() {
         return new PhoenixPlatformSqlDao(this);
     }
+
+    @Override
+    public String getPlatformName() {
+        return "PHOENIX";
+    }
 }

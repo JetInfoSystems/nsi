@@ -51,8 +51,9 @@ public class Migrator {
     private final DataSource dataSource;
 
     private final String logPrefix;
+    private final String defaultDatabase;
     private final PlatformMigrator platformMigrator;
-    
+
     private List<GenerationTarget> targets = new ArrayList<>();
 
     private final String liquibasePrepareChangelogFilePath;
@@ -76,18 +77,21 @@ public class Migrator {
                                                     + "/"
                                                     + LIQUIBASE_POSTPROC_CHANGELOG_XML;
         }
+        defaultDatabase = null;
     }
 
     public void update(String tag) {
 
         try {
+            String platformName = platformMigrator.getPlatform().getPlatformName();
             try(Connection connection = dataSource.getConnection()) {
                 platformMigrator.onUpdateBeforePrepare(connection, config);
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateBeforePrepare(connection, model);
                 }
             }
-//            doLiquibaseUpdate(MIGRATIONS_PREPARE,liquibasePrepareChangelogFilePath, tag); //todo вернуть?!
+            platformMigrator.doLiquibaseUpdate(MIGRATIONS_PREPARE,liquibasePrepareChangelogFilePath, tag,
+                    ACTION_UPDATE, logPrefix, dataSource);
             try(Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateAfterPrepare(connection, model);
@@ -98,7 +102,7 @@ public class Migrator {
             StandardServiceRegistry serviceRegistry = platformMigrator.buildStandardServiceRegistry(dataSource);
 
             try {
-                MetadataImplementor metadata = buildMetadata( serviceRegistry );
+                MetadataImplementor metadata = buildMetadata( serviceRegistry , platformName);
                 JdbcConnectionAccess jdbcConnectionAccess = serviceRegistry.getService( JdbcServices.class ).getBootstrapJdbcConnectionAccess();
                 log.info("runningHbm2ddlSchemaUpdate");
 
@@ -137,7 +141,8 @@ public class Migrator {
                     platformMigrator.onUpdateBeforePostproc(connection, model);
                 }
             }
-//            doLiquibaseUpdate(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag); //todo!
+            platformMigrator.doLiquibaseUpdate(MIGRATIONS_POSTPROC,liquibasePrepareChangelogFilePath, tag,
+                    ACTION_UPDATE, logPrefix, dataSource);
             try(Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
                     platformMigrator.onUpdateAfterPostproc(connection, model);
@@ -172,14 +177,6 @@ public class Migrator {
 
     }
 
-    private void doLiquibaseUpdate(String name, String file, String tag) {
-        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, platformMigrator);
-        try(Connection connection = dataSource.getConnection()) {
-            la.update(connection, tag);
-        } catch (SQLException e) {
-            throw new MigratorException(ACTION_UPDATE, e);
-        }
-    }
 
     private void doLiquibaseRollback(String name, String file, String tag) {
         LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, platformMigrator);
@@ -211,15 +208,14 @@ public class Migrator {
         targets = new ArrayList<>();
     }
 
-    private MetadataImplementor buildMetadata(
-            StandardServiceRegistry serviceRegistry) {
+    private MetadataImplementor buildMetadata(StandardServiceRegistry serviceRegistry, String platformName) {
         MetadataSources metadataSources = new MetadataSources( serviceRegistry );
 
         DictToHbmSerializer serializer = platformMigrator.getDictToHbmSerializer();
 
         for ( NsiConfigDict dict : config.getDicts()) {
             // только те сущности для которых задана таблица
-            if(dict.getTable() != null) {
+            if(dict.getTable() != null &&platformName.equalsIgnoreCase(dict.getDatabaseName())) { //todo добваить дефолт
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 serializer.marshalTo(dict, os);
                 ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());

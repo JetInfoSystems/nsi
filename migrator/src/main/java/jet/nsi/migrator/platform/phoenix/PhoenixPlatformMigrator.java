@@ -16,8 +16,6 @@ import jet.nsi.migrator.platform.DictToHbmSerializer;
 import jet.nsi.migrator.platform.PhoenixDictToHbmSerializer;
 import liquibase.Liquibase;
 import liquibase.database.Database;
-import liquibase.database.core.SQLiteDatabase;
-import liquibase.database.core.UnsupportedDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
@@ -39,10 +37,12 @@ import java.util.Properties;
 
 public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
-    private final String UNDEFINED_TABLE_ERROR_CODE = "42P01";
-
     public PhoenixPlatformMigrator() {
         super(new PhoenixNsiPlatform());
+    }
+
+    @Override
+    public void doLiquibaseUpdate(String name, String file, String tag, String action, String logPrefix, DataSource dataSource) {
     }
 
     @Override
@@ -150,13 +150,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public void dropSeq(String name, Connection connection) {
-        try {
-            platformSqlDao.getQueryBuilder(connection).dropSequence(name).execute();
-        } catch (DataAccessException e) {
-            Throwable cause = e.getCause();
-
-            throw e;
-        }
+        platformSqlDao.getQueryBuilder(connection).dropSequence(name).execute();
     }
 
 
@@ -239,11 +233,6 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public void onUpdateAfterPostproc(Connection connection, NsiConfigDict model) {
-//        try {
-//            ftsModule.updateFtsIndexesAfterPostproc(connection, model);
-//        } catch (Exception e) {
-//            throw new MigratorException("onUpdateAfterPostproc", e);
-//        }
     }
 
 
@@ -292,7 +281,6 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
         Liquibase l = new Liquibase(liquibaseAction.getFile(), new ClassLoaderResourceAccessor(), db);
         // TODO: set parameters l.setChangeLogParameter("key","value");
         return l;
-//        return null;
     }
 
     public void setDatabaseDefaultTablespace(Connection connection, String name, String defaultTablespace)

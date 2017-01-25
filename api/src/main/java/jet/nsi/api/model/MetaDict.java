@@ -30,6 +30,10 @@ public class MetaDict extends MetaDictRef {
      */
     protected String table;
     /**
+     * Название базы данных
+     */
+    protected String databaseName;
+    /**
      * Список полей таблицы.
      */
     @Valid
@@ -43,6 +47,10 @@ public class MetaDict extends MetaDictRef {
      * атрибут кторый представляет ид.
      */
     protected String idAttr;
+    /**
+     * атрибут указывает что использовать для генерации ID. false - программный UUID, true - DB sequence
+     */
+    protected Boolean useDBSeq;
     /**
      * атрибут который представляет ссылку на родителя в иерархии.
      */
@@ -371,5 +379,20 @@ public class MetaDict extends MetaDictRef {
     public void setAutoLastUserAttr(boolean autoLastUserAttr) {
         this.autoLastUserAttr = autoLastUserAttr;
     }
-    
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
+    }
+
+    public Boolean isUseDBSeqId() {
+        return useDBSeq;
+    }
+
+    public void setUseDBSeq(Boolean useDBSeq) {
+        this.useDBSeq = useDBSeq;
+    }
 }

@@ -2,7 +2,10 @@ package jet.nsi.common.platform.phoenix;
 
 import com.google.common.base.Strings;
 import jet.nsi.api.NsiServiceException;
+import jet.nsi.api.data.ConvertUtils;
+import jet.nsi.api.data.DictRow;
 import jet.nsi.api.data.NsiConfigField;
+import jet.nsi.api.data.NsiQuery;
 import jet.nsi.api.model.BoolExp;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.model.OperationType;
@@ -32,6 +35,11 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
     }
 
     @Override
+    public int setParamsForUpdate(NsiQuery query, DictRow data, PreparedStatement ps) throws SQLException {
+        return setParamsForUpdate(query, data, ps, false);
+    }
+
+    @Override
     public String wrapFilterFieldValue(BoolExp filter, NsiConfigField field,
             String val) {
         if (filter.getFunc().equals(OperationType.CONTAINS)) {
@@ -47,6 +55,16 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
     @Override
     public String getStringFromClob(ResultSet rs, int index) throws SQLException {
         return rs.getString(index);
+    }
+
+
+    @Override
+    public void setBooleanParam(PreparedStatement ps, String value, int index) throws SQLException {
+        if(Strings.isNullOrEmpty(value)) {
+            ps.setNull(index, Types.BOOLEAN);
+        } else {
+            ps.setBoolean(index, Boolean.valueOf(value));
+        }
     }
 
     @Override

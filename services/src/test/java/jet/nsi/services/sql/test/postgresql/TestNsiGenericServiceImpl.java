@@ -27,7 +27,7 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
         super.setup();
         
         transactionService = new NsiTransactionServiceImpl(new MockMetrics());
-        transactionService.setDataSource(dataSource);
+//        transactionService.setDataSource(dataSource);
         service = new NsiGenericServiceImpl(new MockMetrics());
         service.setTransactionService(transactionService);
     }

@@ -4,7 +4,9 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
+import jet.nsi.migrator.MigratorException;
 import org.jooq.DSLContext;
 
 import jet.nsi.api.data.NsiConfigDict;
@@ -19,6 +21,8 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
+import javax.sql.DataSource;
+
 public abstract class DefaultPlatformMigrator implements PlatformMigrator {
 
     private final NsiPlatform platform;
@@ -30,7 +34,22 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
         this.platform = platform;
         this.platformSqlDao = platform.getPlatformSqlDao();
     }
-    
+
+    @Override
+    public void doLiquibaseUpdate(String name, String file, String tag, String action, String logPrefix, DataSource dataSource) {
+        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, this);
+        try(Connection connection = dataSource.getConnection()) {
+            la.update(connection, tag);
+        } catch (SQLException e) {
+            throw new MigratorException(action, e);
+        }
+    }
+
+    private String composeName(String logPrefix, String name) { //todo copypast
+        return logPrefix == null ? name : logPrefix + name;
+    }
+
+
     @Override
     public void setParams(MigratorParams params) {
         this.params = params;

@@ -1,5 +1,13 @@
 package jet.nsi.api.data;
 
+import com.google.common.base.Preconditions;
+import jet.nsi.api.NsiServiceException;
+import jet.nsi.api.model.DictRowAttr;
+import jet.nsi.api.model.MetaAttrType;
+import jet.nsi.api.model.MetaDict;
+import jet.nsi.api.model.MetaSourceQuery;
+import jet.nsi.api.model.RefAttrsType;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,21 +17,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.google.common.base.Preconditions;
-
-import jet.nsi.api.NsiServiceException;
-import jet.nsi.api.model.DictRowAttr;
-import jet.nsi.api.model.MetaAttrType;
-import jet.nsi.api.model.MetaDict;
-import jet.nsi.api.model.MetaSourceQuery;
-import jet.nsi.api.model.RefAttrsType;
-
 public class NsiConfigDict {
 
     private final String name;
     private final String caption;
     private final String table;
+    private final String databaseName;
     private final boolean hidden;
+    private final boolean useDBSeq;
 
     private NsiConfigAttr idAttr;
     private NsiConfigAttr parentAttr;
@@ -49,9 +50,9 @@ public class NsiConfigDict {
     private Map<String, NsiConfigField> fieldNameMap = new TreeMap<>();
     private Map<String, NsiConfigSourceQuery> sourceQueries = new TreeMap<>();
     private Map<String, NsiConfigAttr> owns = new TreeMap<>();
-    
-    
-    
+
+
+
     private final NsiConfig config;
 
     public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
@@ -67,6 +68,8 @@ public class NsiConfigDict {
         }
 
         mainDictName = metaDict.getMainDict();
+        databaseName = "phoenix";//metaDict.getDatabaseName();
+        useDBSeq = metaDict.isUseDBSeqId() == null ? true : metaDict.isUseDBSeqId();
     }
 
 
@@ -100,7 +103,7 @@ public class NsiConfigDict {
         this.idAttr = idAttr;
     }
 
-    
+
     public List<NsiConfigAttr> getUniqueAttr() {
         return uniqueAttr;
     }
@@ -167,7 +170,7 @@ public class NsiConfigDict {
     public List<NsiConfigAttr> getMergeExternalAttrs() {
         return Collections.unmodifiableList(mergeExternalAttrs);
     }
-    
+
     public Collection<NsiConfigField> getFields() {
         return Collections.unmodifiableCollection(fieldNameMap.values());
     }
@@ -260,7 +263,7 @@ public class NsiConfigDict {
     public void setMergeExternalAttrs(List<NsiConfigAttr> mergeExternalAttrs) {
         this.mergeExternalAttrs = mergeExternalAttrs;
     }
-    
+
     public List<String> getInterceptors() {
         return interceptors;
     }
@@ -268,7 +271,7 @@ public class NsiConfigDict {
     public void setInterceptors(List<String> interceptors) {
         this.interceptors = interceptors;
     }
-    
+
     public Set<String> getLabels() {
         return labels;
     }
@@ -362,13 +365,21 @@ public class NsiConfigDict {
             throw new NsiServiceException("неподдерживаемый refAttrsType: " + refAttrsType);
         }
     }
-    
+
     public static String formatAttrs(String dictName, List<NsiConfigAttr> attrs, String sep) {
         StringBuilder res = new StringBuilder();
         for(NsiConfigAttr attr : attrs) {
             res.append(dictName).append(".").append(attr.getName()).append(sep);
         }
-        
+
         return res.toString();
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public boolean isUseDBSeq() {
+        return useDBSeq;
     }
 }
