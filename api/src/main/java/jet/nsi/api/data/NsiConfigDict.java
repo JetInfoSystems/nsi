@@ -68,7 +68,7 @@ public class NsiConfigDict {
         }
 
         mainDictName = metaDict.getMainDict();
-        databaseName = "phoenix";//metaDict.getDatabaseName();
+        databaseName = metaDict.getDatabaseName();//"phoenix";
         useDBSeq = metaDict.isUseDBSeqId() == null ? true : metaDict.isUseDBSeqId();
     }
 

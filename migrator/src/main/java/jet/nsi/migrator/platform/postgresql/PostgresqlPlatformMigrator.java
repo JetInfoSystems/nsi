@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import jet.nsi.common.migrator.config.MigratorParams;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
@@ -40,11 +41,9 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
     
     private final String UNDEFINED_TABLE_ERROR_CODE = "42P01";
-    //private final PostgresqlFtsModule ftsModule;
-    
-    public PostgresqlPlatformMigrator() {
-        super(new PostgresqlNsiPlatform());
-        //this.ftsModule = new PostgresqlFtsModule(platformSqlDao);
+
+    public PostgresqlPlatformMigrator(MigratorParams params) {
+        super(new PostgresqlNsiPlatform(), params);
     }
 
     @Override
@@ -63,7 +62,7 @@ public class PostgresqlPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public DictToHbmSerializer getDictToHbmSerializer() {
-        return new PostgresqlDictToHbmSerializer(params.getUseSequenceAsDefaultValueForId(params.getDbIdent()));
+        return new PostgresqlDictToHbmSerializer(params.getUseSequenceAsDefaultValueForId(getPlatform().getPlatformName()));
     }
 
     @Override

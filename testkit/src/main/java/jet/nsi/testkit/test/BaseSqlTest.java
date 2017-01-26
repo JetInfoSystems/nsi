@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import jet.nsi.testkit.ExceptionHideExecutor;
+import jet.nsi.testkit.ExceptionHideExecutor2;
 import org.jooq.DeleteWhereStep;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -82,6 +84,23 @@ public abstract class BaseSqlTest {
     @Before
     public void setupInternal() throws Exception {
         setup();
+    }
+
+
+    public void doOperation(ExceptionHideExecutor executor, NsiConfigDict dict, Connection connection) {
+        try {
+            executor.execute(dict, connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void doOperation(ExceptionHideExecutor2 executor, String objectName, Connection connection) {
+        try {
+            executor.execute(objectName, connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setup() throws Exception {

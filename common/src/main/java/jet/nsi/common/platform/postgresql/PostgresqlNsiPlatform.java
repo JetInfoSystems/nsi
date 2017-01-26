@@ -37,6 +37,6 @@ public class PostgresqlNsiPlatform implements NsiPlatform {
 
     @Override
     public String getPlatformName() {
-        return "POSTGRES";
+        return "postgres";
     }
 }

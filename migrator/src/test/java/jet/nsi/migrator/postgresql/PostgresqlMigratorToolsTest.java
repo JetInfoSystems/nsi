@@ -11,6 +11,7 @@ import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 
 import org.joda.time.DateTime;
 import org.junit.Ignore;
@@ -60,8 +61,8 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
     @Override
     protected void initPlatformSpecific() {
         //ftsModule = new PostgresqlFtsModule(platformSqlDao);
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 
@@ -126,7 +127,7 @@ public class PostgresqlMigratorToolsTest extends BaseSqlTest{
             platformMigrator.dropSeq(userProfileDict, connection);
         }
         
-        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+        Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
         migrator.addTarget( rec );
         migrator.update("v1");

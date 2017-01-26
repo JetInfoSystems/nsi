@@ -56,19 +56,15 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         result.setName(dict.getName());
         result.setTable(dict.getTable());
         // id
-        if(dict.isUseDBSeq()) {
+//        if(dict.isUseDBSeq()) {
             if (dict.getIdAttr().getFields().size() == 1) {
                 result.setId(buildSimpleId(dict));
             } else {
                 result.setCompositeId(buildCompositeId(dict));
             }
-        }else{
-            JaxbHbmSimpleIdType result2 = new JaxbHbmSimpleIdType();
-            NsiConfigField field = dict.getIdAttr().getFields().get(0);
-            result2.setType(buildTypeSpecification(field));
-            result2.getColumn().add(buildIdColumn(field, dict));
-            result.setId(result2);
-        }
+//        }else{
+//
+//        }
         // attrs
         for ( NsiConfigAttr attr : dict.getAttrs()) {
             if(attr != dict.getIdAttr()) {

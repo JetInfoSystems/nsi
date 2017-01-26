@@ -16,14 +16,16 @@ import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import liquibase.Liquibase;
 import liquibase.exception.LiquibaseException;
+import org.hibernate.mapping.Table;
 
 public interface PlatformMigrator {
     NsiPlatform getPlatform();
     
     StandardServiceRegistry buildStandardServiceRegistry(DataSource dataSource);
     
-    DataSource createDataSource(String name, Properties properties);
-    
+//    DataSource createDataSource(String name, Properties properties);
+    DataSource getDataSource();
+
     Connection createAdminConnection(String name, Properties properties) throws SQLException;
     
     void createTablespace(Connection connection, String name,String dataFileName,
@@ -100,6 +102,11 @@ public interface PlatformMigrator {
 
     void doLiquibaseUpdate(String name, String file, String tag, String action, String logPrefix, DataSource dataSource);
 
-    void setParams(MigratorParams params);
-    
+//    void setParams(MigratorParams params);
+
+    void setPrimaryKey(Table table);
+
+    MigratorParams getParams();
+
+    boolean isColumnEditable();
 }

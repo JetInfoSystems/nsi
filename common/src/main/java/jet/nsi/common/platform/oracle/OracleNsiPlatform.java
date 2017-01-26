@@ -62,7 +62,7 @@ public class OracleNsiPlatform implements NsiPlatform {
 
     @Override
     public String getPlatformName() {
-        return "ORACLE";
+        return "oracle";
     }
 
 }

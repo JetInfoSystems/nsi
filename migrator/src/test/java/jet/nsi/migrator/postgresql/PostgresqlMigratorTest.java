@@ -7,6 +7,7 @@ import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -33,14 +34,14 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     public PostgresqlMigratorTest() {
         super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
-    
+
     @Override
     public void setup() throws Exception {
         super.setup();
-        
+
         Assert.assertEquals(TEST_NSI_PREFIX, params.getLogPrefix());
     }
-    
+
     @Override
     protected void initTestCustomProperties() {
         properties.setProperty(key(DB,LIQUIBASE,LOG_PREFIX), TEST_NSI_PREFIX);
@@ -49,8 +50,8 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     @Override
     protected void initPlatformSpecific() {
         //ftsModule = new PostgresqlFtsModule(platformSqlDao);
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 
@@ -64,23 +65,23 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
     public void migratorTest() throws Exception {
         setupMigrator("src/test/resources/metadata/migrator");
 
-        NsiConfigDict dict1 = config.getDict("dict1");
-        NsiConfigDict dict2 = config.getDict("dict2");
-        
-        try(Connection connection = dataSource.getConnection()) {
-            platformMigrator.dropTable(dict2, connection);
-            platformMigrator.dropTable(dict1, connection);
-//            platformMigrator.dropSeq(dict2, connection);
-//            platformMigrator.dropSeq(dict1, connection);
-            
-            platformMigrator.dropSeq("SEQ_POSTPROC1", connection);
+        NsiConfigDict dict1 = config.getDict("dict11");
+        NsiConfigDict dict2 = config.getDict("dict22");
 
-            platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
-            platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
+        try(Connection connection = dataSource.getConnection()) {
+
+            doOperation(platformMigrator::dropTable, dict2, connection);
+            doOperation(platformMigrator::dropTable, dict1, connection);
+            doOperation(platformMigrator::dropSeq, dict2, connection);
+            doOperation(platformMigrator::dropSeq, dict1, connection);
+
+            doOperation(platformMigrator::dropSeq, "SEQ_POSTPROC1", connection);
+            doOperation(platformMigrator::dropTable, "TEST_NSI_PREPARE_LOG", connection);
+            doOperation(platformMigrator::dropTable, "TEST_NSI_POSTPROC_LOG", connection);
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
             migrator.update("v1");
@@ -91,7 +92,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
             Assert.assertEquals("create table table1 (id int8 not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(1));
             Assert.assertEquals("create table table2 (id int8 not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(2));
             Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(3));
-            
+
         }
 
         // check SEQ_POSTPROC1
@@ -104,7 +105,7 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
             migrator.update("v2");
@@ -115,10 +116,10 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
-            migrator.rollback("v2");
+            migrator.rollback("v2", platformMigrator);
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(0, actions.size());
@@ -136,4 +137,6 @@ public class PostgresqlMigratorTest extends BaseSqlTest{
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
     }
+
+
 }

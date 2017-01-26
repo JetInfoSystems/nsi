@@ -5,15 +5,16 @@ import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
+import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.platform.phoenix.PhoenixDialect;
 import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
 import jet.nsi.common.platform.phoenix.PhoenixNsiPlatform;
+import jet.nsi.common.platform.phoenix.PhoenixPrimaryKey;
 import jet.nsi.migrator.MigratorException;
 import jet.nsi.migrator.hibernate.NsiImplicitNamingStrategyImpl;
 import jet.nsi.migrator.liquibase.LiqubaseAction;
 import jet.nsi.migrator.platform.DefaultPlatformMigrator;
 import jet.nsi.migrator.platform.DictToHbmSerializer;
-import jet.nsi.migrator.platform.PhoenixDictToHbmSerializer;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.jvm.JdbcConnection;
@@ -25,6 +26,8 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.mapping.PrimaryKey;
+import org.hibernate.mapping.Table;
 import org.jooq.CreateTableAsStep;
 import org.jooq.CreateTableColumnStep;
 import org.jooq.exception.DataAccessException;
@@ -37,8 +40,22 @@ import java.util.Properties;
 
 public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
-    public PhoenixPlatformMigrator() {
-        super(new PhoenixNsiPlatform());
+    public PhoenixPlatformMigrator(MigratorParams params) {
+        super(new PhoenixNsiPlatform(), params);
+    }
+
+    @Override
+    public boolean isColumnEditable() {
+        return false;
+    }
+
+    @Override
+    public void setPrimaryKey(Table table) {
+        PrimaryKey sourcePk = table.getPrimaryKey();
+        PhoenixPrimaryKey pk = new PhoenixPrimaryKey(table);
+        pk.setName(sourcePk.getName());
+        pk.addColumns(sourcePk.getColumnIterator());
+        table.setPrimaryKey(pk);
     }
 
     @Override
@@ -58,6 +75,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
         return ssrBuilder.build();
     }
+
 
     @Override
     public DictToHbmSerializer getDictToHbmSerializer() {

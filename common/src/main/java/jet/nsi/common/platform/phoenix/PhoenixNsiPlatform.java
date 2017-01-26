@@ -37,6 +37,6 @@ public class PhoenixNsiPlatform implements NsiPlatform {
 
     @Override
     public String getPlatformName() {
-        return "PHOENIX";
+        return "phoenix";
     }
 }

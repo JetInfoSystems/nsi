@@ -475,7 +475,6 @@ public class DefaultSqlDao implements SqlDao {
         NsiConfigDict dict = query.getDict();
 
         String sql = sqlGen.getRowUpdateSql(query);
-        sql = sql.replace("update", "upsert into");
         log.info(sql);
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             if (query.getAttrs().size() != data.getAttrs().size()) {

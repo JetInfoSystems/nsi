@@ -10,6 +10,7 @@ import static jet.nsi.common.migrator.config.MigratorParams.LOG_PREFIX;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -57,8 +58,8 @@ public class PostgresqlMigratorChangeColumnSizeTest extends BaseSqlTest{
     @Override
     protected void initPlatformSpecific() {
         //ftsModule = new PostgresqlFtsModule(platformSqlDao);
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 
@@ -80,12 +81,12 @@ public class PostgresqlMigratorChangeColumnSizeTest extends BaseSqlTest{
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
 
-        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator );
+        Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
         migrator.addTarget( rec );
         migrator.update("v1");
 
         setupMigrator("src/test/resources/metadata/changeColumnSize/alter");
-        migrator = new Migrator(config, dataSource, params, platformMigrator );
+        migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
         migrator.addTarget( rec );
         migrator.update("v2");
 

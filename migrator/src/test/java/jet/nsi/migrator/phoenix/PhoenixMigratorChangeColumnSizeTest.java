@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.Collections;
 import java.util.List;
 
 import static jet.nsi.common.migrator.config.MigratorParams.BASE;
@@ -51,8 +52,8 @@ public class PhoenixMigratorChangeColumnSizeTest extends BaseSqlTest {
 
     @Override
     protected void initPlatformSpecific() {
-        platformMigrator = new PhoenixPlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new PhoenixPlatformMigrator(params);
+//        platformMigrator.setParams();
         platform = platformMigrator.getPlatform();
     }
 
@@ -76,12 +77,12 @@ public class PhoenixMigratorChangeColumnSizeTest extends BaseSqlTest {
 
         RecActionsTargetImpl rec = new RecActionsTargetImpl();
 
-        Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
+        Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "PHOENIX");
         migrator.addTarget(rec);
         migrator.update("v1");
 
         setupMigrator("src/test/resources/metadata/changeColumnSize/alter");
-        migrator = new Migrator(config, dataSource, params, platformMigrator);
+        migrator = new Migrator(config, Collections.singletonList(platformMigrator), "PHOENIX");
         migrator.addTarget(rec);
         migrator.update("v2");
 

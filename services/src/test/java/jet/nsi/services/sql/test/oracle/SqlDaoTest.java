@@ -57,8 +57,8 @@ public class SqlDaoTest extends BaseSqlTest {
 
     @Override
     protected void initPlatformSpecific() {
-        platformMigrator = new OraclePlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new OraclePlatformMigrator(params);
+//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

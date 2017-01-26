@@ -1,7 +1,10 @@
 package jet.nsi.common.migrator.config;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -182,10 +185,10 @@ public class MigratorParams {
         return getProperty(key(DB,LIQUIBASE,LOG_PREFIX), DEFAULT_LIQUIBASE_LOG_PREFIX);
     }
     
-    public String getDbIdent() {
-        String dbIdent = getProperty(key(DB, IDENT), null);
-        Preconditions.checkNotNull(dbIdent, "Не задан ident настроек БД");
-        return dbIdent;
+    public List<String> getDbList() {
+        String dbIdent = getProperty(key("db.list"), null);
+        Preconditions.checkNotNull(dbIdent, "Не задан список БД");
+        return Arrays.stream(dbIdent.split(",")).map(String::trim).collect(Collectors.toList());
     }
     
     public boolean getUseSequenceAsDefaultValueForId(String ident) {

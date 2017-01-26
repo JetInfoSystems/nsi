@@ -11,6 +11,7 @@ import static jet.nsi.common.migrator.config.MigratorParams.USE_SEQUENCE_AS_DEFA
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -61,8 +62,8 @@ public class PostgresqlMigratorSequencesCustomSetupTest extends BaseSqlTest{
     @Override
     protected void initPlatformSpecific() {
         //ftsModule = new PostgresqlFtsModule(platformSqlDao);
-        platformMigrator = new PostgresqlPlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new PostgresqlPlatformMigrator(params);
+//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 
@@ -90,7 +91,7 @@ public class PostgresqlMigratorSequencesCustomSetupTest extends BaseSqlTest{
         }
 
         {
-            Migrator migrator = new Migrator (config, dataSource, params, platformMigrator);
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "ORACLE");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget( rec );
             migrator.update("v1");

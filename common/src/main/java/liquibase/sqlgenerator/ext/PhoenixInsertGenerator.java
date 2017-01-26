@@ -1,5 +1,6 @@
 package liquibase.sqlgenerator.ext;
 
+import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
@@ -31,8 +32,8 @@ public class PhoenixInsertGenerator extends InsertGenerator {
 
     @Override
     public boolean supports(InsertStatement statement, Database database) {
-//        return database instanceof PhoenixJdbcDatabase;
-        return true;
+        return database instanceof PhoenixJdbcDatabase;
+//        return true;
     }
 
     @Override

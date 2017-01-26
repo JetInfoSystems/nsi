@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.Collections;
 import java.util.List;
 
 import static jet.nsi.common.migrator.config.MigratorParams.DB;
@@ -46,8 +47,8 @@ public class PhoenixMigratorTest extends BaseSqlTest {
 
     @Override
     protected void initPlatformSpecific() {
-        platformMigrator = new PhoenixPlatformMigrator();
-        platformMigrator.setParams(params);
+        platformMigrator = new PhoenixPlatformMigrator(params);
+//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 
@@ -65,21 +66,19 @@ public class PhoenixMigratorTest extends BaseSqlTest {
         NsiConfigDict dict2 = config.getDict("dict2");
 
         try (Connection connection = dataSource.getConnection()) {
-//            platformMigrator.dropTable(dict2, connection);
-//            platformMigrator.dropTable(dict1, connection);
+            doOperation(platformMigrator::dropTable, dict2, connection);
+            doOperation(platformMigrator::dropTable, dict1, connection);
+            doOperation(platformMigrator::dropSeq, dict2, connection);
+            doOperation(platformMigrator::dropSeq, dict1, connection);
 
-//            platformMigrator.dropSeq("SEQ_POSTPROC1", connection);
+            doOperation(platformMigrator::dropSeq, "SEQ_POSTPROC1", connection);
+            doOperation(platformMigrator::dropTable, "TEST_NSI_PREPARE_LOG", connection);
+            doOperation(platformMigrator::dropTable, "TEST_NSI_POSTPROC_LOG", connection);
 
-//            platformMigrator.dropSeq(dict2, connection);
-//            platformMigrator.dropSeq(dict1, connection);
-            
-
-//            platformMigrator.dropTable("TEST_NSI_PREPARE_LOG", connection);
-//            platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "PHOENIX");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget(rec);
             migrator.update("v1");
@@ -103,7 +102,7 @@ public class PhoenixMigratorTest extends BaseSqlTest {
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "PHOENIX");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget(rec);
             migrator.update("v2");
@@ -114,10 +113,10 @@ public class PhoenixMigratorTest extends BaseSqlTest {
         }
 
         {
-            Migrator migrator = new Migrator(config, dataSource, params, platformMigrator);
+            Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "PHOENIX");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget(rec);
-            migrator.rollback("v2");
+            migrator.rollback("v2", platformMigrator);
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(0, actions.size());
