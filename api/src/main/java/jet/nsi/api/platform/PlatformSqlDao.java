@@ -51,4 +51,6 @@ public interface PlatformSqlDao {
                   String value) throws SQLException;
 
     String getFieldSpelling(String field);
+
+    boolean useUUIDForId();
 }

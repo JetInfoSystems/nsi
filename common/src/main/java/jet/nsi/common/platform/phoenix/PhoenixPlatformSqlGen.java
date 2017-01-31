@@ -22,6 +22,12 @@ public class PhoenixPlatformSqlGen extends DefaultPlatformSqlGen {
         super(nsiPlatform);
     }
 
+
+    @Override
+    public boolean isLockSupported() {
+        return false;
+    }
+
     @Override
     public String getRowInsertSql(NsiQuery query, boolean useSeq) {
         /*Optional<NsiQueryAttr> optional= query.getAttrs().stream().filter(attr->attr.getAttr()==query.getDict().getIdAttr()).findFirst();

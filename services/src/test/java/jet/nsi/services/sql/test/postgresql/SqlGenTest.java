@@ -2,6 +2,7 @@ package jet.nsi.services.sql.test.postgresql;
 
 import java.io.File;
 
+import jet.nsi.migrator.BaseServiceSqlTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,13 +18,12 @@ import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 import junit.framework.Assert;
 
-public class SqlGenTest extends BaseSqlTest {
+public class SqlGenTest extends BaseServiceSqlTest {
 
-    private static final String DB_IDENT = "nsi.postgresql95";
+    private static final String DB_IDENT = "postgres";
 
     private NsiConfig config;
-    private PlatformMigrator platformMigrator;
-    
+
     public SqlGenTest() {
         super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
@@ -39,7 +39,6 @@ public class SqlGenTest extends BaseSqlTest {
     @Override
     protected void initPlatformSpecific() {
         platformMigrator = new PostgresqlPlatformMigrator(params);
-//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

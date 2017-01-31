@@ -45,6 +45,21 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
+    public boolean isSupportRollback() {
+        return false;
+    }
+
+    @Override
+    public boolean isSupportForeignKey() {
+        return false;
+    }
+
+    @Override
+    public boolean isNeedToInitializeSequence(){
+        return false;
+    }
+
+    @Override
     public boolean isColumnEditable() {
         return false;
     }
@@ -207,11 +222,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
         BoneCPDataSource dataSource = new BoneCPDataSource();
         dataSource.setDriverClass("org.apache.phoenix.jdbc.PhoenixDriver");
         dataSource.setJdbcUrl(properties.getProperty("db." + name + ".url"));
-//        dataSource.setUsername(properties.getProperty("db." + name + ".username"));
-//        dataSource.setPassword(properties.getProperty("db." + name + ".password"));
-//        dataSource.setConnectionTimeoutInMs(15000);
         dataSource.setConnectionTestStatement("select 1");
-//        dataSource.setMaxConnectionsPerPartition(Integer.parseInt(properties.getProperty("db." + name + ".size", "20")));
         dataSource.setDefaultAutoCommit(true);
         return dataSource;
     }

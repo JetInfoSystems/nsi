@@ -56,7 +56,7 @@ import jet.nsi.testkit.utils.PlatformDaoUtils;
 public abstract class BaseSqlTest {
 
     protected final PlatformDaoUtils daoUtils;
-    
+
     protected DataSource dataSource;
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
@@ -122,11 +122,15 @@ public abstract class BaseSqlTest {
     
     protected void initTestCustomProperties() {
     }
-    
+
+//    protected abstract DataSource getDataSource();
+//    protected DataSource getDataSource(){
+//        throw new UnsupportedOperationException("getDataSource");
+//    }
     protected abstract void initPlatformSpecific();
     
     protected void initCommon() {
-        dataSource = daoUtils.createDataSource(dbIdent, properties);
+//        dataSource = getDataSource();
         sqlGen = new DefaultSqlGen();
         platformSqlGen = platform.getPlatformSqlGen();
         sqlGen.setPlatformSqlGen(platformSqlGen);

@@ -48,6 +48,11 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
     }
 
     @Override
+    public boolean useUUIDForId() {
+        return false;
+    }
+
+    @Override
     public int setParamsForUpdate(NsiQuery query, DictRow data, PreparedStatement ps) throws SQLException {
         return setParamsForUpdate(query, data, ps, true);
     }

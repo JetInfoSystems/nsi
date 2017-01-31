@@ -17,7 +17,7 @@ public class PostgresqlNsiPlatform implements NsiPlatform {
     
     @Override
     public SQLDialect getJooqSQLDialect() {
-        return SQLDialect.POSTGRES_9_5;
+        return SQLDialect.DEFAULT;
     }
     
     @Override

@@ -28,5 +28,6 @@ public interface PlatformSqlGen {
 
     Object sequenceFunсtion(String name, String seqFunction);
 
+    boolean isLockSupported();
 
 }

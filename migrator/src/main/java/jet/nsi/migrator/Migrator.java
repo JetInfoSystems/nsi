@@ -95,6 +95,8 @@ public class Migrator {
         DataSource dataSource = platformMigrator.getDataSource();
         String liquibasePrepareChangelogFilePath = composePath(platformMigrator.getParams().getChangelogBasePath(),
                 LIQUIBASE_PREPARE_CHANGELOG_XML);
+        String liquibasePostprocChangelogFilePath = composePath(platformMigrator.getParams().getChangelogBasePath(),
+                LIQUIBASE_POSTPROC_CHANGELOG_XML);
         try {
             String platformName = platformMigrator.getPlatform().getPlatformName();
             try (Connection connection = dataSource.getConnection()) {
@@ -133,8 +135,8 @@ public class Migrator {
                             serviceRegistry.getService(JdbcEnvironment.class),
                             jdbcConnectionAccess,
                             metadata.getDatabase().getDefaultNamespace().getPhysicalName().getCatalog(),
-                            metadata.getDatabase().getDefaultNamespace().getPhysicalName().getSchema()
-                    );
+                            metadata.getDatabase().getDefaultNamespace().getPhysicalName().getSchema(),
+                            platformMigrator.isNeedToInitializeSequence());
                 } catch (SQLException e) {
                     throw jdbcServices.getSqlExceptionHelper().convert(
                             e, "Error creating DatabaseInformation for schema migration");
@@ -152,7 +154,7 @@ public class Migrator {
                     platformMigrator.onUpdateBeforePostproc(connection, model);
                 }
             }
-            platformMigrator.doLiquibaseUpdate(MIGRATIONS_POSTPROC, liquibasePrepareChangelogFilePath, tag,
+            platformMigrator.doLiquibaseUpdate(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag,
                     ACTION_UPDATE, platformMigrator.getParams().getLogPrefix(), dataSource);
             try (Connection connection = dataSource.getConnection()) {
                 for (NsiConfigDict model : config.getDicts()) {
@@ -169,6 +171,9 @@ public class Migrator {
 
     public void rollback(String tag, PlatformMigrator platformMigrator) {
         try {
+            if(!platformMigrator.isSupportRollback()){
+                throw new UnsupportedOperationException(platformMigrator.getPlatform().getPlatformName()+" not supported rollback ");
+            }
             String liquibasePostprocChangelogFilePath = composePath(platformMigrator.getParams().getChangelogBasePath(),
                     LIQUIBASE_POSTPROC_CHANGELOG_XML);
             doLiquibaseRollback(MIGRATIONS_POSTPROC, liquibasePostprocChangelogFilePath, tag, platformMigrator);

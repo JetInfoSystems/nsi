@@ -1,14 +1,6 @@
 package jet.nsi.migrator.hibernate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import jet.nsi.common.platform.phoenix.PhoenixDialect;
-import jet.nsi.common.platform.phoenix.PhoenixPrimaryKey;
+import com.beust.jcommander.Strings;
 import jet.nsi.migrator.platform.PlatformMigrator;
 import org.hibernate.HibernateException;
 import org.hibernate.boot.Metadata;
@@ -24,12 +16,10 @@ import org.hibernate.engine.config.spi.ConfigurationService;
 import org.hibernate.engine.config.spi.StandardConverters;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.spi.Mapping;
-import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Constraint;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Index;
-import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UniqueKey;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -48,7 +38,11 @@ import org.hibernate.tool.schema.spi.SchemaMigrator;
 import org.hibernate.tool.schema.spi.TargetDescriptor;
 import org.jboss.logging.Logger;
 
-import com.beust.jcommander.Strings;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Класс реализует логику актуализации структуры СУБД Стандартный класс не
@@ -203,7 +197,10 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             
                 applyIndexes(table, tableInformation, metadata, targets);
                 applyUniqueKeys(table, tableInformation, metadata, targets);
-                applyForeignKeys(table, tableInformation, metadata, targets);
+
+                if (platformMigrator.isSupportForeignKey()) {
+                    applyForeignKeys(table, tableInformation, metadata, targets);
+                }
             }
         }
     }

@@ -18,7 +18,6 @@ import jet.nsi.api.sql.SqlGen;
 import jet.nsi.common.data.NsiDataException;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.SQLDialect;
@@ -54,7 +53,8 @@ public class DefaultSqlGen implements SqlGen {
     }
 
     public String getRowGetSql(NsiQuery query, boolean lock, RefAttrsType refAttrsType) {
-        if (lock) {
+
+        if (lock && platformSqlGen.isLockSupported()) {
             Collection<? extends SelectField<?>> selectFields = getSelectFields(query, false);
             Table<?> fromSource = createFromSource(query, null);
             SelectJoinStep<Record> baseQuery = getQueryBuilder().select(selectFields).from(fromSource);

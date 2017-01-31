@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jet.nsi.migrator.BaseServiceSqlTest;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -39,12 +40,11 @@ import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.DataUtils;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 
-public class SqlDaoTest extends BaseSqlTest {
+public class SqlDaoTest extends BaseServiceSqlTest {
 
-    private static final String DB_IDENT = "nsi.postgresql95";
+    private static final String DB_IDENT = "postgres";
     
-    protected PlatformMigrator platformMigrator;
-    
+
     public SqlDaoTest() {
         super(DB_IDENT, new PostgresqlPlatformDaoUtils());
     }
@@ -60,7 +60,6 @@ public class SqlDaoTest extends BaseSqlTest {
     @Override
     protected void initPlatformSpecific() {
         platformMigrator = new PostgresqlPlatformMigrator(params);
-//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 

@@ -109,4 +109,9 @@ public interface PlatformMigrator {
     MigratorParams getParams();
 
     boolean isColumnEditable();
+
+    boolean isSupportForeignKey();
+    boolean isSupportRollback();
+
+    boolean isNeedToInitializeSequence();
 }

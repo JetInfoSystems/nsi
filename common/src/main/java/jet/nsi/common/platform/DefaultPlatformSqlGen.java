@@ -16,6 +16,7 @@ import org.jooq.Field;
 import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertSetStep;
 import org.jooq.Query;
+import org.jooq.SQLDialect;
 import org.jooq.SelectJoinStep;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.UpdateSetMoreStep;
@@ -44,6 +45,11 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
     public DefaultPlatformSqlGen(NsiPlatform nsiPlatform) {
         this.nsiPlatform = nsiPlatform;
         this.settings = nsiPlatform.getJooqSettings();
+    }
+
+    @Override
+    public boolean isLockSupported() {
+        return true;
     }
 
     @Override
@@ -120,7 +126,8 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
 
     @Override
     public DSLContext getQueryBuilder() {
-        DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);
+        DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);//todo
+//        DSLContext queryBuilder = DSL.using(SQLDialect.DEFAULT, settings);
         return queryBuilder;
     }
     

@@ -30,6 +30,11 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
     }
 
     @Override
+    public boolean useUUIDForId() {
+        return true;
+    }
+
+    @Override
     public String getFieldSpelling(String field) {
         return field != null ? field.toLowerCase() : null;
     }

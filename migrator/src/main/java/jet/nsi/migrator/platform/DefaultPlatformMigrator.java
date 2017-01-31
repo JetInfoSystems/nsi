@@ -32,6 +32,22 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
     protected final DataSource dataSource;
 
     protected final MigratorParams params;
+
+    @Override
+    public boolean isSupportRollback() {
+        return true;
+    }
+
+    @Override
+    public boolean isSupportForeignKey() {
+        return true;
+    }
+
+    @Override
+    public boolean isNeedToInitializeSequence(){
+        return true;
+    }
+
     @Override
     public MigratorParams getParams() {
         return params;

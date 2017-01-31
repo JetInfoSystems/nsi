@@ -32,7 +32,7 @@ import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
 import junit.framework.Assert;
-
+@Ignore // оракл нам не нужен. На поддержку тестов будем тратить лишнее время
 public class OracleMigratorTest extends BaseSqlTest{
 
     private static final String DB_IDENT = "nsi.oracle";

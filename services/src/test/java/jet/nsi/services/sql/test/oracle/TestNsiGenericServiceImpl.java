@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jet.metrics.mock.MockMetrics;
@@ -25,6 +26,7 @@ import jet.nsi.services.NsiTransactionServiceImpl;
 import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.OraclePlatformDaoUtils;
 
+@Ignore // оракл нам не нужен. На поддержку тестов будем тратить лишнее время
 public class TestNsiGenericServiceImpl extends BaseSqlTest {
 
     private static final String DB_IDENT = "nsi.oracle";

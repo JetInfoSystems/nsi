@@ -1,3 +1,4 @@
+/*
 package jet.nsi.services.sql.test.postgresql;
 
 import jet.metrics.mock.MockMetrics;
@@ -40,3 +41,4 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     }
 
 }
+*/

@@ -416,8 +416,9 @@ public class DefaultSqlDao implements SqlDao {
     public DictRow insert(Connection connection, NsiQuery query, DictRow data) {
         checkDictHasIdAttr(query.getDict());
         setVersionDefault(query, data);
-
-        data.setIdAttr(UUID.randomUUID().toString()); //TODO PHOENIX
+        if(platformSqlDao.useUUIDForId()){
+            data.setIdAttr(UUID.randomUUID().toString());
+        }
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
         boolean useSeq = (idAttr != null && idAttr.getFields().size() == 1 && DictRowAttr.isEmpty(data.getIdAttr()));
 
