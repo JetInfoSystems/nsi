@@ -1,3 +1,4 @@
+/*
 package liquibase.sqlgenerator.ext;
 
 import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
@@ -8,9 +9,11 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.InsertGenerator;
 import liquibase.statement.core.InsertStatement;
 
+*/
 /**
  * Created by kazantsev on 13.01.17.
- */
+ *//*
+
 public class PhoenixInsertGenerator extends InsertGenerator {
 
 
@@ -42,3 +45,4 @@ public class PhoenixInsertGenerator extends InsertGenerator {
     }
 
 }
+*/

@@ -86,7 +86,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
                 i++;
             }
         }
-        if (skipIdInParams) { //todo
+        if (skipIdInParams) {
             // для обновления дополнительные параметры для where условия
             List<NsiConfigField> fields = idAttr.getFields();
             DictRowAttr attrValue = data.getAttrs().get(idAttr.getName());
@@ -119,14 +119,9 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
         setParam(ps, index, fieldType, fieldSize, 0, value);
     }
 
-/*
-    protected void setParam(PreparedStatement ps, int index, MetaFieldType fieldType, int fieldSize, int fieldPrecision,
-                            String value) throws SQLException {
-        setParam(ps, index, fieldType, fieldSize, fieldPrecision, value);
-    }*/
-
-    protected void checkDataValues(List<NsiConfigField> fields,
-                                   String queryAttrName, List<String> dataValues) { //todo copypast
+    @Override
+    public void checkDataValues(List<NsiConfigField> fields,
+                                   String queryAttrName, List<String> dataValues) {
         if (dataValues == null) {
             throw new NsiDataException("empty values in data attr: "
                     + queryAttrName);

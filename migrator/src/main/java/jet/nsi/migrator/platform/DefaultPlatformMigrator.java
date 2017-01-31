@@ -87,12 +87,6 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
         return logPrefix == null ? name : logPrefix + name;
     }
 
-
-/*    @Override
-    public void setParams(MigratorParams params) {
-        this.params = params;
-    }*/
-
     @Override
     public NsiPlatform getPlatform() {
         return platform;

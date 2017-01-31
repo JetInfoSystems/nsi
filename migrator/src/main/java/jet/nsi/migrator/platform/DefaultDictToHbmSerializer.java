@@ -1,20 +1,11 @@
 package jet.nsi.migrator.platform;
 
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.sql.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
 import jet.nsi.api.data.NsiConfigAttr;
 import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.api.model.MetaAttrType;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.migrator.MigratorException;
-
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmBasicAttributeType;
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmColumnType;
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmCompositeIdType;
@@ -27,6 +18,13 @@ import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmRootEntityType;
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmSimpleIdType;
 import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmTypeSpecificationType;
 import org.hibernate.tuple.GenerationTiming;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.sql.Date;
 
 
 public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
@@ -55,16 +53,11 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         JaxbHbmRootEntityType result = new JaxbHbmRootEntityType();
         result.setName(dict.getName());
         result.setTable(dict.getTable());
-        // id
-//        if(dict.isUseDBSeq()) {
-            if (dict.getIdAttr().getFields().size() == 1) {
-                result.setId(buildSimpleId(dict));
-            } else {
-                result.setCompositeId(buildCompositeId(dict));
-            }
-//        }else{
-//
-//        }
+        if (dict.getIdAttr().getFields().size() == 1) {
+            result.setId(buildSimpleId(dict));
+        } else {
+            result.setCompositeId(buildCompositeId(dict));
+        }
         // attrs
         for ( NsiConfigAttr attr : dict.getAttrs()) {
             if(attr != dict.getIdAttr()) {

@@ -266,16 +266,15 @@ public class NsiServiceImpl implements NsiService {
             throw new IllegalStateException("no base ");
         }
         String databaseName = dict.getDatabaseName();
-        SqlDao dao = null;
+        SqlDao dao;
         if (databaseName == null) {
-            throw new IllegalStateException("can't get database :"+databaseName);
-//            return defaultSqlDao;
+            throw new IllegalStateException("can't get database ");
         } else {
             dao = getSqlDao(databaseName);
         }
 
-        if (dao==null){
-            throw new IllegalStateException("can't get database :"+databaseName);
+        if (dao == null) {
+            throw new IllegalStateException("can't get database :" + databaseName);
         }
         return dao;
     }

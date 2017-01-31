@@ -23,12 +23,11 @@ import static jet.nsi.common.migrator.config.MigratorParams.key;
 
 public class PostgresqlMigratorTest extends BaseMigratorSqlTest {
 
-    private static final String DB_IDENT = "postgres";//todo
+    private static final String DB_IDENT = "postgres";
     private static final String TEST_NSI_PREFIX = "TEST_NSI_";
 
-
     public PostgresqlMigratorTest() {
-        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
+        super(DB_IDENT);
     }
 
     @Override
@@ -59,14 +58,15 @@ public class PostgresqlMigratorTest extends BaseMigratorSqlTest {
     public void migratorTest() throws Exception {
         setupMigrator("src/test/resources/metadata/migrator");
 
-        NsiConfigDict dict1 = config.getDict("dict11");
-        NsiConfigDict dict2 = config.getDict("dict22");
+        NsiConfigDict dict1 = config.getDict("dict1");
+        NsiConfigDict dict2 = config.getDict("dict2");
 
         try (Connection connection = dataSource.getConnection()) {
 
             doOperation(platformMigrator::dropTable, dict2, connection);
             doOperation(platformMigrator::dropTable, dict1, connection);
             doOperation(platformMigrator::dropSeq, dict2, connection);
+            doOperation(platformMigrator::dropSeq, dict1, connection);
             doOperation(platformMigrator::dropSeq, dict1, connection);
 
             doOperation(platformMigrator::dropSeq, "SEQ_POSTPROC1", connection);
@@ -75,18 +75,18 @@ public class PostgresqlMigratorTest extends BaseMigratorSqlTest {
         }
 
         {
+
             Migrator migrator = new Migrator(config, Collections.singletonList(platformMigrator), "POSTGRES");
             RecActionsTargetImpl rec = new RecActionsTargetImpl();
             migrator.addTarget(rec);
             migrator.update("v1");
 
             List<String> actions = rec.getActions();
-            Assert.assertEquals(5, actions.size());
-            Assert.assertEquals("create sequence seq_table11 start 1 increment 1", actions.get(0));
-            Assert.assertEquals("create sequence seq_table22 start 1 increment 1", actions.get(1));
-            Assert.assertEquals("create table table11 (id int8 not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(2));
-            Assert.assertEquals("create table table22 (id int8 not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(3));
-            Assert.assertEquals("alter table table22 add constraint fk_table22_7185384A foreign key (dict1_id) references table11", actions.get(4));
+            Assert.assertEquals(4, actions.size());
+            Assert.assertEquals("create sequence seq_table2 start 1 increment 1", actions.get(0));
+            Assert.assertEquals("create table table1 (id int8 not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table2 (id int8 not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(2));
+            Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(3));
 
         }
 
@@ -96,7 +96,7 @@ public class PostgresqlMigratorTest extends BaseMigratorSqlTest {
         }
 
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.executeSql(connection, "ALTER TABLE TABLE11 DROP COLUMN F1");
+            platformSqlDao.executeSql(connection, "ALTER TABLE table1 DROP COLUMN F1");
         }
 
         {
@@ -107,7 +107,7 @@ public class PostgresqlMigratorTest extends BaseMigratorSqlTest {
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(1, actions.size());
-            Assert.assertEquals("alter table table11 add column f1 varchar(100)", actions.get(0));
+            Assert.assertEquals("alter table table1 add column f1 varchar(100)", actions.get(0));
         }
 
         {
@@ -132,6 +132,4 @@ public class PostgresqlMigratorTest extends BaseMigratorSqlTest {
             platformMigrator.dropTable("TEST_NSI_POSTPROC_LOG", connection);
         }
     }
-
-
 }

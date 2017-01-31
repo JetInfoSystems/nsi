@@ -18,7 +18,7 @@ public class PhoenixNsiPlatform implements NsiPlatform {
     @Override
     public SQLDialect getJooqSQLDialect() {
         return SQLDialect.DEFAULT;
-    } //todo
+    }
     
     @Override
     public Settings getJooqSettings() {

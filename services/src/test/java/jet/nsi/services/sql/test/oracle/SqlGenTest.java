@@ -1,3 +1,4 @@
+/*
 package jet.nsi.services.sql.test.oracle;
 
 import java.io.File;
@@ -161,7 +162,8 @@ public class SqlGenTest extends BaseSqlTest {
                         " where m.f1 is not null", sql);
     }
 
-    /*
+    */
+/*
      * @Test public void testDict2ListSql() { NsiConfigDict dict =
      * config.getDict("dict1"); NsiQuery query = new NsiQuery(dict).addAttrs();
      * BoolExp filter = new BoolExp(); filter.setFunc("or");
@@ -182,7 +184,8 @@ public class SqlGenTest extends BaseSqlTest {
      * "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user " +
      * "from table1 m " + "where (m.f1 = ? or m.f1 = ?)" +
      * "order by m.id asc, m.last_user asc limit ?", sql); }
-     */
+     *//*
+
 
     @Test
     public void testDict1CountSql() {
@@ -339,3 +342,4 @@ public class SqlGenTest extends BaseSqlTest {
     }
 
 }
+*/

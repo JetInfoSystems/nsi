@@ -69,7 +69,7 @@ public class DefaultSqlDao implements SqlDao {
                     String queryAttrName = configAttr.getName();
 
                     List<String> dataValues = filter.getValue().getValues();
-                    checkDataValues(fields, queryAttrName, dataValues);
+                    platformSqlDao.checkDataValues(fields, queryAttrName, dataValues);
 
                     int i = 0;
                     for (NsiConfigField field : fields) {
@@ -184,7 +184,7 @@ public class DefaultSqlDao implements SqlDao {
                 dataValues = dataAttr.getValues();
             }
 
-            checkDataValues(fields, queryAttrName, dataValues);
+            platformSqlDao.checkDataValues(fields, queryAttrName, dataValues);
 
             int i = 0;
             for (NsiConfigField field : fields) {
@@ -249,18 +249,6 @@ public class DefaultSqlDao implements SqlDao {
             visitor.accept(filter);
         }
         return visitor.getIndex();
-    }
-
-    protected void checkDataValues(List<NsiConfigField> fields,
-                                   String queryAttrName, List<String> dataValues) {
-        if (dataValues == null) {
-            throw new NsiDataException("empty values in data attr: "
-                    + queryAttrName);
-        }
-        if (dataValues.size() != fields.size()) {
-            throw new NsiDataException(
-                    "data values and query attr fields count not match");
-        }
     }
 
     protected void rsToDictRowIdAttr(NsiQuery query, ResultSet rs,

@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 public class NsiTransactionServiceImpl implements NsiTransactionService {
 
     private static final Logger log = LoggerFactory.getLogger(NsiTransactionServiceImpl.class);
-//    private DataSource dataSource;
     private final Timer createTransactionTimer;
 
     public NsiTransactionServiceImpl(Metrics metrics) {
@@ -39,9 +38,5 @@ public class NsiTransactionServiceImpl implements NsiTransactionService {
             t.stop();
         }
     }
-
-//    public void setDataSource(DataSource dataSource) {
-//        this.dataSource = dataSource;
-//    }
 
 }

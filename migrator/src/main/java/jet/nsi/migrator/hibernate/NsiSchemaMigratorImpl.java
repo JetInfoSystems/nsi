@@ -76,7 +76,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
         for (GenerationTarget target : targets) {
             target.release();
         }
-        System.out.println("i finished migration");
     }
     
     protected void doMigrationToTargets(
@@ -137,7 +136,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             }
 
             for (Sequence sequence : namespace.getSequences()) {
-                System.out.println("wow! sequence!"+sequence.getName());
                 checkExportIdentifier(sequence, exportIdentifiers);
                 final SequenceInformation sequenceInformation = existingDatabase.getSequenceInformation(sequence.getName());
                 if (sequenceInformation != null) {
@@ -157,10 +155,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
 
             // first pass
             for (Table table : namespace.getTables()) {
-                if(table.getName().contains("seq")){
-                    System.out.println("continue:"+table.getName());
-                    continue;
-                }
                 platformMigrator.setPrimaryKey(table);
 
                 if (!table.isPhysicalTable()) {
@@ -402,7 +396,6 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
         
         for (GenerationTarget target : targets) {
             try {
-                System.out.println(sqlString);
                 target.accept(sqlString);
             }
             catch (SchemaManagementException e) {
@@ -447,9 +440,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
     
     public Iterator<String> sqlAlterStrings(Table table, Dialect dialect, Mapping p, TableInformation tableInfo,
             String defaultCatalog, String defaultSchema, PlatformMigrator platformMigrator) throws HibernateException {
-        /*if(dialect instanceof PhoenixDialect){
-            return Collections.emptyIterator();
-        }*/
+
         @SuppressWarnings("rawtypes")
         Iterator iter = table.getColumnIterator();
         List<String> results = new ArrayList<>();

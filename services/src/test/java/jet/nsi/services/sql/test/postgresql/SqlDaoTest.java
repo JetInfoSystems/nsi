@@ -32,23 +32,20 @@ import jet.nsi.api.model.DictRowAttr;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.tx.NsiTransactionService;
 import jet.nsi.common.config.impl.NsiConfigManagerFactoryImpl;
-import jet.nsi.migrator.platform.PlatformMigrator;
-import jet.nsi.migrator.platform.oracle.OraclePlatformMigrator;
 import jet.nsi.migrator.platform.postgresql.PostgresqlPlatformMigrator;
 import jet.nsi.services.NsiTransactionServiceImpl;
-import jet.nsi.testkit.test.BaseSqlTest;
 import jet.nsi.testkit.utils.DataUtils;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 
 public class SqlDaoTest extends BaseServiceSqlTest {
 
     private static final String DB_IDENT = "postgres";
-    
+
 
     public SqlDaoTest() {
-        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
+        super(DB_IDENT);
     }
-    
+
     @Override
     public void setup() throws Exception {
         super.setup();
@@ -112,10 +109,10 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                     DictRow outData = sqlDao.insert(connection, query, inData);
 
                     DictRow outDataV = sqlDao.get(connection, dictV.query().addAttrs(), outData.getIdAttr());
-                    
+
                     Assert.assertEquals(1L, (long) outDataV.getIdAttrLong());
                     Assert.assertEquals(123L, (long) outDataV.getLong("V"));
-                    
+
                 } finally {
                     platformMigrator.dropSeq(dict, connection);
                 }
@@ -159,7 +156,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
             }
         }
     }
-    
+
     @Test
     public void testInsertAndGetClob() throws Exception {
         NsiConfigDict dict = config.getDict("dictWithClob");
@@ -414,7 +411,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
             }
         }
     }
-    
+
     @Test
     @Ignore("full search indexes not supported yet for postgres (must be done with AFS-30)")
     public void testListContainsFilter() throws Exception {
@@ -497,7 +494,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
         return sqlDao.insert(connection, query, inData);
     }
-    
+
     private DictRow saveDict2Row(Connection connection, NsiQuery query,
             long  dic1Id, boolean insert) {
         DictRow inData = query.getDict().builder()
@@ -711,36 +708,36 @@ public class SqlDaoTest extends BaseServiceSqlTest {
     public void testMerge() throws SQLException {
         NsiConfigDict dictEmp = config.getDict("EMP_MERGE_TEST");
         NsiConfigDict dictOrg = config.getDict("ORG_MERGE_TEST");
-        
+
         try (Connection connection = dataSource.getConnection()) {
             try {
                 platformMigrator.recreateTable(dictOrg, connection);
-                platformMigrator.recreateTable(dictEmp, connection);            
+                platformMigrator.recreateTable(dictEmp, connection);
                 platformMigrator.recreateSeq(dictEmp, connection);
                 platformMigrator.recreateSeq(dictOrg, connection);
-                
+
                 DictRow org1 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
                 DictRow org2 = defaultBuilder("ORG_MERGE_TEST").attr("EXTERNAL_ID", "2").build();
-                
+
                 sqlDao.mergeByExternalAttrs(connection, org1);
                 List<DictRow> rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
                 Assert.assertEquals(rows.size(), 1);
                 DictRowAttr org1Id = rows.get(0).getIdAttr();
                 long count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
                 Assert.assertEquals(count, 1);
-                
+
                 sqlDao.mergeByExternalAttrs(connection, org1);
                 count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
                 Assert.assertEquals(count, 1);
-                
+
                 sqlDao.mergeByExternalAttrs(connection, org2);
                 rows = sqlDao.list(connection, dictOrg.query().addAttrs(), getFilterByExternalAttrs(org1), null, -1, -1);
                 Assert.assertEquals(rows.size(), 1);
                 DictRowAttr org2Id = rows.get(0).getIdAttr();
                 count = sqlDao.count(connection, dictOrg.query().addAttrs(), null, null, null);
                 Assert.assertEquals(count, 2);
-                
-                
+
+
                 DictRow emp1 = defaultBuilder("EMP_MERGE_TEST").attr("EXTERNAL_ID", "1").build();
                 Map<String, DictRowAttr> ref = new HashMap<>();
                 ref.put("EXTERNAL_ID", org1.getAttr("EXTERNAL_ID"));
@@ -750,25 +747,25 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                 rows = sqlDao.list(connection, dictEmp.query().addAttrs(), getFilterByExternalAttrs(emp1), null, -1, -1);
                 Assert.assertEquals(rows.size(), 1);
                 Assert.assertEquals(rows.get(0).getAttr("ORG_ID").getLong(), org1Id.getLong());
-                
+
             } finally {
                 platformMigrator.dropSeq(dictEmp, connection);
                 platformMigrator.dropSeq(dictOrg, connection);
-                platformMigrator.dropTable(dictEmp, connection);   
-                platformMigrator.dropTable(dictOrg, connection);        
+                platformMigrator.dropTable(dictEmp, connection);
+                platformMigrator.dropTable(dictOrg, connection);
             }
         }
     }
-    
+
     @Test
     public void testUniqueAttr() throws SQLException {
         NsiConfigDict dict = config.getDict("UNIQUE_ATTR_TEST");
-        
+
         try (Connection connection = dataSource.getConnection()) {
             try {
                 platformMigrator.recreateTable(dict, connection);
                 platformMigrator.recreateSeq(dict, connection);
-                
+
                 String key = String.valueOf(System.nanoTime());
                 DictRow row1 = defaultBuilder("UNIQUE_ATTR_TEST").attr("KEY", key).build();
                 DictRow row2 = defaultBuilder("UNIQUE_ATTR_TEST").attr("KEY", key + 2).build();
@@ -804,14 +801,13 @@ public class SqlDaoTest extends BaseServiceSqlTest {
             }
         }
     }
-    
+
     public NsiTransactionService getTransactionService() {
-        NsiTransactionServiceImpl transactionService = new NsiTransactionServiceImpl(new MockMetrics());       
-//        transactionService.setDataSource(dataSource);
+        NsiTransactionServiceImpl transactionService = new NsiTransactionServiceImpl(new MockMetrics());
 
         return transactionService;
     }
-    
+
     private BoolExp getFilterByExternalAttrs(DictRow row) {
         NsiConfigDict dict = row.getDict();
         List<NsiConfigAttr> mAttrs = dict.getMergeExternalAttrs();
@@ -826,7 +822,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
         }
         return fb.end().build();
     }
-    
+
     @Test
     public void testDefaultAttrs() throws Exception {
         NsiConfigDict dict = config.getDict("dict_default_attr");

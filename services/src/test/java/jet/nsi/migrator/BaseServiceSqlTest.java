@@ -9,8 +9,8 @@ import org.junit.Before;
 public abstract class BaseServiceSqlTest extends BaseSqlTest {
     protected PlatformMigrator platformMigrator;
 
-    public BaseServiceSqlTest(String dbIdent, PlatformDaoUtils daoUtils) {
-        super(dbIdent, daoUtils);
+    public BaseServiceSqlTest(String dbIdent) {
+        super(dbIdent);
     }
 
     @Before

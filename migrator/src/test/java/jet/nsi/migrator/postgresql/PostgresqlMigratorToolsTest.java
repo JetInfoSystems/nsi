@@ -34,7 +34,7 @@ public class PostgresqlMigratorToolsTest extends BaseMigratorSqlTest {
     private static final String LIQUIBASE_CHANGE_LOG_BASE_PATH = "with_empty_liquibase_changelogs";
 
     public PostgresqlMigratorToolsTest() {
-        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
+        super(DB_IDENT);
     }
 
     @Override

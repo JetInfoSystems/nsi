@@ -1,3 +1,4 @@
+/*
 package jet.nsi.migrator.oracle;
 
 import static jet.nsi.common.migrator.config.MigratorParams.key;
@@ -307,3 +308,4 @@ public class OracleMigratorTest extends BaseSqlTest{
     }
 
 }
+*/

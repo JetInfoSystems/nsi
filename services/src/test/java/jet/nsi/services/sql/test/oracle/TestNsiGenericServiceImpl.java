@@ -1,3 +1,4 @@
+/*
 package jet.nsi.services.sql.test.oracle;
 
 import java.io.File;
@@ -47,7 +48,6 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
         NsiConfigParams configParams = new NsiConfigParams();
         config = new NsiConfigManagerFactoryImpl().create(new File("src/test/resources/metadata1"), configParams ).getConfig();
         transactionService = new NsiTransactionServiceImpl(new MockMetrics());
-//        transactionService.setDataSource(dataSource);
         service = new NsiGenericServiceImpl(new MockMetrics());
         service.setTransactionService(transactionService);
     }
@@ -55,7 +55,6 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     @Override
     protected void initPlatformSpecific() {
         platformMigrator = new OraclePlatformMigrator(params);
-//        platformMigrator.setParams(params);
         platform = platformMigrator.getPlatform();
     }
 
@@ -481,3 +480,4 @@ public class TestNsiGenericServiceImpl extends BaseSqlTest {
     }
    
 }
+*/

@@ -33,7 +33,7 @@ public class PostgresqlMigratorSequencesCustomSetupTest extends BaseMigratorSqlT
     private static final String IS_USE_SEQUENCE_AS_DEFAULT_VALUE_FOR_ID = "true";
 
     public PostgresqlMigratorSequencesCustomSetupTest() {
-        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
+        super(DB_IDENT);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class PostgresqlMigratorSequencesCustomSetupTest extends BaseMigratorSqlT
     public void migratorTest() throws Exception {
         setupMigrator("src/test/resources/metadata/migrator");
 
-        NsiConfigDict dict1 = config.getDict("dict11");
-        NsiConfigDict dict2 = config.getDict("dict22");
+        NsiConfigDict dict1 = config.getDict("dict1");
+        NsiConfigDict dict2 = config.getDict("dict2");
 
         try (Connection connection = dataSource.getConnection()) {
             platformMigrator.dropTable(dict2, connection);
@@ -88,11 +88,11 @@ public class PostgresqlMigratorSequencesCustomSetupTest extends BaseMigratorSqlT
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(5, actions.size());
-            Assert.assertEquals("create sequence seq_table11 start 1 increment 1", actions.get(0));
-            Assert.assertEquals("create sequence seq_table22 start 1 increment 1", actions.get(1));
-            Assert.assertEquals("create table table11 (id int8 default nextval('seq_table11') not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(2));
-            Assert.assertEquals("create table table22 (id int8 default nextval('seq_table22') not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(3));
-            Assert.assertEquals("alter table table22 add constraint fk_table22_7185384A foreign key (dict1_id) references table11", actions.get(4));
+            Assert.assertEquals("create sequence seq_table1 start 1 increment 1", actions.get(0));
+            Assert.assertEquals("create sequence seq_table2 start 1 increment 1", actions.get(1));
+            Assert.assertEquals("create table table1 (id int8 default nextval('seq_table1') not null, f1 varchar(100), is_deleted char(1), last_change timestamp, last_user int8, VERSION int8, primary key (id))", actions.get(2));
+            Assert.assertEquals("create table table2 (id int8 default nextval('seq_table2') not null, dict1_id int8, is_deleted char(1), last_change timestamp, last_user int8, name char(100), VERSION int8, primary key (id))", actions.get(3));
+            Assert.assertEquals("alter table table2 add constraint fk_table2_FE52C689 foreign key (dict1_id) references table1", actions.get(4));
 
         }
 

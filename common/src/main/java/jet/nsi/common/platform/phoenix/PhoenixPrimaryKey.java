@@ -7,9 +7,7 @@ import org.hibernate.mapping.Table;
 
 import java.util.Iterator;
 
-/**
- * Created by kazantsev on 13.01.17.
- */
+
 public class PhoenixPrimaryKey extends PrimaryKey {
     public PhoenixPrimaryKey(Table table) {
         super(table);

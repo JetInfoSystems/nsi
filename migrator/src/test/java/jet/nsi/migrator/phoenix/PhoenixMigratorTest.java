@@ -29,7 +29,7 @@ public class PhoenixMigratorTest extends BaseMigratorSqlTest {
     private static final String TEST_NSI_PREFIX = "TEST_NSI_";
 
     public PhoenixMigratorTest() {
-        super(DB_IDENT, new PhoenixPlatformDaoUtils());
+        super(DB_IDENT);
     }
 
     @Override
@@ -67,13 +67,13 @@ public class PhoenixMigratorTest extends BaseMigratorSqlTest {
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(2, actions.size());
-            Assert.assertEquals("create table table11 (id bigint not null, f1 varchar(100), is_deleted boolean, last_change date, last_user bigint, VERSION bigint, constraint pk primary key (id))", actions.get(0));
-            Assert.assertEquals("create table table22 (id bigint not null, dict1_id bigint, is_deleted boolean, last_change date, last_user bigint, name char(100), VERSION bigint, constraint pk primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table1 (id bigint not null, f1 varchar(100), is_deleted boolean, last_change date, last_user bigint, VERSION bigint, constraint pk primary key (id))", actions.get(0));
+            Assert.assertEquals("create table table2 (id bigint not null, dict1_id bigint, is_deleted boolean, last_change date, last_user bigint, name char(100), VERSION bigint, constraint pk primary key (id))", actions.get(1));
         }
 
 
         try (Connection connection = dataSource.getConnection()) {
-            platformSqlDao.executeSql(connection, "ALTER TABLE TABLE11 DROP COLUMN f1");
+            platformSqlDao.executeSql(connection, "ALTER TABLE table1 DROP COLUMN f1");
         }
 
         {
@@ -84,15 +84,15 @@ public class PhoenixMigratorTest extends BaseMigratorSqlTest {
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(1, actions.size());
-            Assert.assertEquals("alter table table11 add  f1 varchar(100)", actions.get(0));
+            Assert.assertEquals("alter table table1 add f1 varchar(100)", actions.get(0));
         }
     }
 
     @After
     public void clearMigration() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            NsiConfigDict dict1 = config.getDict("dict11");
-            NsiConfigDict dict2 = config.getDict("dict22");
+            NsiConfigDict dict1 = config.getDict("dict1");
+            NsiConfigDict dict2 = config.getDict("dict2");
             doOperation(platformMigrator::dropTable, dict1, connection);
             doOperation(platformMigrator::dropTable, dict2, connection);
         }

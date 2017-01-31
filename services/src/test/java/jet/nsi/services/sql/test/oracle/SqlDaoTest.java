@@ -1,3 +1,4 @@
+/*
 package jet.nsi.services.sql.test.oracle;
 
 import java.io.File;
@@ -848,3 +849,4 @@ public class SqlDaoTest extends BaseSqlTest {
         }
     }
 }
+*/

@@ -55,7 +55,6 @@ import jet.nsi.testkit.utils.PlatformDaoUtils;
 
 public abstract class BaseSqlTest {
 
-    protected final PlatformDaoUtils daoUtils;
 
     protected DataSource dataSource;
     protected Properties properties;
@@ -73,12 +72,11 @@ public abstract class BaseSqlTest {
 
     
     protected BaseSqlTest() {
-        this("nsi", new OraclePlatformDaoUtils());
+        this("nsi");
     }
     
-    protected BaseSqlTest(String dbIdent, PlatformDaoUtils daoUtils) {
+    protected BaseSqlTest(String dbIdent) {
         this.dbIdent = dbIdent;
-        this.daoUtils = daoUtils;
     }
     
     @Before

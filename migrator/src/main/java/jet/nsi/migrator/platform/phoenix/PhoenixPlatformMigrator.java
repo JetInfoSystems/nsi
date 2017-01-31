@@ -7,7 +7,7 @@ import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.platform.phoenix.PhoenixDialect;
-import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
+//import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
 import jet.nsi.common.platform.phoenix.PhoenixNsiPlatform;
 import jet.nsi.common.platform.phoenix.PhoenixPrimaryKey;
 import jet.nsi.migrator.MigratorException;
@@ -190,26 +190,19 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
     @Override
     public void createFullSearchIndex(NsiConfigDict dict, String field,
                                       Connection connection) {
-        // ftsModule.createFullSearchIndex(dict, field, connection);
         throw new MigratorException("createFullSearchIndex: Not supported full search yet");
     }
 
     @Override
     public void dropFullSearchIndex(NsiConfigDict dict, String field,
                                     Connection connection) {
-        // ftsModule.dropFullSearchIndex(dict, field, connection);
         throw new MigratorException("dropFullSearchIndex: Not supported full search yet");
     }
 
     @Override
     public void recreateFullSearchIndex(NsiConfigDict dict, String field,
                                         Connection connection) {
-        try {
-            createFullSearchIndex(dict, field, connection);
-        } catch (Exception e) {
-            dropFullSearchIndex(dict, field, connection);
-            createFullSearchIndex(dict, field, connection);
-        }
+        throw new MigratorException("dropFullSearchIndex: Not supported full search yet");
     }
 
     @Override
@@ -299,8 +292,9 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public Liquibase createLiquibase(Connection c, LiqubaseAction liquibaseAction) throws LiquibaseException {
+        throw new MigratorException("createLiquibase: Not supported by phoenix");
 
-        Database db = new PhoenixJdbcDatabase();
+/*        Database db = new PhoenixJdbcDatabase();
         db.setConnection(new JdbcConnection(c));
 
         db.setDatabaseChangeLogTableName(liquibaseAction.getName() + "_LOG");
@@ -309,44 +303,51 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
         Liquibase l = new Liquibase(liquibaseAction.getFile(), new ClassLoaderResourceAccessor(), db);
         // TODO: set parameters l.setChangeLogParameter("key","value");
-        return l;
+        return l;*/
     }
 
-    public void setDatabaseDefaultTablespace(Connection connection, String name, String defaultTablespace)
+/*    public void setDatabaseDefaultTablespace(Connection connection, String name, String defaultTablespace)
             throws SQLException {
         platformSqlDao.executeSql(connection, new StringBuilder()
                 .append("alter database ").append(name)
                 .append(" set tablespace ").append(defaultTablespace).toString());
-    }
+    }*/
 
     public void createTablespace(Connection connection, String name, String dataFilePath) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
+        throw new MigratorException("createTablespace: Not supported by phoenix");
+/*        platformSqlDao.executeSql(connection, new StringBuilder()
                 .append("create tablespace ").append(name)
-                .append(" location '").append(dataFilePath).append("' ").toString());
+                .append(" location '").append(dataFilePath).append("' ").toString());*/
     }
 
     public void setTablespaceOwner(Connection connection, String name, String user) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("alter tablespace ").append(name)
-                .append(" owner to ").append(user).toString());
-    }
+        throw new MigratorException("setTablespaceOwner: Not supported by phoenix");
 
+/*        platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("alter tablespace ").append(name)
+                .append(" owner to ").append(user).toString());*/
+    }
+/*
     public void setSchemaOwner(Connection connection, String name, String user)
             throws SQLException {
         platformSqlDao.executeSql(connection, new StringBuilder()
                 .append("alter schema").append(name).append(" owner to ").append(user).toString());
-    }
+    }*/
 
     @Override
     public void createSchema(Connection connection, String name, String user) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("create schema if not exists ").append(name).append(" authorization ").append(user).toString());
+        throw new MigratorException("createSchema: Not supported by phoenix");
+
+        /*platformSqlDao.executeSql(connection, new StringBuilder()
+                .append("create schema if not exists ").append(name).append(" authorization ").append(user).toString());*/
     }
 
     @Override
     public void dropSchema(Connection connection, String name) {
+        throw new MigratorException("dropSchema: Not supported by phoenix");
+/*
         platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("drop schema if exists ").append(name).append(" cascade").toString());
+                .append("drop schema if exists ").append(name).append(" cascade").toString());*/
     }
 
 }

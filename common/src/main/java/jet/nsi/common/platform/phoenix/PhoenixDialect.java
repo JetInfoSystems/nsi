@@ -8,7 +8,6 @@ import java.io.File;
 import java.sql.Types;
 
 public class PhoenixDialect extends Dialect{
-//    private StandardTableExporter tableExporter = new StandardTableExporter( this );
 
     public PhoenixDialect() {
         super();
@@ -19,6 +18,6 @@ public class PhoenixDialect extends Dialect{
 
     @Override
     public String getAddColumnString() {
-        return "add ";
+        return "add";
     }
 }

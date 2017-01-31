@@ -12,5 +12,5 @@ public interface NsiTransactionService {
      * для объединения нескольких вызовов в одну транзакцию.
      * @return
      */
-    NsiTransaction createTransaction(String requestId, Connection dataSource);
+    NsiTransaction createTransaction(String requestId, Connection connection);
 }

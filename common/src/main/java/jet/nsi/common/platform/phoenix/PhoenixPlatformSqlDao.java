@@ -34,28 +34,16 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
         return true;
     }
 
-    @Override
-    public String getFieldSpelling(String field) {
-        return field != null ? field.toLowerCase() : null;
-    }
+//    @Override
+//    public String getFieldSpelling(String field) {
+//        return field != null ? field.toLowerCase() : null;
+//    }
 
     @Override
     public int setParamsForUpdate(NsiQuery query, DictRow data, PreparedStatement ps) throws SQLException {
         return setParamsForUpdate(query, data, ps, false);
     }
 
-    @Override
-    public String wrapFilterFieldValue(BoolExp filter, NsiConfigField field,
-            String val) {
-        if (filter.getFunc().equals(OperationType.CONTAINS)) {
-            // ** нужно использовать для обхода ограничения oracle
-            // oracle11 не поддерживает left wildcard
-            // https://docs.oracle.com/cd/B28359_01/text.111/b28304/csql.htm#i997256
-            return "**" + replaceIllegalCharacters(val) + "*";
-        } else {
-            return super.wrapFilterFieldValue(filter, field, val);
-        }
-    }
 
     @Override
     public String getStringFromClob(ResultSet rs, int index) throws SQLException {
@@ -83,7 +71,7 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
 
     @Override
     public DataType<?> getDataType(MetaFieldType fieldType) {
-        String type = null;
+        String type;
         switch (fieldType) {
         case BOOLEAN:
             type = "char";
@@ -109,14 +97,6 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
         return DefaultDataType.getDataType(SQLDialect.DEFAULT, type);
     }
 
-    private String replaceIllegalCharacters(String value) {
-        return value.replaceAll("[\"(),]", "");
-    }
-
-    @Override
-    public DSLContext getQueryBuilder(Connection connection) {
-        return DSL.using(connection,SQLDialect.POSTGRES_9_5,settings);
-    }
 
     @Override
     public int limit(PreparedStatement ps, int index, long offset, int size) throws SQLException {

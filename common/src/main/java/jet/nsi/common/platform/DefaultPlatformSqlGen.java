@@ -127,7 +127,6 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
     @Override
     public DSLContext getQueryBuilder() {
         DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);//todo
-//        DSLContext queryBuilder = DSL.using(SQLDialect.DEFAULT, settings);
         return queryBuilder;
     }
     

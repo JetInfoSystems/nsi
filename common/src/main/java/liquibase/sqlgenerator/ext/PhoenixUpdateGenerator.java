@@ -1,3 +1,4 @@
+/*
 package liquibase.sqlgenerator.ext;
 
 import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
@@ -15,9 +16,11 @@ import java.util.Date;
 
 import static liquibase.util.SqlUtil.replacePredicatePlaceholders;
 
+*/
 /**
  * Created by kazantsev on 13.01.17.
- */
+ *//*
+
 public class PhoenixUpdateGenerator extends UpdateGenerator {
     private boolean previousInsertHasHeader = false;
 
@@ -92,6 +95,7 @@ public class PhoenixUpdateGenerator extends UpdateGenerator {
 
         sql.append(") VALUES ");
     }
+*/
 /*
     @Override
     public Sql[] generateSql(UpdateStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
@@ -113,7 +117,8 @@ public class PhoenixUpdateGenerator extends UpdateGenerator {
         return new Sql[] {
                 new UnparsedSql(sql.toString(), getAffectedTable(statement))
         };
-    }*/
+    }*//*
+
 
     @Override
     public boolean supports(UpdateStatement statement, Database database) {
@@ -154,3 +159,4 @@ public class PhoenixUpdateGenerator extends UpdateGenerator {
         return sqlString;
     }
 }
+*/

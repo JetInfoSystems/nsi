@@ -24,7 +24,6 @@ public class NsiConfigDict {
     private final String table;
     private final String databaseName;
     private final boolean hidden;
-    private final boolean useDBSeq;
 
     private NsiConfigAttr idAttr;
     private NsiConfigAttr parentAttr;
@@ -68,8 +67,7 @@ public class NsiConfigDict {
         }
 
         mainDictName = metaDict.getMainDict();
-        databaseName = metaDict.getDatabaseName();//"phoenix";
-        useDBSeq = metaDict.isUseDBSeqId() == null ? true : metaDict.isUseDBSeqId();
+        databaseName = metaDict.getDatabaseName();
     }
 
 
@@ -379,7 +377,4 @@ public class NsiConfigDict {
         return databaseName;
     }
 
-    public boolean isUseDBSeq() {
-        return useDBSeq;
-    }
 }

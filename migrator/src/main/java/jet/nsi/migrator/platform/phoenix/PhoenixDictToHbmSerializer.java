@@ -8,7 +8,6 @@ import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmSimpleIdType;
 
 public class PhoenixDictToHbmSerializer extends DefaultDictToHbmSerializer {
 
-
     protected JaxbHbmSimpleIdType buildSimpleId(NsiConfigDict dict) {
         JaxbHbmSimpleIdType result = new JaxbHbmSimpleIdType();
         NsiConfigField field = dict.getIdAttr().getFields().get(0);

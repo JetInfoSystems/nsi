@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import jet.nsi.api.data.DictRow;
 import org.jooq.DSLContext;
@@ -49,6 +50,9 @@ public interface PlatformSqlDao {
 
     void setParam(PreparedStatement ps, int index, MetaFieldType fieldType, int fieldSize,
                   String value) throws SQLException;
+
+    void checkDataValues(List<NsiConfigField> fields,
+                         String queryAttrName, List<String> dataValues);
 
     String getFieldSpelling(String field);
 

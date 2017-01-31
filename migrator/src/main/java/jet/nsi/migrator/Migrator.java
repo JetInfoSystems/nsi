@@ -46,38 +46,15 @@ public class Migrator {
     private static final Logger log = LoggerFactory.getLogger(Migrator.class);
 
     private final NsiConfig config;
-//    private final DataSource dataSource;
-
-    //    private final String logPrefix;
     private final String defaultDatabase;
-    //    private final PlatformMigrator platformMigrator;
     private final List<PlatformMigrator> migratorList;
 
     private List<GenerationTarget> targets = new ArrayList<>();
 
-    //    private final String liquibasePrepareChangelogFilePath;
-//    private final String liquibasePostprocChangelogFilePath;
-
     public Migrator(NsiConfig config, List<PlatformMigrator> migratorList, String defaultDatabase) {
         this.config = config;
-//        this.dataSource = dataSource;
-
-//        this.logPrefix = params.getLogPrefix();
-//        this.platformMigrator = platformMigrator;
         this.migratorList = migratorList;
-
-//        if (Strings.isNullOrEmpty(params.getChangelogBasePath())) {
-//            this.liquibasePrepareChangelogFilePath = LIQUIBASE_PREPARE_CHANGELOG_XML;
-//            this.liquibasePostprocChangelogFilePath = LIQUIBASE_POSTPROC_CHANGELOG_XML;
-//        } else {
-//            this.liquibasePrepareChangelogFilePath = params.getChangelogBasePath()
-//                    + "/"
-//                    + LIQUIBASE_PREPARE_CHANGELOG_XML;
-//            this.liquibasePostprocChangelogFilePath = params.getChangelogBasePath()
-//                    + "/"
-//                    + LIQUIBASE_POSTPROC_CHANGELOG_XML;
-//        }
-        this.defaultDatabase = Strings.isNullOrEmpty(defaultDatabase) ? "POSTGRES" : defaultDatabase;
+        this.defaultDatabase = Strings.isNullOrEmpty(defaultDatabase) ? "postgres" : defaultDatabase;
     }
 
     private String composePath(String part1, String part2) {

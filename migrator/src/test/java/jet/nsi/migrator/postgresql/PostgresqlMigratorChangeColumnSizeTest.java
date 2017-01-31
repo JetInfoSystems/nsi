@@ -31,7 +31,7 @@ public class PostgresqlMigratorChangeColumnSizeTest extends BaseMigratorSqlTest 
     private static final String LIQUIBASE_CHANGE_LOG_BASE_PATH = "with_empty_liquibase_changelogs";
 
     public PostgresqlMigratorChangeColumnSizeTest() {
-        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
+        super(DB_IDENT);
     }
 
     @Override

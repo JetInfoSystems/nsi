@@ -48,10 +48,6 @@ public class MetaDict extends MetaDictRef {
      */
     protected String idAttr;
     /**
-     * атрибут указывает что использовать для генерации ID. false - программный UUID, true - DB sequence
-     */
-    protected Boolean useDBSeq;
-    /**
      * атрибут который представляет ссылку на родителя в иерархии.
      */
     protected String parentAttr;
@@ -388,11 +384,4 @@ public class MetaDict extends MetaDictRef {
         this.databaseName = databaseName;
     }
 
-    public Boolean isUseDBSeqId() {
-        return useDBSeq;
-    }
-
-    public void setUseDBSeq(Boolean useDBSeq) {
-        this.useDBSeq = useDBSeq;
-    }
 }

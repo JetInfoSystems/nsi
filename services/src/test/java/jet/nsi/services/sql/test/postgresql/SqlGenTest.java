@@ -25,7 +25,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
     private NsiConfig config;
 
     public SqlGenTest() {
-        super(DB_IDENT, new PostgresqlPlatformDaoUtils());
+        super(DB_IDENT);
     }
 
     @Override

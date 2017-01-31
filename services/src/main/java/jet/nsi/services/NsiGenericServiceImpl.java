@@ -546,7 +546,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             }.start();
 
         } catch (SQLException e) {
-            throw new NsiServiceException("createTransaction error", e); //todo
+            throw new NsiServiceException("createTransaction error", e);
         } finally {
             t.stop();
         }
@@ -569,7 +569,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     @Override
-    public NsiPlatform getNsiPlatform() { //todo
+    public NsiPlatform getNsiPlatform() {
         return nsiPlatform;
     }
 
