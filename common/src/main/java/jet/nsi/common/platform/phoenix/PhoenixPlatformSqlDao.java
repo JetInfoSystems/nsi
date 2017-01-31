@@ -34,10 +34,6 @@ public class PhoenixPlatformSqlDao extends DefaultPlatformSqlDao {
         return true;
     }
 
-//    @Override
-//    public String getFieldSpelling(String field) {
-//        return field != null ? field.toLowerCase() : null;
-//    }
 
     @Override
     public int setParamsForUpdate(NsiQuery query, DictRow data, PreparedStatement ps) throws SQLException {

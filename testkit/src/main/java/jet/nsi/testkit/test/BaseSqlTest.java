@@ -121,14 +121,10 @@ public abstract class BaseSqlTest {
     protected void initTestCustomProperties() {
     }
 
-//    protected abstract DataSource getDataSource();
-//    protected DataSource getDataSource(){
-//        throw new UnsupportedOperationException("getDataSource");
-//    }
+
     protected abstract void initPlatformSpecific();
     
     protected void initCommon() {
-//        dataSource = getDataSource();
         sqlGen = new DefaultSqlGen();
         platformSqlGen = platform.getPlatformSqlGen();
         sqlGen.setPlatformSqlGen(platformSqlGen);

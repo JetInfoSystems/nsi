@@ -110,7 +110,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
     public void createTablespace(Connection connection, String name,
                                  String dataFileName, String dataFileSize, String dataFileAutoSize,
                                  String dataFileMaxSize) {
-        createTablespace(connection, name, dataFileName);
+        throw new MigratorException("createTablespace: Not supported full search yet");
     }
 
 
@@ -123,13 +123,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
     @Override
     public void createUser(Connection connection, String name, String password,
                            String defaultTablespace, String tempTablespace) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append(" create user ").append(name)
-                .append(" password '").append(password).append("'").toString());
-
-        setTablespaceOwner(connection, defaultTablespace, name);
-        createSchema(connection, name, name);
-        grantUser(connection, name);
+        throw new MigratorException("createUser: Not supported full search yet");
     }
 
     @Override
@@ -306,48 +300,15 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
         return l;*/
     }
 
-/*    public void setDatabaseDefaultTablespace(Connection connection, String name, String defaultTablespace)
-            throws SQLException {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("alter database ").append(name)
-                .append(" set tablespace ").append(defaultTablespace).toString());
-    }*/
-
-    public void createTablespace(Connection connection, String name, String dataFilePath) {
-        throw new MigratorException("createTablespace: Not supported by phoenix");
-/*        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("create tablespace ").append(name)
-                .append(" location '").append(dataFilePath).append("' ").toString());*/
-    }
-
-    public void setTablespaceOwner(Connection connection, String name, String user) {
-        throw new MigratorException("setTablespaceOwner: Not supported by phoenix");
-
-/*        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("alter tablespace ").append(name)
-                .append(" owner to ").append(user).toString());*/
-    }
-/*
-    public void setSchemaOwner(Connection connection, String name, String user)
-            throws SQLException {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("alter schema").append(name).append(" owner to ").append(user).toString());
-    }*/
 
     @Override
     public void createSchema(Connection connection, String name, String user) {
         throw new MigratorException("createSchema: Not supported by phoenix");
-
-        /*platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("create schema if not exists ").append(name).append(" authorization ").append(user).toString());*/
     }
 
     @Override
     public void dropSchema(Connection connection, String name) {
         throw new MigratorException("dropSchema: Not supported by phoenix");
-/*
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("drop schema if exists ").append(name).append(" cascade").toString());*/
     }
 
 }
