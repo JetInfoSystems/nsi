@@ -7,7 +7,6 @@ import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.common.migrator.config.MigratorParams;
 import jet.nsi.common.platform.phoenix.PhoenixDialect;
-//import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
 import jet.nsi.common.platform.phoenix.PhoenixNsiPlatform;
 import jet.nsi.common.platform.phoenix.PhoenixPrimaryKey;
 import jet.nsi.migrator.MigratorException;
@@ -16,10 +15,7 @@ import jet.nsi.migrator.liquibase.LiqubaseAction;
 import jet.nsi.migrator.platform.DefaultPlatformMigrator;
 import jet.nsi.migrator.platform.DictToHbmSerializer;
 import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
@@ -38,6 +34,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+//import jet.nsi.common.platform.phoenix.PhoenixJdbcDatabase;
+
 public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
     public PhoenixPlatformMigrator(MigratorParams params) {
@@ -55,7 +53,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
     }
 
     @Override
-    public boolean isNeedToInitializeSequence(){
+    public boolean isNeedToInitializeSequence() {
         return false;
     }
 
@@ -116,8 +114,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public void dropTablespace(Connection connection, String name) {
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append(" drop tablespace ").append(name).toString());
+        throw new MigratorException("dropTablespace: Not supported by phoenix");
     }
 
     @Override
@@ -128,9 +125,7 @@ public class PhoenixPlatformMigrator extends DefaultPlatformMigrator {
 
     @Override
     public void dropUser(Connection connection, String name) {
-        dropSchema(connection, name);
-        platformSqlDao.executeSql(connection, new StringBuilder()
-                .append("drop user ").append(name).toString());
+        throw new MigratorException("dropUser: Not supported full search yet");
     }
 
     @Override

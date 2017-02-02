@@ -8,9 +8,9 @@ import java.sql.Connection;
 
 public abstract class NsiTransactionTemplate<T> {
 	private NsiTransactionService transactionService;
-	String requestId;
-	Logger log;
-	Connection connection;
+	private String requestId;
+	private final Logger log;
+	private final Connection connection;
 	
 	public NsiTransactionTemplate(NsiTransactionService transactionService, Connection connection, String requestId, Logger log) {
 		this.transactionService = transactionService;
