@@ -1,5 +1,6 @@
 package jet.nsi.services;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -102,7 +103,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             SqlDao sqlDao, String sourceQueryName,
             Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictCountTimer.time();
-        try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try(NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
                 return dictCountInternal(tx, query, filter, sqlDao, sourceQueryName, sourceQueryParams);
             } catch (Exception e) {
@@ -166,7 +167,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
             SqlDao sqlDao, String sourceQueryName,
             Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictListTimer.time();
-        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
                 List<DictRow> data = dictListInternal(tx, query, filter, sortList, offset,
                         size, sqlDao, sourceQueryName, sourceQueryParams);
@@ -217,7 +218,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     @Override
     public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id, SqlDao sqlDao) {
         final Timer.Context t = dictGetTimer.time();
-        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
                 DictRow data = dictGetInternal(tx, dict, id, sqlDao);
                 log.info("dictGet [{},{}] -> ok", requestId, dict.getName());
@@ -384,7 +385,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao) {
         final Timer.Context t = dictSaveTimer.time();
         validateFields(requestId, data);
-        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
                 return dictSaveInternal(tx, data, sqlDao);
             } catch (NsiServiceException e){
@@ -440,7 +441,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictDelete(String requestId, NsiConfigDict dict,
             DictRowAttr id, Boolean value, SqlDao sqlDao) {
         final Timer.Context t = dictDeleteTimer.time();
-        try (NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
                 return dictDeleteInternal(tx, dict, id, value, sqlDao);
             } catch (Exception e) {
@@ -507,7 +508,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         for (DictRow data : dataList) {
             validateFields(requestId, data);
         }
-        try(NsiTransaction tx = transactionService.createTransaction(requestId)) {
+        try(NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
                 return dictBatchSaveInternal(tx, dataList, sqlDao);
             } catch (Exception e) {
@@ -535,7 +536,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     public DictRow dictMergeByExternalAttrs(final String requestId, final DictRow data, final SqlDao sqlDao) {
         final Timer.Context t = dictMergeByExternalAttrs.time();
         try {
-            return new NsiTransactionTemplate<DictRow>(transactionService, requestId, log) {
+            return new NsiTransactionTemplate<DictRow>(transactionService, sqlDao.getConnection(), requestId, log) {
                 
                 @Override
                 public DictRow doInTransaction(NsiTransaction tx) {
@@ -544,6 +545,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                 
             }.start();
 
+        } catch (SQLException e) {
+            throw new NsiServiceException("createTransaction error", e);
         } finally {
             t.stop();
         }

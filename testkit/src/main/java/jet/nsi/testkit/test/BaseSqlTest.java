@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import jet.nsi.testkit.ExceptionHideExecutor;
+import jet.nsi.testkit.ExceptionHideExecutor2;
 import org.jooq.DeleteWhereStep;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -53,8 +55,7 @@ import jet.nsi.testkit.utils.PlatformDaoUtils;
 
 public abstract class BaseSqlTest {
 
-    protected final PlatformDaoUtils daoUtils;
-    
+
     protected DataSource dataSource;
     protected Properties properties;
     protected Map<NsiConfigDict, List<DictRow>> testDictRowMap = new HashMap<>();
@@ -71,17 +72,33 @@ public abstract class BaseSqlTest {
 
     
     protected BaseSqlTest() {
-        this("nsi", new OraclePlatformDaoUtils());
+        this("nsi");
     }
     
-    protected BaseSqlTest(String dbIdent, PlatformDaoUtils daoUtils) {
+    protected BaseSqlTest(String dbIdent) {
         this.dbIdent = dbIdent;
-        this.daoUtils = daoUtils;
     }
     
     @Before
     public void setupInternal() throws Exception {
         setup();
+    }
+
+
+    public void doOperation(ExceptionHideExecutor executor, NsiConfigDict dict, Connection connection) {
+        try {
+            executor.execute(dict, connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void doOperation(ExceptionHideExecutor2 executor, String objectName, Connection connection) {
+        try {
+            executor.execute(objectName, connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setup() throws Exception {
@@ -103,11 +120,11 @@ public abstract class BaseSqlTest {
     
     protected void initTestCustomProperties() {
     }
-    
+
+
     protected abstract void initPlatformSpecific();
     
     protected void initCommon() {
-        dataSource = daoUtils.createDataSource(dbIdent, properties);
         sqlGen = new DefaultSqlGen();
         platformSqlGen = platform.getPlatformSqlGen();
         sqlGen.setPlatformSqlGen(platformSqlGen);

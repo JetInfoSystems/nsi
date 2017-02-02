@@ -1,11 +1,7 @@
 package jet.nsi.migrator.hibernate;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import com.beust.jcommander.Strings;
+import jet.nsi.migrator.platform.PlatformMigrator;
 import org.hibernate.HibernateException;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.model.naming.Identifier;
@@ -42,7 +38,11 @@ import org.hibernate.tool.schema.spi.SchemaMigrator;
 import org.hibernate.tool.schema.spi.TargetDescriptor;
 import org.jboss.logging.Logger;
 
-import com.beust.jcommander.Strings;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Класс реализует логику актуализации структуры СУБД Стандартный класс не
@@ -51,7 +51,6 @@ import com.beust.jcommander.Strings;
 public class NsiSchemaMigratorImpl implements SchemaMigrator {
     
     private static final String MODIFY_OPERATION = "alter column";
-    
 
     @Override
     public void doMigration(Metadata metadata, ExecutionOptions options, TargetDescriptor targetDescriptor) {
@@ -65,13 +64,14 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             Metadata metadata,
             DatabaseInformation existingDatabase,
             boolean createNamespaces,
-            List<GenerationTarget> targets) throws SchemaManagementException {
+            List<GenerationTarget> targets,
+            PlatformMigrator platformMigrator) throws SchemaManagementException {
         
         for (GenerationTarget target : targets) {
             target.prepare();
         }
         
-        doMigrationToTargets(metadata, existingDatabase, createNamespaces, targets);
+        doMigrationToTargets(metadata, existingDatabase, createNamespaces, targets, platformMigrator);
         
         for (GenerationTarget target : targets) {
             target.release();
@@ -82,7 +82,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             Metadata metadata,
             DatabaseInformation existingDatabase,
             boolean createNamespaces,
-            List<GenerationTarget> targets) {
+            List<GenerationTarget> targets, PlatformMigrator platformMigrator) {
         final Set<String> exportIdentifiers = new HashSet<String>(50);
         
         final Database database = metadata.getDatabase();
@@ -155,9 +155,12 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
 
             // first pass
             for (Table table : namespace.getTables()) {
+                platformMigrator.setPrimaryKey(table);
+
                 if (!table.isPhysicalTable()) {
                     continue;
                 }
+
                 checkExportIdentifier(table, exportIdentifiers);
                 final TableInformation tableInformation = existingDatabase.getTableInformation(table.getQualifiedTableName());
                 if (tableInformation != null && !tableInformation.isPhysicalTable()) {
@@ -166,7 +169,7 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                 if (tableInformation == null) {
                     createTable(table, metadata, targets);
                 } else {
-                    migrateTable(table, tableInformation, targets, metadata);
+                    migrateTable(table, tableInformation, targets, metadata, platformMigrator);
                 }
             }
             
@@ -188,7 +191,10 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             
                 applyIndexes(table, tableInformation, metadata, targets);
                 applyUniqueKeys(table, tableInformation, metadata, targets);
-                applyForeignKeys(table, tableInformation, metadata, targets);
+
+                if (platformMigrator.isSupportForeignKey()) {
+                    applyForeignKeys(table, tableInformation, metadata, targets);
+                }
             }
         }
     }
@@ -202,10 +208,10 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
     }
     
     private void migrateTable(
-                    Table table,
-                    TableInformation tableInformation,
-                    List<GenerationTarget> targets,
-                    Metadata metadata) {
+            Table table,
+            TableInformation tableInformation,
+            List<GenerationTarget> targets,
+            Metadata metadata, PlatformMigrator platformMigrator) {
         final Database database = metadata.getDatabase();
         final JdbcEnvironment jdbcEnvironment = database.getJdbcEnvironment();
         final Dialect dialect = jdbcEnvironment.getDialect();
@@ -217,7 +223,8 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
                                     metadata,
                                     tableInformation,
                                     getDefaultCatalogName(database),
-                                    getDefaultSchemaName(database)
+                                    getDefaultSchemaName(database),
+                                    platformMigrator
                         ), 
                         targets,
                         false
@@ -432,8 +439,8 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
     }
     
     public Iterator<String> sqlAlterStrings(Table table, Dialect dialect, Mapping p, TableInformation tableInfo,
-            String defaultCatalog, String defaultSchema) throws HibernateException {
-        
+            String defaultCatalog, String defaultSchema, PlatformMigrator platformMigrator) throws HibernateException {
+
         @SuppressWarnings("rawtypes")
         Iterator iter = table.getColumnIterator();
         List<String> results = new ArrayList<>();
@@ -444,8 +451,9 @@ public class NsiSchemaMigratorImpl implements SchemaMigrator {
             final ColumnInformation columnInfo = tableInfo
                     .getColumn(Identifier.toIdentifier(column.getName(), column.isQuoted()));
             
-            if (columnInfo == null || column.getLength() > columnInfo.getColumnSize()) {
+            if (columnInfo == null || (column.getLength() > columnInfo.getColumnSize()&&platformMigrator.isColumnEditable())) {
                 // the column doesnt exist at all.
+
                 StringBuilder alter = new StringBuilder("alter table ").append(tableName).append(' ')
                         .append(getColumnOperationString(columnInfo, dialect)).append(' ')
                         .append(column.getQuotedName(dialect)).append(' ')

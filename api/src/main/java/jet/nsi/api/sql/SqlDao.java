@@ -1,6 +1,7 @@
 package jet.nsi.api.sql;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -111,5 +112,7 @@ public interface SqlDao {
      * Обьединение записей
      */
 	public DictRow mergeByExternalAttrs(Connection connection, DictRow data);
+
+    public Connection getConnection() throws SQLException;
 
 }

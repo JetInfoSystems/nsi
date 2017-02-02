@@ -6,9 +6,17 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>nsi-common</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>jet.nsi</groupId>
             <artifactId>nsi-api</artifactId>
@@ -45,28 +53,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Version>${project.version}</Bundle-Version>
-                        <Import-Package>*</Import-Package>
-                        <Export-Package>
-                            jet.nsi.common;version=${project.version},
-                            jet.nsi.common.config.impl;version=${project.version},
-                            jet.nsi.common.data;version=${project.version},
-                            jet.nsi.common.sql;version=${project.version},
-                            jet.nsi.common.utils;version=${project.version},
-                            jet.nsi.common.yaml;version=${project.version},
-                            jet.nsi.common.tx;version=${project.version},
-                            jet.nsi.common.platform;version=${project.version},
-                            jet.nsi.common.platform.oracle;version=${project.version}
-                        </Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

@@ -2,14 +2,24 @@ package jet.nsi.common.platform;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.sequence;
+import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.DSL.val;
 
 
+import com.google.common.base.Strings;
+import jet.nsi.api.data.NsiConfigAttr;
+import jet.nsi.api.data.NsiConfigDict;
+import jet.nsi.api.data.NsiQueryAttr;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.InsertSetMoreStep;
+import org.jooq.InsertSetStep;
 import org.jooq.Query;
+import org.jooq.SQLDialect;
 import org.jooq.SelectJoinStep;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
@@ -20,6 +30,9 @@ import jet.nsi.api.model.OperationType;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.api.platform.PlatformSqlGen;
 import jet.nsi.common.data.NsiDataException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
     
@@ -35,8 +48,85 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
     }
 
     @Override
+    public boolean isLockSupported() {
+        return true;
+    }
+
+    @Override
+    public String getRowInsertSql(NsiQuery query, boolean useSeq) {
+        InsertSetStep<?> insertSetStep = getQueryBuilder().insertInto(table(query.getDict().getTable()));
+        InsertSetMoreStep<?> insertSetMoreStep = null;
+        NsiConfigDict dict = query.getDict();
+        List<NsiConfigField> idFields = dict.getIdAttr().getFields();
+        for (NsiQueryAttr queryAttr : query.getAttrs()) {
+            NsiConfigAttr attr = queryAttr.getAttr();
+            if(attr == query.getDict().getIdAttr() && useSeq) {
+                if(attr.getFields().size() > 1) {
+                    throw new NsiDataException("use seq possible for id attr with one field only");
+                }
+                // seq
+                insertSetMoreStep = insertSetStep.set(field(idFields.get(0).getName()), sequenceFunсtion("seq_" + dict.getTable(), PlatformSqlGen.NEXTVAL));
+            } else {
+                for (NsiConfigField field : attr.getFields()) {
+                    insertSetMoreStep = insertSetStep.set(field(field.getName(),String.class),val(""));
+                }
+            }
+        }
+        if(insertSetMoreStep != null) {
+            if(idFields.size()==1) {
+                insertSetMoreStep.returning(getReturningFields(query)).getSQL();
+            }
+            return insertSetMoreStep.getSQL();
+        } else {
+            throw new NsiDataException("no attrs found");
+        }
+    }
+
+    protected List<Field<?>> getReturningFields(NsiQuery query) {
+        List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
+        List<Field<?>> result = new ArrayList<>(fields.size());
+        for (NsiConfigField field : fields) {
+            result.add(field(field.getName()));
+        }
+        return result;
+    }
+
+    @Override
+    public String getRowUpdateSql(NsiQuery query) {
+        NsiConfigDict dict = query.getDict();
+        UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
+                .update(table(dict.getTable()));
+        UpdateSetMoreStep<?> updateSetMoreStep = null;
+        for (NsiQueryAttr queryAttr : query.getAttrs()) {
+            NsiConfigAttr attr = queryAttr.getAttr();
+            if(attr != query.getDict().getIdAttr()) {
+                for (NsiConfigField field : attr.getFields()) {
+                    updateSetMoreStep  = updateSetFirstStep.set(
+                            field(field.getName(),String.class),val(""));
+                }
+            }
+        }
+        if(updateSetMoreStep != null) {
+            Condition condition = getIdCondition(query, "");
+            return updateSetMoreStep.where(condition).getSQL();
+        } else {
+            throw new NsiDataException("no attrs found");
+        }
+    }
+
+
+    protected Condition getIdCondition(NsiQuery query, String alias) {
+        NsiConfigDict dict = query.getDict();
+
+        Condition result = field( (Strings.isNullOrEmpty(alias) ? "" : alias + ".")
+                + dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
+
+        return result;
+    }
+
+    @Override
     public DSLContext getQueryBuilder() {
-        DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);
+        DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);//todo
         return queryBuilder;
     }
     

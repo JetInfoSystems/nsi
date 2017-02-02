@@ -2,13 +2,13 @@ package jet.nsi.migrator.platform;
 
 import jet.nsi.common.migrator.config.MigratorParams;
 
-public class PlatformMigratorFactory {
+import java.lang.reflect.Constructor;
 
+public class PlatformMigratorFactory {
     public static PlatformMigrator create(MigratorParams params, String ident) throws Exception {
         Class<?> clasz = Thread.currentThread().getContextClassLoader().loadClass(params.getPlatformMigrator(ident));
-        
-        PlatformMigrator  migrator = (PlatformMigrator)clasz.newInstance();
-        migrator.setParams(params);
+        Constructor<?> constr = clasz.getConstructor(MigratorParams.class);
+        PlatformMigrator migrator = (PlatformMigrator) constr.newInstance(params);
         return migrator;
     }
 }

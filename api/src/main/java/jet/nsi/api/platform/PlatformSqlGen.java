@@ -13,7 +13,11 @@ import jet.nsi.api.model.BoolExp;
 public interface PlatformSqlGen {
     public static final String NEXTVAL = "nextval";
     public static final String CURRVAL = "currval";
-    
+
+    String getRowInsertSql(NsiQuery query, boolean useSeq);
+
+    String getRowUpdateSql(NsiQuery query);
+
     DSLContext getQueryBuilder();
     Settings getJooqSettings();
 
@@ -24,5 +28,6 @@ public interface PlatformSqlGen {
 
     Object sequenceFunсtion(String name, String seqFunction);
 
+    boolean isLockSupported();
 
 }

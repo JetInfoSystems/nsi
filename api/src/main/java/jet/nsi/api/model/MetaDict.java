@@ -30,6 +30,10 @@ public class MetaDict extends MetaDictRef {
      */
     protected String table;
     /**
+     * Название базы данных
+     */
+    protected String databaseName;
+    /**
      * Список полей таблицы.
      */
     @Valid
@@ -371,5 +375,13 @@ public class MetaDict extends MetaDictRef {
     public void setAutoLastUserAttr(boolean autoLastUserAttr) {
         this.autoLastUserAttr = autoLastUserAttr;
     }
-    
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
+    }
+
 }

@@ -4,7 +4,11 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
 
+import jet.nsi.migrator.MigratorException;
+import org.hibernate.mapping.Table;
 import org.jooq.DSLContext;
 
 import jet.nsi.api.data.NsiConfigDict;
@@ -19,21 +23,68 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
+import javax.sql.DataSource;
+
 public abstract class DefaultPlatformMigrator implements PlatformMigrator {
 
     private final NsiPlatform platform;
     protected final PlatformSqlDao platformSqlDao;
-    
-    protected MigratorParams params;
-    
-    public DefaultPlatformMigrator(NsiPlatform platform) {
+    protected final DataSource dataSource;
+
+    protected final MigratorParams params;
+
+    @Override
+    public boolean isSupportRollback() {
+        return true;
+    }
+
+    @Override
+    public boolean isSupportForeignKey() {
+        return true;
+    }
+
+    @Override
+    public boolean isNeedToInitializeSequence(){
+        return true;
+    }
+
+    @Override
+    public MigratorParams getParams() {
+        return params;
+    }
+
+    @Override
+    public boolean isColumnEditable() {
+        return true;
+    }
+
+    public DefaultPlatformMigrator(NsiPlatform platform, MigratorParams params) {
         this.platform = platform;
         this.platformSqlDao = platform.getPlatformSqlDao();
-    }
-    
-    @Override
-    public void setParams(MigratorParams params) {
         this.params = params;
+        this.dataSource = createDataSource(platform.getPlatformName(), params.getProperties());
+    }
+
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    protected abstract DataSource createDataSource(String name, Properties properties) ;
+
+    @Override
+    public void doLiquibaseUpdate(String name, String file, String tag, String action, String logPrefix, DataSource dataSource) {
+        LiqubaseAction la = new LiqubaseAction(composeName(logPrefix,name), file, this);
+        try(Connection connection = dataSource.getConnection()) {
+            la.update(connection, tag);
+        } catch (SQLException e) {
+            throw new MigratorException(action, e);
+        }
+    }
+
+    private String composeName(String logPrefix, String name) { //todo copypast
+        return logPrefix == null ? name : logPrefix + name;
     }
 
     @Override
@@ -109,4 +160,7 @@ public abstract class DefaultPlatformMigrator implements PlatformMigrator {
         return l;
     }
 
+    @Override
+    public void setPrimaryKey(Table table) {
+    }
 }

@@ -8,4 +8,5 @@ public interface NsiPlatform {
     Settings getJooqSettings();
     PlatformSqlGen getPlatformSqlGen();
     PlatformSqlDao getPlatformSqlDao();
+    String getPlatformName();
 }
