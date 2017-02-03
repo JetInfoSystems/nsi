@@ -7,7 +7,6 @@ import jet.nsi.migrator.BaseMigratorSqlTest;
 import jet.nsi.migrator.Migrator;
 import jet.nsi.migrator.hibernate.RecActionsTargetImpl;
 import jet.nsi.migrator.platform.phoenix.PhoenixPlatformMigrator;
-import jet.nsi.testkit.utils.PhoenixPlatformDaoUtils;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Test;
