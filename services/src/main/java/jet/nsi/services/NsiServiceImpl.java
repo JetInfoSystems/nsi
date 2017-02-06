@@ -44,13 +44,8 @@ public class NsiServiceImpl implements NsiService {
 
     private static final Logger log = LoggerFactory.getLogger(NsiServiceImpl.class);
 
-    private SqlDao defaultSqlDao;
     private Map<String, SqlDao> sqlDaoMap;
     private NsiGenericService nsiGenericService;
-
-    public void setSqlDao(SqlDao sqlDao) {
-        this.defaultSqlDao = sqlDao;
-    }
 
     public void setNsiGenericService(NsiGenericService nsiGenericService) {
         this.nsiGenericService = nsiGenericService;
@@ -268,7 +263,7 @@ public class NsiServiceImpl implements NsiService {
         String databaseName = dict.getDatabaseName();
         SqlDao dao;
         if (databaseName == null) {
-            throw new IllegalStateException("can't get database ");
+            throw new IllegalStateException("can't get database with empty databaseName");
         } else {
             dao = getSqlDao(databaseName);
         }

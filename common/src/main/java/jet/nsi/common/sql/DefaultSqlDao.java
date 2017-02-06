@@ -46,7 +46,7 @@ public class DefaultSqlDao implements SqlDao {
 
     protected PlatformSqlDao platformSqlDao;
     protected SqlGen sqlGen;
-    protected DataSource dataSource;
+    protected DataSource dataSource; //todo в конструктор
 
 
     public class SetParamBoolExpVisitor extends BoolExpVisitor {
