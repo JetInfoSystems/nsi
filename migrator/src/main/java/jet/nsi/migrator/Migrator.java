@@ -68,7 +68,7 @@ public class Migrator {
     }
 
     private void internalUpdate(String tag, PlatformMigrator platformMigrator) {
-        log.info("internalUpdate->{}", platformMigrator.getPlatform().getPlatformName());
+        log.info("internalUpdate->started;{}", platformMigrator.getPlatform().getPlatformName());
         DataSource dataSource = platformMigrator.getDataSource();
         String liquibasePrepareChangelogFilePath = composePath(platformMigrator.getParams().getChangelogBasePath(),
                 LIQUIBASE_PREPARE_CHANGELOG_XML);
@@ -139,7 +139,7 @@ public class Migrator {
                 }
                 platformMigrator.onUpdateAfterPostproc(connection, config);
             }
-            log.info("internalUpdate->ok;{}", platformMigrator.getPlatform().getPlatformName());
+            log.info("internalUpdate->finished;{}", platformMigrator.getPlatform().getPlatformName());
         } catch (Exception e) {
             throw new MigratorException(ACTION_UPDATE, e);
         }
