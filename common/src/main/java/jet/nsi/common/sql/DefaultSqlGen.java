@@ -267,6 +267,7 @@ public class DefaultSqlGen implements SqlGen {
                 return getAndCondition(query, filter.getExpList(), baseQuery).not();
             case OperationType.NOTOR:
                 return getOrCondition(query, filter.getExpList(), baseQuery).not();
+            case OperationType.IN:
             case OperationType.EQUALS:
             case OperationType.NOT_EQUALS:
             case OperationType.LIKE:
@@ -301,6 +302,16 @@ public class DefaultSqlGen implements SqlGen {
         if (expList == null || expList.size() == 0) {
             throw new NsiDataException("empty exp list");
         }
+    }
+
+    protected Condition getInCondition(NsiQuery query, BoolExp filter, SelectJoinStep<?> baseQuery) {
+        NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+        List<NsiConfigField> fields = configAttr.getFields();
+        Condition condition = getFieldFuncCondition(query, fields.get(0), filter, baseQuery);
+        for (int i = 1; i < fields.size(); i++) {
+            condition = condition.and(getFieldFuncCondition(query, fields.get(i), filter, baseQuery));
+        }
+        return condition;
     }
 
     protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList, SelectJoinStep<?> baseQuery) {

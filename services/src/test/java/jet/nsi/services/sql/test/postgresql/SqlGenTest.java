@@ -1,6 +1,7 @@
 package jet.nsi.services.sql.test.postgresql;
 
 import java.io.File;
+import java.util.Arrays;
 
 import jet.nsi.migrator.BaseServiceSqlTest;
 import org.junit.Ignore;

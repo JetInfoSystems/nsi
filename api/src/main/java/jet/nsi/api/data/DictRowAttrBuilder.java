@@ -1,6 +1,7 @@
 package jet.nsi.api.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,14 @@ public class DictRowAttrBuilder {
         List<String> values = new ArrayList<>(1);
         result.setValues(values);
         values.add(value);
+        return result;
+    }
+
+    public static DictRowAttr from(List<String> values) {
+        DictRowAttr result = new DictRowAttr();
+//        List<String> values = new ArrayList<>(1);
+        result.setValues(values);
+//        values.add(value);
         return result;
     }
 

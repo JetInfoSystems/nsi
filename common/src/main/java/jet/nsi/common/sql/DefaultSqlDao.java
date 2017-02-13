@@ -16,6 +16,7 @@ import jet.nsi.api.model.BoolExp;
 import jet.nsi.api.model.DictRowAttr;
 import jet.nsi.api.model.MetaFieldType;
 import jet.nsi.api.model.MetaParamValue;
+import jet.nsi.api.model.OperationType;
 import jet.nsi.api.model.RefAttrsType;
 import jet.nsi.api.model.SortExp;
 import jet.nsi.api.platform.PlatformSqlDao;
@@ -69,17 +70,10 @@ public class DefaultSqlDao implements SqlDao {
                     String queryAttrName = configAttr.getName();
 
                     List<String> dataValues = filter.getValue().getValues();
-                    platformSqlDao.checkDataValues(fields, queryAttrName, dataValues);
-
-                    int i = 0;
-                    for (NsiConfigField field : fields) {
-                        if (dataValues.get(i) != null) {
-                            String val = dataValues.get(i);
-                            val = wrapFilterFieldValue(filter, field, val);
-                            platformSqlDao.setParam(ps, index, field, val);
-                            index++;
-                            i++;
-                        }
+                    if (filter.getFunc().equalsIgnoreCase(OperationType.IN)) {
+                        setInParams(fields, dataValues, queryAttrName);
+                    } else {
+                        setSimpleParams(filter, fields, dataValues, queryAttrName);
                     }
                 } catch (SQLException e) {
                     throw new NsiDataException("visit", e);
@@ -90,7 +84,33 @@ public class DefaultSqlDao implements SqlDao {
         public int getIndex() {
             return index;
         }
+
+        private void setSimpleParams(BoolExp filter, List<NsiConfigField> fields, List<String> dataValues, String queryAttrName) throws SQLException {
+            platformSqlDao.checkDataValues(fields, queryAttrName, dataValues);
+
+            int i = 0;
+            for (NsiConfigField field : fields) {
+                if (dataValues.get(i) != null) {
+                    String val = dataValues.get(i);
+                    val = wrapFilterFieldValue(filter, field, val);
+                    platformSqlDao.setParam(ps, index, field, val);
+                    index++;
+                    i++;
+                }
+            }
+        }
+
+        private void setInParams(List<NsiConfigField> fields, List<String> dataValues, String queryAttrName) throws SQLException {
+            if (fields.size() != 1) {
+                throw new IllegalStateException("Multiple fields not supported with 'IN' operator; attrName:" + queryAttrName);
+            }
+            for (String val : dataValues) {
+                platformSqlDao.setParam(ps, index, fields.get(0), val);
+                index++;
+            }
+        }
     }
+
 
     protected String wrapFilterFieldValue(BoolExp filter, NsiConfigField field, String val) {
         return platformSqlDao.wrapFilterFieldValue(filter, field, val);
@@ -404,7 +424,7 @@ public class DefaultSqlDao implements SqlDao {
     public DictRow insert(Connection connection, NsiQuery query, DictRow data) {
         checkDictHasIdAttr(query.getDict());
         setVersionDefault(query, data);
-        if(platformSqlDao.useUUIDForId()){
+        if (platformSqlDao.useUUIDForId()) {
             data.setIdAttr(UUID.randomUUID().toString());
         }
         NsiConfigAttr idAttr = query.getDict().getIdAttr();
@@ -471,7 +491,7 @@ public class DefaultSqlDao implements SqlDao {
                 updateRowData(row, data);
             }
             int paramCount;
-            // ставим эксклюзивную блокировку на запись 
+            // ставим эксклюзивную блокировку на запись
             DictRow curData = getCurDataLock(connection, dict, data);
 
             if (dict.getVersionAttr() != null) {
@@ -480,7 +500,7 @@ public class DefaultSqlDao implements SqlDao {
                     if (data.isAttrEmpty(dict.getVersionAttr())) {
                         throw new NsiDataException("versionAttr required for update: " + dict.getName());
                     }
-                    // проверяем что никто не изменил запись 
+                    // проверяем что никто не изменил запись
                     if (!data.getVersionAttrString().equals(curData.getVersionAttrString())) {
                         throw new WriteLockNsiDataException(
                                 // получаем полное текущее состояние
@@ -488,7 +508,7 @@ public class DefaultSqlDao implements SqlDao {
                                 , "record version missmatch: " + dict.getName() + ", your/db versions are " + data.getVersionAttrString() + "/" + curData.getVersionAttrString())
                                 .localize("Редактируемые данные уже были изменены в другой сессии. Сохранение невозможно без повторного обновления. Обновите запись и отредактируйте ее снова.");
                     }
-                    // задаем новую версию 
+                    // задаем новую версию
                     if (dict.getVersionAttr().getFields().get(0).getType() == MetaFieldType.NUMBER) {
                         data.setVersionAttr(curData.getVersionAttrLong() + 1);
                     } else {

@@ -8,6 +8,7 @@ public final class OperationType {
     public static final String GE = ">=";
     public static final String LT = "<";
     public static final String LE = "<=";
+    public static final String IN = "in";
     public static final String AND = "and";
     public static final String NOTAND = "notAnd";
     public static final String NOTOR = "notOr";

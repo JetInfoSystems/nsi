@@ -181,6 +181,8 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
             throw new NsiDataException("unsupported func: " + filter.getFunc());
         case OperationType.NOTNULL:
             return f.isNotNull();
+        case OperationType.IN:
+            return f.in(filter.getValue().getValues());
         default:
             throw new NsiDataException("invalid func: " + filter.getFunc());
         }

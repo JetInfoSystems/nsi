@@ -77,6 +77,10 @@ public class BoolExpBuilder {
         getPrototype().setFunc(OperationType.EQUALS);
         return this;
     }
+    public BoolExpBuilder in() {
+        getPrototype().setFunc(OperationType.IN);
+        return this;
+    }
 
     public BoolExpBuilder notEq() {
         getPrototype().setFunc(OperationType.NOT_EQUALS);
@@ -169,6 +173,11 @@ public class BoolExpBuilder {
 
     public BoolExpBuilder value(Boolean value) {
         getPrototype().setValue(DictRowAttrBuilder.from(value));
+        return this;
+    }
+
+    public BoolExpBuilder values(List<String> values) {
+        getPrototype().setValue(DictRowAttrBuilder.from(values));
         return this;
     }
 
