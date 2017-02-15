@@ -57,9 +57,7 @@ public class DictRowAttrBuilder {
 
     public static DictRowAttr from(List<String> values) {
         DictRowAttr result = new DictRowAttr();
-//        List<String> values = new ArrayList<>(1);
         result.setValues(values);
-//        values.add(value);
         return result;
     }
 

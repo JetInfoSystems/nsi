@@ -24,7 +24,6 @@ public interface PlatformSqlGen {
     DSLContext getQueryBuilder();
     Settings getJooqSettings();
 
-//    Condition getFieldFuncCondition(NsiConfigField field, BoolExp filter);
 
     Condition getFieldFuncCondition(NsiConfigField field, BoolExp filter, String alias);
 

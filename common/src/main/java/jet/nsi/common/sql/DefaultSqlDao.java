@@ -220,22 +220,6 @@ public class DefaultSqlDao implements SqlDao {
         return platformSqlDao.setParamsForUpdate(query, data, ps);
     }
 
-/*
-    public int setParamsForUpdate(NsiQuery query, DictRow data, DictRowAttr curVersion,
-                                  PreparedStatement ps) throws SQLException {
-        int index = setParamsForUpdate(query, data, ps);
-        NsiConfigDict dict = query.getDict();
-        if (dict.getVersionAttr() != null) {
-            platformSqlDao.setParam(ps, index, dict.getVersionAttr().getFields().get(0), curVersion.getString());
-            index++;
-        }
-        return index;
-    }*/
-
-    protected int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size) throws SQLException {
-        return setParamsForList(query, ps, filter, offset, size, null, null);
-    }
-
     protected int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size,
                                    String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) throws SQLException {
         // если заданы параметры для источника то они должны задаваться первыми

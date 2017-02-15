@@ -1,20 +1,18 @@
 package jet.nsi.api.model;
 
-//import java.beans.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
+import jet.nsi.api.NsiServiceException;
+import jet.nsi.api.data.ConvertUtils;
+import jet.nsi.api.data.NsiConfigAttr;
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-//import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.joda.time.DateTime;
-
-import jet.nsi.api.NsiServiceException;
-import jet.nsi.api.data.ConvertUtils;
-import jet.nsi.api.data.NsiConfigAttr;
-
-import com.google.common.base.Strings;
 
 /**
  * Значение атрибута справочника
@@ -40,7 +38,7 @@ public class DictRowAttr implements Serializable {
     }
 
     public void addValue(String value) {
-        if(values == null) {
+        if (values == null) {
             values = new LinkedList<>();
         }
         values.add(value);
@@ -56,11 +54,11 @@ public class DictRowAttr implements Serializable {
 
     @JsonIgnore
     public boolean isEmpty() {
-        if(values == null || values.isEmpty()) {
+        if (values == null || values.isEmpty()) {
             return true;
         } else {
-            for ( String v : values) {
-                if(!Strings.isNullOrEmpty(v)) {
+            for (String v : values) {
+                if (!Strings.isNullOrEmpty(v)) {
                     return false;
                 }
             }
@@ -74,13 +72,13 @@ public class DictRowAttr implements Serializable {
 
     @JsonIgnore
     private String getOneValue() {
-        if(isEmpty()) {
+        if (isEmpty()) {
             return null;
         }
-        if(values.size() == 1) {
+        if (values.size() == 1) {
             return values.get(0);
         } else {
-            throw new NsiServiceException("attr has no one value: %s",values);
+            throw new NsiServiceException("attr has no one value: %s", values);
         }
     }
 
@@ -121,14 +119,14 @@ public class DictRowAttr implements Serializable {
 
     public static String formatAttrs(List<NsiConfigAttr> configAttrs, Map<String, DictRowAttr> rowAttrs, String sep) {
         StringBuilder res = new StringBuilder();
-        for(NsiConfigAttr attr : configAttrs) {
+        for (NsiConfigAttr attr : configAttrs) {
             DictRowAttr ra = rowAttrs.get(attr.getName());
-            if(ra != null) {
+            if (ra != null) {
                 res.append(ra.getValues()).append(sep);
             }
         }
-        
+
         return res.toString();
     }
-    
+
 }

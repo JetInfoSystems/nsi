@@ -86,20 +86,6 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
                 i++;
             }
         }
-/*        if (skipIdInParams) {
-            // для обновления дополнительные параметры для where условия
-            List<NsiConfigField> fields = idAttr.getFields();
-            DictRowAttr attrValue = data.getAttrs().get(idAttr.getName());
-            List<String> dataValues = attrValue.getValues();
-            checkDataValues(fields, idAttr.getName(), dataValues);
-
-            int i = 0;
-            for (NsiConfigField field : fields) {
-                setParam(ps, index, field, dataValues.get(i));
-                index++;
-                i++;
-            }
-        }*/
         return index;
     }
 

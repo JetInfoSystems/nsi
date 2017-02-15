@@ -120,8 +120,7 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
 
     @Override
     public Condition getWhereCondition(NsiQuery query, BoolExp filter, String alias) {
-        Condition filterCondition = getFilterCondition(query, filter, alias);
-        return filterCondition;
+        return getFilterCondition(query, filter, alias);
     }
 
     protected void checkExpList(List<BoolExp> expList) {
@@ -153,15 +152,6 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
         }
         return condition;
     }
-
-/*    protected Condition getIdCondition(NsiQuery query, String alias) {
-        NsiConfigDict dict = query.getDict();
-
-        Condition result = field( (Strings.isNullOrEmpty(alias) ? "" : alias + ".")
-                + dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
-
-        return result;
-    }*/
 
     protected Condition getFilterCondition(NsiQuery query, BoolExp filter, String alias) {
         if (filter == null) {

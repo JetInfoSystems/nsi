@@ -22,6 +22,7 @@
         <ch.qos.logback.version>1.0.9</ch.qos.logback.version>
         <com.beust.jcommander.version>1.35</com.beust.jcommander.version>
         <com.google.guava.version>15.0</com.google.guava.version>
+        <com.fasterxml.jackson.version>2.6.2</com.fasterxml.jackson.version>
         <com.mattbertolini.liquibase.slf4j.version>1.2.1</com.mattbertolini.liquibase.slf4j.version>
         <commons.io.version>2.4</commons.io.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
