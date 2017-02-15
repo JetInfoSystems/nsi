@@ -3,6 +3,8 @@ package jet.nsi.services.sql.test.postgresql;
 import java.io.File;
 import java.util.Arrays;
 
+import jet.nsi.api.data.BoolExpBuilder;
+import jet.nsi.api.model.DictRowAttr;
 import jet.nsi.migrator.BaseServiceSqlTest;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -47,7 +49,8 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict1RowGetSql() {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query, null);
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowGetSql(query, filter);
         Assert.assertEquals(
                 "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION "
                         + "from table1 m " + "where m.id = ?", sql);
@@ -57,7 +60,8 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict2RowGetSql() {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query, null);
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowGetSql(query, filter);
         Assert.assertEquals(
                 "select m.dict1_id, a1.f1 a1_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION "
                         + "from table2 m "
@@ -69,7 +73,8 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict2RowGetForUpdateSql() {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query, true, null);
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowGetSql(query, true, filter);
         Assert.assertEquals(
                 "select m.dict1_id, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION from table2 m where m.id = ? for update", sql);
     }
@@ -78,7 +83,8 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict3RowGetSql() {
         NsiConfigDict dict = config.getDict("dict3");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query, null);
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowGetSql(query, filter);
         Assert.assertEquals(
                 "select m.dict1_a_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION "
                         + "from table3 m "
@@ -208,8 +214,8 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict2RowUpdateSeq() {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = dict.query().addAttrs();
-
-        String sql = sqlGen.getRowUpdateSql(query, null);
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowUpdateSql(query, filter);
         Assert.assertEquals(
                 "update table2 "
                         + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ?, VERSION = ? "
@@ -221,7 +227,8 @@ public class SqlGenTest extends BaseServiceSqlTest {
         NsiConfigDict dict = config.getDict("dict2_without_version");
         NsiQuery query = dict.query().addAttrs();
 
-        String sql = sqlGen.getRowUpdateSql(query, null);
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowUpdateSql(query, filter);
         Assert.assertEquals(
                 "update table2 "
                         + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ? "
@@ -314,4 +321,10 @@ public class SqlGenTest extends BaseServiceSqlTest {
 
     }
 
+
+    private BoolExp buildIdFilter(NsiConfigDict dict, String id){
+        return new BoolExpBuilder(dict)
+                .key(dict.getIdAttr().getName()).eq().value(id)
+                .build();
+    }
 }

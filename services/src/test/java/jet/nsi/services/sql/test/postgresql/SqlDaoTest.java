@@ -706,6 +706,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
     }
 
     @Test
+    @Ignore
     public void testMerge() throws SQLException {
         NsiConfigDict dictEmp = config.getDict("EMP_MERGE_TEST");
         NsiConfigDict dictOrg = config.getDict("ORG_MERGE_TEST");

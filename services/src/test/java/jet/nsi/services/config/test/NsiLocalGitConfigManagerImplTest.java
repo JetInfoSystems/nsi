@@ -1,16 +1,5 @@
 package jet.nsi.services.config.test;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Set;
-
-import org.junit.Test;
-
 import jet.nsi.api.NsiMetaDictWriter;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.data.NsiConfigDict;
@@ -21,6 +10,16 @@ import jet.nsi.common.config.impl.NsiYamlMetaDictReaderImpl;
 import jet.nsi.common.config.impl.NsiYamlMetaDictWriterImpl;
 import jet.nsi.testkit.utils.DataUtils;
 import junit.framework.Assert;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Set;
 
 public class NsiLocalGitConfigManagerImplTest {
 
@@ -67,26 +66,30 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager("src/test/resources/metadata1/empty");
         configManager.getConfig();
         int beforeSize = configManager.getConfig().getDicts().size();
-        MetaDict o1 = DataGen.genMetaDict("writeDict","writeTestTable").build();
-        configManager.createOrUpdateConfig(o1);
-
+        MetaDict o1 = DataGen.genMetaDict("writeDict", "writeTestTable").build();
         File testFile = new File("src/test/resources/metadata1/empty/", o1.getName().concat(".yaml"));
-        MetaDict o2 = configManager.readConfigFile(testFile);
-        DataUtils.assertEqualAllOptionals(o1, o2);
-        //It's added exactly ones
-        int afterSize = configManager.getConfig().getDicts().size();
-        Assert.assertEquals(beforeSize + 1, afterSize);
+        try {
+            configManager.createOrUpdateConfig(o1);
 
-        //Check if it updates Correct
-        o1.setCaption("New caption Проверка русского языка");
-        configManager.createOrUpdateConfig(o1);
-        //It's updated and not duplicates
-        afterSize = configManager.getConfig().getDicts().size();
-        Assert.assertEquals(beforeSize + 1, afterSize);
-        o2 = configManager.readConfigFile(testFile);
-        DataUtils.assertEqualAllOptionals(o1, o2);
+            MetaDict o2 = configManager.readConfigFile(testFile);
+            DataUtils.assertEqualAllOptionals(o1, o2);
+            //It's added exactly ones
+            int afterSize = configManager.getConfig().getDicts().size();
+            Assert.assertEquals(beforeSize + 1, afterSize);
+
+            //Check if it updates Correct
+            o1.setCaption("New caption Проверка русского языка");
+            configManager.createOrUpdateConfig(o1);
+            //It's updated and not duplicates
+            afterSize = configManager.getConfig().getDicts().size();
+            Assert.assertEquals(beforeSize + 1, afterSize);
+            o2 = configManager.readConfigFile(testFile);
+            DataUtils.assertEqualAllOptionals(o1, o2);
+        } finally {
         /*delete test file to prevent configManager to read it next time*/
-        testFile.delete();
+            testFile.delete();
+        }
+
     }
 
     @Test
@@ -98,7 +101,7 @@ public class NsiLocalGitConfigManagerImplTest {
 
         int beforeSize = configManager.getConfig().getDicts().size();
 
-        MetaDict o1 = DataGen.genMetaDict("writeDictForReload","writeTestTableForReload").build();
+        MetaDict o1 = DataGen.genMetaDict("writeDictForReload", "writeTestTableForReload").build();
         String fileName = o1.getName().concat(".yaml");
         File newFile = new File(testConfigPath, fileName);
         try (FileWriter newFileWriter = new FileWriter(newFile)) {
@@ -124,29 +127,31 @@ public class NsiLocalGitConfigManagerImplTest {
         NsiConfig config = configManager.readConfig();
         Assert.assertNotNull(config);
 
-        int beforeSize = configManager.getConfig().getDicts().size();
 
         // Готовим данные
-        MetaDict o1 = DataGen.genMetaDict("writeDictForCheckout","writeTestTableForCheckout").build();
+        MetaDict o1 = DataGen.genMetaDict("writeDictForCheckout", "writeTestTableForCheckout").build();
+
         String fromSource = "src/test/resources/metadata1/from";
-
-        Files.createDirectory(Paths.get(fromSource));
-
         String fileName = o1.getName().concat(".yaml");
-        File newFile = new File(fromSource, fileName);
-        try (FileWriter newFileWriter = new FileWriter(newFile)) {
-            NsiMetaDictWriter writer = new NsiYamlMetaDictWriterImpl();
-            writer.write(o1, newFileWriter);
+        Path checkFilePath = null;
+        try {
+            Files.createDirectory(Paths.get(fromSource));
+
+            File newFile = new File(fromSource, fileName);
+            try (FileWriter newFileWriter = new FileWriter(newFile)) {
+                NsiMetaDictWriter writer = new NsiYamlMetaDictWriterImpl();
+                writer.write(o1, newFileWriter);
+            }
+
+            configManager.checkoutNewConfig(fromSource);
+
+            checkFilePath = Paths.get(testConfigPath, fileName);
+            Assert.assertTrue(Files.exists(checkFilePath));
+        } finally {
+            Files.deleteIfExists(Paths.get(fromSource, fileName));
+            Files.deleteIfExists(Paths.get(fromSource));
+            Files.deleteIfExists(checkFilePath);
         }
-
-        configManager.checkoutNewConfig(fromSource);
-
-        Path checkFilePath = Paths.get(testConfigPath, fileName);
-        Assert.assertTrue(Files.exists(checkFilePath));
-
-        Files.deleteIfExists(Paths.get(fromSource, fileName));
-        Files.deleteIfExists(Paths.get(fromSource));
-        Files.deleteIfExists(checkFilePath);
     }
 
     @Test
@@ -182,66 +187,73 @@ public class NsiLocalGitConfigManagerImplTest {
         String configPath = "src/test/resources/metadata-by-dirs";
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager(configPath);
         configManager.readConfig();
-        
+
         MetaDict metaDict1 = configManager.getConfig().getMetaDict("dict_in_a");
         MetaDict metaDict2 = configManager.getConfig().getMetaDict("dict_in_b");
-        
+
         Path pathA = configManager.getConfig().getMetaDictPath("dict_in_a");
         Path pathB = configManager.getConfig().getMetaDictPath("dict_in_b");
-        
+
         Assert.assertNotNull(metaDict1);
         Assert.assertNotNull(metaDict2);
         Assert.assertEquals("dict_in_a migth be read with path to ${config-folder}/a", Paths.get(configPath, "a").resolve(metaDict1.getName() + ".yaml").toString(), pathA.toString());
         Assert.assertEquals("dict_in_b migth be read with path to ${config-folder}/b", Paths.get(configPath, "b").resolve(metaDict2.getName() + ".yaml").toString(), pathB.toString());
     }
+
     @Test
     public void testWriteConfigFileWithPaths() throws IOException {
         String configPath = "src/test/resources/empty";
         NsiLocalGitConfigManagerImpl configManager = buildConfigManager(configPath);
         configManager.readConfig();
-        
+
         int beforeSize = configManager.getConfig().getMetaDicts().size();
-        
+
         // Create new writeDict
         String name = "writeDict";
-        MetaDict o1 = DataGen.genMetaDict(name, name + "Table").build();
-        configManager.createOrUpdateConfig(o1, "a");
-        
-        Path path1 = Paths.get(configPath, "a").resolve(name + ".yaml");
-        MetaDict o2 = configManager.readConfigFile(path1.toFile());
-        
-        Path path2 = configManager.getConfig().getMetaDictPath(name);
-        MetaDict o3 = configManager.getConfig().getMetaDict(name);
-        
-        Assert.assertEquals(path1.toString(), path2.toString());
-        DataUtils.assertEqualAllOptionals(o1, o2);
-        DataUtils.assertEqualAllOptionals(o1, o3);
-        Assert.assertEquals(beforeSize + 1, configManager.getConfig().getMetaDicts().size());
-        
-        // Update writeDict and change it path
-        o1.setCaption("New write test");
-        configManager.createOrUpdateConfig(o1, "c");
-        
-        path1 = Paths.get(configPath, "c").resolve(name + ".yaml");
-        path2 = configManager.getConfig().getMetaDictPath(name);
-        Assert.assertEquals(path1.toString(), path2.toString());
-        
-        o3 = configManager.getConfig().getMetaDict(name);
-        DataUtils.assertEqualAllOptionals(o1, o3);
-        Assert.assertEquals(beforeSize + 1, configManager.getConfig().getMetaDicts().size());
-        
-        // Re-read config to check if it will be successfull (dublicates on File system is not exists)
-        configManager.readConfig();
-        Assert.assertEquals(beforeSize + 1, configManager.getConfig().getMetaDicts().size());
-        
-        Files.deleteIfExists(configManager.getConfig().getMetaDictPath(name));
-        Files.delete(Paths.get(configPath, "c"));
-        Files.delete(Paths.get(configPath, "a"));
+        try {
+            MetaDict o1 = DataGen.genMetaDict(name, name + "Table").build();
+            configManager.createOrUpdateConfig(o1, "a");
+
+
+            Path path1 = Paths.get(configPath, "a").resolve(name + ".yaml");
+
+            MetaDict o2 = configManager.readConfigFile(path1.toFile());
+
+            Path path2 = configManager.getConfig().getMetaDictPath(name);
+            MetaDict o3 = configManager.getConfig().getMetaDict(name);
+
+            Assert.assertEquals(path1.toString(), path2.toString());
+            DataUtils.assertEqualAllOptionals(o1, o2);
+            DataUtils.assertEqualAllOptionals(o1, o3);
+            Assert.assertEquals(beforeSize + 1, configManager.getConfig().getMetaDicts().size());
+
+            // Update writeDict and change it path
+            o1.setCaption("New write test");
+            configManager.createOrUpdateConfig(o1, "c");
+
+            path1 = Paths.get(configPath, "c").resolve(name + ".yaml");
+            path2 = configManager.getConfig().getMetaDictPath(name);
+            Assert.assertEquals(path1.toString(), path2.toString());
+
+            o3 = configManager.getConfig().getMetaDict(name);
+            DataUtils.assertEqualAllOptionals(o1, o3);
+            Assert.assertEquals(beforeSize + 1, configManager.getConfig().getMetaDicts().size());
+
+            // Re-read config to check if it will be successfull (dublicates on File system is not exists)
+            configManager.readConfig();
+            Assert.assertEquals(beforeSize + 1, configManager.getConfig().getMetaDicts().size());
+        } finally {
+
+            Files.deleteIfExists(configManager.getConfig().getMetaDictPath(name));
+            Files.delete(Paths.get(configPath, "c"));
+            Files.delete(Paths.get(configPath, "a"));
+        }
+
     }
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {
         NsiConfigParams configParams = new NsiConfigParams();
-        return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl(), new NsiYamlMetaDictWriterImpl(), configParams );
+        return new NsiLocalGitConfigManagerImpl(new File(configPath), new NsiYamlMetaDictReaderImpl(), new NsiYamlMetaDictWriterImpl(), configParams);
     }
 
 }
