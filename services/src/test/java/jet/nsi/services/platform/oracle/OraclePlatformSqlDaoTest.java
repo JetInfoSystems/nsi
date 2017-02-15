@@ -1,3 +1,4 @@
+/*
 package jet.nsi.services.platform.oracle;
 
 import jet.nsi.api.data.NsiConfigField;
@@ -29,3 +30,4 @@ public class OraclePlatformSqlDaoTest {
     }
 
 }
+*/

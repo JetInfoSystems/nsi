@@ -23,7 +23,20 @@ public class DataTypeValidator implements ConstraintValidator<SizeAndPrecisionCo
         if (dataType != value.getType()) {
             return true;
         }
-        return isNullOrZero(value.getPrecision()) && isNullOrZero(value.getSize());
+
+        switch (value.getType()) {
+            case BOOLEAN: {
+                return value.getSize() == 1 && isNullOrZero(value.getPrecision());
+            }
+            case DATE_TIME:
+            case CLOB: {
+                return isNullOrZero(value.getPrecision()) && isNullOrZero(value.getSize());
+            }
+            default: {
+                throw new IllegalArgumentException("Unsupported dataType " + value.getType());
+            }
+        }
+
     }
 
     private boolean isNullOrZero(Integer value) {

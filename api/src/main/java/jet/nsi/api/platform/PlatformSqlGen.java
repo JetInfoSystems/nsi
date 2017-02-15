@@ -16,13 +16,17 @@ public interface PlatformSqlGen {
 
     String getRowInsertSql(NsiQuery query, boolean useSeq);
 
-    String getRowUpdateSql(NsiQuery query);
+    String getRowUpdateSql(NsiQuery query, BoolExp filter);
+
+    Condition getWhereCondition(NsiQuery query, BoolExp filter, String alias);
+    Condition getWhereCondition(NsiQuery query, BoolExp filter);
 
     DSLContext getQueryBuilder();
     Settings getJooqSettings();
 
-    Condition getFieldFuncCondition(NsiQuery query,
-            NsiConfigField field, BoolExp filter, SelectJoinStep<?> baseQuery);
+//    Condition getFieldFuncCondition(NsiConfigField field, BoolExp filter);
+
+    Condition getFieldFuncCondition(NsiConfigField field, BoolExp filter, String alias);
 
     Query limit(SelectJoinStep<?> baseQuery, long offset, int size);
 

@@ -17,7 +17,7 @@ public class BoolExpBuilder {
     private final BoolExpBuilder owner;
     private BoolExp prototype;
 
-    BoolExpBuilder(NsiConfigDict dict) {
+    public BoolExpBuilder(NsiConfigDict dict) {
         this(dict, null);
     }
 

@@ -41,12 +41,12 @@ public class MetaField implements Serializable {
      * Если данный map задан то поле является перечислением.
      */
     private Map<String, String> enumValues;
-    
+
     /**
      * Значение по умолчанию.
      */
     private String defaultValue;
-    
+
     /**
      * Определяет возможность выполнения полнотекстового поиска по данному атрибуту
      * Поддерживается только для строковых типов.
@@ -56,45 +56,58 @@ public class MetaField implements Serializable {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public MetaFieldType getType() {
         return type;
     }
+
     public void setType(MetaFieldType type) {
         this.type = type;
     }
+
     public Integer getSize() {
         return size;
     }
+
     public void setSize(Integer size) {
         this.size = size;
     }
+
     public Integer getPrecision() {
         return precision;
     }
+
     public void setPrecision(Integer precision) {
         this.precision = precision;
     }
+
     public Map<String, String> getEnumValues() {
         return enumValues;
     }
+
     public void setEnumValues(Map<String, String> enumValues) {
         this.enumValues = enumValues;
     }
+
     public boolean isEnableFts() {
         return enableFts;
     }
+
     public void setEnableFts(boolean enableFts) {
         this.enableFts = enableFts;
     }
+
     public String getDefaultValue() {
         return defaultValue;
     }
+
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
-    
-    
+
+
 }

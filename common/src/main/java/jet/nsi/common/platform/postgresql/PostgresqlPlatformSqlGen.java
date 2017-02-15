@@ -25,14 +25,13 @@ public class PostgresqlPlatformSqlGen extends DefaultPlatformSqlGen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Condition getFieldFuncCondition(NsiQuery query, NsiConfigField field,
-            BoolExp filter, SelectJoinStep<?> baseQuery) {
+    public Condition getFieldFuncCondition(NsiConfigField field, BoolExp filter, String alias) {
         switch (filter.getFunc()) {
         case OperationType.CONTAINS:
             Field<Object> f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
             return new PostgresqlTextSearchCondition(f);
         default:
-            return super.getFieldFuncCondition(query, field, filter, baseQuery);
+            return super.getFieldFuncCondition(field, filter, alias);
         }
     }
     

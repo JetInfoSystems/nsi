@@ -9,15 +9,15 @@ import jet.nsi.api.model.SortExp;
 
 public interface SqlGen {
 
-    public String getRowGetSql(NsiQuery query);
+    public String getRowGetSql(NsiQuery query, BoolExp filter);
     
-    public String getRowGetSql(NsiQuery query, boolean lock);
+    public String getRowGetSql(NsiQuery query, boolean lock, BoolExp filter);
     
-    public String getRowGetSql(NsiQuery query, boolean lock, RefAttrsType refAttrsType);
+    public String getRowGetSql(NsiQuery query, boolean lock, RefAttrsType refAttrsType, BoolExp filter);
     
     public String getRowInsertSql(NsiQuery query, boolean useSeq);
 
-    public String getRowUpdateSql(NsiQuery query);
+    public String getRowUpdateSql(NsiQuery query, BoolExp filter);
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size);
 

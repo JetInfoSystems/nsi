@@ -5,8 +5,12 @@ import jet.nsi.api.data.NsiConfigDict;
 import jet.nsi.api.data.NsiConfigField;
 import jet.nsi.api.data.NsiQuery;
 import jet.nsi.api.data.NsiQueryAttr;
+import jet.nsi.api.model.BoolExp;
 import jet.nsi.api.platform.NsiPlatform;
 import jet.nsi.common.platform.DefaultPlatformSqlGen;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import javax.transaction.NotSupportedException;
 
 public class PhoenixPlatformSqlGen extends DefaultPlatformSqlGen {
 
@@ -22,12 +26,13 @@ public class PhoenixPlatformSqlGen extends DefaultPlatformSqlGen {
 
     @Override
     public String getRowInsertSql(NsiQuery query, boolean useSeq) {
-        return getRowUpdateSql(query);
+        return getRowUpdateSql(query, null);
     }
 
     @Override
-    public String getRowUpdateSql(NsiQuery query) {
-        NsiConfigDict dict = query.getDict();
+    public String getRowUpdateSql(NsiQuery query, BoolExp filter) {
+        throw new NotImplementedException();
+/*        NsiConfigDict dict = query.getDict();
 
         StringBuilder mainQuery = new StringBuilder();
         StringBuilder binds = new StringBuilder(" values (");
@@ -51,6 +56,6 @@ public class PhoenixPlatformSqlGen extends DefaultPlatformSqlGen {
         binds.append(")");
         mainQuery.append(binds);
 
-        return mainQuery.toString();
+        return mainQuery.toString();*/
     }
 }

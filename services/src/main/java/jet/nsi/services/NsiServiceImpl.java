@@ -57,11 +57,6 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public long dictCount(NsiTransaction tx, NsiQuery query, BoolExp filter) {
-        return dictCount(tx, query, filter, null, null);
-    }
-
-    @Override
     public long dictCount(String requestId, NsiQuery query, BoolExp filter,
                           String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
         final Timer.Context t = dictCountTimer.time();
@@ -74,27 +69,9 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public long dictCount(NsiTransaction tx, NsiQuery query, BoolExp filter,
-                          String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
-        final Timer.Context t = dictCountTimer.time();
-        try {
-            SqlDao sqlDao = getSqlDao(query.getDict());
-            return nsiGenericService.dictCount(tx, query, filter, sqlDao, sourceQueryName, sourceQueryParams);
-        } finally {
-            t.stop();
-        }
-    }
-
-    @Override
     public List<DictRow> dictList(String requestId, NsiQuery query,
                                   BoolExp filter, List<SortExp> sortList, long offset, int size) {
         return dictList(requestId, query, filter, sortList, offset, size, null, null);
-    }
-
-    @Override
-    public List<DictRow> dictList(NsiTransaction tx, NsiQuery query,
-                                  BoolExp filter, List<SortExp> sortList, long offset, int size) {
-        return dictList(tx, query, filter, sortList, offset, size, null, null);
     }
 
     @Override
@@ -111,58 +88,23 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public List<DictRow> dictList(NsiTransaction tx, NsiQuery query,
-                                  BoolExp filter, List<SortExp> sortList, long offset, int size,
-                                  String sourceQueryName, Collection<MetaParamValue> sourceQueryParams) {
-        final Timer.Context t = dictListTimer.time();
-        try {
-            SqlDao sqlDao = getSqlDao(query.getDict());
-            return nsiGenericService.dictList(tx, query, filter, sortList, offset, size, sqlDao, sourceQueryName, sourceQueryParams);
-        } finally {
-            t.stop();
-        }
-    }
-
-    @Override
-    public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id) {
+    public DictRow dictGet(String requestId, NsiConfigDict dict, DictRowAttr id, BoolExp filter) {
 
         final Timer.Context t = dictGetTimer.time();
         try {
             SqlDao sqlDao = getSqlDao(dict.getDatabaseName());
-            return nsiGenericService.dictGet(requestId, dict, id, sqlDao);
+            return nsiGenericService.dictGet(requestId, dict, id, sqlDao, filter);
         } finally {
             t.stop();
         }
     }
 
     @Override
-    public DictRow dictGet(NsiTransaction tx, NsiConfigDict dict, DictRowAttr id) {
-        final Timer.Context t = dictGetTimer.time();
-        try {
-            SqlDao sqlDao = getSqlDao(dict.getDatabaseName());
-            return nsiGenericService.dictGet(tx, dict, id, sqlDao);
-        } finally {
-            t.stop();
-        }
-    }
-
-    @Override
-    public DictRow dictSave(String requestId, DictRow data) {
+    public DictRow dictSave(String requestId, DictRow data, BoolExp filter) {
         final Timer.Context t = dictSaveTimer.time();
         try {
             SqlDao sqlDao = getSqlDao(data.getDict().getDatabaseName());
-            return nsiGenericService.dictSave(requestId, data, sqlDao);
-        } finally {
-            t.stop();
-        }
-    }
-
-    @Override
-    public DictRow dictSave(NsiTransaction tx, DictRow data) {
-        final Timer.Context t = dictSaveTimer.time();
-        try {
-            SqlDao sqlDao = getSqlDao(data.getDict().getDatabaseName());
-            return nsiGenericService.dictSave(tx, data, sqlDao);
+            return nsiGenericService.dictSave(requestId, data, sqlDao, filter);
         } finally {
             t.stop();
         }
@@ -170,27 +112,16 @@ public class NsiServiceImpl implements NsiService {
 
     @Override
     public DictRow dictDelete(String requestId, NsiConfigDict dict,
-                              DictRowAttr id, Boolean value) {
+                              DictRowAttr id, Boolean value, BoolExp filter) {
         final Timer.Context t = dictDeleteTimer.time();
         try {
             SqlDao sqlDao = getSqlDao(dict.getDatabaseName());
-            return nsiGenericService.dictDelete(requestId, dict, id, value, sqlDao);
+            return nsiGenericService.dictDelete(requestId, dict, id, value, sqlDao, filter);
         } finally {
             t.stop();
         }
     }
 
-    @Override
-    public DictRow dictDelete(NsiTransaction tx, NsiConfigDict dict,
-                              DictRowAttr id, Boolean value) {
-        final Timer.Context t = dictDeleteTimer.time();
-        try {
-            SqlDao sqlDao = getSqlDao(dict.getDatabaseName());
-            return nsiGenericService.dictDelete(tx, dict, id, value, sqlDao);
-        } finally {
-            t.stop();
-        }
-    }
 
     @Override
     public List<DictRow> dictBatchSave(String requestId, List<DictRow> dataList) {
@@ -206,38 +137,11 @@ public class NsiServiceImpl implements NsiService {
         }
     }
 
-
-    @Override
-    public List<DictRow> dictBatchSave(NsiTransaction tx, List<DictRow> dataList) {
-        final Timer.Context t = dictBatchSaveTimer.time();
-        try {
-            if (dataList.isEmpty()) {
-                return dataList;
-            }
-            SqlDao sqlDao = getSqlDao(dataList.iterator().next());
-            return nsiGenericService.dictBatchSave(tx, dataList, sqlDao);
-        } finally {
-            t.stop();
-        }
-    }
-
-
     public DictRow dictMergeByExternalAttrs(String requestId, final DictRow data) {
         final Timer.Context t = dictMergeByExternalAttrs.time();
         try {
             SqlDao sqlDao = getSqlDao(data);
             return nsiGenericService.dictMergeByExternalAttrs(requestId, data, sqlDao);
-        } finally {
-            t.stop();
-        }
-    }
-
-
-    public DictRow dictMergeByExternalAttrs(final NsiTransaction tx, final DictRow data) {
-        final Timer.Context t = dictMergeByExternalAttrs.time();
-        try {
-            SqlDao sqlDao = getSqlDao(data);
-            return nsiGenericService.dictMergeByExternalAttrs(tx, data, sqlDao);
         } finally {
             t.stop();
         }

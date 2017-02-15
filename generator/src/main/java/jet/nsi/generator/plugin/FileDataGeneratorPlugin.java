@@ -1,3 +1,4 @@
+/*
 package jet.nsi.generator.plugin;
 
 import java.io.File;
@@ -30,9 +31,11 @@ import org.slf4j.LoggerFactory;
 public abstract class FileDataGeneratorPlugin implements GeneratorPlugin {
     private static final Logger log = LoggerFactory.getLogger(FileDataGeneratorPlugin.class);
 
-    /**
+    */
+/**
      * appender - добавляет данные непосредственно в базу
-     */
+     *//*
+
     private DBAppender appender;
 
     private GeneratorHelper genHelper;
@@ -129,3 +132,4 @@ public abstract class FileDataGeneratorPlugin implements GeneratorPlugin {
     }
 
 }
+*/

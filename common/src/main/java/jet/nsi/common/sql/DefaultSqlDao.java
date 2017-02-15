@@ -220,7 +220,7 @@ public class DefaultSqlDao implements SqlDao {
         return platformSqlDao.setParamsForUpdate(query, data, ps);
     }
 
-
+/*
     public int setParamsForUpdate(NsiQuery query, DictRow data, DictRowAttr curVersion,
                                   PreparedStatement ps) throws SQLException {
         int index = setParamsForUpdate(query, data, ps);
@@ -230,7 +230,7 @@ public class DefaultSqlDao implements SqlDao {
             index++;
         }
         return index;
-    }
+    }*/
 
     protected int setParamsForList(NsiQuery query, PreparedStatement ps, BoolExp filter, long offset, int size) throws SQLException {
         return setParamsForList(query, ps, filter, offset, size, null, null);
@@ -262,8 +262,10 @@ public class DefaultSqlDao implements SqlDao {
         return index;
     }
 
-    protected int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index,
-                                     BoolExp filter) {
+    protected int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index, BoolExp filter) {
+        if (filter == null) {
+            return 0;
+        }
         SetParamBoolExpVisitor visitor = new SetParamBoolExpVisitor(query, ps, index);
         if (filter != null) {
             visitor.accept(filter);
@@ -299,26 +301,29 @@ public class DefaultSqlDao implements SqlDao {
 
     @Override
     public DictRow get(Connection connection, NsiQuery query,
-                       DictRowAttr id) {
-        return get(connection, query, id, false);
+                       DictRowAttr id, BoolExp filter) {
+        return get(connection, query, id, false, filter);
     }
 
     @Override
     public DictRow get(Connection connection, NsiQuery query,
-                       DictRowAttr id, boolean lock) {
-        return get(connection, query, id, lock, RefAttrsType.REF_OBJECT_ATTRS);
+                       DictRowAttr id, boolean lock, BoolExp filter) {
+        return get(connection, query, id, lock, RefAttrsType.REF_OBJECT_ATTRS, filter);
     }
 
     @Override
     public DictRow get(Connection connection, NsiQuery query,
-                       DictRowAttr id, boolean lock, RefAttrsType refAttrsType) {
+                       DictRowAttr id, boolean lock, RefAttrsType refAttrsType, BoolExp filter) {
         NsiConfigDict dict = query.getDict();
         checkDictHasIdAttr(dict);
         DictRow result = dict.newDictRow();
-        String sql = sqlGen.getRowGetSql(query, lock);
+        filter = filter == null ? buildIdFilter(dict, id) : addIdToFilter(dict, id, filter);
+        String sql = sqlGen.getRowGetSql(query, lock, filter );
+
         log.info(sql);
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            int paramCount = setParamsForGetWhere(query, ps, id) - 1;
+            int paramCount = setParamsForFilter(query, ps, 1, filter );
+
             log.info("params: {}", paramCount);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -332,19 +337,21 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
-    /**
-     * Биндит к запросу значения полей, составляющих id (primary key). Возвращает индекс следующего placeholder-а
-     */
-    protected int setParamsForGetWhere(NsiQuery query, PreparedStatement ps,
-                                       DictRowAttr id) throws SQLException {
-        List<NsiConfigField> fields = query.getDict().getIdAttr().getFields();
-        for (int i = 0; i < fields.size(); i++) {
-            NsiConfigField field = fields.get(i);
-            platformSqlDao.setParam(ps, i + 1, field, id.getValues().get(i));
-        }
-        return fields.size() + 1;
+    private BoolExp addIdToFilter(NsiConfigDict dict, DictRowAttr id, BoolExp sourceFilter){
+        return new BoolExpBuilder(dict)
+                .and()
+                .expList()
+                .key(dict.getIdAttr().getName()).eq().value(id).add()
+                .add(sourceFilter)
+                .end()
+                .build();
     }
 
+    private BoolExp buildIdFilter(NsiConfigDict dict, DictRowAttr id){
+        return new BoolExpBuilder(dict)
+                .key(dict.getIdAttr().getName()).eq().value(id)
+                .build();
+    }
 
     @Override
     public List<DictRow> list(Connection connection, NsiQuery query,
@@ -453,7 +460,7 @@ public class DefaultSqlDao implements SqlDao {
                 row.setIdAttr(data.getIdAttr());
                 return row;
             }
-            return get(connection, query, data.getIdAttr());
+            return get(connection, query, data.getIdAttr(), null);
         } catch (SQLException e) {
             throw new NsiDataException("insert:" + e.getMessage(), e);
         }
@@ -479,15 +486,15 @@ public class DefaultSqlDao implements SqlDao {
 
     @Override
     public DictRow update(Connection connection, NsiQuery query,
-                          DictRow data) {
+                          DictRow data, BoolExp filter) {
         checkDictHasIdAttr(query.getDict());
         NsiConfigDict dict = query.getDict();
-
-        String sql = sqlGen.getRowUpdateSql(query);
+        filter = filter == null ? buildIdFilter(dict, data.getIdAttr()) : addIdToFilter(dict, data.getIdAttr(), filter);
+        String sql = sqlGen.getRowUpdateSql(query, filter);
         log.info(sql);
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             if (query.getAttrs().size() != data.getAttrs().size()) {
-                DictRow row = get(connection, query, data.getIdAttr());
+                DictRow row = get(connection, query, data.getIdAttr(), filter);
                 updateRowData(row, data);
             }
             int paramCount;
@@ -504,7 +511,7 @@ public class DefaultSqlDao implements SqlDao {
                     if (!data.getVersionAttrString().equals(curData.getVersionAttrString())) {
                         throw new WriteLockNsiDataException(
                                 // получаем полное текущее состояние
-                                get(connection, dict.query().addAttrs(), data.getIdAttr())
+                                get(connection, dict.query().addAttrs(), data.getIdAttr(), null)
                                 , "record version missmatch: " + dict.getName() + ", your/db versions are " + data.getVersionAttrString() + "/" + curData.getVersionAttrString())
                                 .localize("Редактируемые данные уже были изменены в другой сессии. Сохранение невозможно без повторного обновления. Обновите запись и отредактируйте ее снова.");
                     }
@@ -520,7 +527,8 @@ public class DefaultSqlDao implements SqlDao {
                     setVersionDefault(query, data);
                 }
             }
-            paramCount = setParamsForUpdate(query, data, ps) - 1;
+            paramCount = setParamsForUpdate(query, data, ps) ;
+            paramCount = setParamsForFilter(query, ps, paramCount, filter )-1;
 
             log.info("params: {}", paramCount);
 
@@ -531,7 +539,7 @@ public class DefaultSqlDao implements SqlDao {
             if (count > 1) {
                 throw new NsiDataException(Joiner.on(" ").join("too many row updated:", count));
             }
-            return get(connection, query, data.getIdAttr());
+            return get(connection, query, data.getIdAttr(), null);
         } catch (SQLException e) {
             throw new NsiDataException("update:" + e.getMessage(), e);
         }
@@ -545,14 +553,14 @@ public class DefaultSqlDao implements SqlDao {
             if (dict.getVersionAttr() != null) {
                 query.addVersion();
             }
-            result = get(connection, query, data.getIdAttr(), true);
+            result = get(connection, query, data.getIdAttr(), true, null);
         }
         return result;
     }
 
     @Override
     public DictRow save(Connection connection, NsiQuery query, DictRow data,
-                        boolean insert) {
+                        boolean insert, BoolExp filter) {
         checkDictHasIdAttr(query.getDict());
         checkUniqueAttr(connection, data, insert);
 
@@ -560,7 +568,7 @@ public class DefaultSqlDao implements SqlDao {
         if (insert) {
             result = insert(connection, query, data);
         } else {
-            result = update(connection, query, data);
+            result = update(connection, query, data, filter);
         }
         return result;
     }
@@ -680,7 +688,8 @@ public class DefaultSqlDao implements SqlDao {
 
     @Override
     public DictRow mergeByExternalAttrs(Connection connection, DictRow data) {
-        NsiConfigDict dict = data.getDict();
+        throw new UnsupportedOperationException("mergeByExternalAttrs not supported in antifraud system");
+/*        NsiConfigDict dict = data.getDict();
 
         for (Map.Entry<String, DictRowAttr> entryAttr : data.getAttrs().entrySet()) {
             NsiConfigAttr configAttr = dict.getAttr(entryAttr.getKey());
@@ -714,10 +723,10 @@ public class DefaultSqlDao implements SqlDao {
             newRow = insert(connection, dict.query().addAttrs(data), data);
         } else {
             newRow = mergeDictRow(data, oldRow);
-            newRow = update(connection, dict.query().addAttrs(newRow), newRow);
+            newRow = update(connection, dict.query().addAttrs(newRow), newRow, filter);
         }
 
-        return newRow;
+        return newRow;*/
     }
 
     @Override

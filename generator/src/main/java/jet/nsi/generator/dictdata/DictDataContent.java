@@ -1,3 +1,4 @@
+/*
 package jet.nsi.generator.dictdata;
 
 import java.io.File;
@@ -50,7 +51,8 @@ public class DictDataContent {
         return dictdataObjsMap;
     }
 
-    /**
+    */
+/**
      * Реализует загрузку/обновление всех корневых справочников
      * из файлов каталога с данными справочника в json формате
      * каталог указывается в конфигурации запуска (параметр dictdataPath)
@@ -59,7 +61,8 @@ public class DictDataContent {
      * @return множество имен справочников, которые были загружены/обновлены
      * @throws FileNotFoundException
      * @throws IOException
-     */
+     *//*
+
     public Set<String> addAllRootDicts(Map <NsiConfigDict, List<Long>> dictsIds) throws FileNotFoundException, IOException{
         DictDataFiles dictdataFiles = new DictDataFiles(params.getDictdataPath());
 
@@ -185,3 +188,4 @@ public class DictDataContent {
     }
 
 }
+*/

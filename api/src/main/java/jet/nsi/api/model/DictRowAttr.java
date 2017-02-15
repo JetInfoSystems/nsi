@@ -1,11 +1,13 @@
 package jet.nsi.api.model;
 
-import java.beans.Transient;
+//import java.beans.Transient;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+//import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
 import jet.nsi.api.NsiServiceException;
@@ -52,7 +54,7 @@ public class DictRowAttr implements Serializable {
         this.refAttrs = refAttrs;
     }
 
-    @Transient
+    @JsonIgnore
     public boolean isEmpty() {
         if(values == null || values.isEmpty()) {
             return true;
@@ -70,7 +72,7 @@ public class DictRowAttr implements Serializable {
         return attr == null || attr.isEmpty();
     }
 
-    @Transient
+    @JsonIgnore
     private String getOneValue() {
         if(isEmpty()) {
             return null;
@@ -82,32 +84,32 @@ public class DictRowAttr implements Serializable {
         }
     }
 
-    @Transient
+    @JsonIgnore
     public String getString() {
         return getOneValue();
     }
 
-    @Transient
+    @JsonIgnore
     public Boolean getBoolean() {
         return ConvertUtils.stringToBool(getOneValue());
     }
 
-    @Transient
+    @JsonIgnore
     public Integer getInteger() {
         return ConvertUtils.stringToInteger(getOneValue());
     }
 
-    @Transient
+    @JsonIgnore
     public Long getLong() {
         return ConvertUtils.stringToLong(getOneValue());
     }
 
-    @Transient
+    @JsonIgnore
     public DateTime getDateTime() {
         return ConvertUtils.stringToDateTime(getOneValue());
     }
 
-    @Transient
+    @JsonIgnore
     public Double getDouble() {
         return ConvertUtils.stringToDouble(getOneValue());
     }

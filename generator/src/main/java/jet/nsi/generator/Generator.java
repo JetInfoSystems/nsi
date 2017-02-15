@@ -1,3 +1,4 @@
+/*
 package jet.nsi.generator;
 
 import java.io.IOException;
@@ -28,14 +29,18 @@ public class Generator {
     public static final String CMD_CLEAN_DATA = "cleanData";
     public static final String CMD_APPEND_DATA = "appendData";
 
-    /**
+    */
+/**
      * конфигурация с метаданными
-     */
+     *//*
+
     private final NsiConfig config;
 
-    /**
+    */
+/**
      * appender - добавляет данные непосредственно в базу
-     */
+     *//*
+
     private final DBAppender appender;
 
     private Map<NsiConfigDict, List<Long>> dictsIds = new HashMap<>();
@@ -81,11 +86,13 @@ public class Generator {
         return dictsIds;
     }
 
-    /**
+    */
+/**
      * Генерация и добавление данных в справочник
      * @param dict описание справочника
      * @param count количество записей
-     */
+     *//*
+
     private void addData(NsiConfigDict dict, int count){
 
         log.info("addData ['{}'] -> starting", dict.getName());
@@ -119,3 +126,4 @@ public class Generator {
     }
 
 }
+*/

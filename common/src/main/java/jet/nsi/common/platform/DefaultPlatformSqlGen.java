@@ -1,47 +1,44 @@
 package jet.nsi.common.platform;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.sequence;
-import static org.jooq.impl.DSL.table;
-import static org.jooq.impl.DSL.val;
-
-
 import com.google.common.base.Strings;
 import jet.nsi.api.data.NsiConfigAttr;
 import jet.nsi.api.data.NsiConfigDict;
+import jet.nsi.api.data.NsiConfigField;
+import jet.nsi.api.data.NsiQuery;
 import jet.nsi.api.data.NsiQueryAttr;
+import jet.nsi.api.model.BoolExp;
+import jet.nsi.api.model.OperationType;
+import jet.nsi.api.platform.NsiPlatform;
+import jet.nsi.api.platform.PlatformSqlGen;
+import jet.nsi.common.data.NsiDataException;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertSetStep;
 import org.jooq.Query;
-import org.jooq.SQLDialect;
 import org.jooq.SelectJoinStep;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.UpdateSetMoreStep;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
-import jet.nsi.api.data.NsiConfigField;
-import jet.nsi.api.data.NsiQuery;
-import jet.nsi.api.model.BoolExp;
-import jet.nsi.api.model.OperationType;
-import jet.nsi.api.platform.NsiPlatform;
-import jet.nsi.api.platform.PlatformSqlGen;
-import jet.nsi.common.data.NsiDataException;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.sequence;
+import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.val;
+
 public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
-    
+
     public static final String NEXTVAL = "nextval";
     public static final String CURRVAL = "currval";
 
     protected final NsiPlatform nsiPlatform;
     protected final Settings settings;
-    
+
     public DefaultPlatformSqlGen(NsiPlatform nsiPlatform) {
         this.nsiPlatform = nsiPlatform;
         this.settings = nsiPlatform.getJooqSettings();
@@ -92,7 +89,7 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
     }
 
     @Override
-    public String getRowUpdateSql(NsiQuery query) {
+    public String getRowUpdateSql(NsiQuery query, BoolExp filter) {
         NsiConfigDict dict = query.getDict();
         UpdateSetFirstStep<?> updateSetFirstStep = getQueryBuilder()
                 .update(table(dict.getTable()));
@@ -106,85 +103,164 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
                 }
             }
         }
-        if(updateSetMoreStep != null) {
-            Condition condition = getIdCondition(query, "");
-            return updateSetMoreStep.where(condition).getSQL();
+        if (updateSetMoreStep != null) {
+            Condition filterCondition = getWhereCondition(query, filter, "");
+            updateSetMoreStep.where(filterCondition);
+            return updateSetMoreStep.getSQL();
         } else {
             throw new NsiDataException("no attrs found");
         }
     }
 
+    @Override
+    public Condition getWhereCondition(NsiQuery query, BoolExp filter) {
+        Condition filterCondition = getFilterCondition(query, filter, NsiQuery.MAIN_ALIAS);
+        return filterCondition;
+    }
 
-    protected Condition getIdCondition(NsiQuery query, String alias) {
+    @Override
+    public Condition getWhereCondition(NsiQuery query, BoolExp filter, String alias) {
+        Condition filterCondition = getFilterCondition(query, filter, alias);
+        return filterCondition;
+    }
+
+    protected void checkExpList(List<BoolExp> expList) {
+        if (expList == null || expList.size() == 0) {
+            throw new NsiDataException("empty exp list");
+        }
+    }
+
+    protected Condition getOrCondition(NsiQuery query, List<BoolExp> expList, String alias) {
+        checkExpList(expList);
+        Condition condition = getFilterCondition(query, expList.get(0), alias);
+        for (int i = 1; i < expList.size(); i++) {
+            Condition c = getFilterCondition(query, expList.get(i), alias);
+            if (c != null) {
+                condition = condition.or(c);
+            }
+        }
+        return condition;
+    }
+
+    protected Condition getAndCondition(NsiQuery query, List<BoolExp> expList, String alias) {
+        checkExpList(expList);
+        Condition condition = getFilterCondition(query, expList.get(0), alias);
+        for (int i = 1; i < expList.size(); i++) {
+            Condition c = getFilterCondition(query, expList.get(i), alias);
+            if (c != null) {
+                condition = condition.and(c);
+            }
+        }
+        return condition;
+    }
+
+/*    protected Condition getIdCondition(NsiQuery query, String alias) {
         NsiConfigDict dict = query.getDict();
 
         Condition result = field( (Strings.isNullOrEmpty(alias) ? "" : alias + ".")
                 + dict.getIdAttr().getFields().get(0).getName()).equal(val((Object) null));
 
         return result;
+    }*/
+
+    protected Condition getFilterCondition(NsiQuery query, BoolExp filter, String alias) {
+        if (filter == null) {
+            return null;
+        }
+        switch (filter.getFunc()) {
+            case OperationType.AND:
+                return getAndCondition(query, filter.getExpList(), alias);
+            case OperationType.OR:
+                return getOrCondition(query, filter.getExpList(), alias);
+            case OperationType.NOTAND:
+                return getAndCondition(query, filter.getExpList(), alias).not();
+            case OperationType.NOTOR:
+                return getOrCondition(query, filter.getExpList(), alias).not();
+            case OperationType.IN:
+            case OperationType.EQUALS:
+            case OperationType.NOT_EQUALS:
+            case OperationType.LIKE:
+            case OperationType.CONTAINS:
+            case OperationType.GT:
+            case OperationType.GE:
+            case OperationType.LT:
+            case OperationType.LE:
+            case OperationType.NOTNULL:
+                return getFuncCondition(query, filter, alias);
+            default:
+                throw new NsiDataException("invalid func: " + filter.getFunc());
+        }
+    }
+
+    protected Condition getFuncCondition(NsiQuery query, BoolExp filter, String alias) {
+        NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+        List<NsiConfigField> fields = configAttr.getFields();
+        Condition condition = getFieldFuncCondition(fields.get(0), filter, alias);
+        for (int i = 1; i < fields.size(); i++) {
+            condition = condition.and(getFieldFuncCondition(fields.get(i), filter, alias));
+        }
+        return condition;
     }
 
     @Override
     public DSLContext getQueryBuilder() {
-        DSLContext queryBuilder = DSL.using(nsiPlatform.getJooqSQLDialect(), settings);//todo
-        return queryBuilder;
+        return DSL.using(nsiPlatform.getJooqSQLDialect(), settings);
     }
-    
+
     @Override
     public Settings getJooqSettings() {
         return settings;
     }
 
     @Override
-    public Condition getFieldFuncCondition(NsiQuery query, NsiConfigField field,
-            BoolExp filter, SelectJoinStep<?> baseQuery) {
+    public Condition getFieldFuncCondition(NsiConfigField field, BoolExp filter, String alias) {
         Field<Object> f;
-        
+        String fullAlias = Strings.isNullOrEmpty(alias) ? "" : alias + ".";
         if(OperationType.LIKE.equals(filter.getFunc())) {
-            f = field("lower(" + NsiQuery.MAIN_ALIAS +"."+field.getName() +")");
+            f = field("lower(" + fullAlias +field.getName() +")");
         } else {
-            f = field(NsiQuery.MAIN_ALIAS +"."+field.getName());
+            f = field(fullAlias + field.getName());
         }
-        
+
         switch (filter.getFunc()) {
-        case OperationType.EQUALS:
-            if (filter.getValue().getValues().get(0) != null){
-                return f.eq(val((Object) null));
-            }
-            else{
-                return f.isNull();
-            }
-        case OperationType.NOT_EQUALS:
-            if (filter.getValue().getValues().get(0) != null){
-                return f.notEqual(val((Object) null));
-            }
-            else{
+            case OperationType.EQUALS:
+                if (filter.getValue().getValues().get(0) != null){
+                    return f.eq(val((Object) null));
+                }
+                else{
+                    return f.isNull();
+                }
+            case OperationType.NOT_EQUALS:
+                if (filter.getValue().getValues().get(0) != null){
+                    return f.notEqual(val((Object) null));
+                }
+                else{
+                    return f.isNotNull();
+                }
+            case OperationType.GT:
+                return f.gt(val((Object) null));
+            case OperationType.GE:
+                return f.ge(val((Object) null));
+            case OperationType.LT:
+                return f.lt(val((Object) null));
+            case OperationType.LE:
+                return f.le(val((Object) null));
+            case OperationType.LIKE:
+                if (filter.getValue().getValues().get(0) != null){
+                    Field<String> value = null;
+                    return f.like(DSL.lower(value));
+                }
+                else{
+                    return f.isNull();
+                }
+            case OperationType.CONTAINS:
+                throw new NsiDataException("unsupported func: " + filter.getFunc());
+            case OperationType.NOTNULL:
                 return f.isNotNull();
-            }
-        case OperationType.GT:
-            return f.gt(val((Object) null));
-        case OperationType.GE:
-            return f.ge(val((Object) null));
-        case OperationType.LT:
-            return f.lt(val((Object) null));
-        case OperationType.LE:
-            return f.le(val((Object) null));
-        case OperationType.LIKE:
-            if (filter.getValue().getValues().get(0) != null){
-                Field<String> value = null;
-                return f.like(DSL.lower(value));
-            }
-            else{
-                return f.isNull();
-            }
-        case OperationType.CONTAINS:
-            throw new NsiDataException("unsupported func: " + filter.getFunc());
-        case OperationType.NOTNULL:
-            return f.isNotNull();
-        case OperationType.IN:
-            return f.in(filter.getValue().getValues());
-        default:
-            throw new NsiDataException("invalid func: " + filter.getFunc());
+            case OperationType.IN:
+                return f.in(filter.getValue().getValues());
+            default:
+                throw new NsiDataException("invalid func: " + filter.getFunc());
         }
     }
 
@@ -200,7 +276,7 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
             return baseQuery;
         }
     }
-    
+
     @Override
     public Object sequenceFunсtion(String name, String seqFunction) {
         switch (seqFunction) {

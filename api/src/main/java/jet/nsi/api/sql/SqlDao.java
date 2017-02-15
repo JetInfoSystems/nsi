@@ -22,7 +22,7 @@ public interface SqlDao {
      * @param id
      * @return
      */
-    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id);
+    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, BoolExp filter);
 
     /**
      * Получить запись справочника, если есть REF атрибуты то для низ возвращаютмя ref атрибуты
@@ -32,7 +32,7 @@ public interface SqlDao {
      * @param lock взять эксклюзивную блокировку для записи
      * @return
      */
-    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock);
+    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock, BoolExp filter);
 
     /**
      * Получить запись справочника, если есть REF атрибуты то для низ возвращаютмя ref атрибуты
@@ -43,7 +43,7 @@ public interface SqlDao {
      * @param refAttrsType тип заполнения ссылочных атрибутов
      * @return
      */
-    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock, RefAttrsType refAttrsType);
+    public DictRow get(Connection connection, NsiQuery query, DictRowAttr id, boolean lock, RefAttrsType refAttrsType, BoolExp filter);
 
     /**
      * Получить страницу записей справочника удовлетворяющих критерию,
@@ -96,7 +96,7 @@ public interface SqlDao {
      * @param data
      * @return
      */
-    public DictRow update(Connection connection, NsiQuery query, DictRow data);
+    public DictRow update(Connection connection, NsiQuery query, DictRow data, BoolExp filter);
 
     /**
      * Вставить или обновить запись, возвращаются ref атрибуты для ссылочных атрибутов
@@ -106,11 +106,12 @@ public interface SqlDao {
      * @param insert
      * @return
      */
-    public DictRow save(Connection connection, NsiQuery query, DictRow data, boolean insert);
+    public DictRow save(Connection connection, NsiQuery query, DictRow data, boolean insert, BoolExp filter);
 
     /**
-     * Обьединение записей
+     * Обьединение записей; Не нужен в рамках антифрода
      */
+    @Deprecated
 	public DictRow mergeByExternalAttrs(Connection connection, DictRow data);
 
     public Connection getConnection() throws SQLException;

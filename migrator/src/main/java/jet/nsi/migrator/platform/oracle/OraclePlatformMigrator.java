@@ -1,3 +1,4 @@
+/*
 package jet.nsi.migrator.platform.oracle;
 
 import java.sql.Connection;
@@ -350,3 +351,4 @@ public class OraclePlatformMigrator extends DefaultPlatformMigrator {
         }
     }
 }
+*/

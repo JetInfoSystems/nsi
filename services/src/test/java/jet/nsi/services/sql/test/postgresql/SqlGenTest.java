@@ -47,7 +47,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict1RowGetSql() {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query);
+        String sql = sqlGen.getRowGetSql(query, null);
         Assert.assertEquals(
                 "select m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.ORG_ID, m.ORG_ROLE_ID, m.VERSION "
                         + "from table1 m " + "where m.id = ?", sql);
@@ -57,7 +57,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict2RowGetSql() {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query);
+        String sql = sqlGen.getRowGetSql(query, null);
         Assert.assertEquals(
                 "select m.dict1_id, a1.f1 a1_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION "
                         + "from table2 m "
@@ -69,7 +69,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict2RowGetForUpdateSql() {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query, true);
+        String sql = sqlGen.getRowGetSql(query, true, null);
         Assert.assertEquals(
                 "select m.dict1_id, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION from table2 m where m.id = ? for update", sql);
     }
@@ -78,7 +78,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
     public void testDict3RowGetSql() {
         NsiConfigDict dict = config.getDict("dict3");
         NsiQuery query = dict.query().addAttrs();
-        String sql = sqlGen.getRowGetSql(query);
+        String sql = sqlGen.getRowGetSql(query, null);
         Assert.assertEquals(
                 "select m.dict1_a_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.VERSION "
                         + "from table3 m "
@@ -209,7 +209,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
         NsiConfigDict dict = config.getDict("dict2");
         NsiQuery query = dict.query().addAttrs();
 
-        String sql = sqlGen.getRowUpdateSql(query);
+        String sql = sqlGen.getRowUpdateSql(query, null);
         Assert.assertEquals(
                 "update table2 "
                         + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ?, VERSION = ? "
@@ -221,7 +221,7 @@ public class SqlGenTest extends BaseServiceSqlTest {
         NsiConfigDict dict = config.getDict("dict2_without_version");
         NsiQuery query = dict.query().addAttrs();
 
-        String sql = sqlGen.getRowUpdateSql(query);
+        String sql = sqlGen.getRowUpdateSql(query, null);
         Assert.assertEquals(
                 "update table2 "
                         + "set dict1_id = ?, f1 = ?, is_deleted = ?, last_change = ?, last_user = ? "

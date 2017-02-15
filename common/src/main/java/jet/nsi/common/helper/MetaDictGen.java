@@ -15,6 +15,7 @@ public class MetaDictGen {
                 .name(name)
                 .caption("")
                 .table(name)
+
                 //Fields
                 .field()
                     .name("id")
@@ -35,29 +36,13 @@ public class MetaDictGen {
                     .size(19)
                     .type(MetaFieldType.NUMBER)
                     .add()
-               /* .field()
-                    .name("f1")
-                    .size(100)
-                    .type(MetaFieldType.VARCHAR)
-                    .add()
                 .field()
-                    .name("ORG_ID")
+                    .name("ownership_id")
                     .size(19)
                     .type(MetaFieldType.NUMBER)
                     .add()
-                .field()
-                    .name("ORG_ROLE_ID")
-                    .size(19)
-                    .type(MetaFieldType.NUMBER)
-                    .add()
+
                 //Attrs
-                .attr()
-                    .addField("f1")
-                    .type(MetaAttrType.VALUE)
-                    .caption("f 1")
-                    .hidden(false)
-                    .name("f1")
-                    .add() */
                 .attr()
                     .addField("id")
                     .type(MetaAttrType.VALUE)
@@ -88,23 +73,20 @@ public class MetaDictGen {
                     .hidden(false)
                     .name("last_user")
                     .add()
-                /*.attr().addField("ORG_ID").type(MetaAttrType.VALUE)
-                .caption("org").name("ORG_ID").add().attr()
-                .addField("ORG_ROLE_ID").type(MetaAttrType.VALUE)
-                .caption("org_role").name("ORG_ROLE_ID")
-                .add()*/
+                .attr()
+                    .addField("ownership_id")
+                    .type(MetaAttrType.VALUE)
+                    .caption("ownership_id")
+                    .hidden(false)
+                    .name("ownership_id")
+                    .add()
+
                 //Others
                 .idAttr("id")
                 .deleteMarkAttr("is_deleted")
                 .lastChangeAttr("last_change")
                 .lastUserAttr("last_user")
-                //.addCaptionAttr("f1")
-                //.addRefObjectAttr("f1")
-                //.addLoadDataAttr("id")
-                //.addTableObjectAttr("f1")
-                //.addOwn("ORG", "ORG_ID")
-                //.addOwn("ORG_ROLE", "ORG_ROLE_ID")
-                //.addInterceptor("interceptor")
+
                 ;
     }
 }

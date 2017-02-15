@@ -86,7 +86,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
                 i++;
             }
         }
-        if (skipIdInParams) {
+/*        if (skipIdInParams) {
             // для обновления дополнительные параметры для where условия
             List<NsiConfigField> fields = idAttr.getFields();
             DictRowAttr attrValue = data.getAttrs().get(idAttr.getName());
@@ -99,7 +99,7 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
                 index++;
                 i++;
             }
-        }
+        }*/
         return index;
     }
 

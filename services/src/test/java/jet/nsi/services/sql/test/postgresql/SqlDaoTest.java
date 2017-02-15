@@ -73,7 +73,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                     DictRow outData = insertDict1Row(connection, query, "f1-value");
                     Assert.assertEquals(1L, (long) outData.getIdAttrLong());
 
-                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr(), null);
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
@@ -109,7 +109,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     DictRow outData = sqlDao.insert(connection, query, inData);
 
-                    DictRow outDataV = sqlDao.get(connection, dictV.query().addAttrs(), outData.getIdAttr());
+                    DictRow outDataV = sqlDao.get(connection, dictV.query().addAttrs(), outData.getIdAttr(), null);
 
                     Assert.assertEquals(1L, (long) outDataV.getIdAttrLong());
                     Assert.assertEquals(123L, (long) outDataV.getLong("V"));
@@ -145,7 +145,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     Assert.assertEquals(new Double(63.21474), outData.getDouble("f1"));
 
-                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr(), null);
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
@@ -180,7 +180,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     Assert.assertEquals(clobValue, outData.getString("clobAttr"));
 
-                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr(), null);
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
@@ -214,7 +214,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     NsiQuery query = dict2.query().addAttrs();
 
-                    DictRow getData = sqlDao.get(connection, query, dict2Data.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, dict2Data.getIdAttr(), null);
                     DataUtils.assertEquals(query, dict2Data, getData);
 
 
@@ -247,7 +247,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     DictRow controlData = DictRowBuilder.cloneRow(inUpdatedData);
 
-                    DictRow outUpdatedData = sqlDao.update(connection, query, inUpdatedData);
+                    DictRow outUpdatedData = sqlDao.update(connection, query, inUpdatedData, null);
                     Assert.assertEquals((Long)2L, outUpdatedData.getVersionAttrLong());
                     // возвращаем версию в старое состояние для дальнейшего сравнения
                     outUpdatedData.setVersionAttr(outData.getVersionAttr());
@@ -280,7 +280,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     Assert.assertEquals((Long)1L, outData.getVersionAttrLong());
 
-                    DictRow outUpdatedData = sqlDao.update(connection, query, outData);
+                    DictRow outUpdatedData = sqlDao.update(connection, query, outData, null);
                     Assert.assertEquals((Long)2L, outUpdatedData.getVersionAttrLong());
 
                 } finally {
@@ -309,7 +309,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
 
                     DictRow controlData = DictRowBuilder.cloneRow(inUpdatedData);
 
-                    DictRow outUpdatedData = sqlDao.update(connection, query, inUpdatedData);
+                    DictRow outUpdatedData = sqlDao.update(connection, query, inUpdatedData, null);
                     DataUtils.assertEquals(query, controlData, outUpdatedData);
 
                 } finally {
@@ -507,7 +507,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                 .attr("dict1_id", dic1Id)
                 .build();
 
-        return sqlDao.save(connection, query, inData, insert);
+        return sqlDao.save(connection, query, inData, insert, null);
     }
 
     @Test
@@ -533,7 +533,7 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                     Assert.assertEquals(true, outData.getBoolean("f1"));
                     Assert.assertEquals("A", outData.getString("f2"));
 
-                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr());
+                    DictRow getData = sqlDao.get(connection, query, outData.getIdAttr(), null);
                     DataUtils.assertEquals(query, outData, getData);
 
                 } finally {
@@ -772,27 +772,27 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                 DictRow row2 = defaultBuilder("UNIQUE_ATTR_TEST").attr("KEY", key + 2).build();
                 DictRow rowEmpty = defaultBuilder("UNIQUE_ATTR_TEST").build();
 
-                DictRow res1 = sqlDao.save(connection, dict.query().addAttrs(), row1, true);
-                DictRow res2 = sqlDao.save(connection, dict.query().addAttrs(), row2, true);
+                DictRow res1 = sqlDao.save(connection, dict.query().addAttrs(), row1, true, null);
+                DictRow res2 = sqlDao.save(connection, dict.query().addAttrs(), row2, true, null);
 
-                sqlDao.save(connection, dict.query().addAttrs(), res1, false);
+                sqlDao.save(connection, dict.query().addAttrs(), res1, false, null);
                 res1.removeAttr("KEY");
-                sqlDao.save(connection, dict.query().addAttrs(), res1, false);
+                sqlDao.save(connection, dict.query().addAttrs(), res1, false, null);
 
                 row1.removeAttr("ID");
                 try {
-                    sqlDao.save(connection, dict.query().addAttrs(), row1, true);
+                    sqlDao.save(connection, dict.query().addAttrs(), row1, true, null);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
                 try {
-                    sqlDao.save(connection, dict.query().addAttrs(), rowEmpty, true);
+                    sqlDao.save(connection, dict.query().addAttrs(), rowEmpty, true, null);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
                 try {
                     res1.setAttr("KEY", res2.getAttr("KEY"));
-                    sqlDao.save(connection, dict.query().addAttrs(), res1, false);
+                    sqlDao.save(connection, dict.query().addAttrs(), res1, false, null);
                     Assert.assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
