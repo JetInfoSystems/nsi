@@ -321,10 +321,4 @@ public class SqlGenTest extends BaseServiceSqlTest {
 
     }
 
-
-    private BoolExp buildIdFilter(NsiConfigDict dict, String id){
-        return new BoolExpBuilder(dict)
-                .key(dict.getIdAttr().getName()).eq().value(id)
-                .build();
-    }
 }

@@ -31,8 +31,7 @@ public class PhoenixPlatformSqlGen extends DefaultPlatformSqlGen {
 
     @Override
     public String getRowUpdateSql(NsiQuery query, BoolExp filter) {
-        throw new NotImplementedException();
-/*        NsiConfigDict dict = query.getDict();
+        NsiConfigDict dict = query.getDict();
 
         StringBuilder mainQuery = new StringBuilder();
         StringBuilder binds = new StringBuilder(" values (");
@@ -56,6 +55,6 @@ public class PhoenixPlatformSqlGen extends DefaultPlatformSqlGen {
         binds.append(")");
         mainQuery.append(binds);
 
-        return mainQuery.toString();*/
+        return mainQuery.toString();
     }
 }
