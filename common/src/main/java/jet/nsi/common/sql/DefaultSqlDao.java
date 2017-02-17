@@ -560,7 +560,7 @@ public class DefaultSqlDao implements SqlDao {
     private void checkUniqueAttr(Connection connection, DictRow data, boolean insert) {
         // TODO - сделать проверку уникальности распеределенной
         List<NsiConfigAttr> configAttrs = data.getDict().getUniqueAttr();
-        if (configAttrs == null || configAttrs.size() == 0 || data.getDeleteMarkAttrBoolean()) {
+        if (configAttrs == null || configAttrs.size() == 0 || (data.getDeleteMarkAttrBoolean()!=null && data.getDeleteMarkAttrBoolean())) {
             return;
         }
 

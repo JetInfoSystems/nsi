@@ -1,5 +1,7 @@
 package jet.nsi.api.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.model.DictRowAttr;
@@ -53,6 +55,18 @@ public class NsiConfigDict {
 
 
     private final NsiConfig config;
+    public NsiConfigDict(@JsonProperty("name") String name, @JsonProperty("caption") String caption,
+                         @JsonProperty("table") String table, @JsonProperty("databaseName") String databaseName,
+                         @JsonProperty("hidden") boolean hidden, @JsonProperty("mainDictName") String mainDictName,
+                         @JsonProperty("config") NsiConfig config) {
+        this.name = name;
+        this.caption = caption;
+        this.table = table;
+        this.databaseName = databaseName;
+        this.hidden = hidden;
+        this.mainDictName = mainDictName;
+        this.config = config;
+    }
 
     public NsiConfigDict(NsiConfig config, MetaDict metaDict) {
         this.config = config;
@@ -169,10 +183,12 @@ public class NsiConfigDict {
         return Collections.unmodifiableList(mergeExternalAttrs);
     }
 
+    @JsonIgnore
     public Collection<NsiConfigField> getFields() {
         return Collections.unmodifiableCollection(fieldNameMap.values());
     }
 
+    @JsonIgnore
     public Collection<NsiConfigAttr> getAttrs() {
         return Collections.unmodifiableCollection(attrNameMap.values());
     }
@@ -201,6 +217,7 @@ public class NsiConfigDict {
         return attrNameMap.get(attrName.toUpperCase());
     }
 
+    @JsonIgnore
     public String getSeq() {
         return "seq_" + getTable();
     }
