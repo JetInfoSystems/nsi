@@ -2,6 +2,7 @@ package jet.nsi.api.data;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jet.nsi.api.model.MetaField;
 import jet.nsi.api.model.MetaFieldType;
 
@@ -14,8 +15,17 @@ public class NsiConfigField {
     private final Map<String, String> enumValues;
     private boolean enableFts;
     private String defaultValue;
-    
-    
+
+    public NsiConfigField(@JsonProperty("name")String name, @JsonProperty("type") MetaFieldType type,
+                          @JsonProperty("size") Integer size, @JsonProperty("precision") Integer precision,
+                          @JsonProperty("enumValues") Map<String, String> enumValues) {
+        this.name = name;
+        this.type = type;
+        this.size = size;
+        this.precision = precision;
+        this.enumValues = enumValues;
+    }
+
     public NsiConfigField(MetaField metaField) {
         name = metaField.getName();
         type = metaField.getType();

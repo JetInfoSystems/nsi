@@ -3,6 +3,8 @@ package jet.nsi.api.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jet.nsi.api.model.DictRowAttr;
 import jet.nsi.api.model.MetaAttr;
 import jet.nsi.api.model.MetaAttrType;
@@ -22,7 +24,18 @@ public class NsiConfigAttr {
     private boolean persist;
 
     private List<NsiConfigField> fields = new ArrayList<>();
+    @JsonIgnore
     private NsiConfigDict refDict;
+
+    public NsiConfigAttr(@JsonProperty("valueType") String valueType,
+                         @JsonProperty("name") String name,
+                         @JsonProperty("caption") String caption,
+                         @JsonProperty("refDictName") String refDictName) {
+        this.valueType = valueType;
+        this.name = name;
+        this.caption = caption;
+        this.refDictName = refDictName;
+    }
 
     public NsiConfigAttr(MetaAttr metaAttr) {
         type = metaAttr.getType();
@@ -116,7 +129,8 @@ public class NsiConfigAttr {
     public void setPersist(boolean persist) {
         this.persist = persist;
     }
-    
+
+    @JsonIgnore
     public DictRowAttr getDefaultValue() {
         DictRowAttr res = null;
         for(NsiConfigField field : fields) {

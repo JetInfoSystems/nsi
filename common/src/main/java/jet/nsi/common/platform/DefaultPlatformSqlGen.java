@@ -184,6 +184,10 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
 
     protected Condition getFuncCondition(NsiQuery query, BoolExp filter, String alias) {
         NsiConfigAttr configAttr = query.getDict().getAttr(filter.getKey());
+        if(configAttr==null){
+            throw new IllegalStateException(
+                    String.format("not found attr'%s' within dict'%s'", filter.getKey(), query.getDict().getName()));
+        }
         List<NsiConfigField> fields = configAttr.getFields();
         Condition condition = getFieldFuncCondition(fields.get(0), filter, alias);
         for (int i = 1; i < fields.size(); i++) {
