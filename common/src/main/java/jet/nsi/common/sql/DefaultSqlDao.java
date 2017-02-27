@@ -248,7 +248,7 @@ public class DefaultSqlDao implements SqlDao {
 
     protected int setParamsForFilter(NsiQuery query, PreparedStatement ps, int index, BoolExp filter) {
         if (filter == null) {
-            return 0;
+            return index;
         }
         SetParamBoolExpVisitor visitor = new SetParamBoolExpVisitor(query, ps, index);
         if (filter != null) {
