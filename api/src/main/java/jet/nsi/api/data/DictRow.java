@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.model.DictRowAttr;
@@ -19,7 +20,9 @@ public class DictRow {
 
     DictRow(NsiConfigDict dict, Map<String, DictRowAttr> attrs) {
         this.dict = dict;
-        this.attrs = attrs;
+        this.attrs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        this.attrs.putAll(attrs);
+
     }
 
     DictRow(NsiConfigDict dict) {

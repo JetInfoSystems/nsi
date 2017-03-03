@@ -608,7 +608,7 @@ public class NsiConfigImpl implements NsiConfig {
         checkOneFieldAttr(dict, "deleteMarkAttr", dict.getDeleteMarkAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "isGroupAttr", dict.getIsGroupAttr(), MetaFieldType.BOOLEAN, MetaAttrType.VALUE);
         checkOneFieldAttr(dict, "lastChangeAttr", dict.getLastChangeAttr(), MetaFieldType.DATE_TIME, MetaAttrType.VALUE);
-        checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.NUMBER, null);
+//        checkOneFieldAttr(dict, "lastUserAttr", dict.getLastUserAttr(), MetaFieldType.VARCHAR, null); todo вернуть
         // если задан ownerAttr, то обязательно должен быть задан idAttr
         if (null != dict.getOwnerAttr() && null == dict.getIdAttr()){
             throwDictException(dict, "ownerAttr set, but dict has not idAttr");

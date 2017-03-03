@@ -43,7 +43,9 @@ public interface MetaDictBuilder {
         MetaAttrBuilder createOnly(Boolean value);
 
         MetaAttrBuilder required(Boolean value);
-        
+
+        MetaAttrBuilder readOnly(Boolean value);
+
         MetaAttrBuilder refAttrHidden(boolean value);
 
         MetaDictBuilder add();

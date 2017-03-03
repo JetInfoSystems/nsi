@@ -259,11 +259,10 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         }
     }
 
-    private DictRow dictSaveInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao, BoolExp filter) {
+    private DictRow dictSaveInternal(NsiTransaction tx, DictRow data, SqlDao sqlDao, boolean isInsert, BoolExp filter) {
         NsiConfigDict dict = data.getDict();
         NsiQuery query = dict.query().addAttrs(data);
         DictRow outData;
-        boolean isInsert = data.isIdAttrEmpty();
 
         if (isInsert) {
             query.addStdAttrs();
@@ -293,11 +292,20 @@ public class NsiGenericServiceImpl implements NsiGenericService {
 
     @Override
     public DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao, BoolExp filter) {
+        return dictUpdate(requestId, data, sqlDao, false, filter);
+    }
+
+    @Override
+    public DictRow dictCreate(String requestId, DictRow data, SqlDao sqlDao) {
+        return dictUpdate(requestId, data, sqlDao, true, null);
+    }
+
+    private DictRow dictUpdate(String requestId, DictRow data, SqlDao sqlDao, boolean isInsert, BoolExp filter){
         final Timer.Context t = dictSaveTimer.time();
         validateFields(requestId, data);
         try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
-                return dictSaveInternal(tx, data, sqlDao, filter);
+                return dictSaveInternal(tx, data, sqlDao, isInsert, filter);
             } catch (NsiServiceException e) {
                 tx.rollback();
                 throw NsiExceptionBuilder.on().map(e).build();

@@ -46,6 +46,11 @@ public interface NsiService {
     DictRow dictSave(String requestId, DictRow data, BoolExp filter);
 
     /**
+     * Создание записи справочника
+     */
+    DictRow dictCreate(String requestId, DictRow data);
+
+    /**
      * Сохранить состояние нескольких записей справочника, если ид атрибут задан то обновление, если нет то создание
      * Записи сохраняются в одной транзакции.
      */

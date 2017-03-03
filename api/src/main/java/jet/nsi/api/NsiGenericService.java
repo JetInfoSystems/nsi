@@ -49,6 +49,11 @@ public interface NsiGenericService {
     DictRow dictSave(String requestId, DictRow data, SqlDao sqlDao, BoolExp filter);
 
     /**
+     * Создать запись справочника
+     */
+    DictRow dictCreate(String requestId, DictRow data, SqlDao sqlDao);
+
+    /**
      * Сохранить состояние нескольких записей справочника, если ид атрибут задан то обновление, если нет то создание
      * Записи сохраняются в одной транзакции.
      */

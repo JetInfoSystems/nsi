@@ -111,6 +111,17 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
+    public DictRow dictCreate(String requestId, DictRow data) {
+        final Timer.Context t = dictSaveTimer.time();
+        try {
+            SqlDao sqlDao = getSqlDao(data.getDict().getDatabaseName());
+            return nsiGenericService.dictCreate(requestId, data, sqlDao);
+        } finally {
+            t.stop();
+        }
+    }
+
+    @Override
     public DictRow dictDelete(String requestId, NsiConfigDict dict,
                               DictRowAttr id, Boolean value, BoolExp filter) {
         final Timer.Context t = dictDeleteTimer.time();

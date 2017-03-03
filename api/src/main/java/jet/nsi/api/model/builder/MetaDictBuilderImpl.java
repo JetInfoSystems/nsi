@@ -140,6 +140,12 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
         }
 
         @Override
+        public MetaAttrBuilder readOnly(Boolean value) {
+            getPrototype().setReadonly(value);
+            return this;
+        }
+
+        @Override
         public MetaAttrBuilder required(Boolean value) {
             getPrototype().setRequired(value);
             return this;
@@ -148,7 +154,7 @@ public class MetaDictBuilderImpl implements MetaDictBuilder {
         @Override
         public MetaAttrBuilder refAttrHidden(boolean value) {
             getPrototype().setRefAttrHidden(value);
-            return null;
+            return this;
         }
     }
 

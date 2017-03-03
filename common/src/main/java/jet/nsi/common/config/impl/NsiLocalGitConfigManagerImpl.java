@@ -63,7 +63,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
     @Override
     public synchronized NsiConfig reloadConfig() {
-        NsiConfigImpl newConfig = null;
+        NsiConfigImpl newConfig;
         try {
             newConfig = readConfig();
             config = newConfig;
@@ -272,7 +272,9 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
 
         @Override
         public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+            Path target = targetPath.resolve(sourcePath.relativize(file));
+            log.info("copying config file {} to {}", file, target);
+            Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
             return FileVisitResult.CONTINUE;
         }
     }
