@@ -23,7 +23,7 @@ public class JaxbRepresenter extends Representer {
         } else if(Enum.class.isAssignableFrom(propertyType) && propertyType.getAnnotation(XmlEnum.class) != null) {
             Field propertyField;
             try {
-                propertyField = propertyType.getDeclaredField(propertyValue.toString());
+                propertyField = propertyType.getDeclaredField(propertyValue.toString().toLowerCase());
                 XmlEnumValue xmlEnumValue = propertyField.getAnnotation(XmlEnumValue.class);
                 if(xmlEnumValue != null) {
                     ScalarNode nodeKey = (ScalarNode) representData(property.getName());
