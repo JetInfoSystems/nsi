@@ -34,7 +34,7 @@ public class MetaDictGen {
                     .add()
                 .field()
                     .name("last_user")
-                    .size(19)
+                    .size(255)
                     .type(MetaFieldType.VARCHAR)
                     .add()
                 .field()
