@@ -115,6 +115,7 @@ public class NsiConfigImpl implements NsiConfig {
         metaDictPaths.put(dictName, filePath);
     }
 
+    @Override
     public void addDict(MetaDict metaDict) {
         NsiConfigDict dict = new NsiConfigDict(this, metaDict);
         preCheckDict(dict);
@@ -217,7 +218,9 @@ public class NsiConfigImpl implements NsiConfig {
         dict.setInterceptors(createInterceptors(metaDict.getInterceptors()));
         dict.setLabels(createLabels(metaDict.getLabels()));
         dict.setMergeExternalAttrs(createAttrList(dict,metaDict.getMergeExternalAttrs()));
-        
+
+        dict.getAttrs(); metaDict.getAttrs();
+
         Map<String, NsiConfigAttr> result = new HashMap<String, NsiConfigAttr>();
         if (null != metaDict.getOwns())
             for (Entry<String, MetaOwn> q : metaDict.getOwns().entrySet()) {
@@ -230,6 +233,76 @@ public class NsiConfigImpl implements NsiConfig {
         metaDictMap.put(dictName, metaDict);
     }
 
+    @Override
+    public MetaDict addDictNew(MetaDict metaDict) {
+        addDict(metaDict);
+        NsiConfigDict dict = dictMap.get(metaDict.getName());
+
+        //Приводим списки атрибутов и полей в dict и metaDict к одному виду
+        for (NsiConfigField field : dict.getFields()) {
+            MetaField mf = createMetaField(field);
+            if (metaDict.getFields().stream().noneMatch(fd -> fd.getName().equals(field.getName()))){
+                metaDict.getFields().add(mf);
+            }
+        }
+
+        for (NsiConfigAttr attr : dict.getAttrs()) {
+            MetaAttr ma = createMetaAttr(attr);
+            if (metaDict.getAttrs().stream().noneMatch(at -> at.getName().equals(attr.getName())))  {
+                metaDict.getAttrs().add(ma);
+            }
+        }
+
+        if (dict.getIdAttr()!=null) metaDict.setIdAttr(dict.getIdAttr().getName());
+        if (dict.getLastChangeAttr()!=null) metaDict.setLastChangeAttr(dict.getLastChangeAttr().getName());
+        if (dict.getLastUserAttr()!=null) metaDict.setLastUserAttr(dict.getLastUserAttr().getName());
+        if (dict.getDeleteMarkAttr()!=null) metaDict.setDeleteMarkAttr(dict.getDeleteMarkAttr().getName());
+        if (dict.getVersionAttr()!=null) metaDict.setVersionAttr(dict.getVersionAttr().getName());
+        if (dict.getOwnerAttr()!=null) metaDict.setOwnerAttr(dict.getOwnerAttr().getName());
+
+        metaDictMap.put(metaDict.getName(), metaDict);
+        return metaDict;
+    }
+
+    private MetaAttr createMetaAttr (NsiConfigAttr dictAttr) {
+        if (dictAttr==null) return null;
+
+        MetaAttr metaAttr = new MetaAttr();
+
+        metaAttr.setType(dictAttr.getType());
+        metaAttr.setValueType(dictAttr.getValueType());
+        metaAttr.setName(dictAttr.getName());
+        metaAttr.setCaption(dictAttr.getCaption());
+        metaAttr.setHidden(dictAttr.getHidden());
+        metaAttr.setRefDict(dictAttr.getRefDictName());
+        metaAttr.setRequired(dictAttr.isRequired());
+        metaAttr.setReadonly(dictAttr.isReadonly());
+        metaAttr.setCreateOnly(dictAttr.getCreateOnly());
+        metaAttr.setRefAttrHidden(dictAttr.isRefAttrHidden());
+        metaAttr.setPersist(dictAttr.isPersist());
+        metaAttr.setFields(new ArrayList<>());
+        for (NsiConfigField fields :dictAttr.getFields() ){
+            metaAttr.getFields().add(fields.getName());
+        }
+        return metaAttr;
+    }
+
+    private MetaField createMetaField(NsiConfigField dictField) {
+        if (dictField==null) return null;
+
+        MetaField metaField = new MetaField();
+        metaField.setName(dictField.getName());
+        metaField.setDefaultValue(dictField.getDefaultValue());
+        metaField.setEnableFts(dictField.isEnableFts());
+        metaField.setEnumValues(dictField.getEnumValues());
+        metaField.setPrecision(dictField.getPrecision());
+        metaField.setSize(dictField.getSize());
+        metaField.setType(dictField.getType());
+
+        return metaField;
+    }
+
+    @Override
     public void postCheck() {
         postSetMainDict();
 
@@ -341,7 +414,8 @@ public class NsiConfigImpl implements NsiConfig {
         MetaAttr result = new MetaAttr();
         result.setName(params.getDefaultLastUserName());
         result.setCaption("Автор последнего изменения");
-        result.setType(MetaAttrType.VALUE);
+        result.setType(MetaAttrType.REF);
+        result.setRefDict(params.getDefaultUserRef());
         result.setFields(Arrays.asList(metaField.getName()));
         result.setReadonly(true);
         return result;
@@ -489,6 +563,7 @@ public class NsiConfigImpl implements NsiConfig {
         }
         return attr;
     }
+
 
     private void preCheckDict(NsiConfigDict dict) {
         if(!NAME_MATCHER.matchesAllOf(dict.getName())) {

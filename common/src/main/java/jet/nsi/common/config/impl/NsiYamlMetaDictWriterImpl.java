@@ -10,9 +10,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.IOException;
 import java.io.Writer;
 
-/**
- * Created by akatkevich on 21.10.2016.
- */
+
 public class NsiYamlMetaDictWriterImpl implements NsiMetaDictWriter {
     private static final Logger log = LoggerFactory.getLogger(NsiYamlMetaDictWriterImpl.class);
 
