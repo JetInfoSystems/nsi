@@ -301,7 +301,7 @@ public class DefaultSqlDao implements SqlDao {
         NsiConfigDict dict = query.getDict();
         checkDictHasIdAttr(dict);
         DictRow result = dict.newDictRow();
-        filter = filter == null ? buildIdFilter(dict, id) : addIdToFilter(dict, id, filter);
+        filter = buildIdFilter(dict, id, filter) ;
         String sql = sqlGen.getRowGetSql(query, lock, filter );
 
         log.info(sql);
@@ -321,20 +321,15 @@ public class DefaultSqlDao implements SqlDao {
         return result;
     }
 
-    private BoolExp addIdToFilter(NsiConfigDict dict, DictRowAttr id, BoolExp sourceFilter){
-        return new BoolExpBuilder(dict)
+    private BoolExp buildIdFilter(NsiConfigDict dict, DictRowAttr id, BoolExp sourceFilter) {
+        BoolExpBuilder builder = new BoolExpBuilder(dict)
                 .and()
                 .expList()
-                .key(dict.getIdAttr().getName()).eq().value(id).add()
-                .add(sourceFilter)
-                .end()
-                .build();
-    }
-
-    private BoolExp buildIdFilter(NsiConfigDict dict, DictRowAttr id){
-        return new BoolExpBuilder(dict)
-                .key(dict.getIdAttr().getName()).eq().value(id)
-                .build();
+                .key(dict.getIdAttr().getName()).eq().value(id).add();
+        if (sourceFilter != null) {
+            builder.add(sourceFilter);
+        }
+        return builder.end().build();
     }
 
     @Override
@@ -469,11 +464,25 @@ public class DefaultSqlDao implements SqlDao {
     }
 
     @Override
+    public boolean delete(Connection connection, NsiQuery query, DictRow data, BoolExp filter) {
+        filter = buildIdFilter(query.getDict(), data.getIdAttr(), filter) ;
+        String sql = sqlGen.getRowDeleteSql(query, filter);
+        log.info(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            platformSqlDao.setParam(ps, 1, query.getDict().getIdAttr().getFields().get(0), data.getIdAttr().getString());
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new NsiDataException("delete:" + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public DictRow update(Connection connection, NsiQuery query,
                           DictRow data, BoolExp filter) {
         checkDictHasIdAttr(query.getDict());
         NsiConfigDict dict = query.getDict();
-        filter = filter == null ? buildIdFilter(dict, data.getIdAttr()) : addIdToFilter(dict, data.getIdAttr(), filter);
+        filter = buildIdFilter(dict, data.getIdAttr(), filter) ;
+
         String sql = sqlGen.getRowUpdateSql(query, filter);
         log.info(sql);
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -548,7 +557,7 @@ public class DefaultSqlDao implements SqlDao {
         checkDictHasIdAttr(query.getDict());
         checkUniqueAttr(connection, data, insert);
 
-        DictRow result = null;
+        DictRow result;
         if (insert) {
             result = insert(connection, query, data);
         } else {

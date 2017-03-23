@@ -89,6 +89,8 @@ public interface SqlDao {
      */
     public DictRow insert(Connection connection, NsiQuery query, DictRow data);
 
+    boolean delete(Connection connection, NsiQuery query, DictRow data, BoolExp filter);
+
     /**
      * Обновить запись, ref атрибуты для ссылочных атрибутов не возвращаются
      * @param connection

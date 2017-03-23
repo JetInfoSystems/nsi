@@ -17,6 +17,8 @@ public interface SqlGen {
     
     public String getRowInsertSql(NsiQuery query, boolean useSeq);
 
+    String getRowDeleteSql(NsiQuery query, BoolExp filter);
+
     public String getRowUpdateSql(NsiQuery query, BoolExp filter);
 
     public String getListSql(NsiQuery query, BoolExp filter, List<SortExp> sortList, long offset, int size);

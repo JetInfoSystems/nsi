@@ -122,12 +122,11 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public DictRow dictDelete(String requestId, NsiConfigDict dict,
-                              DictRowAttr id, Boolean value, BoolExp filter) {
+    public DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value, BoolExp filter, boolean force) {
         final Timer.Context t = dictDeleteTimer.time();
         try {
             SqlDao sqlDao = getSqlDao(dict.getDatabaseName());
-            return nsiGenericService.dictDelete(requestId, dict, id, value, sqlDao, filter);
+            return nsiGenericService.dictDelete(requestId, dict, id, value, sqlDao, filter, force);
         } finally {
             t.stop();
         }

@@ -46,6 +46,15 @@ public class SqlGenTest extends BaseServiceSqlTest {
     }
 
     @Test
+    public void testRowDeleteSql() {
+        NsiConfigDict dict = config.getDict("dict1");
+        NsiQuery query = dict.query().addAttrs();
+        BoolExp filter = buildIdFilter(dict, "id");
+        String sql = sqlGen.getRowDeleteSql(query, filter);
+        Assert.assertEquals("delete from table1 where id = ?", sql);
+    }
+
+    @Test
     public void testDict1RowGetSql() {
         NsiConfigDict dict = config.getDict("dict1");
         NsiQuery query = dict.query().addAttrs();

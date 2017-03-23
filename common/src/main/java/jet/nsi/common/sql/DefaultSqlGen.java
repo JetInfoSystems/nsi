@@ -171,6 +171,10 @@ public class DefaultSqlGen implements SqlGen {
         return platformSqlGen.getRowInsertSql(query, useSeq);
     }
 
+    @Override
+    public String getRowDeleteSql(NsiQuery query, BoolExp filter) {
+        return platformSqlGen.getRowDeleteSql(query, filter);
+    }
 
     public String getRowUpdateSql(NsiQuery query, BoolExp filter) {
         return platformSqlGen.getRowUpdateSql(query, filter);

@@ -16,6 +16,8 @@ public interface PlatformSqlGen {
 
     String getRowInsertSql(NsiQuery query, boolean useSeq);
 
+    String getRowDeleteSql(NsiQuery query, BoolExp filter);
+
     String getRowUpdateSql(NsiQuery query, BoolExp filter);
 
     Condition getWhereCondition(NsiQuery query, BoolExp filter, String alias);

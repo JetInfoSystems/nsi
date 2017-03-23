@@ -38,6 +38,8 @@ import jet.nsi.services.NsiTransactionServiceImpl;
 import jet.nsi.testkit.utils.DataUtils;
 import jet.nsi.testkit.utils.PostgresqlPlatformDaoUtils;
 
+import static org.junit.Assert.assertTrue;
+
 public class SqlDaoTest extends BaseServiceSqlTest {
 
     private static final String DB_IDENT = "postgres";
@@ -783,18 +785,18 @@ public class SqlDaoTest extends BaseServiceSqlTest {
                 row1.removeAttr("ID");
                 try {
                     sqlDao.save(connection, dict.query().addAttrs(), row1, true, null);
-                    Assert.assertTrue(false);
+                    assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
                 try {
                     sqlDao.save(connection, dict.query().addAttrs(), rowEmpty, true, null);
-                    Assert.assertTrue(false);
+                    assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
                 try {
                     res1.setAttr("KEY", res2.getAttr("KEY"));
                     sqlDao.save(connection, dict.query().addAttrs(), res1, false, null);
-                    Assert.assertTrue(false);
+                    assertTrue(false);
                 } catch (NsiServiceException e) {
                 }
             } finally {
@@ -846,4 +848,29 @@ public class SqlDaoTest extends BaseServiceSqlTest {
             }
         }
     }
+
+
+    @Test
+    public void testDelete() throws Exception {
+        NsiConfigDict dict = config.getDict("dict1");
+        try (Connection connection = dataSource.getConnection()) {
+            platformMigrator.recreateTable(dict, connection);
+            try {
+                platformMigrator.recreateSeq(dict, connection);
+                try {
+                    NsiQuery query = dict.query().addAttrs();
+                    DictRow outData = insertDict1Row(connection, query, "f1-value");
+                    Assert.assertEquals((Long)1L, outData.getVersionAttrLong());
+
+                    assertTrue(sqlDao.delete(connection, query, outData,null));
+                } finally {
+                    platformMigrator.dropSeq(dict, connection);
+                }
+
+            } finally {
+                platformMigrator.dropTable(dict, connection);
+            }
+        }
+    }
+
 }

@@ -267,6 +267,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
         if (isInsert) {
             query.addStdAttrs();
             query.addDefaultAttrs();
+            //todo check data has idAttr
         }
 
         try {
@@ -331,22 +332,29 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     public DictRow dictDeleteInternal(NsiTransaction tx, NsiConfigDict dict,
-                                      DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter) {
+                                      DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, boolean force) {
         NsiQuery query = dict.query().addAttrs();
         DictRow data = sqlDao.get(tx.getConnection(), query, id, filter);
-        data.setDeleteMarkAttr(value);
-        DictRow outData = sqlDao.update(tx.getConnection(), query, data, filter);
+        DictRow outData = null;
+        if (force) {
+            sqlDao.delete(tx.getConnection(), query, data, filter);
+            outData = data;
+        } else {
+
+            data.setDeleteMarkAttr(value);
+            outData = sqlDao.update(tx.getConnection(), query, data, filter);
+        }
         log.info("dictDelete [{},{},{},{}] -> ok", tx.getRequestId(), dict.getName(), id, value);
         return outData;
     }
 
     @Override
     public DictRow dictDelete(String requestId, NsiConfigDict dict,
-                              DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter) {
+                              DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, boolean force) {
         final Timer.Context t = dictDeleteTimer.time();
         try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {
-                return dictDeleteInternal(tx, dict, id, value, sqlDao, filter);
+                return dictDeleteInternal(tx, dict, id, value, sqlDao, filter, force);
             } catch (Exception e) {
                 log.error("dictDelete [{},{},{},{}] -> error", requestId, dict.getName(), id, value, e);
                 tx.rollback();

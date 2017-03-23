@@ -13,6 +13,7 @@ import jet.nsi.api.platform.PlatformSqlGen;
 import jet.nsi.common.data.NsiDataException;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.DeleteWhereStep;
 import org.jooq.Field;
 import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertSetStep;
@@ -86,6 +87,18 @@ public abstract class DefaultPlatformSqlGen implements PlatformSqlGen {
             result.add(field(field.getName()));
         }
         return result;
+    }
+
+    @Override
+    public String getRowDeleteSql(NsiQuery query, BoolExp filter) {
+        NsiConfigDict dict = query.getDict();
+        DeleteWhereStep<?> deleteWhereStep = getQueryBuilder()
+                .delete(table(dict.getTable()));
+
+        Condition filterCondition = getWhereCondition(query, filter, "");
+        deleteWhereStep.where(filterCondition);
+        return deleteWhereStep.getSQL();
+
     }
 
     @Override
