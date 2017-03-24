@@ -56,5 +56,7 @@ public interface PlatformSqlDao {
 
     String getFieldSpelling(String field);
 
+    String getForeignKeyViolationSqlState();
+
     boolean useUUIDForId();
 }

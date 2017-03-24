@@ -465,13 +465,16 @@ public class DefaultSqlDao implements SqlDao {
 
     @Override
     public boolean delete(Connection connection, NsiQuery query, DictRow data, BoolExp filter) {
-        filter = buildIdFilter(query.getDict(), data.getIdAttr(), filter) ;
+        filter = buildIdFilter(query.getDict(), data.getIdAttr(), filter);
         String sql = sqlGen.getRowDeleteSql(query, filter);
         log.info(sql);
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            platformSqlDao.setParam(ps, 1, query.getDict().getIdAttr().getFields().get(0), data.getIdAttr().getString());
+            setParamsForFilter(query, ps, 1, filter);
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
+            if (platformSqlDao.getForeignKeyViolationSqlState().equals(e.getSQLState())) {
+                throw new NsiDataException("sqlError.foreignKeyViolation", e);
+            }
             throw new NsiDataException("delete:" + e.getMessage(), e);
         }
     }

@@ -27,6 +27,10 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
     }
 
     @Override
+    public String getForeignKeyViolationSqlState(){
+        return "23503";
+    }
+    @Override
     public String getFieldSpelling(String field) {
         return field != null ? field.toLowerCase() : null;
     }

@@ -46,6 +46,10 @@ public abstract class DefaultPlatformSqlDao implements PlatformSqlDao {
         this.nsiPlatform = nsiPlatform;
         this.settings = nsiPlatform.getJooqSettings();
     }
+    @Override
+    public String getForeignKeyViolationSqlState(){
+        return "UNDEFINED_CODE";
+    }
 
     @Override
     public boolean useUUIDForId() {
