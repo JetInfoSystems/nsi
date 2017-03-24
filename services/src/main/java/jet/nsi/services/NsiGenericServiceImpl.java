@@ -332,11 +332,11 @@ public class NsiGenericServiceImpl implements NsiGenericService {
     }
 
     public DictRow dictDeleteInternal(NsiTransaction tx, NsiConfigDict dict,
-                                      DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, boolean force) {
+                                      DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, Boolean force) {
         NsiQuery query = dict.query().addAttrs();
         DictRow data = sqlDao.get(tx.getConnection(), query, id, filter);
-        DictRow outData = null;
-        if (force) {
+        DictRow outData;
+        if (force != null && force) {
             sqlDao.delete(tx.getConnection(), query, data, filter);
             outData = data;
         } else {
@@ -350,7 +350,7 @@ public class NsiGenericServiceImpl implements NsiGenericService {
 
     @Override
     public DictRow dictDelete(String requestId, NsiConfigDict dict,
-                              DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, boolean force) {
+                              DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, Boolean force) {
         final Timer.Context t = dictDeleteTimer.time();
         try (NsiTransaction tx = transactionService.createTransaction(requestId, sqlDao.getConnection())) {
             try {

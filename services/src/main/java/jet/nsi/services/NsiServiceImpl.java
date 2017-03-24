@@ -122,7 +122,7 @@ public class NsiServiceImpl implements NsiService {
     }
 
     @Override
-    public DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value, BoolExp filter, boolean force) {
+    public DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value, BoolExp filter, Boolean force) {
         final Timer.Context t = dictDeleteTimer.time();
         try {
             SqlDao sqlDao = getSqlDao(dict.getDatabaseName());

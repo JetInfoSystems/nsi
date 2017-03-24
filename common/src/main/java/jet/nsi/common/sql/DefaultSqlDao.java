@@ -473,7 +473,7 @@ public class DefaultSqlDao implements SqlDao {
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             if (platformSqlDao.getForeignKeyViolationSqlState().equals(e.getSQLState())) {
-                throw new NsiDataException("sqlError.foreignKeyViolation", e);
+                throw new NsiDataException("delete:" + e.getMessage(), "sqlError.foreignKeyViolation", e);
             }
             throw new NsiDataException("delete:" + e.getMessage(), e);
         }

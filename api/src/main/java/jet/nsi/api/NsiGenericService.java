@@ -63,7 +63,7 @@ public interface NsiGenericService {
     /**
      * Изменить отметку о удалении для заданной записи справочника
      */
-    DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, boolean force);
+    DictRow dictDelete(String requestId, NsiConfigDict dict, DictRowAttr id, Boolean value, SqlDao sqlDao, BoolExp filter, Boolean force);
 
     /**
      * Обьединение записи по значению атрибута внешнего ключа
