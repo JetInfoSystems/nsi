@@ -8,13 +8,19 @@ public class NsiDataException extends RuntimeException {
     public NsiDataException(String message, Throwable cause) {
         super(message, cause);
     }
-    public NsiDataException(String message, String code, Throwable cause) {
-        super(message, cause);
+
+
+    public NsiDataException(String code, String message) {
+        super(message);
         this.code = code;
     }
 
     public NsiDataException(String message) {
         super(message);
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public NsiDataException localize(String localizedMessage) {
