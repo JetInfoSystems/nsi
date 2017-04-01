@@ -679,4 +679,12 @@ public class DictRow {
     public void removeAttr(String name) {
         attrs.remove(name);
     }
+
+    @Override
+    public String toString() {
+        return "DictRow{" +
+                "dict=" + dict +
+                ", attrs=" + attrs +
+                '}';
+    }
 }
