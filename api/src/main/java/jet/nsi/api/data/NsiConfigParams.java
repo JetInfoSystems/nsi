@@ -4,26 +4,35 @@ import jet.nsi.api.model.MetaFieldType;
 
 public class NsiConfigParams {
     private String lastUserDict;
-    private String defaultVersionName = "VERSION";
+    private String defaultVersionName = "version";
     private MetaFieldType defaultVersionType = MetaFieldType.NUMBER;
     private int defaultVersionSize = 6;
-    private String defaultDeleteMarkName = "IS_DELETED";
+    private String defaultDeleteMarkName = "is_deleted";
     private MetaFieldType defaultDeleteMarkType = MetaFieldType.BOOLEAN;
     private int defaultDeleteMarkSize = 1;
-    private String defaultIdName = "ID";
+    private String defaultIdName = "id";
     private MetaFieldType defaultIdType = MetaFieldType.NUMBER;
     private int defaultIdSize = 19;
-    private String defaultIsGroupName = "IS_GROUP";
+    private String defaultIsGroupName = "is_group";
     private MetaFieldType defaultIsGroupType = MetaFieldType.BOOLEAN;
     private int defaultIsGroupSize = 1;
-    private String defaultParentName = "PARENT_ID";
-    private String defaultLastChangeName = "LAST_CHANGE";
+    private String defaultParentName = "parent_id";
+    private String defaultLastChangeName = "last_change";
     private MetaFieldType defaultLastChangeType = MetaFieldType.DATE_TIME;
-    private int defaultLastChangeSize = 7;
-    private String defaultLastUserName = "LAST_USER";
-    private MetaFieldType defaultLastUserType = MetaFieldType.NUMBER;
-    private int defaultLastUserSize = 19;
-    
+    private int defaultLastChangeSize = 0;
+    private String defaultLastUserName = "last_user";
+    private MetaFieldType defaultLastUserType = MetaFieldType.VARCHAR;
+    private int defaultLastUserSize = 255;
+
+    private String defaultUserRef = "SYS_USERS";
+
+    public String getDefaultUserRef() {
+        return defaultUserRef;
+    }
+
+    public void setDefaultUserRef(String defaultUserRef) {
+        this.defaultUserRef = defaultUserRef;
+    }
 
     public String getLastUserDict() {
         return lastUserDict;

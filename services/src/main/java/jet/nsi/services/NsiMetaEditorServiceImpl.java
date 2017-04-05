@@ -1,7 +1,13 @@
 package jet.nsi.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
+import jet.nsi.api.data.NsiConfigAttr;
+import jet.nsi.api.data.NsiConfigDict;
+import jet.nsi.api.data.NsiConfigField;
+import jet.nsi.api.model.MetaAttr;
+import jet.nsi.api.model.MetaField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,19 +78,19 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     }
 
     @Override
-    public MetaDict metaDictCreate(String requestId, String name) {
+    public MetaDict metaDictCreate(String requestId, MetaDict metaDict) {
         final Timer.Context t = metaDictCreateTimer.time();
         try {
-            Preconditions.checkNotNull(name, "name is not set");
-            Preconditions.checkArgument(configManager.getConfig().getDict(name) == null, "dict already exists");
+            Preconditions.checkNotNull(metaDict, "metaDict is not set");
+            Preconditions.checkArgument(configManager.getConfig().getDict(metaDict.getName()) == null, "dict already exists");
 
-            MetaDict metaDict = MetaDictGen.genMetaDict(name).build();
-            
-            
-            log.info("metaDictCreate [{},{}] -> ok", requestId, name);
-            return metaDict;
+            MetaDict newDict = configManager.getConfig().addDictNew(metaDict);
+            configManager.getConfig().postCheck();
+
+            log.info("metaDictCreate [{},{}] -> ok", requestId, metaDict.getName());
+            return newDict;
         } catch (Exception e) {
-            log.error("metaDictCreate [{},{}] -> error", requestId, name, e);
+            log.error("metaDictCreate [{},{}] -> error", requestId, metaDict.getName(), e);
             throw new NsiServiceException(e.getMessage());
         } finally {
             t.stop();
@@ -121,6 +127,8 @@ public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {
     public NsiConfig getConfig() {
         return configManager.getConfig();
     }
+
+
 
 
 }

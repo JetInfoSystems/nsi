@@ -40,12 +40,12 @@ public interface NsiMetaEditorService {
     MetaDict metaDictSet(String requestId, MetaDict metaDict, String relativePath);
 
     /**
-     * Создать новое описание справочника
+     * Создать новое описание справочника (оно не будет сохранено на диск! для сохранения нужно использовать set)
      * @param requestId - идентификатор запроса
-     * @param name - имя справочника
+     * @param metaDict - метаданные справочника
      * @return метаданные справочника (основная структура и предопределенные атрибуты и поля)
      */
-    MetaDict metaDictCreate(String requestId, String name);
+    MetaDict metaDictCreate(String requestId, MetaDict metaDict);
 
     /**
      * Получить конфигурацию метаданных

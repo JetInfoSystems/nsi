@@ -9,7 +9,11 @@ import jet.nsi.api.model.MetaDict;
 public interface NsiConfig {
     NsiConfigDict getDict(String name);
     MetaDict getMetaDict(String name);
-    
+
+    void addDict(MetaDict metaDict);
+    MetaDict addDictNew(MetaDict metaDict);
+    void postCheck();
+
     Path getMetaDictPath(String name);
     
     Collection<NsiConfigDict> getDicts();
