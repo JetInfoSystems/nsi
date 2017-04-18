@@ -190,8 +190,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                                 throw NsiExceptionBuilder.on()
                                         .requestId(requestId)
                                         .error(NsiError.CONSTRAINT_VIOLATION)
-                                        .message("Атрибут '%s' не прошел валидацию - значение '%s' не является логическим",
-                                                field.getName(), value)
+                                        .message("Атрибут '%s' не прошел валидацию - значение '%s' не является логическим; dictName [%s]",
+                                                field.getName(), value, dict.getName())
                                         .build();
                             break;
                         case NUMBER:
@@ -201,8 +201,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                                     throw NsiExceptionBuilder.on()
                                             .requestId(requestId)
                                             .error(NsiError.CONSTRAINT_VIOLATION)
-                                            .message("Атрибут '%s' не прошел валидацию - значение [%s] не является целым числом с максимальной длинной [%s]",
-                                                    field.getName(), value, field.getSize())
+                                            .message("Атрибут '%s' не прошел валидацию - значение [%s] не является целым числом с максимальной длинной [%s]; dictName [%s]",
+                                                    field.getName(), value, field.getSize(), dict.getName())
                                             .build();
                                 }
                             } else {
@@ -210,8 +210,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                                     throw NsiExceptionBuilder.on()
                                             .requestId(requestId)
                                             .error(NsiError.CONSTRAINT_VIOLATION)
-                                            .message("Атрибут '%s' не прошел валидацию - значение [%s] не является числом с максимальной длинной целой части [%s]",
-                                                    field.getName(), value, field.getSize() - field.getPrecision())
+                                            .message("Атрибут '%s' не прошел валидацию - значение [%s] не является числом с максимальной длинной целой части [%s]; dictName [%s]",
+                                                    field.getName(), value, field.getSize() - field.getPrecision(), dict.getName())
                                             .build();
                                 }
                             }
@@ -222,8 +222,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                                 throw NsiExceptionBuilder.on()
                                         .requestId(requestId)
                                         .error(NsiError.CONSTRAINT_VIOLATION)
-                                        .message("Атрибут '%s' не прошел валидацию - длина строки [%s] больше максимальной [%s]",
-                                                field.getName(), value.length(), field.getSize())
+                                        .message("Атрибут '%s' не прошел валидацию - длина строки [%s] больше максимальной [%s]; dictName [%s]",
+                                                field.getName(), value.length(), field.getSize(), dict.getName())
                                         .build();
                             }
                             break;
@@ -234,8 +234,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                                 throw NsiExceptionBuilder.on()
                                         .requestId(requestId)
                                         .error(NsiError.CONSTRAINT_VIOLATION)
-                                        .message("Атрибут '%s' не прошел валидацию - значение [%s] нельзя преобразовать в дату",
-                                                field.getName(), value)
+                                        .message("Атрибут '%s' не прошел валидацию - значение [%s] нельзя преобразовать в дату; dictName [%s]",
+                                                field.getName(), value, dict.getName())
                                         .build();
                             }
                         default:
@@ -248,8 +248,8 @@ public class NsiGenericServiceImpl implements NsiGenericService {
                         throw NsiExceptionBuilder.on()
                                 .requestId(requestId)
                                 .error(NsiError.CONSTRAINT_VIOLATION)
-                                .message("Атрибут '%s' не прошел валидацию - значение [%s] не является допустимым значением перечисления",
-                                        field.getName(), value)
+                                .message("Атрибут '%s' не прошел валидацию - значение [%s] не является допустимым значением перечисления; dictName [%s]",
+                                        field.getName(), value, dict.getName())
                                 .build();
                     }
                 }

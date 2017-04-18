@@ -2,6 +2,7 @@
 package jet.nsi.api.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public class MetaDict extends MetaDictRef {
     /**
      * Уникальное имя справочника.
      */
+    @Pattern(regexp = "^[a-zA-Z][a-zA-Z\\d_]*[a-zA-Z\\d]")
     protected String name;
 
     /**
@@ -28,6 +30,7 @@ public class MetaDict extends MetaDictRef {
     /**
      * Имя таблицы для хранения данных.
      */
+    @Pattern(regexp = "^[a-zA-Z][a-zA-Z\\d_]*[a-zA-Z\\d]")
     protected String table;
     /**
      * Название базы данных

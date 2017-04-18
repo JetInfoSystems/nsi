@@ -58,5 +58,7 @@ public interface PlatformSqlDao {
 
     String getForeignKeyViolationSqlState();
 
+    String getDuplicateKeyViolationSqlState();
+
     boolean useUUIDForId();
 }

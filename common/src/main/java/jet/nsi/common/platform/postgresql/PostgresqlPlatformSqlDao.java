@@ -27,6 +27,11 @@ public class PostgresqlPlatformSqlDao extends DefaultPlatformSqlDao {
     }
 
     @Override
+    public String getDuplicateKeyViolationSqlState() {
+        return "UNDEFINED_CODE";
+    }
+
+    @Override
     public String getForeignKeyViolationSqlState(){
         return "23503";
     }
