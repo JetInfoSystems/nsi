@@ -1,6 +1,8 @@
 
 package jet.nsi.api.model;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.util.Collection;
@@ -26,6 +28,7 @@ public class MetaDict extends MetaDictRef {
     /**
      * Заголовок справочника.
      */
+    @NotBlank
     protected String caption;
     /**
      * Имя таблицы для хранения данных.
