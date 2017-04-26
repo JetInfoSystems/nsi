@@ -23,8 +23,35 @@ public class NsiConfigParams {
     private String defaultLastUserName = "last_user";
     private MetaFieldType defaultLastUserType = MetaFieldType.VARCHAR;
     private int defaultLastUserSize = 255;
+    private String defaultOwnershipIdName = "ownership_id";
+    private MetaFieldType defaultOwnershipIdType = MetaFieldType.NUMBER;
+    private int defaultOwnershipIdSize = 19;
 
     private String defaultUserRef = "SYS_USERS";
+
+    public String getDefaultOwnershipIdName() {
+        return defaultOwnershipIdName;
+    }
+
+    public void setDefaultOwnershipIdName(String defaultOwnershipIdName) {
+        this.defaultOwnershipIdName = defaultOwnershipIdName;
+    }
+
+    public MetaFieldType getDefaultOwnershipIdType() {
+        return defaultOwnershipIdType;
+    }
+
+    public void setDefaultOwnershipIdType(MetaFieldType defaultOwnershipIdType) {
+        this.defaultOwnershipIdType = defaultOwnershipIdType;
+    }
+
+    public int getDefaultOwnershipIdSize() {
+        return defaultOwnershipIdSize;
+    }
+
+    public void setDefaultOwnershipIdSize(int defaultOwnershipIdSize) {
+        this.defaultOwnershipIdSize = defaultOwnershipIdSize;
+    }
 
     public String getDefaultUserRef() {
         return defaultUserRef;

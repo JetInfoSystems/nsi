@@ -31,6 +31,7 @@ public class NsiConfigDict {
     private NsiConfigAttr parentAttr;
     private NsiConfigAttr isGroupAttr;
     private NsiConfigAttr ownerAttr;
+    private NsiConfigAttr ownershipIdAttr;
     private NsiConfigAttr deleteMarkAttr;
     private NsiConfigAttr lastChangeAttr;
     private NsiConfigAttr lastUserAttr;
@@ -57,13 +58,15 @@ public class NsiConfigDict {
     private final NsiConfig config;
     public NsiConfigDict(@JsonProperty("name") String name, @JsonProperty("caption") String caption,
                          @JsonProperty("table") String table, @JsonProperty("databaseName") String databaseName,
-                         @JsonProperty("hidden") boolean hidden, @JsonProperty("mainDictName") String mainDictName,
+                         @JsonProperty("hidden") boolean hidden, @JsonProperty("ownershipId") NsiConfigAttr ownershipIdAttr,
+                         @JsonProperty("mainDictName") String mainDictName,
                          @JsonProperty("config") NsiConfig config) {
         this.name = name;
         this.caption = caption;
         this.table = table;
         this.databaseName = databaseName;
         this.hidden = hidden;
+        this.ownershipIdAttr = ownershipIdAttr;
         this.mainDictName = mainDictName;
         this.config = config;
     }
@@ -394,4 +397,11 @@ public class NsiConfigDict {
         return databaseName;
     }
 
+    public NsiConfigAttr getOwnershipIdAttr() {
+        return ownershipIdAttr;
+    }
+
+    public void setOwnershipIdAttr(NsiConfigAttr ownershipIdAttr) {
+        this.ownershipIdAttr = ownershipIdAttr;
+    }
 }

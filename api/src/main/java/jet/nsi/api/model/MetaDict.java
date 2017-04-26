@@ -40,6 +40,10 @@ public class MetaDict extends MetaDictRef {
      */
     protected String databaseName;
     /**
+     * Владелец записи
+     */
+    protected String ownershipId;
+    /**
      * Список полей таблицы.
      */
     @Valid
@@ -175,7 +179,32 @@ public class MetaDict extends MetaDictRef {
      * Автоматическое генерирование поля и атрибута для хранения ид пользователя сделавшего последнии изменения
      */
     protected boolean autoLastUserAttr = false;
-    
+
+    /**
+     * Автоматическое генерирование поля и атрибута для хранения ид пользователя сделавшего последнии изменения
+     */
+    protected boolean autoOwnershipId = true;
+
+    public String getOwnershipId() {
+        return ownershipId;
+    }
+
+    public void setOwnershipId(String ownershipId) {
+        this.ownershipId = ownershipId;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public boolean isAutoOwnershipId() {
+        return autoOwnershipId;
+    }
+
+    public void setAutoOwnershipId(boolean autoOwnershipId) {
+        this.autoOwnershipId = autoOwnershipId;
+    }
+
     public String getName() {
         return name;
     }

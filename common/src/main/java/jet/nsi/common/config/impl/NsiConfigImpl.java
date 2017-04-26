@@ -135,6 +135,16 @@ public class NsiConfigImpl implements NsiConfig {
         }
 
         // обрабатываем служебные атрибуты
+        if(metaDict.isAutoOwnershipId()) {
+            MetaField metaField = createAutoOwnershipIdMetaField();
+            addDictField(dict, metaField);
+            MetaAttr metaAttr = createAutoOwnershipIdAttr(metaField);
+            dict.setOwnershipIdAttr(addDictAttr(dict, metaAttr));
+        } else if(metaDict.getOwnershipId() != null) {
+            dict.setOwnershipIdAttr(checkAttrExists(dict, metaDict.getOwnershipId()));
+            dict.getOwnershipIdAttr().setReadonly(true);
+        }
+
         if(metaDict.isAutoIdAttr()) {
             MetaField metaField = createAutoIdField();
             addDictField(dict, metaField);
@@ -347,6 +357,25 @@ public class NsiConfigImpl implements NsiConfig {
         }
         NsiConfigAttr result = createAttr(dict, metaAttr);
         dict.addAttr(result);
+        return result;
+    }
+
+
+    private MetaAttr createAutoOwnershipIdAttr(MetaField metaField) {
+        MetaAttr result = new MetaAttr();
+        result.setName(params.getDefaultOwnershipIdName());
+        result.setCaption("Владелец записи");
+        result.setType(MetaAttrType.VALUE);
+        result.setFields(Arrays.asList(metaField.getName()));
+        result.setReadonly(true);
+        return result;
+    }
+
+    private MetaField createAutoOwnershipIdMetaField() {
+        MetaField result = new MetaField();
+        result.setName(params.getDefaultOwnershipIdName());
+        result.setSize(params.getDefaultOwnershipIdSize());
+        result.setType(params.getDefaultOwnershipIdType());
         return result;
     }
 
