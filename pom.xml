@@ -17,6 +17,8 @@
     </modules>
 
     <properties>
+        <org.projectlombok.version>1.16.12</org.projectlombok.version>
+
         <jet.metrics.version>1.0.0-SNAPSHOT</jet.metrics.version>
 
         <ch.qos.logback.version>1.0.9</ch.qos.logback.version>

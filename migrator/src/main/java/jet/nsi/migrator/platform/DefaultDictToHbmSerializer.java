@@ -44,6 +44,8 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
         try {
             Marshaller marchaler = context.createMarshaller();
             marchaler.marshal(buildHibernateMapping(dict), os);
+        } catch (IllegalStateException ex) {
+            throw new MigratorException("dict:"+dict.getName(), ex);
         } catch (JAXBException e) {
             throw new MigratorException("marchal",e);
         }
@@ -76,14 +78,18 @@ public class DefaultDictToHbmSerializer implements DictToHbmSerializer {
     protected JaxbHbmManyToOneType buildManyToOne(NsiConfigAttr attr) {
         JaxbHbmManyToOneType result = new JaxbHbmManyToOneType();
         result.setName(attr.getName());
-        result.setEntityName(getMainDict(attr.getRefDict()).getName());
+        result.setEntityName(getMainDict(attr).getName());
         for ( NsiConfigField field : attr.getFields()) {
             result.getColumnOrFormula().add(buildColumn(field));
         }
         return result;
     }
 
-    protected NsiConfigDict getMainDict(NsiConfigDict refDict) {
+    protected NsiConfigDict getMainDict(NsiConfigAttr attr) {
+        NsiConfigDict refDict = attr.getRefDict();
+        if(refDict==null){
+            throw new IllegalStateException("Empty refDict for attr:"+attr.getName());
+        }
         return refDict.getMainDict() != null ? refDict.getMainDict() : refDict;
     }
 

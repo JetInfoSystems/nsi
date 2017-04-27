@@ -1,6 +1,9 @@
 package jet.nsi.api.model;
 
 import jet.nsi.api.validator.NotNullIfAnotherFieldHasValue;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,6 +12,9 @@ import java.util.List;
  * Описание атрибута справочника.
  */
 @NotNullIfAnotherFieldHasValue(fieldName = "type", fieldValue = "REF", dependFieldName = "refDict")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MetaAttr implements Serializable {
     private static final long serialVersionUID = 1L;
 
