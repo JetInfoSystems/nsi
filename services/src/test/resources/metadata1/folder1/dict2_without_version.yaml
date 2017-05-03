@@ -51,3 +51,4 @@ table: table2
 tableObjectAttrs: [f1]
 interceptors: [interceptor]
 autoVersion: false
+autoOwnershipId: false

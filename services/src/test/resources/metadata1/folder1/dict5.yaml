@@ -46,3 +46,4 @@ name: dict5
 refObjectAttrs: [f1]
 table: table5
 tableObjectAttrs: [f1]
+autoOwnershipId: false

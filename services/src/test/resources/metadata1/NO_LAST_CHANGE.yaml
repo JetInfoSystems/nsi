@@ -14,3 +14,4 @@ name: NO_LAST_CHANGE
 refObjectAttrs: []
 table: NO_LAST_CHANGE1
 tableObjectAttrs: [ID]
+autoOwnershipId: false

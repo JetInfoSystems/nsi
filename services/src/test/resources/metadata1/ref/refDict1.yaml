@@ -36,10 +36,6 @@ attrs:
   fields: [ORG_ROLE_ID]
   name: ORG_ROLE_ID
   type: value
-- caption: V
-  fields: [V]
-  name: V
-  type: value
 caption: Справочник1
 captionAttrs: [f1]
 deleteMarkAttr: is_deleted
@@ -51,16 +47,23 @@ fields:
 - {name: f1, size: 100, type: varchar}
 - {name: ORG_ID, size: 19, type: number}
 - {name: ORG_ROLE_ID, size: 19, type: number}
-- {name: V, size: 19, type: number}
 hidden: true
 idAttr: id
 lastChangeAttr: last_change
 lastUserAttr: last_user
-mainDict: dict1
-name: dict1_v
+name: refDict1
 refObjectAttrs: [f1]
+loadDataAttrs: [id]
 sourceQueries:
-  MAIN:
-    sql: select table1.*, 123 v from table1
-tableObjectAttrs: [V]
-autoOwnershipId: false
+  TEST1:
+    sql: select f1 from table1
+  TEST2:
+    sql: select f1 from table1 where f1 <> ?
+owns:
+  ORG:
+    attr: ORG_ID
+  ORG_ROLE:
+    attr: ORG_ROLE_ID
+table: table1
+tableObjectAttrs: [f1]
+interceptors: [interceptor]

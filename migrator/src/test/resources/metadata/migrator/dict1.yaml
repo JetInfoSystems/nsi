@@ -21,3 +21,4 @@ name: dict1
 refObjectAttrs: [f1]
 table: table1
 tableObjectAttrs: [f1]
+autoOwnershipId: false

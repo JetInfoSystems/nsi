@@ -95,9 +95,9 @@ public class SqlGenTest extends BaseServiceSqlTest {
         BoolExp filter = buildIdFilter(dict, "id");
         String sql = sqlGen.getRowGetSql(query, filter);
         Assert.assertEquals(
-                "select m.dict1_a_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.version "
+                "select m.dict1_id, a1.f1 a1_f1, m.dict1_id, a2.f1 a2_f1, m.f1, m.id, m.is_deleted, m.last_change, m.last_user, m.version "
                         + "from table3 m "
-                        + "left outer join table1 a1 on m.dict1_a_id = a1.id "
+                        + "left outer join table1 a1 on m.dict1_id = a1.id "
                         + "left outer join table1 a2 on m.dict1_id = a2.id "
                         + "where m.id = ?", sql);
     }

@@ -100,6 +100,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             config.addDict(metaDict);
             config.savePath(metaDict.getName(), configFile.toPath());
         }
+        config.setRelationsAndDefaults();
         config.postCheck();
         return config;
     }
@@ -137,6 +138,7 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
         Path tmpPath = getTmpPath();
         Path metaDictTempFilePath = getCreatePathAndFile(tmpPath, metaDict.getName());
 
+
         checkAndWriteTempFile(metaDict, metaDictTempFilePath, curMetaDict, curPath);
 
         Path targetPath = configPath.toPath().resolve(relativePath).resolve(getDictFileName(metaDict.getName()));
@@ -166,19 +168,20 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
     }
 
     private void checkAndWriteTempFile(MetaDict metaDict, Path metaDictFilePath, MetaDict oldMetaDict, Path oldMetaDictFilePath) {
-            try (OutputStreamWriter newFileWriter = new OutputStreamWriter(new FileOutputStream(metaDictFilePath.toFile()),
-                    StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter newFileWriter = new OutputStreamWriter(new FileOutputStream(metaDictFilePath.toFile()),
+                StandardCharsets.UTF_8)) {
             // Записываем промежуточную копию на диск
             writer.write(metaDict, newFileWriter);
 
             // Добавляем/обновляем метаданные в памяти, также выполняется проверка при добавлении
+            config.setRelationsAndDefaults();
             config.updateDict(metaDict);
             config.postCheck();
 
             // Читаем записанное в файл для проверки корректности записи
             readConfigFile(metaDictFilePath.toFile());
             log.debug("checkAndWriteTempFile [{}] -> ok", metaDict.getName());
-        } catch(Exception e) {
+        } catch (Exception e) {
             // В случае любых проблем, удаляем из памяти,
             // но файл во временной директории можем оставить для разбора проблемы
             log.error("checkAndWriteTempFile [{}] -> error", metaDict.getName(), e);

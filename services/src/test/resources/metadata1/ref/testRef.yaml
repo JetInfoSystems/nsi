@@ -1,0 +1,104 @@
+attrs:
+- caption: f 1
+  fields:
+  - f1
+  hidden: false
+  name: f1
+  persist: true
+  refAttrHidden: false
+  required: false
+  type: value
+- caption: dict 1
+  fields: []
+  hidden: false
+  name: refDict1_id
+  persist: true
+  refAttrHidden: false
+  refDict: refDict1
+  required: true
+  type: ref
+- caption: id
+  fields:
+  - id
+  hidden: false
+  name: id
+  persist: true
+  refAttrHidden: false
+  required: false
+  type: value
+- caption: last change
+  fields:
+  - last_change
+  hidden: true
+  name: last_change
+  persist: true
+  refAttrHidden: false
+  required: false
+  type: value
+- caption: is_deleted
+  fields:
+  - is_deleted
+  hidden: false
+  name: is_deleted
+  persist: true
+  refAttrHidden: false
+  required: false
+  type: value
+- caption: last_user
+  fields:
+  - last_user
+  hidden: false
+  name: last_user
+  persist: true
+  refAttrHidden: false
+  required: false
+  type: value
+autoDeleteMarkAttr: false
+autoIdAttr: false
+autoIsGroupAttr: false
+autoLastChangeAttr: false
+autoLastUserAttr: false
+autoOwnershipId: true
+autoParentAttr: false
+autoVersion: true
+caption: Справочник2
+captionAttrs:
+- f1
+deleteMarkAttr: is_deleted
+fields:
+- enableFts: false
+  name: id
+  precision: 0
+  size: 19
+  type: number
+- enableFts: false
+  name: is_deleted
+  precision: 0
+  size: 1
+  type: boolean
+- enableFts: false
+  name: last_change
+  precision: 0
+  size: 0
+  type: date-time
+- enableFts: false
+  name: last_user
+  precision: 0
+  size: 19
+  type: number
+- enableFts: false
+  name: f1
+  precision: 0
+  size: 100
+  type: varchar
+idAttr: id
+interceptors:
+- interceptor
+lastChangeAttr: last_change
+lastUserAttr: last_user
+name: testRef
+refObjectAttrs:
+- f1
+table: testRefTable
+tableObjectAttrs:
+- f1

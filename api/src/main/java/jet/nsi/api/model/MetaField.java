@@ -1,6 +1,9 @@
 package jet.nsi.api.model;
 
 import jet.nsi.api.validator.SizeAndPrecisionConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -14,6 +17,9 @@ import java.util.Map;
         @SizeAndPrecisionConstraint(dataType = MetaFieldType.DATE_TIME),
         @SizeAndPrecisionConstraint(dataType = MetaFieldType.CLOB)
 })
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class MetaField implements Serializable {
     private static final long serialVersionUID = 1L;
 

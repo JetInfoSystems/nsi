@@ -23,3 +23,4 @@ name: dict2
 refObjectAttrs: [name]
 table: table2
 tableObjectAttrs: [dict1]
+autoOwnershipId: false

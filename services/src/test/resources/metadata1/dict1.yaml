@@ -67,3 +67,4 @@ owns:
 table: table1
 tableObjectAttrs: [f1]
 interceptors: [interceptor]
+autoOwnershipId: false

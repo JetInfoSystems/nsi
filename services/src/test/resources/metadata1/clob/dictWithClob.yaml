@@ -44,4 +44,5 @@ name: dictWithClob
 refObjectAttrs: [clobAttr]
 table: tableWithClob
 tableObjectAttrs: [clobAttr]
+autoOwnershipId: false
 

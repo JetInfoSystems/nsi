@@ -66,8 +66,8 @@ public class PhoenixMigratorTest extends BaseMigratorSqlTest {
 
             List<String> actions = rec.getActions();
             Assert.assertEquals(2, actions.size());
-            Assert.assertEquals("create table table1 (id bigint not null, f1 varchar(100), is_deleted boolean, last_change date, last_user bigint, VERSION bigint, constraint pk primary key (id))", actions.get(0));
-            Assert.assertEquals("create table table2 (id bigint not null, dict1_id bigint, is_deleted boolean, last_change date, last_user bigint, name char(100), VERSION bigint, constraint pk primary key (id))", actions.get(1));
+            Assert.assertEquals("create table table1 (id bigint not null, f1 varchar(100), is_deleted boolean, last_change date, last_user bigint, version bigint, constraint pk primary key (id))", actions.get(0));
+            Assert.assertEquals("create table table2 (id bigint not null, dict1_id bigint, is_deleted boolean, last_change date, last_user bigint, name char(100), version bigint, constraint pk primary key (id))", actions.get(1));
         }
 
 

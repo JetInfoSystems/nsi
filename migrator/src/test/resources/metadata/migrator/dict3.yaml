@@ -25,3 +25,4 @@ sourceQueries:
   main:
     sql: select * from table2
 tableObjectAttrs: [dict1]
+autoOwnershipId: false

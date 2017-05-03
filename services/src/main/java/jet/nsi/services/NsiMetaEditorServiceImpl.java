@@ -22,7 +22,6 @@ import jet.nsi.api.NsiMetaEditorService;
 import jet.nsi.api.NsiServiceException;
 import jet.nsi.api.data.NsiConfig;
 import jet.nsi.api.model.MetaDict;
-import jet.nsi.common.helper.MetaDictGen;
 
 @MetricsDomain(name = "nsiMetaService")
 public class NsiMetaEditorServiceImpl implements NsiMetaEditorService {

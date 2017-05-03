@@ -103,21 +103,23 @@ public class NsiLocalGitConfigManagerImplTest {
 
         MetaDict o1 = DataGen.genMetaDict("writeDictForReload", "writeTestTableForReload").build();
         String fileName = o1.getName().concat(".yaml");
-        File newFile = new File(testConfigPath, fileName);
-        try (FileWriter newFileWriter = new FileWriter(newFile)) {
-            NsiMetaDictWriter writer = new NsiYamlMetaDictWriterImpl();
-            writer.write(o1, newFileWriter);
+        try {
+            File newFile = new File(testConfigPath, fileName);
+            try (FileWriter newFileWriter = new FileWriter(newFile)) {
+                NsiMetaDictWriter writer = new NsiYamlMetaDictWriterImpl();
+                writer.write(o1, newFileWriter);
+            }
+
+            NsiConfig reloadedConfig = configManager.reloadConfig();
+            NsiConfig newConfig = configManager.getConfig();
+
+            Assert.assertNotNull(reloadedConfig);
+            Assert.assertNotNull(newConfig);
+            Assert.assertEquals(reloadedConfig, newConfig);
+            Assert.assertEquals(beforeSize + 1, configManager.getConfig().getDicts().size());
+        } finally {
+            Files.deleteIfExists(Paths.get(testConfigPath, fileName));
         }
-
-        NsiConfig reloadedConfig = configManager.reloadConfig();
-        NsiConfig newConfig = configManager.getConfig();
-
-        Assert.assertNotNull(reloadedConfig);
-        Assert.assertNotNull(newConfig);
-        Assert.assertEquals(reloadedConfig, newConfig);
-        Assert.assertEquals(beforeSize + 1, configManager.getConfig().getDicts().size());
-
-        Files.deleteIfExists(Paths.get(testConfigPath, fileName));
     }
 
     @Test
@@ -249,6 +251,15 @@ public class NsiLocalGitConfigManagerImplTest {
             Files.delete(Paths.get(configPath, "a"));
         }
 
+    }
+
+    @Test
+    public void testCreateRefConfig() throws IOException {
+        String configPath = "src/test/resources/metadata1/ref";
+        NsiLocalGitConfigManagerImpl configManager = buildConfigManager(configPath);
+        configManager.readConfig();
+        MetaDict o3 = configManager.getConfig().getMetaDict("testRef");
+        configManager.createOrUpdateConfig(o3);
     }
 
     private NsiLocalGitConfigManagerImpl buildConfigManager(String configPath) {

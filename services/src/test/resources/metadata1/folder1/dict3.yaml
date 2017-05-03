@@ -60,3 +60,4 @@ refObjectAttrs: [f1]
 table: table3
 tableObjectAttrs: [f1]
 interceptors: [interceptor]
+autoOwnershipId: false
