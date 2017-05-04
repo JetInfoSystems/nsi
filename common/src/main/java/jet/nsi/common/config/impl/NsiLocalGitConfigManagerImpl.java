@@ -174,8 +174,8 @@ public class NsiLocalGitConfigManagerImpl implements NsiConfigManager {
             writer.write(metaDict, newFileWriter);
 
             // Добавляем/обновляем метаданные в памяти, также выполняется проверка при добавлении
-            config.setRelationsAndDefaults();
             config.updateDict(metaDict);
+            config.setRelationsAndDefaults();
             config.postCheck();
 
             // Читаем записанное в файл для проверки корректности записи

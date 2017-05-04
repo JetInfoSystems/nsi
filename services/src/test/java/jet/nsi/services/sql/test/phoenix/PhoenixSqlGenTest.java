@@ -50,8 +50,8 @@ public class PhoenixSqlGenTest extends BaseServiceSqlTest {
 
         String sql = phSqlGen.getRowInsertSql(query, false);
         Assert.assertEquals(
-                "UPSERT INTO table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID, ownership_id, version) "
-                        + "values (?,?,?,?,?,?,?,?,?)", sql);
+                "UPSERT INTO table1 (f1, id, is_deleted, last_change, last_user, ORG_ID, ORG_ROLE_ID, version) "
+                        + "values (?,?,?,?,?,?,?,?)", sql);
 
     }
 
@@ -63,7 +63,7 @@ public class PhoenixSqlGenTest extends BaseServiceSqlTest {
         BoolExp filter = buildIdFilter(dict, "id");
         String sql = phSqlGen.getRowUpdateSql(query, filter);
         Assert.assertEquals(
-                "UPSERT INTO table2 (dict1_id, f1, id, is_deleted, last_change, last_user, ownership_id, version) values (?,?,?,?,?,?,?,?)", sql);
+                "UPSERT INTO table2 (dict1_id, f1, id, is_deleted, last_change, last_user, version) values (?,?,?,?,?,?,?)", sql);
     }
 
 

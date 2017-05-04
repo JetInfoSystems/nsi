@@ -246,7 +246,16 @@ public class NsiConfigImpl implements NsiConfig {
     @Override
     public MetaDict addDictNew(MetaDict metaDict) {
         addDict(metaDict);
-        NsiConfigDict dict = dictMap.get(metaDict.getName());
+        metaDictMap.put(metaDict.getName(), metaDict);
+        setRelationsAndDefaults();
+//        NsiConfigDict dict = dictMap.get(metaDict.getName());
+//        synchronizeMetaDict(metaDict.getName());
+        return metaDict;
+    }
+
+    private void synchronizeMetaDict(String dictName){
+        NsiConfigDict dict = dictMap.get(dictName);
+        MetaDict metaDict = metaDictMap.get(dictName);
 
         //Приводим списки атрибутов и полей в dict и metaDict к одному виду
         for (NsiConfigField field : dict.getFields()) {
@@ -269,11 +278,7 @@ public class NsiConfigImpl implements NsiConfig {
         if (dict.getDeleteMarkAttr()!=null) metaDict.setDeleteMarkAttr(dict.getDeleteMarkAttr().getName());
         if (dict.getVersionAttr()!=null) metaDict.setVersionAttr(dict.getVersionAttr().getName());
         if (dict.getOwnerAttr()!=null) metaDict.setOwnerAttr(dict.getOwnerAttr().getName());
-
-        metaDictMap.put(metaDict.getName(), metaDict);
-        return metaDict;
     }
-
     private MetaAttr createMetaAttr (NsiConfigAttr dictAttr) {
         if (dictAttr==null) return null;
 
@@ -316,6 +321,7 @@ public class NsiConfigImpl implements NsiConfig {
         setMainDict();
         for (NsiConfigDict dict : dictMap.values()) {
             setSystemValues(dict);
+            synchronizeMetaDict(dict.getName());
         }
     }
 
@@ -582,7 +588,7 @@ public class NsiConfigImpl implements NsiConfig {
         NsiConfigAttr attr = new NsiConfigAttr(metaAttr);
         preCheckAttr(dict, attr);
         Set<String> fieldSet = new HashSet<>(metaAttr.getFields());
-//        if (fieldSet.size() == 0 && metaAttr.isPersist()) {//todo проверяется в  jet.nsi.common.config.impl.NsiConfigImpl#postCheckpostCheck()
+//        if (fieldSet.size() == 0 && metaAttr.isPersist()) {//todo проверяется в  jet.nsi.common.config.impl.NsiConfigImpl#postCheck()
 //            throwDictException(dict, "fields not set. Please add field or unset persist", metaAttr.getName());
 //        }
 //        if(fieldSet.size() != metaAttr.getFields().size()) {
@@ -771,23 +777,45 @@ public class NsiConfigImpl implements NsiConfig {
         }
         String refFieldBaseName = idDict.getName() + "_" + idAttr.getName();
 
-        if(idAttr.getFields().size()==1){
-            MetaField refMetaField = configToMetaField(idAttr.getFields().get(0));
-            refMetaField.setName(refFieldBaseName);
-            NsiConfigField refField = new NsiConfigField(refMetaField);
-            refAttr.setFields(Collections.singletonList(refField));
-        }else {
-            int i = 1;
-            List<NsiConfigField> fields = new ArrayList<>();
-            for(NsiConfigField field:idAttr.getFields()){
-                MetaField refMetaField = configToMetaField(field);
-                refMetaField.setName(refFieldBaseName+"_"+i);
-                fields.add(new NsiConfigField(refMetaField));
+        if(refAttr.getFields().isEmpty()||!isFieldsMatch(dict, refAttr, idAttr)){
+            if (idAttr.getFields().size() == 1) {
+                MetaField refMetaField = configToMetaField(idAttr.getFields().get(0));
+                refMetaField.setName(refFieldBaseName);
+                NsiConfigField refField = new NsiConfigField(refMetaField);
+                refAttr.setFields(Collections.singletonList(refField));
+                dict.addField(refField);
+            } else {
+                int i = 1;
+                List<NsiConfigField> fields = new ArrayList<>();
+                for (NsiConfigField field : idAttr.getFields()) {
+                    MetaField refMetaField = configToMetaField(field);
+                    refMetaField.setName(refFieldBaseName + "_" + i);
+
+                    NsiConfigField refField = new NsiConfigField(refMetaField);
+                    dict.addField(refField);
+                    fields.add(refField);
+                }
+                refAttr.setFields(fields);
             }
-            refAttr.setFields(fields);
         }
     }
 
+    private boolean isFieldsMatch(NsiConfigDict dict, NsiConfigAttr refAttr, NsiConfigAttr idAttr){
+        try {
+            if (refAttr.getFields().size() != idAttr.getFields().size()) {
+                throwDictException(dict, "ref attr fields count not match id attr fields", refAttr.getName());
+            }
+
+            for (int i = 0; i < refAttr.getFields().size(); i++) {
+                NsiConfigField refField = refAttr.getFields().get(i);
+                NsiConfigField idField = idAttr.getFields().get(i);
+                checkFieldsMatch(dict, refAttr.getName(), refField, idField);
+            }
+            return true;
+        }catch (NsiConfigException ex){
+            return false;
+        }
+    }
     private MetaField configToMetaField(NsiConfigField sourceField) {
         MetaField metaField = MetaField.builder()
                 .name(sourceField.getName())
