@@ -1,10 +1,13 @@
 package jet.nsi.api.model;
 
+import jet.nsi.api.validator.FilterValueConstraint;
+
 import java.io.Serializable;
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlElement;
-
+@FilterValueConstraint
 public class BoolExp implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -20,6 +23,8 @@ public class BoolExp implements Serializable {
      * Значение параметра, используется для обычных предикаторв.
      */
     private DictRowAttr value;
+
+    @Valid
     @XmlElement(name="expList")
     private List<BoolExp> expList;
     public String getKey() {
