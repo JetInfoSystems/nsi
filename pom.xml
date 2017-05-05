@@ -336,13 +336,13 @@
     
     <distributionManagement>
         <repository>
-            <id>nexus-jet</id>
-            <name>jet-releases</name>
+            <id>nexus-afs</id>
+            <name>afs-releases</name>
             <url>http://nexus.lpr.jet.msk.su:8081/nexus/content/repositories/afs-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>nexus-jet</id>
-            <name>jet-snapshots</name>
+            <id>nexus-afs</id>
+            <name>afs-snapshots</name>
             <url>http://nexus.lpr.jet.msk.su:8081/nexus/content/repositories/afs-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
