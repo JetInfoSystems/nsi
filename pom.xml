@@ -17,6 +17,8 @@
     </modules>
 
     <properties>
+        <afs-common.version>1.0.0-SNAPSHOT</afs-common.version>
+
         <org.projectlombok.version>1.16.12</org.projectlombok.version>
 
         <jet.metrics.version>1.0.0-SNAPSHOT</jet.metrics.version>

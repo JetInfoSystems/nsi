@@ -1,5 +1,6 @@
 package jet.nsi.api.model;
 
+import jet.nsi.api.validator.ReservedWordsConstraint;
 import jet.nsi.api.validator.SizeAndPrecisionConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,7 @@ public class MetaField implements Serializable {
      * Уникальное имя поля в таблице.
      */
     @NotBlank
+    @ReservedWordsConstraint
     private String name;
     /**
      * Тип поля: string | number | date-time | boolean.
