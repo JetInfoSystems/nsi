@@ -33,10 +33,7 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
             final String dependFieldValue = BeanUtils.getProperty(value, dependFieldName);
 
             if (expectedFieldValue.equals(fieldValue) && dependFieldValue == null) {
-                ctx.disableDefaultConstraintViolation();
-                ctx.buildConstraintViolationWithTemplate(ctx.getDefaultConstraintMessageTemplate())
-                        .addNode(dependFieldName)
-                        .addConstraintViolation();
+                setMessage(ctx, "notNullConditionally." + dependFieldName + "." + fieldName + "." + expectedFieldValue);
                 return false;
             }
 
@@ -45,6 +42,11 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
             throw new RuntimeException(ex);
         }
         return true;
+    }
+
+    private void setMessage(ConstraintValidatorContext context, String message) { //todo в UTIL?
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
     }
 
 }

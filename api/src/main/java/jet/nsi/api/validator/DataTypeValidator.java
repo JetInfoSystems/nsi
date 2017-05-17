@@ -26,10 +26,12 @@ public class DataTypeValidator implements ConstraintValidator<SizeAndPrecisionCo
 
         switch (value.getType()) {
             case BOOLEAN: {
+                setMessage(context, "invalidSizeOrPrecision."+value.getName());
                 return value.getSize() == 1 && isNullOrZero(value.getPrecision());
             }
             case DATE_TIME:
             case CLOB: {
+                setMessage(context, "invalidSizeOrPrecision."+value.getName());
                 return isNullOrZero(value.getPrecision()) && isNullOrZero(value.getSize());
             }
             default: {
@@ -41,5 +43,10 @@ public class DataTypeValidator implements ConstraintValidator<SizeAndPrecisionCo
 
     private boolean isNullOrZero(Integer value) {
         return value == null || value == 0;
+
+    }
+    private void setMessage(ConstraintValidatorContext context, String message) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
     }
 }
